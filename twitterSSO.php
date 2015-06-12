@@ -1,0 +1,101 @@
+<?php
+
+require_once("../../config.php");
+require_once($CFG->dirroot . '/mod/lti/OAuth.php');
+require_once('locallib.php');
+global $CFG;
+$id = required_param('id', PARAM_INT); // tcount module instance
+$action = optional_param('action', false, PARAM_ALPHA);
+$cm = get_coursemodule_from_id('tcount', $id);
+$course = get_course($cm->course);
+require_login($course);
+$consumer_key = $CFG->mod_tcount_consumer_key;
+$consumer_secret = $CFG->mod_tcount_consumer_secret;
+
+$oauth_request_token = "https://twitter.com/oauth/request_token";
+$oauth_authorize = "https://twitter.com/oauth/authorize";
+$oauth_access_token = "https://twitter.com/oauth/access_token";
+
+$moodleurl = new moodle_url("/mod/tcount/twitterSSO.php", array('id' => $id, 'action' => 'callback'));
+$callback_url = (string) $moodleurl;
+$context = context_module::instance($id);
+if (has_capability('mod/tcount:manage', $context)) {
+    if ($action == 'callback') { // twitter callback
+        $sig_method = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1();
+        $test_consumer = new \moodle\mod\lti\OAuthConsumer($consumer_key, $consumer_secret, $callback_url);
+        $params = array();
+        $acc_token = new \moodle\mod\lti\OAuthConsumer($_SESSION['oauth_token'], $_SESSION['oauth_token_secret'], 1);
+        $acc_req = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($test_consumer, $acc_token, "GET", $oauth_access_token);
+        $acc_req->sign_request($sig_method, $test_consumer, $acc_token);
+
+        $oc = new OAuthCurl();
+        $reqData = $oc->fetchData("{$acc_req}&oauth_verifier={$_GET['oauth_verifier']}");
+
+        parse_str($reqData['content'], $accOAuthData);
+
+        /**
+         * Save tokens for future use
+         */
+        $record = $DB->get_record('tcount_tokens', array("tcount_id" => $id));
+        if ($record) {
+            $DB->delete_records('tcount_tokens',array('id'=>$record->id));
+        }
+        $record = new stdClass();
+        $record->tcount_id = $id;
+        $record->token = $accOAuthData['oauth_token'];
+        $record->token_secret = $accOAuthData['oauth_token_secret'];
+        $record->username = $accOAuthData['screen_name'];
+        $DB->insert_record('tcount_tokens', $record);
+
+        // show headings and menus of page
+        $url = new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id));
+        $PAGE->set_url($url);
+        $PAGE->set_title(format_string($cm->name));
+//        $PAGE->set_context($context);
+        $PAGE->set_heading($course->fullname);
+// Print the page header --------------------------------------------    
+        echo $OUTPUT->header();
+        echo $OUTPUT->box("Configured user $record->username ");
+        echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $id)));
+        echo $OUTPUT->footer();
+    } else if ($action == 'connect') {
+
+        $sig_method = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1;
+        $test_consumer = new \moodle\mod\lti\OAuthConsumer($consumer_key, $consumer_secret, $callback_url);
+
+        $req_req = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($test_consumer, NULL, "GET", $oauth_request_token, array('oauth_callback' => $callback_url));
+        $req_req->sign_request($sig_method, $test_consumer, NULL);
+
+        $oc = new OAuthCurl();
+        $reqData = $oc->fetchData($req_req->to_url());
+
+        parse_str($reqData['content'], $reqOAuthData);
+
+        $req_token = new \moodle\mod\lti\OAuthConsumer($reqOAuthData['oauth_token'], $reqOAuthData['oauth_token_secret'], 1);
+
+        $acc_req = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($test_consumer, $req_token, "GET", $oauth_authorize, array('oauth_callback' => $callback_url));
+        $acc_req->sign_request($sig_method, $test_consumer, $req_token);
+
+        $_SESSION['oauth_token'] = $reqOAuthData['oauth_token'];
+        $_SESSION['oauth_token_secret'] = $reqOAuthData['oauth_token_secret'];
+
+        Header("Location: $acc_req");
+    } else if ($action == 'disconnect') {
+        $DB->delete_records('tcount_tokens', array('tcount_id' => $id));
+        // show headings and menus of page
+        $url = new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id));
+        $PAGE->set_url($url);
+        $PAGE->set_title(format_string($cm->name));
+//        $PAGE->set_context($context);
+        $PAGE->set_heading($course->fullname);
+// Print the page header --------------------------------------------    
+        echo $OUTPUT->header();
+        echo $OUTPUT->box("Module disconnected from twitter. It won't work until an twitter account is configured. ");
+        echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $id)));
+        echo $OUTPUT->footer();
+    } else {
+        print_error("Bad action code");
+    }
+} else {
+    print_error('noaccess');
+}
