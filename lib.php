@@ -1,6 +1,6 @@
 <?php
 
-/* * *******************************************************************************
+/*****************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro with the effort of many other
  * students of telecommunication engineering of Valladolid
@@ -32,18 +32,18 @@
 
 
 require_once($CFG->dirroot . "/config.php");
-require_once ($CFG->dirroot . '/grade/lib.php');
-require_once ($CFG->dirroot . '/grade/querylib.php');
-require_once ('locallib.php');
+require_once($CFG->dirroot . '/grade/lib.php');
+require_once($CFG->dirroot . '/grade/querylib.php');
+require_once('locallib.php');
 
 
 
-/////////////////////////////////////////////////////////////////////////////////
-/////                          Constants                                    /////
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-/////                          Low-level functions                          /////
-/////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+////                          Constants                                    ////
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+////                          Low-level functions                          ////
+//////////////////////////////////////////////////////
 
 /**
  * Indicates API features that the twitter module supports.

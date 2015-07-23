@@ -9,8 +9,8 @@
 namespace mod_tcount\task;
 
 global $CFG;
-require_once ($CFG->dirroot . '/mod/tcount/lib.php');
-require_once ($CFG->dirroot . '/mod/tcount/locallib.php');
+require_once($CFG->dirroot . '/mod/tcount/lib.php');
+require_once($CFG->dirroot . '/mod/tcount/locallib.php');
 
 class harvest_tweets extends \core\task\scheduled_task {
 

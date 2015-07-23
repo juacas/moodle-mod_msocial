@@ -1,10 +1,9 @@
 <?php
-
 require_once('TwitterAPIExchange.php');
 require_once($CFG->libdir . '/gradelib.php');
-require_once($CFG->libdir.'/mathslib.php');
+require_once($CFG->libdir . '/mathslib.php');
 
-//require_once ($CFG->dirroot . '/grade/lib.php');
+//require_once($CFG->dirroot . '/grade/lib.php');
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -72,10 +71,10 @@ function tcount_store_status($status, $cm, $userrecord) {
 }
 
 function tcount_find_tweeter($tokens, $hashtag) {
-if (!$tokens){
-	return array();
-}
-global $CFG;
+    if (!$tokens) {
+        return array();
+    }
+    global $CFG;
     $settings = array(
         'oauth_access_token' => $tokens->token,
         'oauth_access_token_secret' => $tokens->token_secret,
@@ -133,7 +132,7 @@ function eduvalab_get_users_by_type($context_course) {
 }
 
 /**
- * 
+ *
  * @param int $date
  * @param int|null $fromdate
  * @param int|null $todate
@@ -156,14 +155,14 @@ function eduvalab_timeIsBetween($date, $fromdate, $todate) {
 class OAuthCurl {
 
     public function __construct() {
-        
+
     }
 
     public static function fetchData($url) {
         $options = array(
-            CURLOPT_RETURNTRANSFER => true, // return web page 
-            CURLOPT_HEADER => false, // don't return headers 
-            CURLOPT_FOLLOWLOCATION => true, // follow redirects 
+            CURLOPT_RETURNTRANSFER => true, // return web page
+            CURLOPT_HEADER => false, // don't return headers
+            CURLOPT_FOLLOWLOCATION => true, // follow redirects
             CURLOPT_SSL_VERIFYPEER => false,
         );
 
@@ -190,21 +189,22 @@ class OAuthCurl {
  */
 function tcount_calculate_stats($tcount, $users) {
     global $DB;
-    $stats = $DB->get_records_sql('SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs,twitterusername FROM {tcount_statuses} where tcountid = ? group by userid', array($tcount->id));
+    $stats = $DB->get_records_sql('SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs,twitterusername FROM {tcount_statuses} where tcountid = ? group by userid, twitterusername',
+            array($tcount->id));
     $user_stats = new stdClass();
-    $user_stats->users=array();
-    
-    $favs=array();
-    $retweets=array();
-    $tweets=array();
+    $user_stats->users = array();
+
+    $favs = array();
+    $retweets = array();
+    $tweets = array();
     foreach ($users as $userid) {
         $stat = new stdClass();
 
         if (isset($stats[$userid])) {
-            $tweets[]=$stat->tweets = $stats[$userid]->tweets;
-            $retweets[]=$stat->retweets = $stats[$userid]->retweets;
-            $favs[]=$stat->favs = $stats[$userid]->favs;
-           
+            $tweets[] = $stat->tweets = $stats[$userid]->tweets;
+            $retweets[] = $stat->retweets = $stats[$userid]->retweets;
+            $favs[] = $stat->favs = $stats[$userid]->favs;
+
             $stat->tweeter = $stats[$userid]->twitterusername;
         } else {
             $stat->retweets = 0;
@@ -215,36 +215,35 @@ function tcount_calculate_stats($tcount, $users) {
         }
         $user_stats->users[$userid] = $stat;
     }
-    $stat=new stdClass();
+    $stat = new stdClass();
     $stat->retweets = 0;
-            $stat->tweets = max($tweets);
-            $stat->favs = max($favs);
-            $stat->retweets = max($retweets);
-    $user_stats->maximums=$stat;
-    
+    $stat->tweets = count($tweets) == 0 ? 0 : max($tweets);
+    $stat->favs = count($favs) == 0 ? 0 : max($favs);
+    $stat->retweets = count($retweets) == 0 ? 0 : max($retweets);
+    $user_stats->maximums = $stat;
+
     return $user_stats;
 }
 
-function tcount_calculate_grades($tcount,$stats) {
+function tcount_calculate_grades($tcount, $stats) {
     $grades = array();
     foreach ($stats->users as $userid => $stat) {
         $grade = new stdClass();
         $grade->userid = $userid;
-        $grade->itemname='twitterscore';
-        
+        $grade->itemname = 'twitterscore';
+
         $formula = $tcount->grade_expr;
         $formula = calc_formula::unlocalize($formula);
         $calculation = new calc_formula($formula);
-        $calculation->set_params(array('favs'=>$stat->favs,
-                                        'retweets'=>$stat->retweets,
-                                        'tweets'=>$stat->tweets,
-                                        'maxfavs'=>$stats->maximums->favs,
-                                        'maxtweets'=>$stats->maximums->tweets,
-                                        'maxretweets'=>$stats->maximums->retweets,
-                                        ));
-        $value=$calculation->evaluate();
-        if ($value!==false)
-        {
+        $calculation->set_params(array('favs' => $stat->favs,
+            'retweets' => $stat->retweets,
+            'tweets' => $stat->tweets,
+            'maxfavs' => $stats->maximums->favs,
+            'maxtweets' => $stats->maximums->tweets,
+            'maxretweets' => $stats->maximums->retweets,
+        ));
+        $value = $calculation->evaluate();
+        if ($value !== false) {
             $grade->rawgrade = $value;
         }
         $grade->feedback = "You have $stat->favs Favs $stat->retweets retweets and $stat->tweets tweets.";
@@ -259,35 +258,37 @@ function tcount_calculate_grades($tcount,$stats) {
 //    grade_update('mod/tcount', $tcount_cm->course, 'mod', 'tcount', $tcount_cm->id, 0, $grades);
 //}
 
-function tcount_calculate_user_grades($tcount, $userid=0){
- 
-    if ($userid==0){
-         $cm = get_coursemodule_from_instance('tcount', $tcount->id, 0, false, MUST_EXIST);
+function tcount_calculate_user_grades($tcount, $userid = 0) {
+
+    if ($userid == 0) {
+        $cm = get_coursemodule_from_instance('tcount', $tcount->id, 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
-        list($sudents)=  eduvalab_get_users_by_type($context);
-    }else if (is_array($userid)) {
-        $students=$userid;
-    }else{
-        $students= array($userid);
+        list($sudents) = eduvalab_get_users_by_type($context);
+    } else if (is_array($userid)) {
+        $students = $userid;
+    } else {
+        $students = array($userid);
     }
-    
+
     $stats = tcount_calculate_stats($tcount, $students);
-    $grades = tcount_calculate_grades($tcount,$stats);
+    $grades = tcount_calculate_grades($tcount, $stats);
     return $grades;
 }
-function tcount_get_custom_fieldname($tcount){
-    if (strpos('custom_',$tcount->fieldid)===0){
-         $custom_fieldname = substr($fieldid, 7);
-    }else{
+
+function tcount_get_custom_fieldname($tcount) {
+    if (strpos('custom_', $tcount->fieldid) === 0) {
+        $custom_fieldname = substr($fieldid, 7);
+    } else {
         return false;
     }
 }
+
 function tcount_get_user_twittername($user, $tcount) {
-    
+
     $fieldid = $tcount->fieldid;
     $custom_fieldname = tcount_get_custom_fieldname($tcount);
-    
-    if ($custom_fieldname!==false) {
+
+    if ($custom_fieldname !== false) {
         require_once('../../user/profile/lib.php');
         $profile = profile_user_record($user->id);
         return $profile->$custom_fieldname;

@@ -1,6 +1,5 @@
 <?php
-
-/* * *******************************************************************************
+/*****************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro with the effort of many other
  * students of telecommunication engineering of Valladolid
@@ -62,17 +61,17 @@ $PAGE->set_url($url);
 $PAGE->set_title(format_string($tcount->name));
 // $PAGE->set_context($context_module);
 $PAGE->set_heading($course->fullname);
-// Print the page header --------------------------------------------    
+// Print the page header --------------------------------------------
 
 echo $OUTPUT->header();
-// Print the main part of the page ---------------------------------- 
+// Print the main part of the page ----------------------------------
 echo $OUTPUT->spacer(array('height' => 20));
 echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpage', 'tcount'));
 
 echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
 echo $OUTPUT->spacer(array('height' => 20));
 
-// Print the links -------------------------------------------------- 
+// Print the links --------------------------------------------------
 // Obtenemos el contexto del curso
 $context_course = context_course::instance($cm->course);
 if (has_capability('mod/tcount:manage', $context_module)) {
@@ -82,7 +81,7 @@ if (has_capability('mod/tcount:manage', $context_module)) {
         echo $OUTPUT->box(get_string('module_connected','tcount',$username). $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'disconnect')), "Disconnect"));
     } else {
         echo $OUTPUT->box(get_string('module_not_connected','tcount'). $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect')), "Connect"));
-    } 
+    }
 }
 
 if (has_capability('mod/tcount:viewothers',$context_module)){
