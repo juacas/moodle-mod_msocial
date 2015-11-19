@@ -1,6 +1,6 @@
 <?php
 
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -35,12 +35,12 @@ $string['grade_expr_help'] = 'The formula for converting stats into grades can c
 $string['pluginadministration'] = 'Twitter conquest';
 $string['harvest_tweets']='Search Twitter timeline for student activity';
 // MainPage
-// 
+//
 $string['mainpage']='Twitter contest main page';
 $string['mainpage_help']='Twitter contest main page. You can view your achievements in Twitter contest';
 $string['module_connected']='Module connected with Twitter as user {$a} ';
 $string['module_not_connected']='Module not connected to Twitter.';
-$string['no_twitter_name_advice']='No Twitter name. Configure in field \'{$a}\' of the user profile';
+$string['no_twitter_name_advice']='No Twitter name. Enter it in field \'{$a->field}\' of the <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a>';
 
 
 
