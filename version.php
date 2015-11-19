@@ -3,7 +3,7 @@
  * Code fragment to define the version of tcount
  * This fragment is called by moodle_needs_upgrading() and /admin/index.php
  *
- * @author 
+ * @author
  * @version $Id: version.php,v 1.3 2006/08/28 16:41:20 mark-nielsen Exp $
  * @package tcount
  **

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * For debugging:
  * SET XDEBUG_CONFIG=netbeans-xdebug=xdebug
@@ -33,18 +32,31 @@ class harvest_tweets extends \core\task\scheduled_task {
         $tcounts = $DB->get_records('tcount');
 
         foreach ($tcounts as $tcount) {
-            $statuses = tcount_get_statuses($tcount);
-            mtrace("For module tcount: $tcount->name (id=$tcount->id) searching: $tcount->hashtag  Found " . count($statuses) . " tweets.");
-            tcount_process_statuses($statuses, $tcount);
-            $context_course = \context_course::instance($tcount->course);
-            list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($context_course);
-            tcount_update_grades($tcount, $students);
+            try{
+            $result = tcount_get_statuses($tcount);
+            if (isset($result->errors)) {
+                $cm = get_coursemodule_from_instance('tcount', $tcount->id, null, null, MUST_EXIST);
+                $token = $DB->get_record('tcount_tokens',['tcount_id'=>$cm->id]);
+                if ($token){
+                    $info="UserToken for:$token->username ";
+                }else{
+                    $info="No twitter token defined!!";
+                }
+                mtrace("For module tcount: $tcount->name (mdl_tcount->id=$tcount->id) searching: $tcount->hashtag $info ERROR:".$result->errors[0]->message);
+            } else {
+                $statuses = count($result->statuses) == 0 ? array() : $result->statuses;
+
+                mtrace("For module tcount: $tcount->name (id=$tcount->id) searching: $tcount->hashtag  Found " . count($statuses) . " tweets.");
+                tcount_process_statuses($statuses, $tcount);
+                $context_course = \context_course::instance($tcount->course);
+                list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($context_course);
+                tcount_update_grades($tcount, $students);
+            }
+            }catch(\Exception $e){
+                mtrace("Error processing tcount: $tcount->name. Skipping. ".$e->getMessage());
+            }
         }
-
-
-        mtrace("=======================");
         mtrace("=======================");
         return true;
     }
-
 }

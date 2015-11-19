@@ -9,7 +9,12 @@ require_once($CFG->libdir . '/mathslib.php');
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
+/**
+ * Execute a Twitter API query with auth tokens and the hashtag configured in the module
+ * @global type $DB
+ * @param type $tcount_record
+ * @return array
+ */
 function tcount_get_statuses($tcount_record) {
     if (eduvalab_timeIsBetween(time(), $tcount_record->counttweetsfromdate, $tcount_record->counttweetstodate)) {
         global $DB;
@@ -69,7 +74,13 @@ function tcount_store_status($status, $cm, $userrecord) {
     $status_record->hashtag = $cm->hashtag;
     $DB->insert_record('tcount_statuses', $status_record);
 }
-
+/**
+ * Connect to twitter API at https://api.twitter.com/1.1/search/tweets.json
+ * @global type $CFG
+ * @param type $tokens oauth tokens
+ * @param type $hashtag hashtag to search for
+ * @return stdClass result->statuses  o result->error
+ */
 function tcount_find_tweeter($tokens, $hashtag) {
     if (!$tokens) {
         return array();
@@ -84,7 +95,7 @@ function tcount_find_tweeter($tokens, $hashtag) {
     /** URL for REST request, see: https://dev.twitter.com/docs/api/1.1/ * */
     /** Perform the request and echo the response * */
     $url = 'https://api.twitter.com/1.1/search/tweets.json';
-    $getfield = "?q=$hashtag";
+    $getfield = "?q=$hashtag&count=100";
     $requestMethod = "GET";
     $twitter = new TwitterAPIExchange($settings);
     $json = $twitter->setGetfield($getfield)
@@ -93,7 +104,7 @@ function tcount_find_tweeter($tokens, $hashtag) {
 
     $result = json_decode($json);
 
-    return count($result->statuses) == 0 ? array() : $result->statuses;
+    return $result;
 }
 
 /**
@@ -224,7 +235,14 @@ function tcount_calculate_stats($tcount, $users) {
 
     return $user_stats;
 }
-
+/**
+ * Apply a formula to calculate a raw grade.
+ *
+ * @param type $tcount module instance
+ * @param type $stats aggregated statistics of the tweets
+ * @see tcount_calculate_stats
+ * @return \stdClass grade struct with grade->rawgrade = -1 if no calculation is possible
+ */
 function tcount_calculate_grades($tcount, $stats) {
     $grades = array();
     foreach ($stats->users as $userid => $stat) {
@@ -245,6 +263,8 @@ function tcount_calculate_grades($tcount, $stats) {
         $value = $calculation->evaluate();
         if ($value !== false) {
             $grade->rawgrade = $value;
+        } else {
+            $grade->rawgrade = -1;
         }
         $grade->feedback = "You have $stat->favs Favs $stat->retweets retweets and $stat->tweets tweets.";
         $grades[$userid] = $grade;
