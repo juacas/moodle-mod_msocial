@@ -19,12 +19,12 @@ $settings = array(
 
 /** Perform the request and echo the response **/
 $url = 'https://api.twitter.com/1.1/search/tweets.json';
-$getfield = '?q=#CineFórumTeleco';
+$getfield = '?q=#inmuva';
 $requestMethod = 'GET';
 $twitter = new TwitterAPIExchange($settings);
-$json =  $twitter->setGetfield($getfield)
+$json =  $twitter->set_getfield($getfield)
         ->buildOauth($url, $requestMethod)
-        ->performRequest();
+        ->perform_request();
 
 $result = json_decode($json);
 

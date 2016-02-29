@@ -1,4 +1,18 @@
 <?php
+// This file is part of TwitterCount activity for Moodle http://moodle.org/
+//
+// Questournament for Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Questournament for Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /* * ***************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro with the effort of many other
@@ -24,11 +38,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package tcount
  * ******************************************************************************* */
-
 require_once("../../config.php");
-
-
-// Get the params --------------------------------------------------
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT); // Course Module ID, or
 
@@ -41,12 +51,12 @@ if (!$tcount = $DB->get_record('tcount', array('id' => $cm->instance))) {
 }
 $user = $USER;
 
-// Capabilities -----------------------------------------------------
+// Capabilities.
 $context_module = context_module::instance($cm->id);
 require_capability('mod/tcount:view', $context_module);
 
 
-// Log --------------------------------------------------------------
+// Log.
 //    $info='';
 //    $url="view.php?id=$cm->id";
 //    if ($CFG->version >= 2014051200) {
@@ -77,10 +87,10 @@ echo $OUTPUT->spacer(array('height' => 20));
 echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpage', 'tcount'));
 
 echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
-echo '<div id="my-timeline" style="height: 150px; border: 1px solid #aaa"></div>';
+echo '<div id="my-timeline" style="height: 250px; border: 1px solid #aaa"></div>';
 echo $OUTPUT->spacer(array('height' => 20));
 // Print the links.
-$context_course = context_course::instance($cm->course);
+$contextcourse = context_course::instance($cm->course);
 if (has_capability('mod/tcount:manage', $context_module)) {
 
     $username = $DB->get_field('tcount_tokens', 'username', array('tcount_id' => $cm->id));
@@ -95,18 +105,18 @@ if (has_capability('mod/tcount:manage', $context_module)) {
 }
 
 if (has_capability('mod/tcount:viewothers', $context_module)) {
-    list($students, $non_students, $active_users, $user_records) = eduvalab_get_users_by_type($context_course);
+    list($students, $nonstudents, $activeusers, $userrecords) = eduvalab_get_users_by_type($contextcourse);
 } else {
     $students = array($USER->id);
-    $user_records[$USER->id] = $USER;
+    $userrecords[$USER->id] = $USER;
 }
-$user_stats = tcount_calculate_stats($tcount, $students);
+$userstats = tcount_calculate_stats($tcount, $students);
 $table = new html_table();
 $table->head = array('Student', 'tweeter', 'tweets', 'retweets', 'favs');
-foreach ($user_stats->users as $userid => $stat) {
+foreach ($userstats->users as $userid => $stat) {
     $row = new html_table_row();
     // Foto y vinculo a perfil de `user`
-    $user = $user_records[$userid];
+    $user = $userrecords[$userid];
     if (has_capability('moodle/user:viewdetails', $context_module)) {
         $userpic = $OUTPUT->user_picture($user);
         $profilelink = '<a href="' . $CFG->wwwroot . '/user/view.php?id=' . $user->id . '&course=' . $course->id . '">' . fullname($user,
@@ -117,18 +127,18 @@ foreach ($user_stats->users as $userid => $stat) {
     }
     $twittername = tcount_get_user_twittername($user, $tcount);
     if (!$twittername) {
-        $custom_fieldname = tcount_get_custom_fieldname($tcount);
-        if ($custom_fieldname !== false) {
-            $field_name = $custom_fieldname;
+        $customfieldname = tcount_get_custom_fieldname($tcount);
+        if ($customfieldname !== false) {
+            $fieldname = $customfieldname;
         } else {
-            $field_name = $tcount->fieldid;
+            $fieldname = $tcount->fieldid;
         }
         $a = new stdClass();
         $twittername = get_string('no_twitter_name_advice', 'tcount',
-                ['field' => $field_name, 'userid' => $user->id, 'courseid' => $course->id]);
+                ['field' => $fieldname, 'userid' => $user->id, 'courseid' => $course->id]);
     }
     $row->cells[] = new html_table_cell($userpic . $profilelink . ' (' . $twittername . ')');
-    $row->cells[] = new html_table_cell($stat->tweeter);
+    $row->cells[] = new html_table_cell($twittername);
     $row->cells[] = new html_table_cell($stat->tweets);
     $row->cells[] = new html_table_cell($stat->retweets);
     $row->cells[] = new html_table_cell($stat->favs);
@@ -145,4 +155,3 @@ if (isset($tcount->widget_id)) {
 }
 // Finish the page
 echo $OUTPUT->footer();
-?>

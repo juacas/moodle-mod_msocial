@@ -139,7 +139,7 @@ this._softPaintEvents();
 Timeline._Band.prototype.setBandShiftAndWidth=function(A,D){var C=this._keyboardInput.parentNode;
 var B=A+Math.floor(D/2);
 if(this._timeline.isHorizontal()){this._div.style.top=A+"px";
-this._div.style.height=D+"px";
+        this._div.style.height = D+"px";
 C.style.top=B+"px";
 C.style.left="-1em";
 }else{this._div.style.left=A+"px";

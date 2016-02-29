@@ -1,6 +1,19 @@
 <?php
-
-/*****************************
+// This file is part of TwitterCount activity for Moodle http://moodle.org/
+//
+// Questournament for Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Questournament for Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/* * ***************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro with the effort of many other
  * students of telecommunication engineering of Valladolid
@@ -24,26 +37,15 @@
  * @author J�ssica Olano L�pez,Pablo Galan Sabugo, David Fernández, Natalia Haro, Juan Pablo de Castro and other contributors.
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package tcount
- * 
  *
  * Library of functions and constants for module tcount
  *
  * ******************************************************************************* */
 
-
 require_once($CFG->dirroot . "/config.php");
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/querylib.php');
 require_once('locallib.php');
-
-
-
-//////////////////////////////////////////////////////
-////                          Constants                                    ////
-//////////////////////////////////////////////////////
-//////////////////////////////////////////////////////
-////                          Low-level functions                          ////
-//////////////////////////////////////////////////////
 
 /**
  * Indicates API features that the twitter module supports.
@@ -118,7 +120,6 @@ function tcount_update_instance($tcount) {
  * Given an ID of an instance of this module,
  * this function will permanently delete the instance
  * and any data that depends on it.
-
  * @todo TO-DO Borrar la información en todas las tablas relacionadas.
  * 
  * @param int $id Id of the module instance
@@ -132,9 +133,7 @@ function tcount_delete_instance($id) {
     }
 
     $result = true;
-
-    # Delete any dependent records here #
-
+    // Delete any dependent records here.
     if (!$DB->delete_records('tcount', array('id' => $tcount->id))) {
         $result = false;
     }
@@ -165,7 +164,7 @@ function tcount_user_outline($course, $user, $mod, $tcount) {
  * @todo Finish documenting this function
  * */
 function tcount_user_complete($course, $user, $mod, $tcount) {
-    // TODO Check if user has tweets
+    // TODO Check if user has tweets.
     return true;
 }
 
@@ -180,8 +179,8 @@ function tcount_user_complete($course, $user, $mod, $tcount) {
  * */
 function tcount_print_recent_activity($course, $isteacher, $timestart) {
     global $CFG;
-    // TODO report tweets
-    return false;  //  True if anything was printed, otherwise false
+    // TODO report tweets.
+    return false;  //  True if anything was printed, otherwise false.
 }
 
 /**
@@ -226,18 +225,17 @@ function tcount_scale_used($tcountid, $scaleid) {
 function tcount_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
     global $PAGE, $DB;
 
-
     $cm = $PAGE->cm;
-
     if (!$cm) {
         return;
     }
-    if ($PAGE->pagetype == 'mod-tcount-teams-grades' || $PAGE->pagetype == 'mod-tcount-teams-introteams')
+    if ($PAGE->pagetype == 'mod-tcount-teams-grades' || $PAGE->pagetype == 'mod-tcount-teams-introteams') {
         if (has_capability('mod/tcount:introteams', $cm->context)) {
             $link = new moodle_url('/mod/tcount/teams/teams_graph.php', array('id' => $cm->id));
             $linkname = get_string('view_teams_graph', 'tcount');
             $node = $navref->add($linkname, $link, navigation_node::TYPE_CUSTOM);
         }
+    }
 }
 
 function tcount_has_config() {
@@ -258,16 +256,15 @@ function tcount_grade_item_update($tcount, $grades = null) {
     if (!isset($tcount->courseid)) {
         $tcount->courseid = $tcount->course;
     }
-//    $cm = get_coursemodule_from_instance('tcount', $tcount->id, $tcount->courseid);
-    $tcount->cmidnumber=isset($tcount->cmidnumber)?$tcount->cmidnumber:null;
+    $tcount->cmidnumber = isset($tcount->cmidnumber) ? $tcount->cmidnumber : null;
     $params = array('itemname' => $tcount->name, 'idnumber' => $tcount->cmidnumber);
-  
+
     $params['gradetype'] = GRADE_TYPE_VALUE;
-    if (isset($tcount->grade)){
-            $params['grademax'] = $tcount->grade;
+    if (isset($tcount->grade)) {
+        $params['grademax'] = $tcount->grade;
     }
     $params['grademin'] = 0;
-  
+
     if ($grades === 'reset') {
         $params['reset'] = true;
         $grades = null;
@@ -280,7 +277,7 @@ function tcount_grade_item_update($tcount, $grades = null) {
  * Return grade for given user or all users.
  *
  * @param stdClass $tcount record of tcount with an additional cmidnumber
- * @param int $userid optional user id, 0 means all users
+ * @param array $userid optional user id, 0 means all users
  * @return array array of grades, false if none
  */
 function tcount_get_user_grades($tcount, $userid = 0) {
@@ -288,7 +285,7 @@ function tcount_get_user_grades($tcount, $userid = 0) {
 
     require_once($CFG->dirroot . '/mod/tcount/locallib.php');
 
-    $grades = tcount_calculate_user_grades($tcount,$userid);
+    $grades = tcount_calculate_user_grades($tcount, $userid);
     return $grades;
 }
 
@@ -296,7 +293,7 @@ function tcount_get_user_grades($tcount, $userid = 0) {
  * Update activity grades.
  *
  * @param stdClass $tcount database record
- * @param int $userid specific user only, 0 means all
+ * @param array $userid specific user only, 0 means all
  * @param bool $nullifnone - not used
  */
 function tcount_update_grades($tcount, $userid = 0, $nullifnone = true) {
@@ -313,5 +310,3 @@ function tcount_update_grades($tcount, $userid = 0, $nullifnone = true) {
         tcount_grade_item_update($tcount);
     }
 }
-
-?>

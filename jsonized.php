@@ -11,12 +11,15 @@ $statuses = tcount_load_statuses($tcount,null);
 $events = array();
 
 foreach($statuses as $status){
+    if ($status->userid==null){
+        continue;
+    }
     $details = json_decode($status->status);
     $event=['start'=>$details->created_at,
 //        'end'=>$details->created_at,
 //        'isDuration'=>false,
-        'title'=>'Tweet by @'.$details->user->screen_name,
-        'description'=>$details->text
+        'title'=>'@'.$details->user->screen_name,
+        'description'=>$details->text."(RT:".$details->retweet_count." FAV:".$details->favorite_count.")"
         ];
     $events[]=$event;
 }

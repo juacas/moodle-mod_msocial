@@ -4,22 +4,25 @@ function init_timeline(Y, tcountid, user) {
     var bandInfos = [
         Timeline.createBandInfo({
             eventSource: eventSource,
-            width: "70%",
-            intervalUnit: Timeline.DateTime.WEEK,
+            width: "85%",
+            intervalUnit: Timeline.DateTime.DAY,
             intervalPixels: 100
         }),
         Timeline.createBandInfo({
             eventSource: eventSource,
-            width: "30%",
-            intervalUnit: Timeline.DateTime.MONTH,
-            intervalPixels: 200
-        })
+            width: "15%",
+            showEventText: false,
+            intervalUnit: Timeline.DateTime.WEEK,
+            intervalPixels: 200,
+            layout: 'overview'
+        }),
+
+
     ];
     bandInfos[1].syncWith = 0;
     bandInfos[1].highlight = true;
 
     tl = Timeline.create(document.getElementById("my-timeline"), bandInfos);
-//  Timeline.loadXML("example.xml", function(xml, url) { eventSource.loadXML(xml, url); });
     tl.loadJSON("jsonized.php?id=" + tcountid + "&user=" + user, function (json, url) {
         eventSource.loadJSON(json, url);
     });

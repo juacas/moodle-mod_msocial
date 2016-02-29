@@ -1,26 +1,34 @@
 <?php
+// This file is part of TwitterCount activity for Moodle http://moodle.org/
+//
+// Questournament for Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Questournament for Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once('TwitterAPIExchange.php');
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->libdir . '/mathslib.php');
 
-//require_once($CFG->dirroot . '/grade/lib.php');
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  * Execute a Twitter API query with auth tokens and the hashtag configured in the module
  * @global type $DB
- * @param type $tcount_record
+ * @param type $tcountrecord
  * @return array
  */
-function tcount_get_statuses($tcount_record) {
-    if (eduvalab_timeIsBetween(time(), $tcount_record->counttweetsfromdate, $tcount_record->counttweetstodate)) {
+function tcount_get_statuses($tcountrecord) {
+    if (eduvalab_time_is_between(time(), $tcountrecord->counttweetsfromdate, $tcountrecord->counttweetstodate)) {
         global $DB;
-        $cmodule = get_coursemodule_from_instance('tcount', $tcount_record->id, null, null, MUST_EXIST);
+        $cmodule = get_coursemodule_from_instance('tcount', $tcountrecord->id, null, null, MUST_EXIST);
         $tokens = $DB->get_record('tcount_tokens', array('tcount_id' => $cmodule->id));
-        return tcount_find_tweeter($tokens, $tcount_record->hashtag);
+        return tcount_find_tweeter($tokens, $tcountrecord->hashtag);
     } else {
         return array();
     }
@@ -31,7 +39,7 @@ function tcount_process_statuses($statuses, $tcount) {
     $context = context_course::instance($tcount->course);
     list($students, $nonstudent, $active, $userrecords) = eduvalab_get_users_by_type($context);
 
-    // Get tweeter usernames from students
+    // Get tweeter usernames from students.
     $tweeters = array();
     foreach ($students as $userid) {
         $user = $userrecords[$userid];
@@ -41,47 +49,54 @@ function tcount_process_statuses($statuses, $tcount) {
         }
     }
 
-    // compile statuses of the students
-    $students_statuses = array();
+    // Compile statuses of the students.
+    $studentsstatuses = array();
     foreach ($statuses as $status) {
         $tweetername = $status->user->screen_name;
-        if (isset($tweeters[$tweetername])) { // tweet is of a student
-            $created_date = strtotime($status->created_at);
+        if (isset($tweeters[$tweetername])) { // Tweet is of a student.
+            $userauthor = $userrecords[$tweeters[$tweetername]];
+        }else{
+            $userauthor=null;
+        }
+        $createddate = strtotime($status->created_at);
 
-            if (eduvalab_timeIsBetween($created_date, $tcount->counttweetsfromdate, $tcount->counttweetstodate)) {
-                tcount_store_status($status, $tcount, $userrecords[$tweeters[$tweetername]]);
-            }
+
+        if (eduvalab_time_is_between($createddate, $tcount->counttweetsfromdate, $tcount->counttweetstodate)) {
+            tcount_store_status($status, $tcount, $userauthor);
         }
     }
 }
-function tcount_load_statuses($tcount,$user){
+
+function tcount_load_statuses($tcount, $user) {
     global $DB;
-    $condition=['tcountid'=>$tcount->id];
-    if ($user){
-        $condition['userid']=$user->id;
+    $condition = ['tcountid' => $tcount->id];
+    if ($user) {
+        $condition['userid'] = $user->id;
     }
-    $statuses = $DB->get_records('tcount_statuses',$condition);
+    $statuses = $DB->get_records('tcount_statuses', $condition);
     return $statuses;
 }
+
 function tcount_store_status($status, $tcount, $userrecord) {
     global $DB;
     $tweetid = $status->id_str;
-    $status_record = $DB->get_record('tcount_statuses', array('tweetid' => $tweetid));
-    if (!$status_record) {
-        $status_record = new stdClass();
+    $statusrecord = $DB->get_record('tcount_statuses', array('tweetid' => $tweetid));
+    if (!$statusrecord) {
+        $statusrecord = new stdClass();
     } else {
         $DB->delete_records('tcount_statuses', array('tweetid' => $tweetid));
     }
-    $status_record->tweetid = $tweetid;
-    $status_record->twitterusername = $status->user->screen_name;
-    $status_record->tcountid = $tcount->id;
-    $status_record->status = json_encode($status);
-    $status_record->userid = $userrecord->id;
-    $status_record->retweets = $status->retweet_count;
-    $status_record->favs = $status->favorite_count;
-    $status_record->hashtag = $tcount->hashtag;
-    $DB->insert_record('tcount_statuses', $status_record);
+    $statusrecord->tweetid = $tweetid;
+    $statusrecord->twitterusername = $status->user->screen_name;
+    $statusrecord->tcountid = $tcount->id;
+    $statusrecord->status = json_encode($status);
+    $statusrecord->userid = $userrecord!=null?$userrecord->id:null;
+    $statusrecord->retweets = $status->retweet_count;
+    $statusrecord->favs = $status->favorite_count;
+    $statusrecord->hashtag = $tcount->hashtag;
+    $DB->insert_record('tcount_statuses', $statusrecord);
 }
+
 /**
  * Connect to twitter API at https://api.twitter.com/1.1/search/tweets.json
  * @global type $CFG
@@ -97,18 +112,16 @@ function tcount_find_tweeter($tokens, $hashtag) {
     $settings = array(
         'oauth_access_token' => $tokens->token,
         'oauth_access_token_secret' => $tokens->token_secret,
-        'consumer_key' => $CFG->mod_tcount_consumer_key, // twitter developer app key,
-        'consumer_secret' => $CFG->mod_tcount_consumer_secret// twitter developer app secret
+        'consumer_key' => $CFG->mod_tcount_consumer_key, // ...twitter developer app key.
+        'consumer_secret' => $CFG->mod_tcount_consumer_secret// ...twitter developer app secret.
     );
     // URL for REST request, see: https://dev.twitter.com/docs/api/1.1/
     // Perform the request and echo the response.
     $url = 'https://api.twitter.com/1.1/search/tweets.json';
     $getfield = "q=$hashtag";
-    $requestMethod = "GET";
+    $requestmethod = "GET";
     $twitter = new TwitterAPIExchange($settings);
-    $json = $twitter->setGetfield($getfield)
-            ->buildOauth($url, $requestMethod)
-            ->performRequest();
+    $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
 
     $result = json_decode($json);
 
@@ -117,37 +130,37 @@ function tcount_find_tweeter($tokens, $hashtag) {
 
 /**
  * Find the list of users and get a list with the ids of students and a list of non-students
- * @param type $context_course
+ * @param type $contextcourse
  * @return array(array($studentIds), array($non_studentIds), array($activeids), array($user_records))
  */
-function eduvalab_get_users_by_type($context_course) {
-    // Get users with gradable roles
+function eduvalab_get_users_by_type($contextcourse) {
+    // Get users with gradable roles.
     global $CFG;
-    $gradable_roles = $CFG->gradebookroles;
-    $roles = explode(',', $gradable_roles);
+    $gradableroles = $CFG->gradebookroles;
+    $roles = explode(',', $gradableroles);
     $students = array();
     foreach ($roles as $roleid) {
-        $users_in_role = get_role_users($roleid, $context_course);
-        $ids = array_keys($users_in_role);
+        $usersinrole = get_role_users($roleid, $contextcourse);
+        $ids = array_keys($usersinrole);
         $students = array_merge($students, $ids);
         $students = array_unique($students);
     }
-    // get enrolled users
-    $user_records = get_enrolled_users($context_course, '', 0, '*');
-    $users = array_keys($user_records);
-    $non_students = array_diff($users, $students);
-    // select active userids
+    // ...get enrolled users.
+    $userrecords = get_enrolled_users($contextcourse, '', 0, '*');
+    $users = array_keys($userrecords);
+    $nonstudents = array_diff($users, $students);
+    // ...select active userids.
     $activeids = array();
     global $DB;
     list($select, $params) = $DB->get_in_or_equal($students);
     $select = "userid $select";
-    $select.= " AND courseid = ?";
-    $params[] = (int) $context_course->instanceid;
-    $last_accesses = $DB->get_records_select('user_lastaccess', $select, $params);
-    foreach ($last_accesses as $record) {
+    $select .= " AND courseid = ?";
+    $params[] = (int) $contextcourse->instanceid;
+    $lastaccesses = $DB->get_records_select('user_lastaccess', $select, $params);
+    foreach ($lastaccesses as $record) {
         $activeids[] = $record->userid;
     }
-    return array($students, $non_students, $activeids, $user_records);
+    return array($students, $nonstudents, $activeids, $userrecords);
 }
 
 /**
@@ -157,7 +170,7 @@ function eduvalab_get_users_by_type($context_course) {
  * @param int|null $todate
  * @return bool
  */
-function eduvalab_timeIsBetween($date, $fromdate, $todate) {
+function eduvalab_time_is_between($date, $fromdate, $todate) {
     if ($fromdate == "0") {
         $fromdate = null;
     }
@@ -174,14 +187,13 @@ function eduvalab_timeIsBetween($date, $fromdate, $todate) {
 class OAuthCurl {
 
     public function __construct() {
-
     }
 
-    public static function fetchData($url) {
+    public static function fetch_data($url) {
         $options = array(
-            CURLOPT_RETURNTRANSFER => true, // return web page
-            CURLOPT_HEADER => false, // don't return headers
-            CURLOPT_FOLLOWLOCATION => true, // follow redirects
+            CURLOPT_RETURNTRANSFER => true, // ...return web page.
+            CURLOPT_HEADER => false, // ...don't return headers.
+            CURLOPT_FOLLOWLOCATION => true, // ...follow redirects.
             CURLOPT_SSL_VERIFYPEER => false,
         );
 
@@ -200,7 +212,6 @@ class OAuthCurl {
         $header['content'] = $content;
         return $header;
     }
-
 }
 
 /**
@@ -208,10 +219,10 @@ class OAuthCurl {
  */
 function tcount_calculate_stats($tcount, $users) {
     global $DB;
-    $stats = $DB->get_records_sql('SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs,twitterusername FROM {tcount_statuses} where tcountid = ? group by userid, twitterusername',
+    $stats = $DB->get_records_sql('SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs FROM {tcount_statuses} where tcountid = ? and userid is not null group by userid',
             array($tcount->id));
-    $user_stats = new stdClass();
-    $user_stats->users = array();
+    $userstats = new stdClass();
+    $userstats->users = array();
 
     $favs = array();
     $retweets = array();
@@ -224,25 +235,26 @@ function tcount_calculate_stats($tcount, $users) {
             $retweets[] = $stat->retweets = $stats[$userid]->retweets;
             $favs[] = $stat->favs = $stats[$userid]->favs;
 
-            $stat->tweeter = $stats[$userid]->twitterusername;
+//            $stat->tweeter = $stats[$userid]->twitterusername;
         } else {
             $stat->retweets = 0;
             $stat->tweets = 0;
             $stat->favs = 0;
             $stat->retweets = 0;
-            $stat->tweeter = 'No tweets';
+//            $stat->tweeter = 'No tweets';
         }
-        $user_stats->users[$userid] = $stat;
+        $userstats->users[$userid] = $stat;
     }
     $stat = new stdClass();
     $stat->retweets = 0;
     $stat->tweets = count($tweets) == 0 ? 0 : max($tweets);
     $stat->favs = count($favs) == 0 ? 0 : max($favs);
     $stat->retweets = count($retweets) == 0 ? 0 : max($retweets);
-    $user_stats->maximums = $stat;
+    $userstats->maximums = $stat;
 
-    return $user_stats;
+    return $userstats;
 }
+
 /**
  * Apply a formula to calculate a raw grade.
  *
@@ -280,12 +292,6 @@ function tcount_calculate_grades($tcount, $stats) {
     return $grades;
 }
 
-//function tcount_update_grades($tcount, $usersids) {
-//    $grades = tcount_calculate_user_grades($tcount,$usersids);
-//    $tcount_cm = get_coursemodule_from_instance('tcount', $tcount->id);
-//    grade_update('mod/tcount', $tcount_cm->course, 'mod', 'tcount', $tcount_cm->id, 0, $grades);
-//}
-
 function tcount_calculate_user_grades($tcount, $userid = 0) {
 
     if ($userid == 0) {
@@ -305,7 +311,7 @@ function tcount_calculate_user_grades($tcount, $userid = 0) {
 
 function tcount_get_custom_fieldname($tcount) {
     if (strpos('custom_', $tcount->fieldid) === 0) {
-        $custom_fieldname = substr($fieldid, 7);
+        $customfieldname = substr($fieldid, 7);
     } else {
         return false;
     }
@@ -314,12 +320,12 @@ function tcount_get_custom_fieldname($tcount) {
 function tcount_get_user_twittername($user, $tcount) {
 
     $fieldid = $tcount->fieldid;
-    $custom_fieldname = tcount_get_custom_fieldname($tcount);
+    $customfieldname = tcount_get_custom_fieldname($tcount);
 
-    if ($custom_fieldname !== false) {
+    if ($customfieldname !== false) {
         require_once('../../user/profile/lib.php');
         $profile = profile_user_record($user->id);
-        return $profile->$custom_fieldname;
+        return $profile->$customfieldname;
     } else {
         if (isset($user->$fieldid) && $user->$fieldid != '') {
             return $user->$fieldid;
