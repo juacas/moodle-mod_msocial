@@ -17,6 +17,7 @@ require_once('TwitterAPIExchange.php');
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->libdir . '/mathslib.php');
 
+
 /**
  * Execute a Twitter API query with auth tokens and the hashtag configured in the module
  * @global type $DB

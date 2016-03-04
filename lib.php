@@ -45,7 +45,7 @@
 require_once($CFG->dirroot . "/config.php");
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/grade/querylib.php');
-require_once('locallib.php');
+//require_once('locallib.php');
 
 /**
  * Indicates API features that the twitter module supports.

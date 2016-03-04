@@ -25,7 +25,7 @@
     <TABLE NAME="tcount_statuses" COMMENT="Stores statuses from twitter">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="TCount statuses record ID"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="user id  of the author of the tweet"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="user id  of the author of the tweet"/>
         <FIELD NAME="tweetid" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" COMMENT="This defines a unique twitter status id"/>
         <FIELD NAME="tcountid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="TCount module instance ID"/>
         <FIELD NAME="twitterusername" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" COMMENT="twitter user name"/>
