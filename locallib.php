@@ -60,6 +60,9 @@ function tcount_process_statuses($statuses, $tcount) {
         }
         $createddate = strtotime($status->created_at);
 
+        if (isset($status->retweeted_status)){ // retweet count comes from original message. Ignore it
+            $status->retweet_count=0;
+        }
 
         if (eduvalab_time_is_between($createddate, $tcount->counttweetsfromdate, $tcount->counttweetstodate)) {
             tcount_store_status($status, $tcount, $userauthor);

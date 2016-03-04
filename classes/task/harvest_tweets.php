@@ -57,8 +57,8 @@ class harvest_tweets extends \core\task\scheduled_task {
                         $info = "No twitter token defined!!";
                     }
                     mtrace("For module tcount: $tcount->name (mdl_tcount->id=$tcount->id) searching: $tcount->hashtag $info ERROR:"
-                        . $result->errors[0]->message);
-                } else {
+                            . $result->errors[0]->message);
+                } else if (isset($result->statuses)) {
                     $statuses = count($result->statuses) == 0 ? array() : $result->statuses;
 
                     mtrace("For module tcount: $tcount->name (id=$tcount->id) searching: $tcount->hashtag  Found "
@@ -67,6 +67,8 @@ class harvest_tweets extends \core\task\scheduled_task {
                     $contextcourse = \context_course::instance($tcount->course);
                     list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
                     tcount_update_grades($tcount, $students);
+                } else {
+                    mtrace("For module tcount: $tcount->name (id=$tcount->id) searching: $tcount->hashtag  ERROR querying twitter results null! Maybe there is no tweeter account linked in this activity.");
                 }
             } catch (\Exception $e) {
                 mtrace("Error processing tcount: $tcount->name. Skipping. " . $e->getMessage());

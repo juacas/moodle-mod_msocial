@@ -21,17 +21,17 @@ $callback_url = (string) $moodleurl;
 $context = context_module::instance($id);
 if (has_capability('mod/tcount:manage', $context)) {
     if ($action == 'callback') { // twitter callback
-        $sig_method = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1();
-        $test_consumer = new \moodle\mod\lti\OAuthConsumer($consumer_key, $consumer_secret, $callback_url);
+        $sigmethod = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1();
+        $testconsumer = new \moodle\mod\lti\OAuthConsumer($consumer_key, $consumer_secret, $callback_url);
         $params = array();
         $acc_token = new \moodle\mod\lti\OAuthConsumer($_SESSION['oauth_token'], $_SESSION['oauth_token_secret'], 1);
-        $acc_req = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($test_consumer, $acc_token, "GET", $oauth_access_token);
-        $acc_req->sign_request($sig_method, $test_consumer, $acc_token);
+        $acc_req = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($testconsumer, $acc_token, "GET", $oauth_access_token);
+        $acc_req->sign_request($sigmethod, $testconsumer, $acc_token);
 
         $oc = new OAuthCurl();
-        $reqData = $oc->fetchData("{$acc_req}&oauth_verifier={$_GET['oauth_verifier']}");
+        $reqData = $oc->fetch_data("{$acc_req}&oauth_verifier={$_GET['oauth_verifier']}");
 
-        parse_str($reqData['content'], $accOAuthData);
+        parse_str($reqData['content'], $accoauthdata);
 
         /**
          * Save tokens for future use
@@ -42,9 +42,9 @@ if (has_capability('mod/tcount:manage', $context)) {
         }
         $record = new stdClass();
         $record->tcount_id = $id;
-        $record->token = $accOAuthData['oauth_token'];
-        $record->token_secret = $accOAuthData['oauth_token_secret'];
-        $record->username = $accOAuthData['screen_name'];
+        $record->token = $accoauthdata['oauth_token'];
+        $record->token_secret = $accoauthdata['oauth_token_secret'];
+        $record->username = $accoauthdata['screen_name'];
         $DB->insert_record('tcount_tokens', $record);
 
         // show headings and menus of page
@@ -60,24 +60,24 @@ if (has_capability('mod/tcount:manage', $context)) {
         echo $OUTPUT->footer();
     } else if ($action == 'connect') {
 
-        $sig_method = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1;
-        $test_consumer = new \moodle\mod\lti\OAuthConsumer($consumer_key, $consumer_secret, $callback_url);
+        $sigmethod = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1;
+        $testconsumer = new \moodle\mod\lti\OAuthConsumer($consumer_key, $consumer_secret, $callback_url);
 
-        $req_req = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($test_consumer, NULL, "GET", $oauth_request_token, array('oauth_callback' => $callback_url));
-        $req_req->sign_request($sig_method, $test_consumer, NULL);
+        $reqreq = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($testconsumer, NULL, "GET", $oauth_request_token, array('oauth_callback' => $callback_url));
+        $reqreq->sign_request($sigmethod, $testconsumer, NULL);
 
         $oc = new OAuthCurl();
-        $reqData = $oc->fetchData($req_req->to_url());
+        $reqData = $oc->fetch_data($reqreq->to_url());
 
-        parse_str($reqData['content'], $reqOAuthData);
+        parse_str($reqData['content'], $reqoauthdata);
 
-        $req_token = new \moodle\mod\lti\OAuthConsumer($reqOAuthData['oauth_token'], $reqOAuthData['oauth_token_secret'], 1);
+        $req_token = new \moodle\mod\lti\OAuthConsumer($reqoauthdata['oauth_token'], $reqoauthdata['oauth_token_secret'], 1);
 
-        $acc_req = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($test_consumer, $req_token, "GET", $oauth_authorize, array('oauth_callback' => $callback_url));
-        $acc_req->sign_request($sig_method, $test_consumer, $req_token);
+        $acc_req = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($testconsumer, $req_token, "GET", $oauth_authorize, array('oauth_callback' => $callback_url));
+        $acc_req->sign_request($sigmethod, $testconsumer, $req_token);
 
-        $_SESSION['oauth_token'] = $reqOAuthData['oauth_token'];
-        $_SESSION['oauth_token_secret'] = $reqOAuthData['oauth_token_secret'];
+        $_SESSION['oauth_token'] = $reqoauthdata['oauth_token'];
+        $_SESSION['oauth_token_secret'] = $reqoauthdata['oauth_token_secret'];
 
         Header("Location: $acc_req");
     } else if ($action == 'disconnect') {

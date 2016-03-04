@@ -85,10 +85,6 @@ echo $OUTPUT->header();
 // Print the main part of the page.
 echo $OUTPUT->spacer(array('height' => 20));
 echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpage', 'tcount'));
-
-echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
-echo '<div id="my-timeline" style="height: 250px; border: 1px solid #aaa"></div>';
-echo $OUTPUT->spacer(array('height' => 20));
 // Print the links.
 $contextcourse = context_course::instance($cm->course);
 if (has_capability('mod/tcount:manage', $context_module)) {
@@ -99,10 +95,14 @@ if (has_capability('mod/tcount:manage', $context_module)) {
                         array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php',
                         array('id' => $id, 'action' => 'disconnect')), "Disconnect"));
     } else {
-        echo $OUTPUT->box(get_string('module_not_connected', 'tcount') . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php',
+        echo $OUTPUT->notification(get_string('module_not_connected', 'tcount') . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php',
                         array('id' => $id, 'action' => 'connect')), "Connect"));
     }
 }
+echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
+echo '<div id="my-timeline" style="height: 250px; border: 1px solid #aaa"></div>';
+echo $OUTPUT->spacer(array('height' => 20));
+
 
 if (has_capability('mod/tcount:viewothers', $context_module)) {
     list($students, $nonstudents, $activeusers, $userrecords) = eduvalab_get_users_by_type($contextcourse);
