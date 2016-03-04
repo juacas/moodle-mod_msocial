@@ -149,7 +149,7 @@ class TwitterAPIExchange {
         }
 
         $this->getfield = '?' . http_build_query($params);
-
+$this->getfield = '?'.$string;
         return $this;
     }
 

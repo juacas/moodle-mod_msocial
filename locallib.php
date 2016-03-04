@@ -43,7 +43,7 @@ function tcount_process_statuses($statuses, $tcount) {
     $tweeters = array();
     foreach ($students as $userid) {
         $user = $userrecords[$userid];
-        $tweetername = $user->aim;
+        $tweetername = strtolower(str_replace('@', '', $user->aim));
         if ($tweetername) {
             $tweeters[$tweetername] = $userid;
         }
@@ -52,7 +52,7 @@ function tcount_process_statuses($statuses, $tcount) {
     // Compile statuses of the students.
     $studentsstatuses = array();
     foreach ($statuses as $status) {
-        $tweetername = $status->user->screen_name;
+        $tweetername = strtolower($status->user->screen_name);
         if (isset($tweeters[$tweetername])) { // Tweet is of a student.
             $userauthor = $userrecords[$tweeters[$tweetername]];
         }else{
@@ -121,13 +121,16 @@ function tcount_find_tweeter($tokens, $hashtag) {
     // URL for REST request, see: https://dev.twitter.com/docs/api/1.1/
     // Perform the request and echo the response.
     $url = 'https://api.twitter.com/1.1/search/tweets.json';
-    $getfield = "q=$hashtag";
+    $getfield = "q=$hashtag&count=100";
     $requestmethod = "GET";
     $twitter = new TwitterAPIExchange($settings);
     $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
 
     $result = json_decode($json);
-
+if ($result==null){
+    echo $json;
+    die;
+}
     return $result;
 }
 
