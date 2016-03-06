@@ -71,7 +71,7 @@ class harvest_tweets extends \core\task\scheduled_task {
                     mtrace("For module tcount: $tcount->name (id=$tcount->id) searching: $tcount->hashtag  ERROR querying twitter results null! Maybe there is no tweeter account linked in this activity.");
                 }
             } catch (\Exception $e) {
-                mtrace("Error processing tcount: $tcount->name. Skipping. " . $e->error);
+                mtrace("Error processing tcount: $tcount->name. Skipping. " . $e->error.'\n'.$e->getTraceAsString());
             }
         }
         mtrace("=======================");

@@ -39,10 +39,10 @@ function tcount_process_statuses($statuses, $tcount) {
 
     $context = context_course::instance($tcount->course);
     list($students, $nonstudent, $active, $userrecords) = eduvalab_get_users_by_type($context);
-
-    // Get tweeter usernames from students.
+    $all=array_keys($userrecords); //  Include all users (including teachers),
+    // Get tweeter usernames from users' profile.
     $tweeters = array();
-    foreach ($students as $userid) {
+    foreach ($all as $userid) {
         $user = $userrecords[$userid];
         $tweetername = strtolower(str_replace('@', '', $user->aim));
         if ($tweetername) {
@@ -50,18 +50,18 @@ function tcount_process_statuses($statuses, $tcount) {
         }
     }
 
-    // Compile statuses of the students.
+    // Compile statuses of the users.
     $studentsstatuses = array();
     foreach ($statuses as $status) {
         $tweetername = strtolower($status->user->screen_name);
-        if (isset($tweeters[$tweetername])) { // Tweet is of a student.
+        if (isset($tweeters[$tweetername])) { // Tweet is of a users.
             $userauthor = $userrecords[$tweeters[$tweetername]];
         }else{
             $userauthor=null;
         }
         $createddate = strtotime($status->created_at);
 
-        if (isset($status->retweeted_status)){ // retweet count comes from original message. Ignore it
+        if (isset($status->retweeted_status)){ // Retweet count comes from original message. Ignore it.
             $status->retweet_count=0;
         }
 

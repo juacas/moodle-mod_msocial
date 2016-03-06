@@ -108,6 +108,7 @@ echo $OUTPUT->spacer(array('height' => 20));
 
 if (has_capability('mod/tcount:viewothers', $context_module)) {
     list($students, $nonstudents, $activeusers, $userrecords) = eduvalab_get_users_by_type($contextcourse);
+$students=array_merge($students,$nonstudents);
 } else {
     $students = array($USER->id);
     $userrecords[$USER->id] = $USER;
