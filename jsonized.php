@@ -20,7 +20,7 @@ $id = required_param('id', PARAM_INT); // Course Module ID, or
 $cm = get_coursemodule_from_id('tcount', $id, null, null, MUST_EXIST);
 $tcount = $DB->get_record('tcount', array('id' => $cm->instance),'*',MUST_EXIST);
 require_login($cm->course, false, $cm);
-$statuses = tcount_load_statuses($tcount,null);
+$statuses = tcount_load_statuses($tcount,$cm,null);
 $events = array();
 
 foreach($statuses as $status){
@@ -35,7 +35,7 @@ foreach($statuses as $status){
 //        'end'=>$details->created_at,
 //        'isDuration'=>false,
         'title'=>'@'.$details->user->screen_name.$stats,
-        'description'=>"<a href=\"$url\">$details->text</a> $stats"
+        'description'=>"<a target=\"_blank\" href=\"$url\">$details->text</a> $stats"
         ];
     $events[]=$event;
 }

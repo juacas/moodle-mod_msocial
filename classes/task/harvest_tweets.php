@@ -33,7 +33,6 @@ class harvest_tweets extends \core\task\scheduled_task {
     }
 
     public function execute() {
-
         global $COURSE;
         global $USER;
         global $DB;
@@ -44,19 +43,18 @@ class harvest_tweets extends \core\task\scheduled_task {
         mtrace("=======================");
 
         $tcounts = $DB->get_records('tcount');
-
         foreach ($tcounts as $tcount) {
             try {
                 $result = tcount_get_statuses($tcount);
                 if (isset($result->errors)) {
                     $cm = get_coursemodule_from_instance('tcount', $tcount->id, null, null, MUST_EXIST);
-                    $token = $DB->get_record('tcount_tokens', ['tcount_id' => $cm->id]);
+                    $token = $DB->get_record('tcount_tokens', ['tcount_id' => $cm->instance]);
                     if ($token) {
                         $info = "UserToken for:$token->username ";
                     } else {
                         $info = "No twitter token defined!!";
                     }
-                    mtrace("For module tcount: $tcount->name (mdl_tcount->id=$tcount->id) searching: $tcount->hashtag $info ERROR:"
+                    mtrace("For module tcount: $tcount->name (mdl_tcount->id=$cm->instance) searching: $tcount->hashtag $info ERROR:"
                             . $result->errors[0]->message);
                 } else if (isset($result->statuses)) {
                     $statuses = count($result->statuses) == 0 ? array() : $result->statuses;

@@ -34,6 +34,20 @@ function init_timeline(Y, tcountid, user) {
             theme: theme1,
             layout: 'original', // original, overview, detailed
             align: "Top",
+            zoomIndex: 6,
+            zoomSteps: new Array(
+                    {pixelsPerInterval: 280, unit: Timeline.DateTime.HOUR},
+            {pixelsPerInterval: 140, unit: Timeline.DateTime.HOUR},
+            {pixelsPerInterval: 70, unit: Timeline.DateTime.HOUR},
+            {pixelsPerInterval: 35, unit: Timeline.DateTime.HOUR},
+            {pixelsPerInterval: 400, unit: Timeline.DateTime.DAY},
+            {pixelsPerInterval: 200, unit: Timeline.DateTime.DAY},
+            {pixelsPerInterval: 100, unit: Timeline.DateTime.DAY}, // DEFAULT zoomIndex
+            {pixelsPerInterval: 50, unit: Timeline.DateTime.DAY},
+            {pixelsPerInterval: 400, unit: Timeline.DateTime.MONTH},
+            {pixelsPerInterval: 200, unit: Timeline.DateTime.MONTH},
+            {pixelsPerInterval: 100, unit: Timeline.DateTime.MONTH}
+            )
         }),
     ];
     bandInfos[0].syncWith = 1;

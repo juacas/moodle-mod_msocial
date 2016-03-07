@@ -1,5 +1,18 @@
 <?php
-
+// This file is part of TwitterCount activity for Moodle http://moodle.org/
+//
+// Questournament for Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Questournament for Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once("../../config.php");
 require_once($CFG->dirroot . '/mod/lti/OAuth.php');
 require_once('locallib.php');
@@ -36,12 +49,12 @@ if (has_capability('mod/tcount:manage', $context)) {
         /**
          * Save tokens for future use
          */
-        $record = $DB->get_record('tcount_tokens', array("tcount_id" => $id));
+        $record = $DB->get_record('tcount_tokens', array("tcount_id" => $cm->instance));
         if ($record) {
             $DB->delete_records('tcount_tokens',array('id'=>$record->id));
         }
         $record = new stdClass();
-        $record->tcount_id = $id;
+        $record->tcount_id = $cm->instance;
         $record->token = $accoauthdata['oauth_token'];
         $record->token_secret = $accoauthdata['oauth_token_secret'];
         $record->username = $accoauthdata['screen_name'];
@@ -81,7 +94,7 @@ if (has_capability('mod/tcount:manage', $context)) {
 
         Header("Location: $acc_req");
     } else if ($action == 'disconnect') {
-        $DB->delete_records('tcount_tokens', array('tcount_id' => $id));
+        $DB->delete_records('tcount_tokens', array('tcount_id' => $cm->instance));
         // show headings and menus of page
         $url = new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id));
         $PAGE->set_url($url);

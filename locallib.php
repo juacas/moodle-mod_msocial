@@ -17,7 +17,6 @@ require_once('TwitterAPIExchange.php');
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->libdir . '/mathslib.php');
 
-
 /**
  * Execute a Twitter API query with auth tokens and the hashtag configured in the module
  * @global type $DB
@@ -39,7 +38,7 @@ function tcount_process_statuses($statuses, $tcount) {
 
     $context = context_course::instance($tcount->course);
     list($students, $nonstudent, $active, $userrecords) = eduvalab_get_users_by_type($context);
-    $all=array_keys($userrecords); //  Include all users (including teachers),
+    $all = array_keys($userrecords); //  Include all users (including teachers),
     // Get tweeter usernames from users' profile.
     $tweeters = array();
     foreach ($all as $userid) {
@@ -56,13 +55,13 @@ function tcount_process_statuses($statuses, $tcount) {
         $tweetername = strtolower($status->user->screen_name);
         if (isset($tweeters[$tweetername])) { // Tweet is of a users.
             $userauthor = $userrecords[$tweeters[$tweetername]];
-        }else{
-            $userauthor=null;
+        } else {
+            $userauthor = null;
         }
         $createddate = strtotime($status->created_at);
 
-        if (isset($status->retweeted_status)){ // Retweet count comes from original message. Ignore it.
-            $status->retweet_count=0;
+        if (isset($status->retweeted_status)) { // Retweet count comes from original message. Ignore it.
+            $status->retweet_count = 0;
         }
 
         if (eduvalab_time_is_between($createddate, $tcount->counttweetsfromdate, $tcount->counttweetstodate)) {
@@ -71,7 +70,7 @@ function tcount_process_statuses($statuses, $tcount) {
     }
 }
 
-function tcount_load_statuses($tcount, $user) {
+function tcount_load_statuses($tcount,$cm, $user) {
     global $DB;
     $condition = ['tcountid' => $tcount->id];
     if ($user) {
@@ -83,6 +82,8 @@ function tcount_load_statuses($tcount, $user) {
 
 function tcount_store_status($status, $tcount, $userrecord) {
     global $DB;
+    $cm = get_coursemodule_from_instance('tcount', $tcount->id, null, null, MUST_EXIST);
+
     $tweetid = $status->id_str;
     $statusrecord = $DB->get_record('tcount_statuses', array('tweetid' => $tweetid));
     if (!$statusrecord) {
@@ -94,7 +95,7 @@ function tcount_store_status($status, $tcount, $userrecord) {
     $statusrecord->twitterusername = $status->user->screen_name;
     $statusrecord->tcountid = $tcount->id;
     $statusrecord->status = json_encode($status);
-    $statusrecord->userid = $userrecord!=null?$userrecord->id:null;
+    $statusrecord->userid = $userrecord != null ? $userrecord->id : null;
     $statusrecord->retweets = $status->retweet_count;
     $statusrecord->favs = $status->favorite_count;
     $statusrecord->hashtag = $tcount->hashtag;
@@ -128,10 +129,10 @@ function tcount_find_tweeter($tokens, $hashtag) {
     $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
 
     $result = json_decode($json);
-if ($result==null){
-    echo $json;
-    die;
-}
+    if ($result == null) {
+        echo $json;
+        die;
+    }
     return $result;
 }
 
@@ -194,6 +195,7 @@ function eduvalab_time_is_between($date, $fromdate, $todate) {
 class OAuthCurl {
 
     public function __construct() {
+        
     }
 
     public static function fetch_data($url) {
@@ -219,6 +221,7 @@ class OAuthCurl {
         $header['content'] = $content;
         return $header;
     }
+
 }
 
 /**
@@ -226,6 +229,7 @@ class OAuthCurl {
  */
 function tcount_calculate_stats($tcount, $users) {
     global $DB;
+    $cm = get_coursemodule_from_instance('tcount', $tcount->id, 0, false, MUST_EXIST);
     $stats = $DB->get_records_sql('SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs FROM {tcount_statuses} where tcountid = ? and userid is not null group by userid',
             array($tcount->id));
     $userstats = new stdClass();
@@ -300,9 +304,8 @@ function tcount_calculate_grades($tcount, $stats) {
 }
 
 function tcount_calculate_user_grades($tcount, $userid = 0) {
-
+    $cm = get_coursemodule_from_instance('tcount', $tcount->id, 0, false, MUST_EXIST);
     if ($userid == 0) {
-        $cm = get_coursemodule_from_instance('tcount', $tcount->id, 0, false, MUST_EXIST);
         $context = context_module::instance($cm->id);
         list($sudents) = eduvalab_get_users_by_type($context);
     } else if (is_array($userid)) {

@@ -91,7 +91,7 @@ echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpag
 $contextcourse = context_course::instance($cm->course);
 if (has_capability('mod/tcount:manage', $context_module)) {
 
-    $username = $DB->get_field('tcount_tokens', 'username', array('tcount_id' => $cm->id));
+    $username = $DB->get_field('tcount_tokens', 'username', array('tcount_id' => $tcount->id));
     if ($username) {
         echo $OUTPUT->box(get_string('module_connected', 'tcount', $username) . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php',
                         array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php',
