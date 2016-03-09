@@ -6,6 +6,7 @@ function init_timeline(Y, tcountid, user) {
     // Set autoWidth on the Timeline's first band's theme,
     // will affect all bands.
     theme1.event.label.offsetFromLine = 10;
+    theme1.event.track.offset = 32;
     theme1.event.instant.iconHeight = 32;
     theme1.event.instant.iconWidth = 32;
     theme1.event.instant.icon = "pix/Twitter_icon.png";
@@ -58,5 +59,6 @@ function init_timeline(Y, tcountid, user) {
         eventSource.loadJSON(json, url);
         tl.layout();
         tl.finishedEventLoading(); // Automatically set new size of the div
+
     });
 }

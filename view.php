@@ -72,8 +72,8 @@ $PAGE->set_url($url);
 
 /* @var $requ page_requirements_manager  */
 $requ = $PAGE->requires;
-$requ->js('/mod/tcount/js/timeline_ajax/simile-ajax-api.js?bundle=true', true);
-$requ->js('/mod/tcount/js/timeline_2.3.0/timeline-api.js?bundle=false', true);
+$requ->js('/mod/tcount/js/simile_ajax/simile-ajax-api.js?bundle=true', true);
+$requ->js('/mod/tcount/js/timeline/timeline-api.js?bundle=false', true);
 $requ->js('/mod/tcount/js/init_timeline.js', true);
 $requ->css('/mod/tcount/styles.css');
 
@@ -102,7 +102,7 @@ if (has_capability('mod/tcount:manage', $context_module)) {
     }
 }
 echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
-echo '<div id="my-timeline" class="timeline-tcount" style="height: 250px; border: 1px solid #aaa"></div>';
+echo '<div id="my-timeline" style="overflow-y: auto; height: 250px; border: 1px solid #aaa"></div>';
 echo $OUTPUT->spacer(array('height' => 20));
 
 
