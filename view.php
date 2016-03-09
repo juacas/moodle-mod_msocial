@@ -72,7 +72,7 @@ $PAGE->set_url($url);
 
 /* @var $requ page_requirements_manager  */
 $requ = $PAGE->requires;
-$requ->js('/mod/tcount/js/simile_ajax/simile-ajax-api.js?bundle=true', true);
+$requ->js('/mod/tcount/js/simile-ajax/simile-ajax-api.js?bundle=true', true);
 $requ->js('/mod/tcount/js/timeline/timeline-api.js?bundle=false', true);
 $requ->js('/mod/tcount/js/init_timeline.js', true);
 $requ->css('/mod/tcount/styles.css');
