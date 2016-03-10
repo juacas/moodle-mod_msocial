@@ -27,7 +27,7 @@ function tcount_get_statuses($tcountrecord) {
     if (eduvalab_time_is_between(time(), $tcountrecord->counttweetsfromdate, $tcountrecord->counttweetstodate)) {
         global $DB;
         $cmodule = get_coursemodule_from_instance('tcount', $tcountrecord->id, null, null, MUST_EXIST);
-        $tokens = $DB->get_record('tcount_tokens', array('tcount_id' => $cmodule->id));
+        $tokens = $DB->get_record('tcount_tokens', array('tcount_id' => $tcountrecord->id));
         return tcount_find_tweeter($tokens, $tcountrecord->hashtag);
     } else {
         return array();
@@ -111,6 +111,7 @@ function tcount_store_status($status, $tcount, $userrecord) {
  */
 function tcount_find_tweeter($tokens, $hashtag) {
     if (!$tokens) {
+	mtrace("No connection tokens provided!!! Impossible to connect to twitter.");
         return array();
     }
     global $CFG;
@@ -127,10 +128,9 @@ function tcount_find_tweeter($tokens, $hashtag) {
     $requestmethod = "GET";
     $twitter = new TwitterAPIExchange($settings);
     $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
-
     $result = json_decode($json);
     if ($result == null) {
-        echo $json;
+        mtrace( $json);
         die;
     }
     return $result;

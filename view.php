@@ -142,7 +142,7 @@ foreach ($userstats->users as $userid => $stat) {
     }
     $row->cells[] = new html_table_cell($userpic . $profilelink . ' (' . $twittername . ')');
     $row->cells[] = new html_table_cell($twittername);
-    $row->cells[] = new html_table_cell($stat->tweets);
+    $row->cells[] = new html_table_cell('<a href="https://twitter.com/search?q='.urlencode($tcount->hashtag).'%20from%3A'.$twittername.'&src=typd">'.$stat->tweets.'</a>');
     $row->cells[] = new html_table_cell($stat->retweets);
     $row->cells[] = new html_table_cell($stat->favs);
     $table->data[] = $row;
