@@ -58,6 +58,6 @@ $string['config_oauth_access_token'] = 'oauth_access_token de acuerdo con Twitte
 $string['tcount_oauth_access_token_secret'] = 'oauth_access_token_secret';
 $string['config_oauth_access_token_secret'] = 'oauth_access_token_secret de acuerdo con TwitterAPI';
 $string['tcount_consumer_key'] = 'consumer_key';
-$string['config_consumer_key'] = 'consumer_key de acuerdo con TwitterAPI';
+$string['config_consumer_key'] = 'consumer_key according to TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
 $string['tcount_consumer_secret'] = 'consumer_secret';
-$string['config_consumer_secret'] = 'consumer_secret de acuerdo con TwitterAPI';
+$string['config_consumer_secret'] = 'consumer_secret according to TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
