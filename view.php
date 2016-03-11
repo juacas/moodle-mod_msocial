@@ -128,8 +128,8 @@ foreach ($userstats->users as $userid => $stat) {
         $userpic = '';
         $profilelink = '';
     }
-    $twittername = tcount_get_user_twittername($user, $tcount);
-    if (!$twittername) {
+    $twitterusername = tcount_get_user_twittername($user, $tcount);
+    if (!$twitterusername) {
         $customfieldname = tcount_get_custom_fieldname($tcount);
         if ($customfieldname !== false) {
             $fieldname = $customfieldname;
@@ -139,12 +139,15 @@ foreach ($userstats->users as $userid => $stat) {
         $a = new stdClass();
         $twittername = get_string('no_twitter_name_advice', 'tcount',
                 ['field' => $fieldname, 'userid' => $user->id, 'courseid' => $course->id]);
+    }else{
+        $twittername=$twitterusername;
     }
     $row->cells[] = new html_table_cell($userpic . $profilelink . ' (' . $twittername . ')');
     $row->cells[] = new html_table_cell($twittername);
-    $row->cells[] = new html_table_cell('<a href="https://twitter.com/search?q='.urlencode($tcount->hashtag).'%20from%3A'.$twittername.'&src=typd">'.$stat->tweets.'</a>');
-    $row->cells[] = new html_table_cell($stat->retweets);
-    $row->cells[] = new html_table_cell($stat->favs);
+    $row->cells[] = new html_table_cell($twitterusername?'<a href="https://twitter.com/search?q='.urlencode($tcount->hashtag)
+                                        .'%20from%3A'.$twitterusername.'&src=typd">'.$stat->tweets.'</a>':'--');
+    $row->cells[] = new html_table_cell($twitterusername?$stat->retweets:'--');
+    $row->cells[] = new html_table_cell($twitterusername?$stat->favs:'--');
     $table->data[] = $row;
 }
 

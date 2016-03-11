@@ -17,64 +17,65 @@
  * Structure step to restore one choice activity
  */
 class restore_tcount_activity_structure_step extends restore_activity_structure_step {
- 
+
     protected function define_structure() {
- 
+
         $paths = array();
         $userinfo = $this->get_setting_value('userinfo');
- 
+
         $paths[] = new restore_path_element('tcount', '/activity/tcount');
         $paths[] = new restore_path_element('token', '/activity/tcount/token');
         if ($userinfo) {
             $paths[] = new restore_path_element('status', '/activity/tcount/statuses/status');
         }
- 
-        // Return the paths wrapped into standard activity structure
+
+        // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
- 
+
     protected function process_tcount($data) {
         global $DB;
- 
-        $data = (object)$data;
+
+        $data = (object) $data;
         $oldid = $data->id;
         $data->course = $this->get_courseid();
- 
+
         $data->counttweetsfromdate = $this->apply_date_offset($data->counttweetsfromdate);
-        $data->counttweetstodate = $this->apply_date_offset($data->counttweetstodate); 
-        // insert the choice record
+        $data->counttweetstodate = $this->apply_date_offset($data->counttweetstodate);
+        // Insert the choice record.
         $newitemid = $DB->insert_record('tcount', $data);
-        // immediately after inserting "activity" record, call this
+        // Immediately after inserting "activity" record, call this.
         $this->apply_activity_instance($newitemid);
     }
- 
+
     protected function process_token($data) {
         global $DB;
- 
-        $data = (object)$data;
+
+        $data = (object) $data;
         $oldid = $data->id;
- 
+
         $data->tcount_id = $this->get_new_parentid('tcount');
- 
+
         $newitemid = $DB->insert_record('tcount_tokens', $data);
         $this->set_mapping('tcount_tokens', $oldid, $newitemid);
     }
- 
+
     protected function process_status($data) {
         global $DB;
- 
-        $data = (object)$data;
- 
+
+        $data = (object) $data;
+
         $data->tcountid = $this->get_new_parentid('tcount');
         $data->userid = $this->get_mappingid('user', $data->userid);
- 
+
         $newitemid = $DB->insert_record('tcount_statuses', $data);
         // No need to save this mapping as far as nothing depend on it
-        // (child paths, file areas nor links decoder)
+        // (child paths, file areas nor links decoder).
     }
- 
+
     protected function after_execute() {
-        // Add choice related files, no need to match by itemname (just internally handled context)
+        // Add choice related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_tcount', 'intro', null);
     }
+
 }

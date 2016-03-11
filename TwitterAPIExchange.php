@@ -86,7 +86,10 @@ class TwitterAPIExchange {
             throw new Exception('You need to install cURL, see: http://curl.haxx.se/docs/install.html');
         }
 
-        if (!isset($settings['oauth_access_token']) || !isset($settings['oauth_access_token_secret']) || !isset($settings['consumer_key']) || !isset($settings['consumer_secret'])) {
+        if (!isset($settings['oauth_access_token'])
+                || !isset($settings['oauth_access_token_secret'])
+                || !isset($settings['consumer_key'])
+                || !isset($settings['consumer_secret'])) {
             throw new Exception('Make sure you are passing in the correct parameters');
         }
 

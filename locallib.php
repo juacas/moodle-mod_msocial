@@ -70,7 +70,7 @@ function tcount_process_statuses($statuses, $tcount) {
     }
 }
 
-function tcount_load_statuses($tcount,$cm, $user) {
+function tcount_load_statuses($tcount, $cm, $user) {
     global $DB;
     $condition = ['tcountid' => $tcount->id];
     if ($user) {
@@ -111,7 +111,7 @@ function tcount_store_status($status, $tcount, $userrecord) {
  */
 function tcount_find_tweeter($tokens, $hashtag) {
     if (!$tokens) {
-	mtrace("No connection tokens provided!!! Impossible to connect to twitter.");
+        mtrace("No connection tokens provided!!! Impossible to connect to twitter.");
         return array();
     }
     global $CFG;
@@ -130,7 +130,7 @@ function tcount_find_tweeter($tokens, $hashtag) {
     $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
     $result = json_decode($json);
     if ($result == null) {
-        mtrace( $json);
+        mtrace($json);
         die;
     }
     return $result;
@@ -194,8 +194,7 @@ function eduvalab_time_is_between($date, $fromdate, $todate) {
  */
 class OAuthCurl {
 
-    public function __construct() {
-        
+    public function __construct() {  
     }
 
     public static function fetch_data($url) {
@@ -221,7 +220,6 @@ class OAuthCurl {
         $header['content'] = $content;
         return $header;
     }
-
 }
 
 /**
@@ -230,7 +228,8 @@ class OAuthCurl {
 function tcount_calculate_stats($tcount, $users) {
     global $DB;
     $cm = get_coursemodule_from_instance('tcount', $tcount->id, 0, false, MUST_EXIST);
-    $stats = $DB->get_records_sql('SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs FROM {tcount_statuses} where tcountid = ? and userid is not null group by userid',
+    $stats = $DB->get_records_sql('SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs '
+            . 'FROM {tcount_statuses} where tcountid = ? and userid is not null group by userid',
             array($tcount->id));
     $userstats = new stdClass();
     $userstats->users = array();
@@ -245,7 +244,6 @@ function tcount_calculate_stats($tcount, $users) {
             $tweets[] = $stat->tweets = $stats[$userid]->tweets;
             $retweets[] = $stat->retweets = $stats[$userid]->retweets;
             $favs[] = $stat->favs = $stats[$userid]->favs;
-
 //            $stat->tweeter = $stats[$userid]->twitterusername;
         } else {
             $stat->retweets = 0;
