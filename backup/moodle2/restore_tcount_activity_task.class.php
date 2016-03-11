@@ -17,7 +17,7 @@
  * choice restore task that provides all the settings and steps to perform one
  * complete restore of the activity
  */
-require_once($CFG->dirroot . '/mod/choice/backup/moodle2/restore_tcount_stepslib.php');
+require_once($CFG->dirroot . '/mod/tcount/backup/moodle2/restore_tcount_stepslib.php');
 
 class restore_tcount_activity_task extends restore_activity_task {
 
