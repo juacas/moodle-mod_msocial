@@ -17,8 +17,8 @@
     font-family: Trebuchet MS, Helvetica, Arial, sans serif;
     font-size: 8pt;
     border: 1px solid #aaa;
-    overflow-x:hidden; 
-    overflow-y: auto !important; 
+    overflow-x:hidden;
+    overflow-y: auto !important;
 }
 .timeline-event-label{
     font-family: Trebuchet MS, Helvetica, Arial, sans serif;

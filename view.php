@@ -41,7 +41,7 @@
 require_once("../../config.php");
 require_once("locallib.php");
 global $DB, $PAGE, $OUTPUT;
-$id = required_param('id', PARAM_INT); // Course Module ID, or
+$id = required_param('id', PARAM_INT);
 
 $cm = get_coursemodule_from_id('tcount', $id, null, null, MUST_EXIST);
 require_login($cm->course, false, $cm);
@@ -53,8 +53,8 @@ if (!$tcount = $DB->get_record('tcount', array('id' => $cm->instance))) {
 $user = $USER;
 
 // Capabilities.
-$context_module = context_module::instance($cm->id);
-require_capability('mod/tcount:view', $context_module);
+$contextmodule = context_module::instance($cm->id);
+require_capability('mod/tcount:view', $contextmodule);
 
 
 // Log.
@@ -66,7 +66,7 @@ require_capability('mod/tcount:view', $context_module);
 //    } else {
 //        add_to_log($course->id, "tcount", "view", $url, "$tcount->id");
 //    }
-// show headings and menus of page
+// Show headings and menus of page.
 $url = new moodle_url('/mod/tcount/view.php', array('id' => $id));
 $PAGE->set_url($url);
 
@@ -79,7 +79,6 @@ $requ->css('/mod/tcount/styles.css');
 
 $requ->js_init_call("init_timeline", [$cm->id, null], true);
 $PAGE->set_title(format_string($tcount->name));
-// $PAGE->set_context($context_module);
 $PAGE->set_heading($course->fullname);
 // Print the page header.
 
@@ -89,16 +88,19 @@ echo $OUTPUT->spacer(array('height' => 20));
 echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpage', 'tcount'));
 // Print the links.
 $contextcourse = context_course::instance($cm->course);
-if (has_capability('mod/tcount:manage', $context_module)) {
+if (has_capability('mod/tcount:manage', $contextmodule)) {
 
     $username = $DB->get_field('tcount_tokens', 'username', array('tcount_id' => $tcount->id));
     if ($username) {
-        echo $OUTPUT->box(get_string('module_connected', 'tcount', $username) . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php',
-                        array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php',
-                        array('id' => $id, 'action' => 'disconnect')), "Disconnect"));
+        echo $OUTPUT->box(get_string('module_connected', 'tcount', $username)
+                . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect')),
+                        "Change user") . '/'
+                . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'disconnect')),
+                        "Disconnect"));
     } else {
-        echo $OUTPUT->notification(get_string('module_not_connected', 'tcount') . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php',
-                        array('id' => $id, 'action' => 'connect')), "Connect"));
+        echo $OUTPUT->notification(get_string('module_not_connected', 'tcount')
+                . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect')),
+                        "Connect"));
     }
 }
 echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
@@ -106,9 +108,9 @@ echo '<div id="my-timeline" style="overflow-y: auto; height: 250px; border: 1px 
 echo $OUTPUT->spacer(array('height' => 20));
 
 
-if (has_capability('mod/tcount:viewothers', $context_module)) {
+if (has_capability('mod/tcount:viewothers', $contextmodule)) {
     list($students, $nonstudents, $activeusers, $userrecords) = eduvalab_get_users_by_type($contextcourse);
-$students=array_merge($students,$nonstudents);
+    $students = array_merge($students, $nonstudents);
 } else {
     $students = array($USER->id);
     $userrecords[$USER->id] = $USER;
@@ -118,12 +120,12 @@ $table = new html_table();
 $table->head = array('Student', 'tweeter', 'tweets', 'retweets', 'favs');
 foreach ($userstats->users as $userid => $stat) {
     $row = new html_table_row();
-    // Foto y vinculo a perfil de `user`
+    // Photo and link to user profile.
     $user = $userrecords[$userid];
-    if (has_capability('moodle/user:viewdetails', $context_module)) {
+    if (has_capability('moodle/user:viewdetails', $contextmodule)) {
         $userpic = $OUTPUT->user_picture($user);
-        $profilelink = '<a href="' . $CFG->wwwroot . '/user/view.php?id=' . $user->id . '&course=' . $course->id . '">' . fullname($user,
-                        true) . '</a>';
+        $profilelink = '<a href="' . $CFG->wwwroot . '/user/view.php?id=' . $user->id . '&course='
+                . $course->id . '">' . fullname($user, true) . '</a>';
     } else {
         $userpic = '';
         $profilelink = '';
@@ -139,25 +141,28 @@ foreach ($userstats->users as $userid => $stat) {
         $a = new stdClass();
         $twittername = get_string('no_twitter_name_advice', 'tcount',
                 ['field' => $fieldname, 'userid' => $user->id, 'courseid' => $course->id]);
-    }else{
-        $twittername=$twitterusername;
+    } else {
+        $twittername = $twitterusername;
     }
     $row->cells[] = new html_table_cell($userpic . $profilelink . ' (' . $twittername . ')');
     $row->cells[] = new html_table_cell($twittername);
-    $row->cells[] = new html_table_cell($twitterusername?'<a href="https://twitter.com/search?q='.urlencode($tcount->hashtag)
-                                        .'%20from%3A'.$twitterusername.'&src=typd">'.$stat->tweets.'</a>':'--');
-    $row->cells[] = new html_table_cell($twitterusername?$stat->retweets:'--');
-    $row->cells[] = new html_table_cell($twitterusername?$stat->favs:'--');
+    $row->cells[] = new html_table_cell($twitterusername ? '<a href="https://twitter.com/search?q=' . urlencode($tcount->hashtag)
+                    . '%20from%3A' . $twitterusername . '&src=typd">' . $stat->tweets . '</a>' : '--');
+    $row->cells[] = new html_table_cell($twitterusername ? $stat->retweets : '--');
+    $row->cells[] = new html_table_cell($twitterusername ? $stat->favs : '--');
     $table->data[] = $row;
 }
 
 echo html_writer::table($table);
-// insert timeline
+// Insert timeline.
 if (isset($tcount->widget_id)) {
-    ?>
-    <a class="twitter-timeline" data-dnt="true" target="_blank" href="https://twitter.com/search?q=<?php echo urlencode($tcount->hashtag); ?>" data-widget-id="<?php echo $tcount->widget_id; ?>">Tweets sobre <?php echo $tcount->hashtag; ?></a>
-    <script>!function(d, s, id){var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location)?'http':'https'; if (!d.getElementById(id)){js = d.createElement(s); js.id = id; js.src = p + "://platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs); }}(document, "script", "twitter-wjs");</script>
-    <?php
+    echo('<a class="twitter-timeline" data-dnt="true" target="_blank" href="https://twitter.com/search?q='
+        .urlencode($tcount->hashtag).'" data-widget-id="'.$tcount->widget_id.'">Tweets sobre '.$tcount->hashtag.'</a>');
+?>
+    <script>!function(d, s, id){var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location)?'http':'https';
+        if (!d.getElementById(id)){js = d.createElement(s); js.id = id; js.src = p + "://platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs); }}(document, "script", "twitter-wjs");</script>
+<?php
 }
-// Finish the page
+// Finish the page.
 echo $OUTPUT->footer();

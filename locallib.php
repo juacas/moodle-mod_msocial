@@ -194,7 +194,7 @@ function eduvalab_time_is_between($date, $fromdate, $todate) {
  */
 class OAuthCurl {
 
-    public function __construct() {  
+    public function __construct() {
     }
 
     public static function fetch_data($url) {
@@ -212,16 +212,13 @@ class OAuthCurl {
         $err = curl_errno($ch);
         $errmsg = curl_error($ch);
         $header = curl_getinfo($ch);
-
         curl_close($ch);
-
         $header['errno'] = $err;
         $header['errmsg'] = $errmsg;
         $header['content'] = $content;
         return $header;
     }
 }
-
 /**
  * Statistics for grading
  */
@@ -229,8 +226,7 @@ function tcount_calculate_stats($tcount, $users) {
     global $DB;
     $cm = get_coursemodule_from_instance('tcount', $tcount->id, 0, false, MUST_EXIST);
     $stats = $DB->get_records_sql('SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs '
-            . 'FROM {tcount_statuses} where tcountid = ? and userid is not null group by userid',
-            array($tcount->id));
+            . 'FROM {tcount_statuses} where tcountid = ? and userid is not null group by userid', array($tcount->id));
     $userstats = new stdClass();
     $userstats->users = array();
 
@@ -244,13 +240,11 @@ function tcount_calculate_stats($tcount, $users) {
             $tweets[] = $stat->tweets = $stats[$userid]->tweets;
             $retweets[] = $stat->retweets = $stats[$userid]->retweets;
             $favs[] = $stat->favs = $stats[$userid]->favs;
-//            $stat->tweeter = $stats[$userid]->twitterusername;
         } else {
             $stat->retweets = 0;
             $stat->tweets = 0;
             $stat->favs = 0;
             $stat->retweets = 0;
-//            $stat->tweeter = 'No tweets';
         }
         $userstats->users[$userid] = $stat;
     }
