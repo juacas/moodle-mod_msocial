@@ -55,21 +55,10 @@ $user = $USER;
 $contextmodule = context_module::instance($cm->id);
 require_capability('mod/tcount:view', $contextmodule);
 
-
-// Log.
-//    $info='';
-//    $url="view.php?id=$cm->id";
-//    if ($CFG->version >= 2014051200) {
-//        require_once 'classes/event/tcount_viewed.php';
-//        \mod_tcount\event\tcount_viewed::create_from_parts($course->id, $user->id, $tcount->id,$url, $info)->trigger();
-//    } else {
-//        add_to_log($course->id, "tcount", "view", $url, "$tcount->id");
-//    }
 // Show headings and menus of page.
 $url = new moodle_url('/mod/tcount/view.php', array('id' => $id));
 $PAGE->set_url($url);
 
-/* @var $requ page_requirements_manager  */
 $requ = $PAGE->requires;
 $requ->js('/mod/tcount/js/init_timeline.js', true);
 $requ->js('/mod/tcount/js/timeline/timeline-api.js?bundle=true', true);

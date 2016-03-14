@@ -21,33 +21,32 @@
  * @copyright  2004-2011 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-require(dirname(__FILE__).'/../../config.php');
-require_once(dirname(__FILE__).'/locallib.php');
+require(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__) . '/locallib.php');
 
 $id = required_param('id', PARAM_INT); // Course ID.
 
-$course = $DB->get_record('course', array('id'=>$id), '*', MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 
 unset($id);
 
 require_course_login($course, true);
 $PAGE->set_pagelayout('incourse');
 
-// Get all required strings
-$sttcounts        = get_string('modulenameplural', 'mod_tcount');
-$strtcount         = get_string('modulename', 'mod_tcount');
-$strname         = get_string('name');
-$strintro        = get_string('moduleintro');
+// Get all required strings.
+$sttcounts = get_string('modulenameplural', 'mod_tcount');
+$strtcount = get_string('modulename', 'mod_tcount');
+$strname = get_string('name');
+$strintro = get_string('moduleintro');
 $strlastmodified = get_string('lastmodified');
 
 $PAGE->set_url('/mod/tcount/index.php', array('id' => $course->id));
-$PAGE->set_title($course->shortname.': '.$sttcounts);
+$PAGE->set_title($course->shortname . ': ' . $sttcounts);
 $PAGE->set_heading($course->fullname);
 $PAGE->navbar->add($sttcounts);
 echo $OUTPUT->header();
 
-// Get all the appropriate data
+// Get all the appropriate data.
 if (!$tcounts = get_all_instances_in_course('tcount', $course)) {
     notice(get_string('thereareno', 'moodle', $sttcounts), "$CFG->wwwroot/course/view.php?id=$course->id");
     die;
@@ -59,12 +58,12 @@ $table = new html_table();
 $table->attributes['class'] = 'generaltable mod_index';
 
 if ($usesections) {
-    $strsectionname = get_string('sectionname', 'format_'.$course->format);
-    $table->head  = array ($strsectionname, $strname, $strintro);
-    $table->align = array ('center', 'left', 'left');
+    $strsectionname = get_string('sectionname', 'format_' . $course->format);
+    $table->head = array($strsectionname, $strname, $strintro);
+    $table->align = array('center', 'left', 'left');
 } else {
-    $table->head  = array ($strlastmodified, $strname, $strintro);
-    $table->align = array ('left', 'left', 'left');
+    $table->head = array($strlastmodified, $strname, $strintro);
+    $table->align = array('left', 'left', 'left');
 }
 
 $modinfo = get_fast_modinfo($course);
@@ -86,9 +85,9 @@ foreach ($tcounts as $tcount) {
         $printsection = html_writer::tag('span', userdate($tcount->timemodified), array('class' => 'smallinfo'));
     }
 
-    $class = $tcount->visible ? null : array('class' => 'dimmed'); // hidden modules are dimmed
+    $class = $tcount->visible ? null : array('class' => 'dimmed'); // Hidden modules are dimmed.
 
-    $table->data[] = array (
+    $table->data[] = array(
         $printsection,
         html_writer::link(new moodle_url('view.php', array('id' => $cm->id)), format_string($tcount->name), $class),
         format_module_intro('tcount', $tcount, $cm->id));

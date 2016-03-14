@@ -38,7 +38,7 @@ function tcount_process_statuses($statuses, $tcount) {
 
     $context = context_course::instance($tcount->course);
     list($students, $nonstudent, $active, $userrecords) = eduvalab_get_users_by_type($context);
-    $all = array_keys($userrecords); //  Include all users (including teachers),
+    $all = array_keys($userrecords); // Include all users (including teachers).
     // Get tweeter usernames from users' profile.
     $tweeters = array();
     foreach ($all as $userid) {

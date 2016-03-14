@@ -64,7 +64,7 @@ class restore_tcount_activity_structure_step extends restore_activity_structure_
         $data = (object) $data;
 
         $data->tcountid = $this->get_new_parentid('tcount');
-        $data->userid = isset($data->userid)?$this->get_mappingid('user', $data->userid):null;
+        $data->userid = isset($data->userid) ? $this->get_mappingid('user', $data->userid) : null;
 
         $newitemid = $DB->insert_record('tcount_statuses', $data);
         // No need to save this mapping as far as nothing depend on it
