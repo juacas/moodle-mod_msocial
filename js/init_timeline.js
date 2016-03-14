@@ -1,6 +1,16 @@
-SimileAjax.History.enabled = false;
+//SimileAjax_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/js/simile-ajax/';
+Timeline_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/js/timeline/';
+Timeline_ajax_url = document.URL.substr(0, document.URL.lastIndexOf('/')) + "/js/simile-ajax/simile-ajax-api.js"
 function init_timeline(Y, tcountid, user) {
+    if ("Timeline" in window) {
+        deferred_init_timeline(Y, tcountid, user);
+    } else {
+        setTimeout(init_timeline, 100, Y, tcountid, user);
+    }
+}
+function deferred_init_timeline(Y, tcountid, user) {
     var eventSource = new Timeline.DefaultEventSource();
+    SimileAjax.History.enabled = false;
     var theme1 = Timeline.ClassicTheme.create();
     theme1.autoWidth = false; // Set the Timeline's "width" automatically.
     // Set autoWidth on the Timeline's first band's theme,
@@ -21,7 +31,7 @@ function init_timeline(Y, tcountid, user) {
             eventSource: eventSource,
             width: "15%",
             showEventText: false,
-            intervalUnit: Timeline.DateTime.WEEK,
+            intervalUnit: SimileAjax.DateTime.WEEK,
             intervalPixels: 200,
             theme: theme2,
             layout: 'overview', // original, overview, detailed
@@ -30,24 +40,24 @@ function init_timeline(Y, tcountid, user) {
         Timeline.createBandInfo({
             eventSource: eventSource,
             width: "85%",
-            intervalUnit: Timeline.DateTime.DAY,
+            intervalUnit: SimileAjax.DateTime.DAY,
             intervalPixels: 100,
             theme: theme1,
             layout: 'original', // original, overview, detailed
             align: "Top",
             zoomIndex: 6,
             zoomSteps: new Array(
-                    {pixelsPerInterval: 280, unit: Timeline.DateTime.HOUR},
-            {pixelsPerInterval: 140, unit: Timeline.DateTime.HOUR},
-            {pixelsPerInterval: 70, unit: Timeline.DateTime.HOUR},
-            {pixelsPerInterval: 35, unit: Timeline.DateTime.HOUR},
-            {pixelsPerInterval: 400, unit: Timeline.DateTime.DAY},
-            {pixelsPerInterval: 200, unit: Timeline.DateTime.DAY},
-            {pixelsPerInterval: 100, unit: Timeline.DateTime.DAY}, // DEFAULT zoomIndex
-            {pixelsPerInterval: 50, unit: Timeline.DateTime.DAY},
-            {pixelsPerInterval: 400, unit: Timeline.DateTime.MONTH},
-            {pixelsPerInterval: 200, unit: Timeline.DateTime.MONTH},
-            {pixelsPerInterval: 100, unit: Timeline.DateTime.MONTH}
+                    {pixelsPerInterval: 280, unit: SimileAjax.DateTime.HOUR},
+            {pixelsPerInterval: 140, unit: SimileAjax.DateTime.HOUR},
+            {pixelsPerInterval: 70, unit: SimileAjax.DateTime.HOUR},
+            {pixelsPerInterval: 35, unit: SimileAjax.DateTime.HOUR},
+            {pixelsPerInterval: 400, unit: SimileAjax.DateTime.DAY},
+            {pixelsPerInterval: 200, unit: SimileAjax.DateTime.DAY},
+            {pixelsPerInterval: 100, unit: SimileAjax.DateTime.DAY}, // DEFAULT zoomIndex
+            {pixelsPerInterval: 50, unit: SimileAjax.DateTime.DAY},
+            {pixelsPerInterval: 400, unit: SimileAjax.DateTime.MONTH},
+            {pixelsPerInterval: 200, unit: SimileAjax.DateTime.MONTH},
+            {pixelsPerInterval: 100, unit: SimileAjax.DateTime.MONTH}
             )
         }),
     ];

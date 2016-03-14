@@ -51,7 +51,6 @@ if (!$tcount = $DB->get_record('tcount', array('id' => $cm->instance))) {
     print_error("Course module is incorrect");
 }
 $user = $USER;
-
 // Capabilities.
 $contextmodule = context_module::instance($cm->id);
 require_capability('mod/tcount:view', $contextmodule);
@@ -72,9 +71,8 @@ $PAGE->set_url($url);
 
 /* @var $requ page_requirements_manager  */
 $requ = $PAGE->requires;
-$requ->js('/mod/tcount/js/simile-ajax/simile-ajax-api.js?bundle=true', true);
-$requ->js('/mod/tcount/js/timeline/timeline-api.js?bundle=false', true);
 $requ->js('/mod/tcount/js/init_timeline.js', true);
+$requ->js('/mod/tcount/js/timeline/timeline-api.js?bundle=true', true);
 $requ->css('/mod/tcount/styles.css');
 
 $requ->js_init_call("init_timeline", [$cm->id, null], true);

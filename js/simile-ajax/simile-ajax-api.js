@@ -7,7 +7,7 @@
  *
  *==================================================
  */
-
+//SimileAjax_urlPrefix = '/moodle3/mod/tcount/js/simile-ajax/';
 if (typeof SimileAjax == "undefined") {
     var SimileAjax = {
         loaded:                 false,
@@ -15,7 +15,7 @@ if (typeof SimileAjax == "undefined") {
         error:                  null,
         params:                 { bundle:"true" }
     };
-    
+
     SimileAjax.Platform = new Object();
         /*
             HACK: We need these 2 things here because we cannot simply append
@@ -23,11 +23,11 @@ if (typeof SimileAjax == "undefined") {
             to initialize it because IE executes that <script> code first
             before it loads ajax.js and platform.js.
         */
-        
+
     var getHead = function(doc) {
         return doc.getElementsByTagName("head")[0];
     };
-    
+
     SimileAjax.findScript = function(doc, substring) {
         var heads = doc.documentElement.getElementsByTagName("head");
         for (var h = 0; h < heads.length; h++) {
@@ -88,7 +88,7 @@ if (typeof SimileAjax == "undefined") {
                 // fall through
             }
         }
-        
+
         var link = doc.createElement("link");
         link.setAttribute("rel", "stylesheet");
         link.setAttribute("type", "text/css");
@@ -100,7 +100,7 @@ if (typeof SimileAjax == "undefined") {
             SimileAjax.includeCssFile(doc, urlPrefix + filenames[i]);
         }
     };
-    
+
     /**
      * Append into urls each string in suffixes after prefixing it with urlPrefix.
      * @param {Array} urls
@@ -125,7 +125,7 @@ if (typeof SimileAjax == "undefined") {
     SimileAjax.parseURLParameters = function(url, to, types) {
         to = to || {};
         types = types || {};
-        
+
         if (typeof url == "undefined") {
             url = location.href;
         }
@@ -134,7 +134,7 @@ if (typeof SimileAjax == "undefined") {
             return to;
         }
         url = (url+"#").slice(q+1, url.indexOf("#")); // toss the URL fragment
-        
+
         var params = url.split("&"), param, parsed = {};
         var decode = window.decodeURIComponent || unescape;
         for (var i = 0; param = params[i]; i++) {
@@ -178,7 +178,7 @@ if (typeof SimileAjax == "undefined") {
             "html.js",
             "data-structure.js",
             "units.js",
-            
+
             "ajax.js",
             "history.js",
             "window-manager.js"
@@ -186,7 +186,7 @@ if (typeof SimileAjax == "undefined") {
         var cssFiles = [
             "graphics.css"
         ];
-        
+
         if (typeof SimileAjax_urlPrefix == "string") {
             SimileAjax.urlPrefix = SimileAjax_urlPrefix;
         } else {
@@ -206,7 +206,7 @@ if (typeof SimileAjax == "undefined") {
             SimileAjax.includeJavascriptFiles(document, SimileAjax.urlPrefix + "scripts/", javascriptFiles);
         }
         SimileAjax.includeCssFiles(document, SimileAjax.urlPrefix + "styles/", cssFiles);
-        
+
         SimileAjax.loaded = true;
     })();
 }
