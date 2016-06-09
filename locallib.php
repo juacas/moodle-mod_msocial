@@ -160,13 +160,15 @@ function eduvalab_get_users_by_type($contextcourse) {
     // ...select active userids.
     $activeids = array();
     global $DB;
-    list($select, $params) = $DB->get_in_or_equal($students);
-    $select = "userid $select";
-    $select .= " AND courseid = ?";
-    $params[] = (int) $contextcourse->instanceid;
-    $lastaccesses = $DB->get_records_select('user_lastaccess', $select, $params);
-    foreach ($lastaccesses as $record) {
-        $activeids[] = $record->userid;
+    if (count($students)>0){
+        list($select, $params) = $DB->get_in_or_equal($students);
+        $select = "userid $select";
+        $select .= " AND courseid = ?";
+        $params[] = (int) $contextcourse->instanceid;
+        $lastaccesses = $DB->get_records_select('user_lastaccess', $select, $params);
+        foreach ($lastaccesses as $record) {
+            $activeids[] = $record->userid;
+        }
     }
     return array($students, $nonstudents, $activeids, $userrecords);
 }
@@ -283,7 +285,7 @@ function tcount_calculate_grades($tcount, $stats) {
             'maxtweets' => $stats->maximums->tweets,
             'maxretweets' => $stats->maximums->retweets,
         ));
-        $value = $calculation->evaluate();
+        $value = $stat->tweets==0?false:$calculation->evaluate();
         if ($value !== false) {
             $grade->rawgrade = $value;
         } else {

@@ -102,6 +102,7 @@ if (has_capability('mod/tcount:viewothers', $contextmodule)) {
     $students = array($USER->id);
     $userrecords[$USER->id] = $USER;
 }
+$groups= groups_get_activity_allowed_groups($cm);
 $userstats = tcount_calculate_stats($tcount, $students);
 $table = new html_table();
 $table->head = array('Student', 'tweeter', 'tweets', 'retweets', 'favs');

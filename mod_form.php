@@ -108,11 +108,11 @@ class mod_tcount_mod_form extends moodleform_mod {
         // Otras caracteristicas.
         $calculation = get_string('grade_expr', 'tcount');
         $mform->addElement('text', 'grade_expr', $calculation);
-        $mform->setDefault('grade_expr', '=(favs+retweets+tweets)/(maxfavs+maxretweets+maxtweets)');
+        $mform->setDefault('grade_expr', '=100*(favs+retweets+tweets)/(maxfavs+maxretweets+maxtweets)');
         $mform->addHelpButton('grade_expr', 'grade_expr', 'tcount');
         $mform->setType('grade_expr', PARAM_TEXT);
 
-        $this->standard_grading_coursemodule_elements();
+//        $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();
         $this->apply_admin_defaults();
         // Buttons.
