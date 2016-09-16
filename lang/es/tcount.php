@@ -62,3 +62,11 @@ $string['tcount_consumer_key'] = 'consumer_key';
 $string['config_consumer_key'] = 'consumer_key de acuerdo con TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
 $string['tcount_consumer_secret'] = 'consumer_secret';
 $string['config_consumer_secret'] = 'consumer_secret de acuerdo con TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
+
+// Permissions.
+$string['tcount:view']= 'Ver información básica del módulo Tcount.';
+$string['tcount:viewothers'] = 'Ver la actividad de los otros usuarios.';
+$string['tcount:addinstance'] = 'Añadir una nueva actividad Tcount al curso.';
+$string['tcount:manage'] = 'Change settings of a Tcount activity';
+$string['tcount:view'] = 'View information of Tcount about me';
+$string['tcount:viewothers'] = 'View all information collected by Tcount';
