@@ -65,9 +65,7 @@ class mod_tcount_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
 
         // Descripción.
-
-        $this->add_intro_editor(true, get_string('description', 'moodle'));
-
+        $this->standard_intro_elements();
         // Identificador.
         $options1 = array('icq' => 'ICQ',
             'skype' => 'SKYPE',
