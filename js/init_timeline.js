@@ -21,17 +21,19 @@ function deferred_init_timeline(Y, tcountid, user) {
     theme1.event.instant.iconWidth = 32;
     theme1.event.instant.icon = "pix/Twitter_icon.png";
     theme1.event.track.height = 8;
+    theme1.mouseWheel = 'zoom';
+
     var theme2 = Timeline.ClassicTheme.create();
     // increase tape height
     theme2.event.tape.height = 6; // px
     theme2.event.track.height = theme2.event.tape.height + 6;
+    theme2.mouseWheel = 'zoom';
     var bandInfos = [
-
         Timeline.createBandInfo({
             eventSource: eventSource,
             width: "15%",
             showEventText: false,
-            intervalUnit: SimileAjax.DateTime.WEEK,
+            intervalUnit: SimileAjax.DateTime.MONTH,
             intervalPixels: 200,
             theme: theme2,
             layout: 'overview', // original, overview, detailed
@@ -48,16 +50,16 @@ function deferred_init_timeline(Y, tcountid, user) {
             zoomIndex: 6,
             zoomSteps: new Array(
                     {pixelsPerInterval: 280, unit: SimileAjax.DateTime.HOUR},
-            {pixelsPerInterval: 140, unit: SimileAjax.DateTime.HOUR},
-            {pixelsPerInterval: 70, unit: SimileAjax.DateTime.HOUR},
-            {pixelsPerInterval: 35, unit: SimileAjax.DateTime.HOUR},
-            {pixelsPerInterval: 400, unit: SimileAjax.DateTime.DAY},
-            {pixelsPerInterval: 200, unit: SimileAjax.DateTime.DAY},
-            {pixelsPerInterval: 100, unit: SimileAjax.DateTime.DAY}, // DEFAULT zoomIndex
-            {pixelsPerInterval: 50, unit: SimileAjax.DateTime.DAY},
-            {pixelsPerInterval: 400, unit: SimileAjax.DateTime.MONTH},
-            {pixelsPerInterval: 200, unit: SimileAjax.DateTime.MONTH},
-            {pixelsPerInterval: 100, unit: SimileAjax.DateTime.MONTH}
+                    {pixelsPerInterval: 140, unit: SimileAjax.DateTime.HOUR},
+                    {pixelsPerInterval: 70, unit: SimileAjax.DateTime.HOUR},
+                    {pixelsPerInterval: 35, unit: SimileAjax.DateTime.HOUR},
+                    {pixelsPerInterval: 400, unit: SimileAjax.DateTime.DAY},
+                    {pixelsPerInterval: 200, unit: SimileAjax.DateTime.DAY},
+                    {pixelsPerInterval: 100, unit: SimileAjax.DateTime.DAY}, // DEFAULT zoomIndex
+                    {pixelsPerInterval: 50, unit: SimileAjax.DateTime.DAY},
+                    {pixelsPerInterval: 400, unit: SimileAjax.DateTime.MONTH},
+                    {pixelsPerInterval: 200, unit: SimileAjax.DateTime.MONTH},
+                    {pixelsPerInterval: 100, unit: SimileAjax.DateTime.MONTH}
             )
         }),
     ];
@@ -67,8 +69,9 @@ function deferred_init_timeline(Y, tcountid, user) {
     tl = Timeline.create(document.getElementById("my-timeline"), bandInfos, Timeline.HORIZONTAL);
     tl.loadJSON("jsonized.php?id=" + tcountid + "&user=" + user, function (json, url) {
         eventSource.loadJSON(json, url);
+        tl.getBand(1).setMaxVisibleDate(eventSource.getLatestDate());
+        tl.getBand(1).setMinVisibleDate(eventSource.getEarliestDate());
         tl.layout();
         tl.finishedEventLoading(); // Automatically set new size of the div
-
     });
 }
