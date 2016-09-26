@@ -30,7 +30,7 @@ $oauthauthorize = "https://twitter.com/oauth/authorize";
 $oauthaccesstoken = "https://twitter.com/oauth/access_token";
 
 $moodleurl = new moodle_url("/mod/tcount/twitterSSO.php", array('id' => $id, 'action' => 'callback'));
-$callbackurl = (string) $moodleurl;
+$callbackurl = $moodleurl->out($escaped=false);
 $context = context_module::instance($id);
 if (has_capability('mod/tcount:manage', $context)) {
     if ($action == 'callback') { // Twitter callback.

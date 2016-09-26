@@ -91,7 +91,7 @@ if (has_capability('mod/tcount:manage', $contextmodule)) {
     }
 }
 echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
-echo '<div id="my-timeline" style="overflow-y: auto; height: 250px; border: 1px solid #aaa"></div>';
+echo '<div id="my-timeline" style="overflow-y: visible; height: 250px; border: 1px solid #aaa"></div>';
 echo $OUTPUT->spacer(array('height' => 20));
 
 
@@ -105,7 +105,7 @@ if (has_capability('mod/tcount:viewothers', $contextmodule)) {
 $groups= groups_get_activity_allowed_groups($cm);
 $userstats = tcount_calculate_stats($tcount, $students);
 $table = new html_table();
-$table->head = array('Student', 'tweeter', 'tweets', 'retweets', 'favs');
+$table->head = array('Student', 'tweets', 'retweets', 'favs');
 foreach ($userstats->users as $userid => $stat) {
     $row = new html_table_row();
     // Photo and link to user profile.
@@ -133,7 +133,6 @@ foreach ($userstats->users as $userid => $stat) {
         $twittername = $twitterusername;
     }
     $row->cells[] = new html_table_cell($userpic . $profilelink . ' (' . $twittername . ')');
-    $row->cells[] = new html_table_cell($twittername);
     $row->cells[] = new html_table_cell($twitterusername ? '<a href="https://twitter.com/search?q=' . urlencode($tcount->hashtag)
                     . '%20from%3A' . $twitterusername . '&src=typd">' . $stat->tweets . '</a>' : '--');
     $row->cells[] = new html_table_cell($twitterusername ? $stat->retweets : '--');

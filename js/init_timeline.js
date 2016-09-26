@@ -12,7 +12,7 @@ function deferred_init_timeline(Y, tcountid, user) {
     var eventSource = new Timeline.DefaultEventSource();
     SimileAjax.History.enabled = false;
     var theme1 = Timeline.ClassicTheme.create();
-    theme1.autoWidth = false; // Set the Timeline's "width" automatically.
+    theme1.autoWidth = true; // Set the Timeline's "width" automatically.
     // Set autoWidth on the Timeline's first band's theme,
     // will affect all bands.
     theme1.event.label.offsetFromLine = 10;
@@ -31,7 +31,7 @@ function deferred_init_timeline(Y, tcountid, user) {
     var bandInfos = [
         Timeline.createBandInfo({
             eventSource: eventSource,
-            width: "15%",
+            width: "48px",
             showEventText: false,
             intervalUnit: SimileAjax.DateTime.MONTH,
             intervalPixels: 200,
@@ -71,6 +71,12 @@ function deferred_init_timeline(Y, tcountid, user) {
         eventSource.loadJSON(json, url);
         tl.getBand(1).setMaxVisibleDate(eventSource.getLatestDate());
         tl.getBand(1).setMinVisibleDate(eventSource.getEarliestDate());
+// Calculate the minimum size required to display all activities in band 0
+        var tracksNeeded = tl.getBand(1)._eventTracksNeeded;
+        var trackIncrement = tl.getBand(1)._eventTrackIncrement;
+        var widgetHeight = (tracksNeeded * trackIncrement) / 1.80;
+// Resize widget's containing DIV using jQuery
+        $("#my-timeline").height(widgetHeight);
         tl.layout();
         tl.finishedEventLoading(); // Automatically set new size of the div
     });

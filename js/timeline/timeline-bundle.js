@@ -39,6 +39,38 @@ SimileAjax.DOM.registerEventWithObject(this._div,"mousemove",this,"_onMouseMove"
 SimileAjax.DOM.registerEventWithObject(this._div,"mouseup",this,"_onMouseUp");
 SimileAjax.DOM.registerEventWithObject(this._div,"mouseout",this,"_onMouseOut");
 SimileAjax.DOM.registerEventWithObject(this._div,"dblclick",this,"_onDblClick");
+//added by Kartik starts
+SimileAjax.DOM.registerEventWithObject(this._div,"touchstart",this,"_onTouchStart");
+SimileAjax.DOM.registerEventWithObject(this._div,"touchmove",this,"_onTouchMove");
+
+Timeline._Band.prototype._onTouchStart=function(D,A,E)
+{
+    if(A.touches.length == 1)
+    {
+		var touch = A.changedTouches[0];
+		this._dragX=touch.clientX;
+		this._dragY=touch.clientY;
+    }
+}
+
+
+Timeline._Band.prototype._onTouchMove=function(D,A,E)
+{
+    if(A.touches.length == 1)
+    {
+		A.preventDefault();
+        var touch = A.changedTouches[0];
+		var C=touch.clientX-this._dragX;
+        var B=touch.clientY-this._dragY;
+        this._dragX=touch.clientX;
+        this._dragY=touch.clientY;
+        this._moveEther(this._timeline.isHorizontal()?C:B);
+		this._positionHighlight();
+		this._fireOnScroll();
+		this._setSyncWithBandDate();
+	} 
+};
+//added by Kartik ends
 var E=this._theme!=null?this._theme.mouseWheel:"scroll";
 if(E==="zoom"||E==="scroll"||this._zoomSteps){if(SimileAjax.Platform.browser.isFirefox){SimileAjax.DOM.registerEventWithObject(this._div,"DOMMouseScroll",this,"_onMouseScroll");
 }else{SimileAjax.DOM.registerEventWithObject(this._div,"mousewheel",this,"_onMouseScroll");
