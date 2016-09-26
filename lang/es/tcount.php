@@ -62,7 +62,7 @@ $string['tcount_consumer_key'] = 'consumer_key';
 $string['config_consumer_key'] = 'consumer_key de acuerdo con TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
 $string['tcount_consumer_secret'] = 'consumer_secret';
 $string['config_consumer_secret'] = 'consumer_secret de acuerdo con TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
-
+$string['problemwithtwitteraccount'] = 'Los últimos intentos de obtener los Tweets dieron un error. Intenta reconectar tu usuario. Mensaje: {$a}';
 // Permissions.
 $string['tcount:view']= 'Ver información básica del módulo Tcount.';
 $string['tcount:viewothers'] = 'Ver la actividad de los otros usuarios.';

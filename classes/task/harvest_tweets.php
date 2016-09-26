@@ -35,6 +35,7 @@ class harvest_tweets extends \core\task\scheduled_task {
     public function execute() {
         global $COURSE;
         global $USER;
+        /* @var $DB \moodle_database */
         global $DB;
         $courseid = $COURSE->id;
 
@@ -46,32 +47,40 @@ class harvest_tweets extends \core\task\scheduled_task {
         foreach ($tcounts as $tcount) {
             try {
                 $result = tcount_get_statuses($tcount);
+                $cm = get_coursemodule_from_instance('tcount', $tcount->id, null, null, MUST_EXIST);
+                $token = $DB->get_record('tcount_tokens', ['tcount_id' => $cm->instance]);
                 if (isset($result->errors)) {
-                    $cm = get_coursemodule_from_instance('tcount', $tcount->id, null, null, MUST_EXIST);
-                    $token = $DB->get_record('tcount_tokens', ['tcount_id' => $cm->instance]);
                     if ($token) {
                         $info = "UserToken for:$token->username ";
                     } else {
                         $info = "No twitter token defined!!";
                     }
-                    mtrace("For module tcount: $tcount->name (mdl_tcount->id=$cm->instance) "
+                    $errormessage = $result->errors[0]->message;
+                    mtrace("For module tcount: $tcount->name (id=$cm->instance) in course (id=$tcount->course) "
                             . "searching: $tcount->hashtag $info ERROR:"
-                            . $result->errors[0]->message);
+                            . $errormessage);
                 } else if (isset($result->statuses)) {
+                    $DB->set_field('tcount_tokens', 'errorstatus', null, array('id' => $token->id));
                     $statuses = count($result->statuses) == 0 ? array() : $result->statuses;
-
-                    mtrace("For module tcount: $tcount->name (id=$tcount->id) searching: $tcount->hashtag  Found "
+                    mtrace("For module tcount: $tcount->name (id=$tcount->id) in course (id=$tcount->course) searching: $tcount->hashtag  Found "
                             . count($statuses) . " tweets.");
                     tcount_process_statuses($statuses, $tcount);
                     $contextcourse = \context_course::instance($tcount->course);
                     list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
                     tcount_update_grades($tcount, $students);
+                    $errormessage = null;
                 } else {
-                    mtrace("For module tcount: $tcount->name (id=$tcount->id) searching: $tcount->hashtag  "
-                            . "ERROR querying twitter results null! Maybe there is no tweeter account linked in this activity.");
+                    $errormessage = "ERROR querying twitter results null! Maybe there is no tweeter account linked in this activity.";
+                    mtrace("For module tcount: $tcount->name (id=$tcount->id) in course (id=$tcount->course) searching: $tcount->hashtag  "
+                            . $errormessage);
+                }
+                $token->errorstatus = $errormessage;
+                $DB->update_record('tcount_tokens', $token);
+                if ($errormessage){// Marks this tokens as erroneous to warn the teacher.
+                mtrace("Uptatind token with id = $token->id with $errormessage");
                 }
             } catch (\Exception $e) {
-                mtrace("Error processing tcount: $tcount->name. Skipping. " . $e->error.'\n'.$e->getTraceAsString());
+                mtrace("Error processing tcount: $tcount->name. Skipping. " . $e->error . '\n' . $e->getTraceAsString());
             }
         }
         mtrace("=======================");

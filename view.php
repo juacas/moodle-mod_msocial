@@ -40,6 +40,7 @@
  * ******************************************************************************* */
 require_once("../../config.php");
 require_once("locallib.php");
+/* @var $OUTPUT \core_renderer*/
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);
 
@@ -76,9 +77,13 @@ echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpag
 // Print the links.
 $contextcourse = context_course::instance($cm->course);
 if (has_capability('mod/tcount:manage', $contextmodule)) {
-
-    $username = $DB->get_field('tcount_tokens', 'username', array('tcount_id' => $tcount->id));
+    $token = $DB->get_record('tcount_tokens', array('tcount_id' => $tcount->id));
+    $username = $token->username;
+    $errorstatus = $token->errorstatus;
     if ($username) {
+        if ($errorstatus){
+            echo $OUTPUT->notify_problem(get_string('problemwithtwitteraccount','tcount',$errorstatus));
+        }
         echo $OUTPUT->box(get_string('module_connected', 'tcount', $username)
                 . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect')),
                         "Change user") . '/'

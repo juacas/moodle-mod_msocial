@@ -41,6 +41,10 @@ function xmldb_tcount_upgrade($oldversion = 0) {
 
     $dbman = $DB->get_manager();
     $result = true;
-
+    if ($oldversion<2015092600){
+        $table = new xmldb_table('tcount_tokens');
+        $field = new xmldb_field('errorstatus', XMLDB_TYPE_CHAR, 50);
+        $dbman->add_field($table, $field);
+    }
     return $result;
 }
