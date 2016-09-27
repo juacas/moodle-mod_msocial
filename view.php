@@ -142,16 +142,6 @@ foreach ($userstats->users as $userid => $stat) {
     }
     $twitterusername = tcount_get_social_username($user, $tcount, 'twitter');
     if (!$twitterusername) {
-        if (strpos('custom_', $fieldid) === 0) {
-            $customfieldname = substr($fieldid, 7);
-        } else {
-            $customfieldname = false;
-        }
-        if ($customfieldname !== false) {
-            $fieldname = $customfieldname;
-        } else {
-            $fieldname = $tcount->fieldid;
-        }
         $a = new stdClass();
         $twittername = get_string('no_twitter_name_advice', 'tcount',
                 ['field' => $fieldname, 'userid' => $user->id, 'courseid' => $course->id]);
