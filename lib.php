@@ -135,6 +135,12 @@ function tcount_delete_instance($id) {
     if (!$DB->delete_records('tcount', array('id' => $tcount->id))) {
         $result = false;
     }
+    if (!$DB->delete_records('tcount_statuses', array('tcountid' => $tcount->id))) {
+        $result = false;
+    }
+    if (!$DB->delete_records('tcount_tokens', array('tcountid' => $tcount->id))) {
+        $result = false;
+    }
     tcount_grade_item_update($tcount);
     return $result;
 }

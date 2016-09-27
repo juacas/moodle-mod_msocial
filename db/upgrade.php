@@ -38,12 +38,17 @@
 function xmldb_tcount_upgrade($oldversion = 0) {
 
     global $CFG, $THEME, $DB;
-
+/* @var $dbman database_manager */
     $dbman = $DB->get_manager();
     $result = true;
     if ($oldversion<2015092600){
         $table = new xmldb_table('tcount_tokens');
         $field = new xmldb_field('errorstatus', XMLDB_TYPE_CHAR, 50);
+        $dbman->add_field($table, $field);
+    }
+    if ($oldversion<2015092700){
+        $table = new xmldb_table('tcount');
+        $field=new xmldb_field('fbsearch',XMLDB_TYPE_CHAR,512);
         $dbman->add_field($table, $field);
     }
     return $result;

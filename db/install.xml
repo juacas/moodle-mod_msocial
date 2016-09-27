@@ -38,12 +38,25 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="tcount_tokens" COMMENT="tcount_tokens table retrofitted from MySQL">
+    <TABLE NAME="tcount_tokens" COMMENT="Twitter access tokens">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="tcount_id" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="token" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="token_secret" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="username" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="errorstatus" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="tcount_id" TYPE="foreign-unique" FIELDS="tcount_id" REFTABLE="tcount" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="tcount_fbtokens" COMMENT="Facebook access tokens">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="tcount_id" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="token" TYPE="varchar" LENGTH="1024" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="username" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="errorstatus" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
