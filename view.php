@@ -142,7 +142,11 @@ foreach ($userstats->users as $userid => $stat) {
     }
     $twitterusername = tcount_get_social_username($user, $tcount, 'twitter');
     if (!$twitterusername) {
-        $customfieldname = tcount_get_custom_fieldname($tcount);
+        if (strpos('custom_', $fieldid) === 0) {
+            $customfieldname = substr($fieldid, 7);
+        } else {
+            $customfieldname = false;
+        }
         if ($customfieldname !== false) {
             $fieldname = $customfieldname;
         } else {
@@ -175,8 +179,8 @@ if (isset($tcount->widget_id)) {
                 js.id = id;
                 js.src = p + "://platform.twitter.com/widgets.js";
                 fjs.parentNode.insertBefore(js, fjs);
-                }
-            }(document, "script", "twitter-wjs");</script>
+            }
+        }(document, "script", "twitter-wjs");</script>
     <?php
 }
 // Finish the page.
