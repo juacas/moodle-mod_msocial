@@ -144,7 +144,7 @@ foreach ($userstats->users as $userid => $stat) {
     if (!$twitterusername) {
         $a = new stdClass();
         $twittername = get_string('no_twitter_name_advice', 'tcount',
-                ['field' => $fieldname, 'userid' => $user->id, 'courseid' => $course->id]);
+                ['field' => $tcount->twfieldid, 'userid' => $user->id, 'courseid' => $course->id]);
     } else {
         $twittername = $twitterusername;
     }
