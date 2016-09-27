@@ -29,11 +29,16 @@ El profesor necesita tener una cuenta de Twitter y conectar la actividad con su 
 Adicionalmente, el profesor puede insertar un Widget de twitter para mostrat el timeline en la página principal de la actividad.';
 $string['pluginname'] = 'Twitter count module';
 
-$string['fieldid'] = 'Campo que contiene el nombre de usuario de Tweeter';
-$string['fieldid_help'] = 'Este campo del perfil del usuario debe contener el identificador que se usa en twitter.';
+$string['twfieldid'] = 'Campo que contiene el nombre de usuario de Tweeter';
+$string['fbwfieldid'] = 'Campo que contiene el nombre de usuario de Facebook';
+$string['twfieldid_help'] = 'Este campo del perfil del usuario debe contener el identificador que se usa en twitter.';
+$string['fbfieldid_help'] = 'Este campo del perfil del usuario debe contener el identificador que se usa en Facebook.';
 
 $string['hashtag'] = 'Hashtag que se va a buscar en los tweets.';
 $string['hashtag_help'] = 'Puede ser cualquier expresión permitida por el API de Twitter. Se puede usar esta herramienta para componer la cadena de búsqueda avanzada: <a href="https://twitter.com/search-advanced">https://twitter.com/search-advanced</a>';
+$string['fbsearch'] = 'Texto de consulta de búsqeuda para Facebook';
+$string['fbsearch_help'] = 'Puede ser cualquier expresión permitida por el API de Facebook. Puede acudir a esta referencia para conocer qué tipo de cadenas de búsqueda se pueden usar: <a href="https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes">https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes</a>';
+
 $string['widget_id'] = 'Widget id que se va a incluir en la página principal.';
 $string['widget_id_help'] = 'Tweeter obliga a crear manualmente un widget de búsqueda en su página. Entre en su cuenta de Twitter y cree un widget. Copie y pegue el WidgetId creado (Sólo el número que aparece en el código). Puede crear los widgets en <a href="https://twitter.com/settings/widgets">Create and manage yout Twitter Widgets</a>';
 
@@ -49,9 +54,12 @@ $string['harvest_tweets'] = 'Search Twitter timeline for student activity';
 // MainPage.
 $string['mainpage'] = 'Portada del concurso Twitter';
 $string['mainpage_help'] = 'Portada del concurso Twitter. Puede comprobar aquí sus logros en el concurso Twitter';
-$string['module_connected'] = 'Modulo conectado con Twitter con el usuario {$a} ';
-$string['module_not_connected'] = 'Modulo no conectado con Twitter.';
+$string['module_connected_twitter'] = 'Modulo conectado con Twitter con el usuario "{$a}" ';
+$string['module_not_connected_twitter'] = 'Modulo no conectado con Twitter.';
 $string['no_twitter_name_advice'] = 'No hay nombre de Twitter. Introducir en el campo \'{$a->field}\' del <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">perfil personal</a>';
+$string['module_connected_facebook'] = 'Modulo conectado con Facebook con el usuario "{$a}" ';
+$string['module_not_connected_facebook'] = 'Modulo no conectado con Facebook.';
+$string['no_facebook_name_advice'] = 'No hay nombre de Facebook. Introducir en el campo \'{$a->field}\' del <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">perfil personal</a>';
 
 // SETTINGS.
 $string['tcount_oauth_access_token'] = 'oauth_access_token';
@@ -62,7 +70,8 @@ $string['tcount_consumer_key'] = 'consumer_key';
 $string['config_consumer_key'] = 'consumer_key de acuerdo con TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
 $string['tcount_consumer_secret'] = 'consumer_secret';
 $string['config_consumer_secret'] = 'consumer_secret de acuerdo con TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
-$string['problemwithtwitteraccount'] = 'Los últimos intentos de obtener los Tweets dieron un error. Intenta reconectar tu usuario. Mensaje: {$a}';
+$string['problemwithtwitteraccount'] = 'Los últimos intentos de obtener los Tweets dieron un error. Intenta reconectar Twitter con tu usuario. Mensaje: {$a}';
+$string['problemwithfacebookaccount'] = 'Los últimos intentos de obtener los Posts dieron un error. Intenta reconectar Facebook con tu usuario. Mensaje: {$a}';
 // Permissions.
 $string['tcount:view']= 'Ver información básica del módulo Tcount.';
 $string['tcount:viewothers'] = 'Ver la actividad de los otros usuarios.';

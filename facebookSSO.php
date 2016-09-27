@@ -37,6 +37,7 @@ if (has_capability('mod/tcount:manage', $context)) {
         'default_graph_version' => 'v2.7',
             //'default_access_token' => '{access-token}', // optional
     ]);
+    $record = $DB->get_record('tcount_fbtokens', array("tcount_id" => $cm->instance));
     if ($action == 'connect') {
 //GetToken
         $helper = $fb->getRedirectLoginHelper();
@@ -44,51 +45,40 @@ if (has_capability('mod/tcount:manage', $context)) {
         $moodleurl = new moodle_url("/mod/tcount/facebookSSO.php", array('id' => $id, 'action' => 'callback'));
         $callbackurl = $moodleurl->out($escaped = false);
         $loginUrl = $helper->getLoginUrl($callbackurl);
-        // echo $loginUrl; die;
         header("Location: $loginUrl");
-    } else
-    if ($action = 'callback') {
+    } else if ($action == 'callback') {
         $helper = $fb->getRedirectLoginHelper();
         try {
             $accessToken = $helper->getAccessToken();
-             echo "<p>User token: $accessToken</p>\n\n";
         } catch (Facebook\Exceptions\FacebookResponseException $e) {
             // When Graph returns an error
-            echo 'Graph returned an error: ' . $e->getMessage();
+            print_error('Graph returned an error: ' . $e->getMessage()); // TODO: pasar a lang
             exit;
         } catch (Facebook\Exceptions\FacebookSDKException $e) {
             // When validation fails or other local issues
-            echo 'Facebook SDK returned an error: ' . $e->getMessage();
+            print_error('Facebook SDK returned an error: ' . $e->getMessage()); // TODO: pasar a lang
             exit;
         }
-
         if (isset($accessToken)) {
             // Logged in!
-            $_SESSION['facebook_access_token'] = (string) $accessToken;
-           
             // The OAuth 2.0 client handler helps us manage access tokens
             $oAuth2Client = $fb->getOAuth2Client();
             if (!$accessToken->isLongLived()) {
                 // Exchanges a short-lived access token for a long-lived one
                 try {
                     $accessToken = $oAuth2Client->getLongLivedAccessToken($accessToken);
-                    echo "<p>loglived token $accessToken</p>\n\n";
                 } catch (Facebook\Exceptions\FacebookSDKException $e) {
-                    echo "<p>Error getting long-lived access token: " . $helper->getMessage() . "</p>\n\n";
+                    echo "<p>Error getting long-lived access token: " . $helper->getMessage() . "</p>\n\n";// TODO: pasar a lang
                     exit;
                 }
-            }else{
-                 echo "<p>User token is long-lived</p>\n\n";
             }
             $fb->setDefaultAccessToken($accessToken);
             $graphuser = $fb->get('/me')->getGraphUser();
-            print_object($graphuser);
+            //print_object($graphuser);
             $username = $graphuser->getName();
-            echo "<p>username: $username</p>\n\n";
             /*
              * Save tokens for future use
              */
-            $record = $DB->get_record('tcount_fbtokens', array("tcount_id" => $cm->instance));
             if ($record) {
                 $DB->delete_records('tcount_fbtokens', array('id' => $record->id));
             }
@@ -97,13 +87,13 @@ if (has_capability('mod/tcount:manage', $context)) {
             $record->token = $accessToken->getValue();
             $record->username = $username;
             $DB->insert_record('tcount_fbtokens', $record);
+            $message=get_string('module_connected_facebook','tcount',$record->username);
             // Now you can redirect to another page and use the
-            // access token from $_SESSION['facebook_access_token']
         } elseif ($helper->getError()) {
             // The user denied the request
-            exit;
+            $message = get_string('module_not_connected_facebook','tcount');
         }
- // Show headings and menus of page.
+        // Show headings and menus of page.
         $url = new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id));
         $PAGE->set_url($url);
         $PAGE->set_title(format_string($cm->name));
@@ -111,7 +101,7 @@ if (has_capability('mod/tcount:manage', $context)) {
         $PAGE->set_heading($course->fullname);
         // Print the page header.
         echo $OUTPUT->header();
-        echo $OUTPUT->box("Configured facebook user $record->username ");
+        echo $OUTPUT->box($message);
         echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $id)));
         echo $OUTPUT->footer();
     } else if ($action == 'disconnect') {
@@ -126,7 +116,7 @@ if (has_capability('mod/tcount:manage', $context)) {
         echo $OUTPUT->box("Module disconnected from facebook. It won't work until a facebook account is linked again. ");
         echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $id)));
         echo $OUTPUT->footer();
-    }  else {
+    } else {
         print_error("Bad action code");
     }
 } else {

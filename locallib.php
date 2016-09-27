@@ -43,7 +43,7 @@ function tcount_process_statuses($statuses, $tcount) {
     $tweeters = array();
     foreach ($all as $userid) {
         $user = $userrecords[$userid];
-        $tweetername = strtolower(str_replace('@', '', $user->aim));
+        $tweetername = strtolower(str_replace('@', '', tcount_get_social_username($tcount, $user, 'twitter')));
         if ($tweetername) {
             $tweeters[$tweetername] = $userid;
         }
@@ -313,19 +313,29 @@ function tcount_calculate_user_grades($tcount, $userid = 0) {
     return $grades;
 }
 
-function tcount_get_custom_fieldname($tcount) {
-    if (strpos('custom_', $tcount->fieldid) === 0) {
-        $customfieldname = substr($fieldid, 7);
-    } else {
-        return false;
+
+/**
+ * 
+ * @param type $user
+ * @param type $tcount
+ * @param type $network
+ * @return string username in the social network
+ */
+function tcount_get_social_username($user, $tcount,$network) {
+
+    switch ($network) {
+        case 'facebook': $fieldid=$tcount->fbfieldid;
+            break;
+        case 'twitter': $fieldid=$tcount->twfieldid;
+            break;
+        default:
+            print_error('notsupported');
     }
-}
-
-function tcount_get_user_twittername($user, $tcount) {
-
-    $fieldid = $tcount->fieldid;
-    $customfieldname = tcount_get_custom_fieldname($tcount);
-
+    if (strpos('custom_', $fieldid) === 0) {
+        $customfieldname = substr($fieldid, 7);
+    }else{
+        $customfieldname=false;
+    }
     if ($customfieldname !== false) {
         require_once('../../user/profile/lib.php');
         $profile = profile_user_record($user->id);
@@ -334,7 +344,7 @@ function tcount_get_user_twittername($user, $tcount) {
         if (isset($user->$fieldid) && $user->$fieldid != '') {
             return $user->$fieldid;
         } else {
-            return false;
+            return null;
         }
     }
 }

@@ -28,11 +28,15 @@ The module runs periodically in the background checking the activity of the time
 The teacher need to have a Twitter account and to connect the activity with his Twitter user. Additionally the teacher can insert a Twitter widget in the main page of the activity to show the selected timeline to the students.';
 $string['pluginname'] = 'Twitter count module';
 
-$string['fieldid'] = 'Field that holds the tweeter username';
-$string['fieldid_help'] = 'Field name of the user profile that holds the tweeter username';
+$string['twfieldid'] = 'Field that holds the tweeter username';
+$string['twfieldid_help'] = 'Field name of the user profile that holds the tweeter username';
+$string['fbfieldid'] = 'Field that holds the facebook username';
+$string['fbfieldid_help'] = 'Field name of the user profile that holds the facebook username';
 
 $string['hashtag'] = 'Hashtag to search for in tweets';
 $string['hashtag_help'] = 'It can be any string as specified in Twitter API. You can use this tool to compose your search string <a href="https://twitter.com/search-advanced">https://twitter.com/search-advanced</a>';
+$string['fbsearch'] = 'Search string to search for in Facebook';
+$string['fbsearch_help'] = 'It can be any string as specified in Facebook search API. You can use this reference to find out how to compose your search string <a href="https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes">https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes</a>';
 $string['widget_id'] = 'Widget id to be embedded in the main page.';
 $string['widget_id_help'] = 'weeter API forces to create mannually a search widget in yout twitter account to be embedded in any page. Create one and copy and paste the WidgetId created. You can create the widgets at <a href="https://twitter.com/settings/widgets">Create and manage yout Twitter Widgets</a>';
 
@@ -48,9 +52,12 @@ $string['harvest_tweets'] = 'Search Twitter timeline for student activity';
 // MainPage.
 $string['mainpage'] = 'Twitter contest main page';
 $string['mainpage_help'] = 'Twitter contest main page. You can view your achievements in Twitter contest';
-$string['module_connected'] = 'Module connected with Twitter as user {$a} ';
-$string['module_not_connected'] = 'Module not connected to Twitter.';
+$string['module_connected_twitter'] = 'Module connected with Twitter as user "{$a}" ';
+$string['module_not_connected_twitter'] = 'Module not connected to Twitter.';
 $string['no_twitter_name_advice'] = 'No Twitter name. Enter it in field \'{$a->field}\' of the <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a>';
+$string['module_connected_facebook'] = 'Module connected with Facebook as user "{$a}" ';
+$string['module_not_connected_facebook'] = 'Module not connected to Facebook.';
+$string['no_facebook_name_advice'] = 'No Facebook user name. Enter it in field \'{$a->field}\' of the <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a>';
 
 // SETTINGS.
 $string['tcount_oauth_access_token'] = 'oauth_access_token';
@@ -61,7 +68,8 @@ $string['tcount_consumer_key'] = 'consumer_key';
 $string['config_consumer_key'] = 'consumer_key according to TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
 $string['tcount_consumer_secret'] = 'consumer_secret';
 $string['config_consumer_secret'] = 'consumer_secret according to TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
-$string['problemwithtwitteraccount'] = 'Recent attempts to get the tweets resulted in an error. Try to reconnect with your user. Message: {$a}';
+$string['problemwithtwitteraccount'] = 'Recent attempts to get the tweets resulted in an error. Try to reconnect Twitter with your user. Message: {$a}';
+$string['problemwithfacebookaccount'] = 'Recent attempts to get the posts resulted in an error. Try to reconnect Facebook with your user. Message: {$a}';
 // Permissions.
 $string['tcount:view']= 'View basic information of Tcount module.';
 $string['tcount:viewothers'] = 'View activity of other users.';

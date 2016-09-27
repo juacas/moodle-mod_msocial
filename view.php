@@ -40,7 +40,7 @@
  * ******************************************************************************* */
 require_once("../../config.php");
 require_once("locallib.php");
-/* @var $OUTPUT \core_renderer*/
+/* @var $OUTPUT \core_renderer */
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);
 
@@ -78,20 +78,37 @@ echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpag
 $contextcourse = context_course::instance($cm->course);
 if (has_capability('mod/tcount:manage', $contextmodule)) {
     $token = $DB->get_record('tcount_tokens', array('tcount_id' => $tcount->id));
-    $username = $token->username;
-    $errorstatus = $token->errorstatus;
-    if ($username) {
-        if ($errorstatus){
-            echo $OUTPUT->notify_problem(get_string('problemwithtwitteraccount','tcount',$errorstatus));
+
+    if ($token) {
+        $username = $token->username;
+        $errorstatus = $token->errorstatus;
+        if ($errorstatus) {
+            echo $OUTPUT->notify_problem(get_string('problemwithtwitteraccount', 'tcount', $errorstatus));
         }
-        echo $OUTPUT->box(get_string('module_connected', 'tcount', $username)
+        echo $OUTPUT->box(get_string('module_connected_twitter', 'tcount', $username)
                 . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect')),
                         "Change user") . '/'
                 . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'disconnect')),
                         "Disconnect"));
     } else {
-        echo $OUTPUT->notification(get_string('module_not_connected', 'tcount')
+        echo $OUTPUT->notification(get_string('module_not_connected_twitter', 'tcount')
                 . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect')),
+                        "Connect"));
+    }
+    // Facebook connection
+    $fbtoken = $DB->get_record('tcount_fbtokens', array('tcount_id' => $tcount->id));
+    if ($fbtoken) {
+        if ($fbtoken->errorstatus) {
+            echo $OUTPUT->notify_problem(get_string('problemwithfacebookaccount', 'tcount', $errorstatus));
+        }
+        echo $OUTPUT->box(get_string('module_connected_facebook', 'tcount', $fbtoken->username)
+                . $OUTPUT->action_link(new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'connect')),
+                        "Change user") . '/'
+                . $OUTPUT->action_link(new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'disconnect')),
+                        "Disconnect"));
+    } else {
+        echo $OUTPUT->notification(get_string('module_not_connected_facebook', 'tcount')
+                . $OUTPUT->action_link(new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'connect')),
                         "Connect"));
     }
 }
@@ -107,7 +124,7 @@ if (has_capability('mod/tcount:viewothers', $contextmodule)) {
     $students = array($USER->id);
     $userrecords[$USER->id] = $USER;
 }
-$groups= groups_get_activity_allowed_groups($cm);
+$groups = groups_get_activity_allowed_groups($cm);
 $userstats = tcount_calculate_stats($tcount, $students);
 $table = new html_table();
 $table->head = array('Student', 'tweets', 'retweets', 'favs');
@@ -123,7 +140,7 @@ foreach ($userstats->users as $userid => $stat) {
         $userpic = '';
         $profilelink = '';
     }
-    $twitterusername = tcount_get_user_twittername($user, $tcount);
+    $twitterusername = tcount_get_social_username($user, $tcount, 'twitter');
     if (!$twitterusername) {
         $customfieldname = tcount_get_custom_fieldname($tcount);
         if ($customfieldname !== false) {
@@ -149,12 +166,18 @@ echo html_writer::table($table);
 // Insert timeline.
 if (isset($tcount->widget_id)) {
     echo('<a class="twitter-timeline" data-dnt="true" target="_blank" href="https://twitter.com/search?q='
-        .urlencode($tcount->hashtag).'" data-widget-id="'.$tcount->widget_id.'">Tweets sobre '.$tcount->hashtag.'</a>');
-?>
-    <script>!function(d, s, id){var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location)?'http':'https';
-        if (!d.getElementById(id)){js = d.createElement(s); js.id = id; js.src = p + "://platform.twitter.com/widgets.js";
-            fjs.parentNode.insertBefore(js, fjs); }}(document, "script", "twitter-wjs");</script>
-<?php
+    . urlencode($tcount->hashtag) . '" data-widget-id="' . $tcount->widget_id . '">Tweets sobre ' . $tcount->hashtag . '</a>');
+    ?>
+    <script>!function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https';
+            if (!d.getElementById(id)) {
+                js = d.createElement(s);
+                js.id = id;
+                js.src = p + "://platform.twitter.com/widgets.js";
+                fjs.parentNode.insertBefore(js, fjs);
+                }
+            }(document, "script", "twitter-wjs");</script>
+    <?php
 }
 // Finish the page.
 echo $OUTPUT->footer();

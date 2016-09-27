@@ -80,13 +80,19 @@ class mod_tcount_mod_form extends moodleform_mod {
             }
         }
         $idtypeoptions = $options1 + $options2;
-        $mform->addElement('select', 'fieldid', get_string("fieldid", "tcount"), $idtypeoptions);
-        $mform->setDefault('fieldid', 'aim');
-        $mform->addHelpButton('fieldid', 'fieldid', 'tcount');
-
+        $mform->addElement('select', 'twfieldid', get_string("twfieldid", "tcount"), $idtypeoptions);
+        $mform->setDefault('twfieldid', 'aim');
+        $mform->addHelpButton('twfieldid', 'twfieldid', 'tcount');
+        $mform->addElement('select', 'fbfieldid', get_string("fbfieldid", "tcount"), $idtypeoptions);
+        $mform->setDefault('fbfieldid', 'aim');
+        $mform->addHelpButton('fbfieldid', 'fbfieldid', 'tcount');
         $mform->addElement('text', 'hashtag', get_string("hashtag", "tcount"), array('size' => '20'));
         $mform->setType('hashtag', PARAM_TEXT);
         $mform->addHelpButton('hashtag', 'hashtag', 'tcount');
+        
+        $mform->addElement('text', 'fbsearch', get_string("fbsearch", "tcount"), array('size' => '20'));
+        $mform->setType('fbsearch', PARAM_TEXT);
+        $mform->addHelpButton('fbsearch', 'fbsearch', 'tcount');
 
         $mform->addElement('text', 'widget_id', get_string("widget_id", "tcount"), array('size' => '20'));
         $mform->setType('widget_id', PARAM_TEXT);
