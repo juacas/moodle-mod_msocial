@@ -48,9 +48,7 @@ $cm = get_coursemodule_from_id('tcount', $id, null, null, MUST_EXIST);
 require_login($cm->course, false, $cm);
 $course = get_course($cm->course);
 
-if (!$tcount = $DB->get_record('tcount', array('id' => $cm->instance))) {
-    print_error("Course module is incorrect");
-}
+$tcount = $DB->get_record('tcount', array('id' => $cm->instance), '*', MUST_EXIST);
 $user = $USER;
 // Capabilities.
 $contextmodule = context_module::instance($cm->id);
@@ -78,7 +76,7 @@ echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpag
 $contextcourse = context_course::instance($cm->course);
 if (has_capability('mod/tcount:manage', $contextmodule)) {
     $token = $DB->get_record('tcount_tokens', array('tcount_id' => $tcount->id));
-
+    $url_connect = new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect'));
     if ($token) {
         $username = $token->username;
         $errorstatus = $token->errorstatus;
@@ -112,6 +110,16 @@ if (has_capability('mod/tcount:manage', $contextmodule)) {
                         "Connect"));
     }
 }
+// Check social credentials
+$url_profile = new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
+$owntwittername = tcount_get_social_username($USER, $tcount, 'twitter');
+if (trim($owntwittername) === "") { // Offer to register
+    $twitteradvice = get_string('no_twitter_name_advice2', 'tcount',
+            ['field' => $tcount->twfieldid, 'userid' => $USER->id, 'courseid' => $course->id, 'url' => $url_profile->out(false)]);
+    echo $OUTPUT->notification($twitteradvice);
+}
+
+// Desctiption text
 echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
 echo '<div id="my-timeline" style="overflow-y: visible; height: 250px; border: 1px solid #aaa"></div>';
 echo $OUTPUT->spacer(array('height' => 20));
@@ -143,8 +151,13 @@ foreach ($userstats->users as $userid => $stat) {
     $twitterusername = tcount_get_social_username($user, $tcount, 'twitter');
     if (!$twitterusername) {
         $a = new stdClass();
-        $twittername = get_string('no_twitter_name_advice', 'tcount',
-                ['field' => $tcount->twfieldid, 'userid' => $user->id, 'courseid' => $course->id]);
+        if ($USER->id == $user->id) {
+            $twittername = get_string('no_twitter_name_advice2', 'tcount',
+                    ['field' => $tcount->twfieldid, 'userid' => $USER->id, 'courseid' => $course->id, 'url' => $url_profile->out(false)]);
+        } else {
+            $twittername = get_string('no_twitter_name_advice', 'tcount',
+                    ['field' => $tcount->twfieldid, 'userid' => $user->id, 'courseid' => $course->id]);
+        }
     } else {
         $twittername = $twitterusername;
     }

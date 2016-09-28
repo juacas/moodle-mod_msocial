@@ -55,6 +55,7 @@ $string['mainpage_help'] = 'Twitter contest main page. You can view your achieve
 $string['module_connected_twitter'] = 'Module connected with Twitter as user "{$a}" ';
 $string['module_not_connected_twitter'] = 'Module not connected to Twitter.';
 $string['no_twitter_name_advice'] = 'No Twitter name. Enter it in field \'{$a->field}\' of the <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a>';
+$string['no_twitter_name_advice2'] = 'No Twitter name. Enter it in field \'{$a->field}\' of the <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a> or in <a href="{$a->url}"><img src="https://g.twimg.com/dev/sites/default/files/images_documentation/sign-in-with-twitter-gray.png" alt="Twitter login"/></a>';
 $string['module_connected_facebook'] = 'Module connected with Facebook as user "{$a}" ';
 $string['module_not_connected_facebook'] = 'Module not connected to Facebook.';
 $string['no_facebook_name_advice'] = 'No Facebook user name. Enter it in field \'{$a->field}\' of the <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a>';

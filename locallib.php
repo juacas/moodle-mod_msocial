@@ -160,7 +160,7 @@ function eduvalab_get_users_by_type($contextcourse) {
     // ...select active userids.
     $activeids = array();
     global $DB;
-    if (count($students)>0){
+    if (count($students) > 0) {
         list($select, $params) = $DB->get_in_or_equal($students);
         $select = "userid $select";
         $select .= " AND courseid = ?";
@@ -197,6 +197,7 @@ function eduvalab_time_is_between($date, $fromdate, $todate) {
 class OAuthCurl {
 
     public function __construct() {
+        
     }
 
     public static function fetch_data($url) {
@@ -220,7 +221,9 @@ class OAuthCurl {
         $header['content'] = $content;
         return $header;
     }
+
 }
+
 /**
  * Statistics for grading
  */
@@ -285,7 +288,7 @@ function tcount_calculate_grades($tcount, $stats) {
             'maxtweets' => $stats->maximums->tweets,
             'maxretweets' => $stats->maximums->retweets,
         ));
-        $value = $stat->tweets==0?false:$calculation->evaluate();
+        $value = $stat->tweets == 0 ? false : $calculation->evaluate();
         if ($value !== false) {
             $grade->rawgrade = $value;
         } else {
@@ -313,7 +316,6 @@ function tcount_calculate_user_grades($tcount, $userid = 0) {
     return $grades;
 }
 
-
 /**
  * 
  * @param type $user
@@ -321,20 +323,20 @@ function tcount_calculate_user_grades($tcount, $userid = 0) {
  * @param type $network
  * @return string username in the social network
  */
-function tcount_get_social_username($user, $tcount,$network) {
+function tcount_get_social_username($user, $tcount, $network) {
 
     switch ($network) {
-        case 'facebook': $fieldid=$tcount->fbfieldid;
+        case 'facebook': $fieldid = $tcount->fbfieldid;
             break;
-        case 'twitter': $fieldid=$tcount->twfieldid;
+        case 'twitter': $fieldid = $tcount->twfieldid;
             break;
         default:
             print_error('notsupported');
     }
     if (strpos('custom_', $fieldid) === 0) {
         $customfieldname = substr($fieldid, 7);
-    }else{
-        $customfieldname=false;
+    } else {
+        $customfieldname = false;
     }
     if ($customfieldname !== false) {
         require_once('../../user/profile/lib.php');
@@ -346,5 +348,31 @@ function tcount_get_social_username($user, $tcount,$network) {
         } else {
             return null;
         }
+    }
+}
+
+function tcount_set_social_username(stdClass $user, $tcount, $socialname, $network) {
+    switch ($network) {
+        case 'facebook': $fieldid = $tcount->fbfieldid;
+            break;
+        case 'twitter': $fieldid = $tcount->twfieldid;
+            break;
+        default:
+            print_error('notsupported');
+    }
+    if (strpos('custom_', $fieldid) === 0) {
+        $customfieldname = substr($fieldid, 7);
+    } else {
+        $customfieldname = false;
+    }
+    if ($customfieldname !== false) {
+        require_once('../../user/profile/lib.php');
+        $profile = profile_user_record($user->id);
+        $profile->$customfieldname = $socialname;
+        profile_save_data($profile);
+    } else {
+        $user->$fieldid = $socialname;
+        require_once("../../user/lib.php");
+        user_update_user($user);
     }
 }
