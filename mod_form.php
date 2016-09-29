@@ -67,7 +67,7 @@ class mod_tcount_mod_form extends moodleform_mod {
         // Descripción.
         $this->standard_intro_elements();
         // Identificador.
-        $options1 = array('icq' => 'ICQ',
+        $options1 = array(
             'skype' => 'SKYPE',
             'yahoo' => 'Yahoo',
             'aim' => 'AIM',
@@ -76,7 +76,7 @@ class mod_tcount_mod_form extends moodleform_mod {
         $options2 = array();
         if ($options = $DB->get_records_menu("user_info_field", null, "name", "shortname, name")) {
             foreach ($options as $shortname => $name) {
-                $options2["custom-" . $shortname] = $name;
+                $options2[$shortname] = $name;
             }
         }
         $idtypeoptions = $options1 + $options2;

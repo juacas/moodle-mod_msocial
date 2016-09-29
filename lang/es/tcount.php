@@ -19,15 +19,15 @@
  * and open the template in the editor.
  */
 
-$string['modulename'] = 'Concurso de posteo de Twitters';
-$string['modulenameplural'] = 'Concursos de posteo de Twitters';
-$string['modulename_help'] = 'La actividad TCount permite a los profesores definir una expresión de búsqueda en el timeline de twitter y pedir a los alumnos que publiquen mensajes con un determinado hashtag o términos.
-El módulo busca periódicamente en segundo plano la actividad en twitter y hace una contabilidad de los Tweets, los Eetweets y FAVS recibidos por cada estudiante.
+$string['modulename'] = 'Concurso de posteo de Twitters y Facebook';
+$string['modulenameplural'] = 'Concursos de posteo de Twitters y Facebook';
+$string['modulename_help'] = 'La actividad TCount permite a los profesores definir una expresión de búsqueda en el timeline de twitter y facebook y pedir a los alumnos que publiquen mensajes con un determinado hashtag o términos.
+El módulo busca periódicamente en segundo plano la actividad en twitter y facebook y hace una contabilidad de los Tweets, los Eetweets y FAVS recibidos por cada estudiante.
 El módulo calcula una calificación mediante una fórmula definida por el profesor que combina estas estadísticas.
 INSTRUCCIONES:
-El profesor necesita tener una cuenta de Twitter y conectar la actividad con su usuario de Twitter.
+El profesor necesita tener una cuenta de Twitter y/o Facebook y conectar la actividad con su usuario de Twitter y/o Facebook.
 Adicionalmente, el profesor puede insertar un Widget de twitter para mostrat el timeline en la página principal de la actividad.';
-$string['pluginname'] = 'Twitter count module';
+$string['pluginname'] = 'Social activity count module';
 
 $string['twfieldid'] = 'Campo que contiene el nombre de usuario de Tweeter';
 $string['fbwfieldid'] = 'Campo que contiene el nombre de usuario de Facebook';
@@ -56,11 +56,12 @@ $string['mainpage'] = 'Portada del concurso Twitter';
 $string['mainpage_help'] = 'Portada del concurso Twitter. Puede comprobar aquí sus logros en el concurso Twitter';
 $string['module_connected_twitter'] = 'Modulo conectado con Twitter con el usuario "{$a}" ';
 $string['module_not_connected_twitter'] = 'Modulo no conectado con Twitter.';
-$string['no_twitter_name_advice'] = 'No hay nombre de Twitter. Introducir en el campo \'{$a->field}\' del <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">perfil personal</a>';
-$string['no_twitter_name_advice2'] = 'No hay nombre de Twitter. Introducir en el campo \'{$a->field}\' del <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">perfil personal</a> o mediante <a href="{$a}"><img src="https://g.twimg.com/dev/sites/default/files/images_documentation/sign-in-with-twitter-gray.png" alt="Twitter login"/></a>';
+$string['no_twitter_name_advice'] = 'No hay nombre de Twitter. Introducir en el campo \'{$a->field}\' del <a href="../../user/edit.php?id={$a->userid}&course={$a->courseid}">perfil personal</a>';
+$string['no_twitter_name_advice2'] = 'No hay nombre de Twitter. Introducir en el campo \'{$a->field}\' del <a href="../../user/edit.php?id={$a->userid}&course={$a->courseid}">perfil personal</a> o mediante <a href="{$a}"><img src="https://g.twimg.com/dev/sites/default/files/images_documentation/sign-in-with-twitter-gray.png" alt="Twitter login"/></a>';
 $string['module_connected_facebook'] = 'Modulo conectado con Facebook con el usuario "{$a}" ';
 $string['module_not_connected_facebook'] = 'Modulo no conectado con Facebook.';
-$string['no_facebook_name_advice'] = 'No hay nombre de Facebook. Introducir en el campo \'{$a->field}\' del <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">perfil personal</a>';
+$string['no_facebook_name_advice'] = 'No hay nombre de Facebook. Introducir en el campo \'{$a->field}\' del <a href="../../user/edit.php?id={$a->userid}&course={$a->courseid}">perfil personal</a>';
+$string['no_facebook_name_advice2'] = 'No hay nombre de Facebook. Introducir en el campo \'{$a->field}\' del <a href="../../user/edit.php?id={$a->userid}&course={$a->courseid}">perfil personal o en <a href="{$a->url}"><img src="pix/loginviafacebook.png" alt="Facebook login"/></a></a>';
 
 // SETTINGS.
 $string['tcount_oauth_access_token'] = 'oauth_access_token';

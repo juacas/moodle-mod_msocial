@@ -23,6 +23,8 @@ $type = optional_param('type', 'connect', PARAM_ALPHA);
 $cm = get_coursemodule_from_id('tcount', $id);
 $course = get_course($cm->course);
 require_login($course);
+$tcount = $DB->get_record('tcount', array('id' => $cm->instance), '*', MUST_EXIST);
+
 $consumerkey = $CFG->mod_tcount_consumer_key;
 $consumersecret = $CFG->mod_tcount_consumer_secret;
 
@@ -33,7 +35,7 @@ $oauthaccesstoken = "https://twitter.com/oauth/access_token";
 $moodleurl = new moodle_url("/mod/tcount/twitterSSO.php", array('id' => $id, 'action' => 'callback', 'type' => $type));
 $callbackurl = $moodleurl->out($escaped = false);
 $context = context_module::instance($id);
-$tcount = $DB->get_record('tcount', array('id' => $cm->instance),'*',MUST_EXIST);
+$tcount = $DB->get_record('tcount', array('id' => $cm->instance), '*', MUST_EXIST);
 
 if ($action == 'callback') { // Twitter callback.
     $sigmethod = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1();
@@ -47,26 +49,30 @@ if ($action == 'callback') { // Twitter callback.
     $reqdata = $oc->fetch_data("{$accreq}&oauth_verifier={$_GET['oauth_verifier']}");
 
     parse_str($reqdata['content'], $accoauthdata);
-
+    if (!isset($accoauthdata['oauth_token'])) {
+        print_error('error');
+    }
     /*
      * Save tokens for future use
      */
-    if ($type==='connect' && has_capability('mod/tcount:manage', $context)){
-    $record = $DB->get_record('tcount_tokens', array("tcount_id" => $cm->instance));
-    if ($record) {
-        $DB->delete_records('tcount_tokens', array('id' => $record->id));
-    }
-    $record = new stdClass();
-    $record->tcount_id = $cm->instance;
-    $record->token = $accoauthdata['oauth_token'];
-    $record->token_secret = $accoauthdata['oauth_token_secret'];
-    $record->username = $accoauthdata['screen_name'];
-    $DB->insert_record('tcount_tokens', $record);
-    $message = "Configured user $record->username ";
-    }else if ($type==='profile'){ // Fill the profile with user id
-        $socialname='@'.$accoauthdata['screen_name'];
+    if ($type === 'connect' && has_capability('mod/tcount:manage', $context)) {
+        $record = $DB->get_record('tcount_tokens', array("tcount_id" => $cm->instance));
+        if ($record) {
+            $DB->delete_records('tcount_tokens', array('id' => $record->id));
+        }
+        $record = new stdClass();
+        $record->tcount_id = $cm->instance;
+        $record->token = $accoauthdata['oauth_token'];
+        $record->token_secret = $accoauthdata['oauth_token_secret'];
+        $record->username = $accoauthdata['screen_name'];
+        $DB->insert_record('tcount_tokens', $record);
+        $message = "Configured user $record->username ";
+    } else if ($type === 'profile') { // Fill the profile with user id
+        $socialname = '@' . $accoauthdata['screen_name'];
         tcount_set_social_username($USER, $tcount, $socialname, 'twitter');
         $message = "Profile updated with twitter user $socialname ";
+    } else {
+        $message = "Access forbidden.";
     }
     // Show headings and menus of page.
     $url = new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id));

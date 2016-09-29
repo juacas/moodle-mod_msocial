@@ -19,14 +19,14 @@
  * and open the template in the editor.
  */
 
-$string['modulename'] = 'Twitter count contest';
-$string['modulenameplural'] = 'Twitter count contests';
-$string['modulename_help'] = 'The tcount activity enables a teacher to define a search string for the twitter timeline and tell the students to publish messages using certain hashtags or terms.
+$string['modulename'] = 'Social activity count contest';
+$string['modulenameplural'] = 'Social activity count contests';
+$string['modulename_help'] = 'The tcount activity enables a teacher to define a search string for the twitter timeline and facebook posts and tell the students to publish messages using certain hashtags or terms.
 
 The module runs periodically in the background checking the activity of the timelines and accounting for the tweets, retweets and favs for every student. The module computes a grade by combining those stats using a formula.
 
-The teacher need to have a Twitter account and to connect the activity with his Twitter user. Additionally the teacher can insert a Twitter widget in the main page of the activity to show the selected timeline to the students.';
-$string['pluginname'] = 'Twitter count module';
+The teacher need to have a Twitter and/or Facebook account and to connect the activity with his Twitter user to give permissions to the module to query Twitter and/or Facebook. Additionally the teacher can insert a Twitter widget in the main page of the activity to show the selected timeline to the students.';
+$string['pluginname'] = 'Social Activity count module';
 
 $string['twfieldid'] = 'Field that holds the tweeter username';
 $string['twfieldid_help'] = 'Field name of the user profile that holds the tweeter username';
@@ -54,11 +54,12 @@ $string['mainpage'] = 'Twitter contest main page';
 $string['mainpage_help'] = 'Twitter contest main page. You can view your achievements in Twitter contest';
 $string['module_connected_twitter'] = 'Module connected with Twitter as user "{$a}" ';
 $string['module_not_connected_twitter'] = 'Module not connected to Twitter.';
-$string['no_twitter_name_advice'] = 'No Twitter name. Enter it in field \'{$a->field}\' of the <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a>';
-$string['no_twitter_name_advice2'] = 'No Twitter name. Enter it in field \'{$a->field}\' of the <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a> or in <a href="{$a->url}"><img src="https://g.twimg.com/dev/sites/default/files/images_documentation/sign-in-with-twitter-gray.png" alt="Twitter login"/></a>';
+$string['no_twitter_name_advice'] = 'No Twitter name. Enter it in field \'{$a->field}\' of the <a href="../../user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a>';
+$string['no_twitter_name_advice2'] = 'No Twitter name. Enter it in field \'{$a->field}\' of the <a href="../../user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a> or in <a href="{$a->url}"><img src="https://g.twimg.com/dev/sites/default/files/images_documentation/sign-in-with-twitter-gray.png" alt="Facebook login"/></a>';
+$string['no_facebook_name_advice'] = 'No Facebook name. Enter it in field \'{$a->field}\' of the <a href="../../user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a>';
+$string['no_facebook_name_advice2'] = 'No Facebook name. Enter it in field \'{$a->field}\' of the <a href="../../user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a> or in <a href="{$a->url}"><img src="pix/loginwithfacebook.png" alt="Facebook login"/></a>';
 $string['module_connected_facebook'] = 'Module connected with Facebook as user "{$a}" ';
 $string['module_not_connected_facebook'] = 'Module not connected to Facebook.';
-$string['no_facebook_name_advice'] = 'No Facebook user name. Enter it in field \'{$a->field}\' of the <a href="http://localhost/moodle2/user/edit.php?id={$a->userid}&course={$a->courseid}">user profile</a>';
 
 // SETTINGS.
 $string['tcount_oauth_access_token'] = 'oauth_access_token';

@@ -43,7 +43,7 @@ function tcount_process_statuses($statuses, $tcount) {
     $tweeters = array();
     foreach ($all as $userid) {
         $user = $userrecords[$userid];
-        $tweetername = strtolower(str_replace('@', '', tcount_get_social_username($tcount, $user, 'twitter')));
+        $tweetername = strtolower(str_replace('@', '', tcount_get_social_username( $user,$tcount, 'twitter')));
         if ($tweetername) {
             $tweeters[$tweetername] = $userid;
         }
@@ -324,7 +324,6 @@ function tcount_calculate_user_grades($tcount, $userid = 0) {
  * @return string username in the social network
  */
 function tcount_get_social_username($user, $tcount, $network) {
-
     switch ($network) {
         case 'facebook': $fieldid = $tcount->fbfieldid;
             break;
@@ -333,15 +332,12 @@ function tcount_get_social_username($user, $tcount, $network) {
         default:
             print_error('notsupported');
     }
-    if (strpos('custom_', $fieldid) === 0) {
-        $customfieldname = substr($fieldid, 7);
-    } else {
-        $customfieldname = false;
-    }
-    if ($customfieldname !== false) {
-        require_once('../../user/profile/lib.php');
+    
+    if (tcount_is_custom_field_name($fieldid)) {
+        global $CFG;
+        require_once($CFG->dirroot.'/user/profile/lib.php');
         $profile = profile_user_record($user->id);
-        return $profile->$customfieldname;
+        return $profile->$fieldid;
     } else {
         if (isset($user->$fieldid) && $user->$fieldid != '') {
             return $user->$fieldid;
@@ -360,19 +356,51 @@ function tcount_set_social_username(stdClass $user, $tcount, $socialname, $netwo
         default:
             print_error('notsupported');
     }
-    if (strpos('custom_', $fieldid) === 0) {
-        $customfieldname = substr($fieldid, 7);
-    } else {
-        $customfieldname = false;
-    }
-    if ($customfieldname !== false) {
-        require_once('../../user/profile/lib.php');
-        $profile = profile_user_record($user->id);
-        $profile->$customfieldname = $socialname;
-        profile_save_data($profile);
+    if (tcount_is_custom_field_name($fieldid)) {
+        global $CFG;
+        require_once($CFG->dirroot.'/user/profile/lib.php');
+        $usernew=new stdClass();
+//        $usernew = profile_user_record($user->id);
+        $usernew->id=$user->id;
+       
+        $usernew->{'profile_field_'.$fieldid} = $socialname;
+        profile_save_data($usernew);
     } else {
         $user->$fieldid = $socialname;
         require_once("../../user/lib.php");
         user_update_user($user);
     }
+}
+function tcount_is_custom_field_name($fieldid){
+    if (in_array($fieldid, ['aim','msn','skype','yahoo'])){
+        return false;
+    }else{
+        return true;
+    }
+}
+function tcount_is_tracking_facebook(stdClass $tcount){
+    return trim($tcount->fbsearch)!="";
+}
+function tcount_is_tracking_twitter(stdClass $tcount){
+    return trim($tcount->hashtag)!="";
+}
+/**
+ * 
+ * @param type $username string with the format screenname|userid  (second part is optional)
+ */
+function tcount_create_user_link($username,$network){
+    $parts = explode('|',$username);
+    $screenname=$parts[0];
+    $userid = isset($parts[1])?$parts[1]:$screenname;
+    switch ($network){
+        case 'facebook': $link="https://www.facebook.com/$userid";
+                        $icon='pix/Facebook_icon.png';
+            break;
+        case 'twitter' : $link="https://www.twitter.com/$userid";
+                        $icon="pix/Twitter_icon.png";
+            break;
+        default: 
+            print_error('unknownaction');
+        }
+        return "<a href=\"$link\"><img src=\"$icon\"/> $screenname</a>";
 }
