@@ -74,10 +74,12 @@ class harvest_tweets extends \core\task\scheduled_task {
                     mtrace("For module tcount: $tcount->name (id=$tcount->id) in course (id=$tcount->course) searching: $tcount->hashtag  "
                             . $errormessage);
                 }
-                $token->errorstatus = $errormessage;
-                $DB->update_record('tcount_tokens', $token);
-                if ($errormessage){// Marks this tokens as erroneous to warn the teacher.
-                mtrace("Uptatind token with id = $token->id with $errormessage");
+                if ($token) {
+                    $token->errorstatus = $errormessage;
+                    $DB->update_record('tcount_tokens', $token);
+                    if ($errormessage) {// Marks this tokens as erroneous to warn the teacher.
+                        mtrace("Uptatind token with id = $token->id with $errormessage");
+                    }
                 }
             } catch (\Exception $e) {
                 mtrace("Error processing tcount: $tcount->name. Skipping. " . $e->error . '\n' . $e->getTraceAsString());
