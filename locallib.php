@@ -223,7 +223,19 @@ class OAuthCurl {
     }
 
 }
-
+/**
+ * REturns true if the user shows no activity in the stats
+ * @param type $userid
+ * @param type $stat
+ * @return boolean
+ */
+function tcount_user_inactive($userid,$stat){
+    if ($stat->favs ==0 && $stat->tweets==0 && $stat->retweets==0){
+        return true;
+    }else{
+        return false;
+    }
+}
 /**
  * Statistics for grading
  */
