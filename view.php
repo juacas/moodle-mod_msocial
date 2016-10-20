@@ -43,7 +43,7 @@ require_once("locallib.php");
 /* @var $OUTPUT \core_renderer */
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);
-
+$showinactive = optional_param('showinactive', false, PARAM_BOOL);
 $cm = get_coursemodule_from_id('tcount', $id, null, null, MUST_EXIST);
 require_login($cm->course, false, $cm);
 $course = get_course($cm->course);
@@ -149,6 +149,9 @@ $userstats = tcount_calculate_stats($tcount, $students);
 $table = new html_table();
 $table->head = array('Student', null,'tweets', 'retweets', 'favs');
 foreach ($userstats->users as $userid => $stat) {
+    if ($showinactive==false && $userid!=$USER->id && tcount_user_inactive($userid,$stat)){
+        continue;
+    }
     $row = new html_table_row();
     // Photo and link to user profile.
     $user = $userrecords[$userid];
