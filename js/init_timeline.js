@@ -74,7 +74,7 @@ function deferred_init_timeline(Y, tcountid, user) {
 // Calculate the minimum size required to display all activities in band 0
         var tracksNeeded = tl.getBand(1)._eventTracksNeeded;
         var trackIncrement = tl.getBand(1)._eventTrackIncrement;
-        var widgetHeight = (tracksNeeded * trackIncrement) / 1.80;
+        var widgetHeight = Math.max((tracksNeeded * trackIncrement) / 1.80, 300);
 // Resize widget's containing DIV using jQuery
         $("#my-timeline").height(widgetHeight);
         tl.layout();

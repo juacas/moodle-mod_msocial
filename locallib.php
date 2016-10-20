@@ -28,7 +28,7 @@ function tcount_get_statuses($tcountrecord) {
         global $DB;
         $cmodule = get_coursemodule_from_instance('tcount', $tcountrecord->id, null, null, MUST_EXIST);
         $tokens = $DB->get_record('tcount_tokens', array('tcount_id' => $tcountrecord->id));
-        return tcount_find_tweeter($tokens, $tcountrecord->hashtag);
+        return tcount_find_tweeter($tokens, strtolower($tcountrecord->hashtag)); // Twitter API depends on letter cases.
     } else {
         return array();
     }
