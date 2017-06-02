@@ -1,0 +1,13 @@
+<!-- Build for tcount Pretty much the only purpose is to deploy the apache 
+    htdocs as defined in build.properties -->
+<project name="tcount" default="deploy" basedir=".">
+ <property file="build.properties"></property>
+ <target name="deploy">
+     <delete dir="${full.deploy.path}"></delete>
+     <copy todir="${full.deploy.path}">
+         <fileset dir=".">
+             <exclude name="**/test/**"></exclude>
+         </fileset>
+     </copy>
+ </target>
+</project>

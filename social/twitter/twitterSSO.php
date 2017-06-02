@@ -13,11 +13,13 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
-require_once("../../config.php");
+require_once("../../../../config.php");
 require_once($CFG->dirroot . '/mod/lti/OAuth.php');
-require_once('locallib.php');
+require_once('../../locallib.php');
+require_once('../../tcountsocialplugin.php');
+require_once('twitterplugin.php');
 global $CFG;
-$id = required_param('id', PARAM_INT); // Tcount module instance.
+$id = required_param('id', PARAM_INT); // Tcount module instance cmid.
 $action = optional_param('action', false, PARAM_ALPHA);
 $type = optional_param('type', 'connect', PARAM_ALPHA);
 $cm = get_coursemodule_from_id('tcount', $id);
@@ -32,11 +34,11 @@ $oauthrequesttoken = "https://twitter.com/oauth/request_token";
 $oauthauthorize = "https://twitter.com/oauth/authorize";
 $oauthaccesstoken = "https://twitter.com/oauth/access_token";
 
-$moodleurl = new moodle_url("/mod/tcount/twitterSSO.php", array('id' => $id, 'action' => 'callback', 'type' => $type));
+$moodleurl = new moodle_url("/mod/tcount/social/twitter/twitterSSO.php", array('id' => $cm->id, 'action' => 'callback', 'type' => $type));
 $callbackurl = $moodleurl->out($escaped = false);
 $context = context_module::instance($id);
 $tcount = $DB->get_record('tcount', array('id' => $cm->instance), '*', MUST_EXIST);
-
+$plugin = new tcount_social_twitter($tcount);
 if ($action == 'callback') { // Twitter callback.
     $sigmethod = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1();
     $testconsumer = new \moodle\mod\lti\OAuthConsumer($consumerkey, $consumersecret, $callbackurl);
@@ -56,26 +58,26 @@ if ($action == 'callback') { // Twitter callback.
      * Save tokens for future use
      */
     if ($type === 'connect' && has_capability('mod/tcount:manage', $context)) {
-        $record = $DB->get_record('tcount_tokens', array("tcount_id" => $cm->instance));
+        $record = $DB->get_record('tcount_tweeter_tokens', array("tcount_id" => $cm->instance));
         if ($record) {
-            $DB->delete_records('tcount_tokens', array('id' => $record->id));
+            $DB->delete_records('tcount_tweeter_tokens', array('id' => $record->id));
         }
         $record = new stdClass();
         $record->tcount_id = $cm->instance;
         $record->token = $accoauthdata['oauth_token'];
         $record->token_secret = $accoauthdata['oauth_token_secret'];
         $record->username = $accoauthdata['screen_name'];
-        $DB->insert_record('tcount_tokens', $record);
+        $DB->insert_record('tcount_tweeter_tokens', $record);
         $message = "Configured user $record->username ";
     } else if ($type === 'profile') { // Fill the profile with user id
         $socialname = '@' . $accoauthdata['screen_name'];
-        tcount_set_social_username($USER, $tcount, $socialname, 'twitter');
+        $plugin->set_social_userid($USER, $socialname);
         $message = "Profile updated with twitter user $socialname ";
     } else {
         $message = "Access forbidden.";
     }
     // Show headings and menus of page.
-    $url = new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id));
+    $url = new moodle_url('/mod/tcount/social/twitter/twitterSSO.php', array('id' => $id));
     $PAGE->set_url($url);
     $PAGE->set_title(format_string($cm->name));
 
@@ -83,7 +85,7 @@ if ($action == 'callback') { // Twitter callback.
     // Print the page header.
     echo $OUTPUT->header();
     echo $OUTPUT->box($message);
-    echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $id)));
+    echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $cm->id)));
     echo $OUTPUT->footer();
 } else if ($action == 'connect') {
 
@@ -112,14 +114,14 @@ if ($action == 'callback') { // Twitter callback.
 } else if ($action == 'disconnect') {
     $DB->delete_records('tcount_tokens', array('tcount_id' => $cm->instance));
     // Show headings and menus of page.
-    $url = new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id));
+    $url = new moodle_url('/mod/tcount/social/twitter/twitterSSO.php', array('id' => $id));
     $PAGE->set_url($url);
     $PAGE->set_title(format_string($cm->name));
     $PAGE->set_heading($course->fullname);
     // Print the page header.
     echo $OUTPUT->header();
     echo $OUTPUT->box("Module disconnected from twitter. It won't work until an twitter account is configured. ");
-    echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $id)));
+    echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $cm->id)));
     echo $OUTPUT->footer();
 } else {
     print_error("Bad action code");

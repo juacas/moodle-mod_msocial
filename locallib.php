@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
-require_once('TwitterAPIExchange.php');
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->libdir . '/mathslib.php');
 
@@ -43,7 +42,7 @@ function tcount_process_statuses($statuses, $tcount) {
     $tweeters = array();
     foreach ($all as $userid) {
         $user = $userrecords[$userid];
-        $tweetername = strtolower(str_replace('@', '', tcount_get_social_username( $user,$tcount, 'twitter')));
+        $tweetername = strtolower(str_replace('@', '', tcount_get_social_username($user, $tcount, 'twitter')));
         if ($tweetername) {
             $tweeters[$tweetername] = $userid;
         }
@@ -53,7 +52,7 @@ function tcount_process_statuses($statuses, $tcount) {
     $studentsstatuses = array();
     foreach ($statuses as $status) {
         $tweetername = strtolower($status->user->screen_name);
-        if (isset($tweeters[$tweetername])) { // Tweet is of a users.
+        if (isset($tweeters[$tweetername])) { // Tweet is from a student.
             $userauthor = $userrecords[$tweeters[$tweetername]];
         } else {
             $userauthor = null;
@@ -223,56 +222,19 @@ class OAuthCurl {
     }
 
 }
+
 /**
  * REturns true if the user shows no activity in the stats
  * @param type $userid
  * @param type $stat
  * @return boolean
  */
-function tcount_user_inactive($userid,$stat){
-    if ($stat->favs ==0 && $stat->tweets==0 && $stat->retweets==0){
+function tcount_user_inactive($userid, $stat) {
+    if ($stat->favs == 0 && $stat->tweets == 0 && $stat->retweets == 0) {
         return true;
-    }else{
+    } else {
         return false;
     }
-}
-/**
- * Statistics for grading
- */
-function tcount_calculate_stats($tcount, $users) {
-    global $DB;
-    $cm = get_coursemodule_from_instance('tcount', $tcount->id, 0, false, MUST_EXIST);
-    $stats = $DB->get_records_sql('SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs '
-            . 'FROM {tcount_statuses} where tcountid = ? and userid is not null group by userid', array($tcount->id));
-    $userstats = new stdClass();
-    $userstats->users = array();
-
-    $favs = array();
-    $retweets = array();
-    $tweets = array();
-    foreach ($users as $userid) {
-        $stat = new stdClass();
-
-        if (isset($stats[$userid])) {
-            $tweets[] = $stat->tweets = $stats[$userid]->tweets;
-            $retweets[] = $stat->retweets = $stats[$userid]->retweets;
-            $favs[] = $stat->favs = $stats[$userid]->favs;
-        } else {
-            $stat->retweets = 0;
-            $stat->tweets = 0;
-            $stat->favs = 0;
-            $stat->retweets = 0;
-        }
-        $userstats->users[$userid] = $stat;
-    }
-    $stat = new stdClass();
-    $stat->retweets = 0;
-    $stat->tweets = count($tweets) == 0 ? 0 : max($tweets);
-    $stat->favs = count($favs) == 0 ? 0 : max($favs);
-    $stat->retweets = count($retweets) == 0 ? 0 : max($retweets);
-    $userstats->maximums = $stat;
-
-    return $userstats;
 }
 
 /**
@@ -329,7 +291,7 @@ function tcount_calculate_user_grades($tcount, $userid = 0) {
 }
 
 /**
- * 
+ * @deprecated since version number
  * @param type $user
  * @param type $tcount
  * @param type $network
@@ -344,10 +306,10 @@ function tcount_get_social_username($user, $tcount, $network) {
         default:
             print_error('notsupported');
     }
-    
+
     if (tcount_is_custom_field_name($fieldid)) {
         global $CFG;
-        require_once($CFG->dirroot.'/user/profile/lib.php');
+        require_once($CFG->dirroot . '/user/profile/lib.php');
         $profile = profile_user_record($user->id);
         return $profile->$fieldid;
     } else {
@@ -359,6 +321,46 @@ function tcount_get_social_username($user, $tcount, $network) {
     }
 }
 
+function tcount_set_user_field_value($user, $fieldid, $value) {
+    global $CFG;
+    if (tcount_is_custom_field_name($fieldid)) {
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+        $usernew = new stdClass();
+        $usernew->id = $user->id;
+        $usernew->{'profile_field_' . $fieldid} = $value;
+        profile_save_data($usernew);
+    } else {
+        $user->$fieldid = $value;
+        require_once($CFG->dirroot . "/user/lib.php");
+        user_update_user($user);
+    }
+}
+
+function tcount_get_user_field_value($user, $fieldid) {
+    if (!$fieldid) {
+        return null;
+    } elseif (tcount_is_custom_field_name($fieldid)) {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+        $profile = profile_user_record($user->id);
+        return $profile->$fieldid;
+    } else {
+        if (isset($user->$fieldid) && $user->$fieldid != '') {
+            return $user->$fieldid;
+        } else {
+            return null;
+        }
+    }
+}
+
+/**
+ * @deprecated since version number
+ * @global type $CFG
+ * @param stdClass $user
+ * @param type $tcount
+ * @param type $socialname
+ * @param type $network
+ */
 function tcount_set_social_username(stdClass $user, $tcount, $socialname, $network) {
     switch ($network) {
         case 'facebook': $fieldid = $tcount->fbfieldid;
@@ -370,12 +372,12 @@ function tcount_set_social_username(stdClass $user, $tcount, $socialname, $netwo
     }
     if (tcount_is_custom_field_name($fieldid)) {
         global $CFG;
-        require_once($CFG->dirroot.'/user/profile/lib.php');
-        $usernew=new stdClass();
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+        $usernew = new stdClass();
 //        $usernew = profile_user_record($user->id);
-        $usernew->id=$user->id;
-       
-        $usernew->{'profile_field_'.$fieldid} = $socialname;
+        $usernew->id = $user->id;
+
+        $usernew->{'profile_field_' . $fieldid} = $socialname;
         profile_save_data($usernew);
     } else {
         $user->$fieldid = $socialname;
@@ -383,36 +385,88 @@ function tcount_set_social_username(stdClass $user, $tcount, $socialname, $netwo
         user_update_user($user);
     }
 }
-function tcount_is_custom_field_name($fieldid){
-    if (in_array($fieldid, ['aim','msn','skype','yahoo'])){
+
+function tcount_is_custom_field_name($fieldid) {
+    if (in_array($fieldid, ['aim', 'msn', 'skype', 'yahoo'])) {
         return false;
-    }else{
+    } else {
         return true;
     }
 }
-function tcount_is_tracking_facebook(stdClass $tcount){
-    return trim($tcount->fbsearch)!="";
+
+function tcount_is_tracking_facebook(stdClass $tcount) {
+    return trim($tcount->fbsearch) != "";
 }
-function tcount_is_tracking_twitter(stdClass $tcount){
-    return trim($tcount->hashtag)!="";
-}
+
 /**
  * 
  * @param type $username string with the format screenname|userid  (second part is optional)
  */
-function tcount_create_user_link($username,$network){
-    $parts = explode('|',$username);
-    $screenname=$parts[0];
-    $userid = isset($parts[1])?$parts[1]:$screenname;
-    switch ($network){
-        case 'facebook': $link="https://www.facebook.com/$userid";
-                        $icon='pix/Facebook_icon.png';
+function tcount_create_user_link($username, $network) {
+    $parts = explode('|', $username);
+    $screenname = $parts[0];
+    $userid = isset($parts[1]) ? $parts[1] : $screenname;
+    switch ($network) {
+        case 'facebook': $link = "https://www.facebook.com/$userid";
+            $icon = 'pix/Facebook_icon.png';
             break;
-        case 'twitter' : $link="https://www.twitter.com/$userid";
-                        $icon="pix/Twitter_icon.png";
+        case 'twitter' : $link = "https://www.twitter.com/$userid";
+            $icon = "pix/Twitter_icon.png";
             break;
-        default: 
+        default:
             print_error('unknownaction');
+    }
+    return "<a href=\"$link\"><img src=\"$icon\"/> $screenname</a>";
+}
+
+/**
+ * Update the settings for a single plugin.
+ *
+ * @param tcount_plugin $plugin The plugin to update
+ * @param stdClass $formdata The form data
+ * @return bool false if an error occurs
+ */
+function update_plugin_instance($plugin, stdClass $formdata) {
+    $enabledname = $plugin->get_type() . '_' . $plugin->get_subtype() . '_enabled';
+    if (!empty($formdata->$enabledname)) {
+        $plugin->enable();
+    } else {
+        $plugin->disable();
+    }
+    if (!$plugin->save_settings($formdata)) {
+        print_error($plugin->get_error());
+        return false;
+    }
+    return true;
+}
+/**
+ * 
+ * @param object $userstatsA
+ * @param object $userstatsB
+ * @return type
+ */
+function merge_stats($statsA, $statsB) {
+    $userstatsA = $statsA->users;
+    $userstatsB = $statsB->users;
+    foreach ($userstatsB as $user => $stat) {
+        if (key_exists($user, $userstatsA)) {
+            $statmerged = (object) array_merge((array) $userstatsA[$user], (array) $stat);
+            $userstatsA[$user] = $statmerged;
+        } else {
+            $userstatsA[$user] = $stat;
         }
-        return "<a href=\"$link\"><img src=\"$icon\"/> $screenname</a>";
+    }
+    // Get maximums.
+    $maxA = $statsA->maximums;
+    $maxB = $statsB->maximums;
+    foreach($maxB as $name => $value) {
+        if (isset($maxA->$name)) {
+            $maxA->$name = max([$maxA->$name, $value]);
+        } else {
+            $maxA->$name = $value;
+        }
+    }
+    $statsA->maximums = $maxA;
+    $statsA->users = $userstatsA;
+    return $statsA;
 }

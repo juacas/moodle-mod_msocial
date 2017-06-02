@@ -40,6 +40,7 @@
  * ******************************************************************************* */
 require_once("../../config.php");
 require_once("locallib.php");
+require_once("tcountsocialplugin.php");
 /* @var $OUTPUT \core_renderer */
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);
@@ -67,42 +68,21 @@ $requ->js_init_call("init_timeline", [$cm->id, null], true);
 $PAGE->set_title(format_string($tcount->name));
 $PAGE->set_heading($course->fullname);
 // Print the page header.
-
 echo $OUTPUT->header();
 // Print the main part of the page.
 echo $OUTPUT->spacer(array('height' => 20));
 echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpage', 'tcount'));
-// Print the links.
+// Print the information about the linking of the module with Twitter and Facebook accounts..
 $contextcourse = context_course::instance($cm->course);
+
 if (has_capability('mod/tcount:manage', $contextmodule)) {
-    if (tcount_is_tracking_twitter($tcount)) {
-        $token = $DB->get_record('tcount_tokens', array('tcount_id' => $tcount->id));
-        $url_connect = new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect'));
-        if ($token) {
-            $username = $token->username;
-            $errorstatus = $token->errorstatus;
-            if ($errorstatus) {
-                echo $OUTPUT->notify_problem(get_string('problemwithtwitteraccount', 'tcount', $errorstatus));
-            }
-            echo $OUTPUT->box(get_string('module_connected_twitter', 'tcount', $username)
-                    . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect')),
-                            "Change user") . '/'
-                    . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php',
-                            array('id' => $id, 'action' => 'disconnect')), "Disconnect"));
-        } else {
-            echo $OUTPUT->notification(get_string('module_not_connected_twitter', 'tcount')
-                    . $OUTPUT->action_link(new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect')),
-                            "Connect"));
-        }
-        // Check user's social credentials.
-        $url_profile = new moodle_url('/mod/tcount/twitterSSO.php', array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
-        $owntwittername = tcount_get_social_username($USER, $tcount, 'twitter');
-        if (trim($owntwittername) === "") { // Offer to register
-            $twitteradvice = get_string('no_twitter_name_advice2', 'tcount',
-                    ['field' => $tcount->twfieldid, 'userid' => $USER->id, 'courseid' => $course->id, 'url' => $url_profile->out(false)]);
-            echo $OUTPUT->notification($twitteradvice);
-        }
+    /** @var tcount_social_plugin $plugin Enabled social plugins status section. */
+    foreach (\mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $name => $pluginsocial){
+       
+        /** @var tcount_social_plugin $pluginsocial */
+        echo $pluginsocial->view_header();
     }
+/*
     if (tcount_is_tracking_facebook($tcount)) {
         // Facebook connection
         $fbtoken = $DB->get_record('tcount_fbtokens', array('tcount_id' => $tcount->id));
@@ -111,32 +91,30 @@ if (has_capability('mod/tcount:manage', $contextmodule)) {
                 echo $OUTPUT->notify_problem(get_string('problemwithfacebookaccount', 'tcount', $errorstatus));
             }
             echo $OUTPUT->box(get_string('module_connected_facebook', 'tcount', $fbtoken->username)
-                    . $OUTPUT->action_link(new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'connect')),
-                            "Change user") . '/'
-                    . $OUTPUT->action_link(new moodle_url('/mod/tcount/facebookSSO.php',
-                            array('id' => $id, 'action' => 'disconnect')), "Disconnect"));
+                    . $OUTPUT->action_link(new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'connect')), "Change user") . '/'
+                    . $OUTPUT->action_link(new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'disconnect')), "Disconnect"));
         } else {
             echo $OUTPUT->notification(get_string('module_not_connected_facebook', 'tcount')
-                    . $OUTPUT->action_link(new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'connect')),
-                            "Connect"));
+                    . $OUTPUT->action_link(new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'connect')), "Connect"));
         }
         // Check user's social credentials.
-        $url_profile = new moodle_url('/mod/tcount/facebookSSO.php',
-                array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
+        $url_profile = new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
         $ownfacebookname = tcount_get_social_username($USER, $tcount, 'facebook');
         if (trim($ownfacebookname) === "") { // Offer to register
-            $facebookadvice = get_string('no_facebook_name_advice2', 'tcount',
-                    ['field' => $tcount->fbfieldid, 'userid' => $USER->id, 'courseid' => $course->id, 'url' => $url_profile->out(false)]);
+            $facebookadvice = get_string('no_facebook_name_advice2', 'tcount', ['field' => $tcount->fbfieldid, 'userid' => $USER->id, 'courseid' => $course->id, 'url' => $url_profile->out(false)]);
             echo $OUTPUT->notification($facebookadvice);
         }
     }
-}
+*/
+    
+    }
 
 // Description text
 echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
 echo '<div id="my-timeline" style="overflow-y: visible; height: 250px; border: 1px solid #aaa"></div>';
 echo $OUTPUT->spacer(array('height' => 20));
 
+// Table view.
 if (has_capability('mod/tcount:viewothers', $contextmodule)) {
     list($students, $nonstudents, $activeusers, $userrecords) = eduvalab_get_users_by_type($contextcourse);
     $students = array_merge($students, $nonstudents);
@@ -145,11 +123,17 @@ if (has_capability('mod/tcount:viewothers', $contextmodule)) {
     $userrecords[$USER->id] = $USER;
 }
 $groups = groups_get_activity_allowed_groups($cm);
-$userstats = tcount_calculate_stats($tcount, $students);
+$userstats=(object)['users'=>[],'maximums'=>(object)[]];
+$enabledplugins = mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount);
+foreach ($enabledplugins as $type=>$plugin){
+    $partialuserstats = $plugin->calculate_stats( $students);
+    $userstats=merge_stats($userstats,$partialuserstats);
+}
+
 $table = new html_table();
-$table->head = array('Student', null,'tweets', 'retweets', 'favs');
+$table->head = array('Student', null, 'tweets', 'retweets', 'favs');
 foreach ($userstats->users as $userid => $stat) {
-    if ($showinactive==false && $userid!=$USER->id && tcount_user_inactive($userid,$stat)){
+    if ($showinactive == false && $userid != $USER->id && tcount_user_inactive($userid, $stat)) {
         continue;
     }
     $row = new html_table_row();
@@ -164,54 +148,41 @@ foreach ($userstats->users as $userid => $stat) {
         $profilelink = '';
     }
     $usermessage = '';
-    if (tcount_is_tracking_twitter($tcount)) {
-        $twitterusername = tcount_get_social_username($user, $tcount, 'twitter');
-        if (!$twitterusername) {
-            $a = new stdClass();
-            if ($USER->id == $user->id) {
-                $url_profile = new moodle_url('/mod/tcount/twitterSSO.php',
-                        array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
-                $usermessage = get_string('no_twitter_name_advice2', 'tcount',
-                        ['field' => $tcount->twfieldid, 'userid' => $USER->id, 'courseid' => $course->id, 'url' => $url_profile->out(false)]);
-            } else {
-                $usermessage = get_string('no_twitter_name_advice', 'tcount',
-                        ['field' => $tcount->twfieldid, 'userid' => $user->id, 'courseid' => $course->id]);
-            }
-        } else {
-            $usermessage =  tcount_create_user_link($twitterusername,'twitter');;
+    foreach ($enabledplugins as $name => $plugin){
+        if ($plugin->is_tracking()){
+            $usermessage =  $plugin->view_user_linking($user);
         }
     }
     $usermessage2 = '';
-    if (tcount_is_tracking_facebook($tcount)) {
-        $facebookusername = tcount_get_social_username($user, $tcount, 'facebook');
-        if (!$facebookusername) {
-            $a = new stdClass();
-            if ($USER->id == $user->id) {
-                $url_profile = new moodle_url('/mod/tcount/facebookSSO.php',
-                        array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
-                $usermessage2 = get_string('no_facebook_name_advice2', 'tcount',
-                        ['field' => $tcount->fbfieldid, 'userid' => $USER->id, 'courseid' => $course->id, 'url' => $url_profile->out(false)]);
-            } else {
-                $usermessage2 = get_string('no_facebook_name_advice', 'tcount',
-                        ['field' => $tcount->fbfieldid, 'userid' => $user->id, 'courseid' => $course->id]);
-            }
-        } else {
-            $usermessage = $usermessage . ' '. tcount_create_user_link($facebookusername,'facebook');
-        }
-    }
-    $usercard = $userpic . $profilelink ;
-    $messages = '<p>'. $usermessage . '</p><p>'.$usermessage2 .'</p>';
+//    if (tcount_is_tracking_facebook($tcount)) {
+//        $facebookusername = tcount_get_social_username($user, $tcount, 'facebook');
+//        if (!$facebookusername) {
+//            $a = new stdClass();
+//            if ($USER->id == $user->id) {
+//                $url_profile = new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
+//                $usermessage2 = get_string('no_facebook_name_advice2', 'tcount', ['field' => $tcount->fbfieldid, 'userid' => $USER->id, 'courseid' => $course->id, 'url' => $url_profile->out(false)]);
+//            } else {
+//                $usermessage2 = get_string('no_facebook_name_advice', 'tcount', ['field' => $tcount->fbfieldid, 'userid' => $user->id, 'courseid' => $course->id]);
+//            }
+//        } else {
+//            $usermessage = $usermessage . ' ' . tcount_create_user_link($facebookusername, 'facebook');
+//        }
+//    }
+    $usercard = $userpic . $profilelink;
+    $messages = '<p>' . $usermessage . '</p><p>' . $usermessage2 . '</p>';
+    $twitterusername = $enabledplugins['twitter']->get_social_userid($user); // TODO: Generalize for plugins....
     $row->cells[] = new html_table_cell($usercard);
     $row->cells[] = new html_table_cell($messages);
     $row->cells[] = new html_table_cell($twitterusername ? '<a href="https://twitter.com/search?q=' . urlencode($tcount->hashtag)
-                    . '%20from%3A' . $twitterusername . '&src=typd">' . $stat->tweets . '</a>' : '--');
+            . '%20from%3A' . $twitterusername . '&src=typd">' . $stat->tweets . '</a>' : '--');
     $row->cells[] = new html_table_cell($twitterusername ? $stat->retweets : '--');
     $row->cells[] = new html_table_cell($twitterusername ? $stat->favs : '--');
     $table->data[] = $row;
 }
 
 echo html_writer::table($table);
-// Insert timeline.
+
+// Insert timeline view.
 if (isset($tcount->widget_id)) {
     echo('<a class="twitter-timeline" data-dnt="true" target="_blank" href="https://twitter.com/search?q='
     . urlencode($tcount->hashtag) . '" data-widget-id="' . $tcount->widget_id . '">Tweets sobre ' . $tcount->hashtag . '</a>');

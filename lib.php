@@ -95,6 +95,13 @@ function tcount_add_instance($tcount) {
     // Try to store it in the database.
     $tcount->id = $DB->insert_record('tcount', $tcount);
     tcount_grade_item_update($tcount);
+    // Call save_settings hook for submission plugins.
+        foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $type=>$plugin) {
+            if (!update_plugin_instance($plugin, $tcount)) {
+                print_error($plugin->get_error());
+                return false;
+            }
+        }
     return $tcount->id;
 }
 
@@ -111,6 +118,14 @@ function tcount_update_instance($tcount) {
     $tcount->timemodified = time();
     $tcount->id = $tcount->instance;
     tcount_grade_item_update($tcount);
+    
+     // Call save_settings hook for submission plugins.
+        foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $type=>$plugin) {
+            if (!update_plugin_instance($plugin, $tcount)) {
+                print_error($plugin->get_error());
+                return false;
+            }
+        }
     return $DB->update_record("tcount", $tcount);
 }
 

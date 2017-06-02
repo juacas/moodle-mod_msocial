@@ -13,24 +13,22 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
-$string['socialconnectors'] = 'Social connectors.';
-$string['socialviews'] = 'Social visualizations.';
-$string['settings'] = 'Config TCount';
-$string['modulename'] = 'Social activity count contest';
-$string['modulenameplural'] = 'Social activity count contests';
-$string['modulename_help'] = 'The tcount activity enables a teacher to define a search string for the twitter timeline and facebook posts and tell the students to publish messages using certain hashtags or terms.
-
-The module runs periodically in the background checking the activity of the timelines and accounting for the tweets, retweets and favs for every student. The module computes a grade by combining those stats using a formula.
-
-The teacher need to have a Twitter and/or Facebook account and to connect the activity with his Twitter user to give permissions to the module to query Twitter and/or Facebook. Additionally the teacher can insert a Twitter widget in the main page of the activity to show the selected timeline to the students.';
-$string['pluginname'] = 'Social Activity count module';
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
 
+$string['pluginname'] = 'Twitter Connector';
+
+$string['twfieldid'] = 'Field that holds the tweeter username';
+$string['twfieldid_help'] = 'Field name of the user profile that holds the tweeter username';
 $string['fbfieldid'] = 'Field that holds the facebook username';
 $string['fbfieldid_help'] = 'Field name of the user profile that holds the facebook username';
 
-
+$string['hashtag'] = 'Hashtag to search for in tweets';
+$string['hashtag_help'] = 'It can be any string as specified in Twitter API. You can use this tool to compose your search string <a href="https://twitter.com/search-advanced">https://twitter.com/search-advanced</a>';
 $string['fbsearch'] = 'Search string to search for in Facebook';
 $string['fbsearch_help'] = 'It can be any string as specified in Facebook search API. You can use this reference to find out how to compose your search string <a href="https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes">https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes</a>';
 $string['widget_id'] = 'Widget id to be embedded in the main page.';
@@ -58,6 +56,16 @@ $string['module_connected_facebook'] = 'Module connected with Facebook as user "
 $string['module_not_connected_facebook'] = 'Module not connected to Facebook.';
 
 // SETTINGS.
+$string['tcount_oauth_access_token'] = 'oauth_access_token';
+$string['config_oauth_access_token'] = 'oauth_access_token de acuerdo con TwitterAPI';
+$string['tcount_oauth_access_token_secret'] = 'oauth_access_token_secret';
+$string['config_oauth_access_token_secret'] = 'oauth_access_token_secret de acuerdo con TwitterAPI';
+$string['tcount_consumer_key'] = 'consumer_key';
+$string['config_consumer_key'] = 'consumer_key according to TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
+$string['tcount_consumer_secret'] = 'consumer_secret';
+$string['config_consumer_secret'] = 'consumer_secret according to TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
+$string['problemwithtwitteraccount'] = 'Recent attempts to get the tweets resulted in an error. Try to reconnect Twitter with your user. Message: {$a}';
+$string['problemwithfacebookaccount'] = 'Recent attempts to get the posts resulted in an error. Try to reconnect Facebook with your user. Message: {$a}';
 // Permissions.
 $string['tcount:view']= 'View basic information of Tcount module.';
 $string['tcount:viewothers'] = 'View activity of other users.';

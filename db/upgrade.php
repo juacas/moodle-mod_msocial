@@ -31,25 +31,45 @@
 
 /**
  * xmldb_tcount_upgrade
- *
+ * @global moodle_database $DB
  * @param int $oldversion
  * @return bool
  */
 function xmldb_tcount_upgrade($oldversion = 0) {
 
     global $CFG, $THEME, $DB;
-/* @var $dbman database_manager */
+    /* @var $dbman database_manager */
     $dbman = $DB->get_manager();
     $result = true;
-    if ($oldversion<2016092600){
+    if ($oldversion < 2016092600) {
         $table = new xmldb_table('tcount_tokens');
         $field = new xmldb_field('errorstatus', XMLDB_TYPE_CHAR, 50);
         $dbman->add_field($table, $field);
+        upgrade_mod_savepoint(true, 2016092600, 'tcount');
     }
-    if ($oldversion<2016092700){
+    if ($oldversion < 2016092700) {
         $table = new xmldb_table('tcount');
-        $field=new xmldb_field('fbsearch',XMLDB_TYPE_CHAR,512);
+        $field = new xmldb_field('fbsearch', XMLDB_TYPE_CHAR, 512);
         $dbman->add_field($table, $field);
+        upgrade_mod_savepoint(true, 2016092700, 'tcount');
+    }
+    if ($oldversion < 2017053100) {
+        $table = new xmldb_table('tcount_plugin_config');
+        $table->addField(new xmldb_field('id', XMLDB_TYPE_INTEGER,10,null,XMLDB_NOTNULL,XMLDB_SEQUENCE));
+        $table->addField(new xmldb_field('tcount',XMLDB_TYPE_INTEGER,10,false,XMLDB_NOTNULL,false,0));
+        $table->addField(new xmldb_field('plugin',XMLDB_TYPE_CHAR,28,false,XMLDB_NOTNULL));
+        $table->addField(new xmldb_field('subtype',XMLDB_TYPE_CHAR,28,false,XMLDB_NOTNULL));
+        $table->addField(new xmldb_field('name',XMLDB_TYPE_CHAR,28,false,XMLDB_NOTNULL));
+        $table->addField(new xmldb_field('value',XMLDB_TYPE_TEXT,null,false,false));
+        
+        $table->addKey(new xmldb_key('primary',XMLDB_KEY_PRIMARY,['id']));
+        $table->addKey(new xmldb_key('tcount',XMLDB_KEY_FOREIGN,['tcount'],'tcount','id'));
+        $table->addIndex(new xmldb_index('plugin', XMLDB_INDEX_NOTUNIQUE, ['plugin']));
+        $table->addIndex(new xmldb_index('subtype', XMLDB_INDEX_NOTUNIQUE, ['subtype']));
+        $table->addIndex(new xmldb_index('name', XMLDB_INDEX_NOTUNIQUE, ['name']));
+        
+        $dbman->create_table($table);
+        upgrade_mod_savepoint(true, 2017053100, 'tcount');
     }
     return $result;
 }
