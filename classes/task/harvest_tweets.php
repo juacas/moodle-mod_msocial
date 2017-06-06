@@ -18,7 +18,6 @@
  * SET XDEBUG_CONFIG=netbeans-xdebug=xdebug
  * php.exe admin\tool\task\cli\schedule_task.php --execute=\mod_tcount\task\harvest_tweets
  */
-
 namespace mod_tcount\task;
 
 global $CFG;
@@ -42,51 +41,27 @@ class harvest_tweets extends \core\task\scheduled_task {
         mtrace("\n=======================");
         mtrace("Twitter count module.");
         mtrace("=======================");
-
+        // Get instances.
         $tcounts = $DB->get_records('tcount');
+        $enabledplugins = \mod_tcount\plugininfo\tcountsocial::get_enabled_plugins();
+        mtrace("Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($tcounts) . " instances.");
         foreach ($tcounts as $tcount) {
-            try {
-                $result = tcount_get_statuses($tcount);
-                $cm = get_coursemodule_from_instance('tcount', $tcount->id, null, null, MUST_EXIST);
-                $token = $DB->get_record('tcount_tokens', ['tcount_id' => $cm->instance]);
-                if (isset($result->errors)) {
-                    if ($token) {
-                        $info = "UserToken for:$token->username ";
+            foreach (\mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $type => $plugin) {
+                try {
+                    if ($plugin->is_tracking()) {
+                        $result = $plugin->harvest();
+                        foreach ($result->messages as $message) {
+                            \mtrace($message);
+                        }
                     } else {
-                        $info = "No twitter token defined!!";
+                        mtrace("Plugin $type is not tracking. (Missing token, hashtag or disabled.)");
                     }
-                    $errormessage = $result->errors[0]->message;
-                    mtrace("For module tcount: $tcount->name (id=$cm->instance) in course (id=$tcount->course) "
-                            . "searching: $tcount->hashtag $info ERROR:"
-                            . $errormessage);
-                } else if (isset($result->statuses)) {
-                    $DB->set_field('tcount_tokens', 'errorstatus', null, array('id' => $token->id));
-                    $statuses = count($result->statuses) == 0 ? array() : $result->statuses;
-                    mtrace("For module tcount: $tcount->name (id=$tcount->id) in course (id=$tcount->course) searching: $tcount->hashtag  Found "
-                            . count($statuses) . " tweets.");
-                    tcount_process_statuses($statuses, $tcount);
-                    $contextcourse = \context_course::instance($tcount->course);
-                    list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
-                    tcount_update_grades($tcount, $students);
-                    $errormessage = null;
-                } else {
-                    $errormessage = "ERROR querying twitter results null! Maybe there is no tweeter account linked in this activity.";
-                    mtrace("For module tcount: $tcount->name (id=$tcount->id) in course (id=$tcount->course) searching: $tcount->hashtag  "
-                            . $errormessage);
+                } catch (\Exception $e) {
+                    mtrace("Error processing tcount: $tcount->name. Skipping. " . $e->error . '\n' . $e->getTraceAsString());
                 }
-                if ($token) {
-                    $token->errorstatus = $errormessage;
-                    $DB->update_record('tcount_tokens', $token);
-                    if ($errormessage) {// Marks this tokens as erroneous to warn the teacher.
-                        mtrace("Uptatind token with id = $token->id with $errormessage");
-                    }
-                }
-            } catch (\Exception $e) {
-                mtrace("Error processing tcount: $tcount->name. Skipping. " . $e->error . '\n' . $e->getTraceAsString());
             }
         }
         mtrace("=======================");
         return true;
     }
-
 }

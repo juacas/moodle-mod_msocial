@@ -16,124 +16,7 @@
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->libdir . '/mathslib.php');
 
-/**
- * Execute a Twitter API query with auth tokens and the hashtag configured in the module
- * @global type $DB
- * @param type $tcountrecord
- * @return array
- */
-function tcount_get_statuses($tcountrecord) {
-    if (eduvalab_time_is_between(time(), $tcountrecord->counttweetsfromdate, $tcountrecord->counttweetstodate)) {
-        global $DB;
-        $cmodule = get_coursemodule_from_instance('tcount', $tcountrecord->id, null, null, MUST_EXIST);
-        $tokens = $DB->get_record('tcount_tokens', array('tcount_id' => $tcountrecord->id));
-        return tcount_find_tweeter($tokens, strtolower($tcountrecord->hashtag)); // Twitter API depends on letter cases.
-    } else {
-        return array();
-    }
-}
 
-function tcount_process_statuses($statuses, $tcount) {
-
-    $context = context_course::instance($tcount->course);
-    list($students, $nonstudent, $active, $userrecords) = eduvalab_get_users_by_type($context);
-    $all = array_keys($userrecords); // Include all users (including teachers).
-    // Get tweeter usernames from users' profile.
-    $tweeters = array();
-    foreach ($all as $userid) {
-        $user = $userrecords[$userid];
-        $tweetername = strtolower(str_replace('@', '', tcount_get_social_username($user, $tcount, 'twitter')));
-        if ($tweetername) {
-            $tweeters[$tweetername] = $userid;
-        }
-    }
-
-    // Compile statuses of the users.
-    $studentsstatuses = array();
-    foreach ($statuses as $status) {
-        $tweetername = strtolower($status->user->screen_name);
-        if (isset($tweeters[$tweetername])) { // Tweet is from a student.
-            $userauthor = $userrecords[$tweeters[$tweetername]];
-        } else {
-            $userauthor = null;
-        }
-        $createddate = strtotime($status->created_at);
-
-        if (isset($status->retweeted_status)) { // Retweet count comes from original message. Ignore it.
-            $status->retweet_count = 0;
-        }
-
-        if (eduvalab_time_is_between($createddate, $tcount->counttweetsfromdate, $tcount->counttweetstodate)) {
-            tcount_store_status($status, $tcount, $userauthor);
-        }
-    }
-}
-
-function tcount_load_statuses($tcount, $cm, $user) {
-    global $DB;
-    $condition = ['tcountid' => $tcount->id];
-    if ($user) {
-        $condition['userid'] = $user->id;
-    }
-    $statuses = $DB->get_records('tcount_statuses', $condition);
-    return $statuses;
-}
-
-function tcount_store_status($status, $tcount, $userrecord) {
-    global $DB;
-    $cm = get_coursemodule_from_instance('tcount', $tcount->id, null, null, MUST_EXIST);
-
-    $tweetid = $status->id_str;
-    $statusrecord = $DB->get_record('tcount_statuses', array('tweetid' => $tweetid));
-    if (!$statusrecord) {
-        $statusrecord = new stdClass();
-    } else {
-        $DB->delete_records('tcount_statuses', array('tweetid' => $tweetid));
-    }
-    $statusrecord->tweetid = $tweetid;
-    $statusrecord->twitterusername = $status->user->screen_name;
-    $statusrecord->tcountid = $tcount->id;
-    $statusrecord->status = json_encode($status);
-    $statusrecord->userid = $userrecord != null ? $userrecord->id : null;
-    $statusrecord->retweets = $status->retweet_count;
-    $statusrecord->favs = $status->favorite_count;
-    $statusrecord->hashtag = $tcount->hashtag;
-    $DB->insert_record('tcount_statuses', $statusrecord);
-}
-
-/**
- * Connect to twitter API at https://api.twitter.com/1.1/search/tweets.json
- * @global type $CFG
- * @param type $tokens oauth tokens
- * @param type $hashtag hashtag to search for
- * @return stdClass result->statuses  o result->error
- */
-function tcount_find_tweeter($tokens, $hashtag) {
-    if (!$tokens) {
-        mtrace("No connection tokens provided!!! Impossible to connect to twitter.");
-        return array();
-    }
-    global $CFG;
-    $settings = array(
-        'oauth_access_token' => $tokens->token,
-        'oauth_access_token_secret' => $tokens->token_secret,
-        'consumer_key' => $CFG->mod_tcount_consumer_key, // ...twitter developer app key.
-        'consumer_secret' => $CFG->mod_tcount_consumer_secret// ...twitter developer app secret.
-    );
-    // URL for REST request, see: https://dev.twitter.com/docs/api/1.1/
-    // Perform the request and echo the response.
-    $url = 'https://api.twitter.com/1.1/search/tweets.json';
-    $getfield = "q=$hashtag&count=100";
-    $requestmethod = "GET";
-    $twitter = new TwitterAPIExchange($settings);
-    $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
-    $result = json_decode($json);
-    if ($result == null) {
-        mtrace($json);
-        die;
-    }
-    return $result;
-}
 
 /**
  * Find the list of users and get a list with the ids of students and a list of non-students
@@ -352,7 +235,24 @@ function tcount_get_user_field_value($user, $fieldid) {
         }
     }
 }
-
+/**
+ * Return the list of available user's profile fields
+ * @return array[string]string array with id->name of user fields
+ */
+function tcount_get_user_fields(){
+    global $DB;
+    $options1 = array('skype' => 'SKYPE', 'yahoo' => 'Yahoo', 'aim' => 'AIM', 'msn' => 'MSN'
+    );
+    $options2 = array();
+    $options = $DB->get_records_menu("user_info_field", null, "name", "shortname, name");
+    if ($options) {
+        foreach ($options as $shortname => $name) {
+            $options2[$shortname] = $name;
+        }
+    }
+    $idtypeoptions = $options1 + $options2;
+    return $idtypeoptions;
+}
 /**
  * @deprecated since version number
  * @global type $CFG
@@ -398,26 +298,6 @@ function tcount_is_tracking_facebook(stdClass $tcount) {
     return trim($tcount->fbsearch) != "";
 }
 
-/**
- * 
- * @param type $username string with the format screenname|userid  (second part is optional)
- */
-function tcount_create_user_link($username, $network) {
-    $parts = explode('|', $username);
-    $screenname = $parts[0];
-    $userid = isset($parts[1]) ? $parts[1] : $screenname;
-    switch ($network) {
-        case 'facebook': $link = "https://www.facebook.com/$userid";
-            $icon = 'pix/Facebook_icon.png';
-            break;
-        case 'twitter' : $link = "https://www.twitter.com/$userid";
-            $icon = "pix/Twitter_icon.png";
-            break;
-        default:
-            print_error('unknownaction');
-    }
-    return "<a href=\"$link\"><img src=\"$icon\"/> $screenname</a>";
-}
 
 /**
  * Update the settings for a single plugin.

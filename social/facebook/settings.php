@@ -21,12 +21,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_heading('mod_tcount_tweeter_header', 'Tweeter API', 'Keys for Tweeter API Access.'));
+    $settings->add(new admin_setting_heading('mod_tcount_facebook_header', 'Facebook API', 'Keys for Facebook API Access.'));
 
-    $settings->add(new admin_setting_configtext('mod_tcount_twitter_consumer_key', get_string('tcount_consumer_key', 'tcountsocial_twitter'),
-            get_string('config_consumer_key', 'tcountsocial_twitter'), '', PARAM_RAW_TRIMMED));
-    $settings->add(new admin_setting_configtext('mod_tcount_consumer_secret', get_string('tcount_consumer_secret', 'tcountsocial_twitter'),
-            get_string('config_consumer_secret', 'tcountsocial_twitter'), '', PARAM_RAW_TRIMMED));
+    $settings->add(new admin_setting_configtext('mod_tcount_facebook_appid', get_string('facebook_app_id', 'tcountsocial_facebook'),
+            get_string('config_app_id', 'tcountsocial_facebook'), '', PARAM_RAW_TRIMMED));
+    $settings->add(new admin_setting_configtext('mod_tcount_facebook_appsecret', get_string('facebook_app_secret', 'tcountsocial_facebook'),
+            get_string('config_app_secret', 'tcountsocial_facebook'), '', PARAM_RAW_TRIMMED));
 }
 //$ADMIN->add('modtcountfolder', $settings);
 // Tell core we already added the settings structure.

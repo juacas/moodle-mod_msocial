@@ -15,12 +15,17 @@
 // along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
 require_once('../../config.php');
 require_once('locallib.php');
+require_once('tcountsocialplugin.php');
+
 header('Content-Type: application/json; charset=utf-8');
 $id = required_param('id', PARAM_INT);
 $cm = get_coursemodule_from_id('tcount', $id, null, null, MUST_EXIST);
 $tcount = $DB->get_record('tcount', array('id' => $cm->instance), '*', MUST_EXIST);
 require_login($cm->course, false, $cm);
-$statuses = tcount_load_statuses($tcount, $cm, null);
+// TODO: Pluginize this script...
+$plugins = mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount);
+$twitter = $plugins['twitter'];
+$statuses = $twitter->load_statuses(null);
 $events = array();
 
 foreach ($statuses as $status) {

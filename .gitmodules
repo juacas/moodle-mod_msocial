@@ -1,0 +1,3 @@
+[submodule "facebook"]
+	path = facebook
+	url = https://github.com/facebook/php-graph-sdk.git

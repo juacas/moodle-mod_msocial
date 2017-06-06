@@ -11,13 +11,8 @@
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of tcount instance"/>
         <FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="text format of intro field"/>
-        <FIELD NAME="hashtag" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="HashTag to search for"/>
-        <FIELD NAME="fbsearch" TYPE="char" LENGTH="512" NOTNULL="true" SEQUENCE="false" COMMENT="HashTag to search for"/>
-        <FIELD NAME="widget_id" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="id of the widget created at twitter page"/>
-        <FIELD NAME="twfieldid" TYPE="char" LENGTH="100" NOTNULL="true" DEFAULT="iam" SEQUENCE="false" COMMENT="field for the twiter id"/>
-        <FIELD NAME="fbfieldid" TYPE="char" LENGTH="100" NOTNULL="true" DEFAULT="msn" SEQUENCE="false" COMMENT="field for the facebook id"/>
-        <FIELD NAME="counttweetsfromdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The initial date of the accounting."/>
-        <FIELD NAME="counttweetstodate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The final date after which tweets will no longer be accounted."/>
+        <FIELD NAME="startdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The initial date of the accounting."/>
+        <FIELD NAME="enddate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The final date after which tweets will no longer be accounted."/>
         <FIELD NAME="grade_expr" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="expression for computing the grade"/>
       </FIELDS>
       <KEYS>

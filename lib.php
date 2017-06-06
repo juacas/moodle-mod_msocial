@@ -1,4 +1,6 @@
 <?php
+use mod_tcount\plugininfo\tcountsocial;
+
 // This file is part of TwitterCount activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
@@ -8,43 +10,46 @@
 //
 // Questournament for Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
-/* * ***************************
+// along with TwitterCount for Moodle. If not, see <http://www.gnu.org/licenses/>.
+/*
+ * ***************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro with the effort of many other
  * students of telecommunication engineering of Valladolid
  * Copyright 2009-2011 EdUVaLab http://www.eduvalab.uva.es
  * this module is provides as-is without any guarantee. Use it as your own risk.
-
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
- * @author J�ssica Olano L�pez,Pablo Galan Sabugo, David Fernández, Natalia Haro, Juan Pablo de Castro and other contributors.
+ *
+ * @author J�ssica Olano L�pez,Pablo Galan Sabugo, David Fernández, Natalia Haro, Juan Pablo de
+ * Castro and other contributors.
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package tcount
  *
  * Library of functions and constants for module tcount
  *
- * ******************************************************************************* */
+ * *******************************************************************************
+ */
+require_once ($CFG->dirroot . "/config.php");
+require_once ($CFG->dirroot . '/grade/lib.php');
+require_once ($CFG->dirroot . '/grade/querylib.php');
 
-require_once($CFG->dirroot . "/config.php");
-require_once($CFG->dirroot . '/grade/lib.php');
-require_once($CFG->dirroot . '/grade/querylib.php');
 /**
  * Indicates API features that the twitter module supports.
  *
@@ -61,20 +66,33 @@ require_once($CFG->dirroot . '/grade/querylib.php');
  */
 function tcount_supports($feature) {
     switch ($feature) {
-        case FEATURE_GROUPS: return false;
-        case FEATURE_GROUPINGS: return false;
-        case FEATURE_GROUPMEMBERSONLY: return false;
-        case FEATURE_MOD_INTRO: return true;
-        case FEATURE_COMPLETION_TRACKS_VIEWS: return false;
-        case FEATURE_COMPLETION_HAS_RULES: return false;
-        case FEATURE_GRADE_HAS_GRADE: return true;
-        case FEATURE_GRADE_OUTCOMES: return false;
-        case FEATURE_RATE: return false;
-        case FEATURE_BACKUP_MOODLE2: return true;
-        case FEATURE_SHOW_DESCRIPTION: return true;
-        case FEATURE_PLAGIARISM: return false;
+        case FEATURE_GROUPS:
+            return false;
+        case FEATURE_GROUPINGS:
+            return false;
+        case FEATURE_GROUPMEMBERSONLY:
+            return false;
+        case FEATURE_MOD_INTRO:
+            return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return false;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return false;
+        case FEATURE_GRADE_HAS_GRADE:
+            return true;
+        case FEATURE_GRADE_OUTCOMES:
+            return false;
+        case FEATURE_RATE:
+            return false;
+        case FEATURE_BACKUP_MOODLE2:
+            return true;
+        case FEATURE_SHOW_DESCRIPTION:
+            return true;
+        case FEATURE_PLAGIARISM:
+            return false;
 
-        default: return false;
+        default:
+            return false;
     }
 }
 
@@ -86,7 +104,8 @@ function tcount_supports($feature) {
  *
  * @param object $instance An object from the form in mod_form.php
  * @return int The id of the newly inserted tcount record
- * */
+ *
+ */
 function tcount_add_instance($tcount) {
     global $DB;
     $tcount->timecreated = time();
@@ -96,12 +115,14 @@ function tcount_add_instance($tcount) {
     $tcount->id = $DB->insert_record('tcount', $tcount);
     tcount_grade_item_update($tcount);
     // Call save_settings hook for submission plugins.
-        foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $type=>$plugin) {
-            if (!update_plugin_instance($plugin, $tcount)) {
-                print_error($plugin->get_error());
-                return false;
-            }
+    /** @var tcount_plugin $plugin */
+    foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $type => $plugin) {
+        $plugin->enable(); // Default value is enabled...
+        if (!update_plugin_instance($plugin, $tcount)) {
+            print_error($plugin->get_error());
+            return false;
         }
+    }
     return $tcount->id;
 }
 
@@ -112,20 +133,21 @@ function tcount_add_instance($tcount) {
  *
  * @param object $instance An object from the form in mod_form.php
  * @return boolean Success/Fail
- * */
+ *
+ */
 function tcount_update_instance($tcount) {
     global $DB;
     $tcount->timemodified = time();
     $tcount->id = $tcount->instance;
     tcount_grade_item_update($tcount);
-    
-     // Call save_settings hook for submission plugins.
-        foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $type=>$plugin) {
-            if (!update_plugin_instance($plugin, $tcount)) {
-                print_error($plugin->get_error());
-                return false;
-            }
+
+    // Call save_settings hook for submission plugins.
+    foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $type => $plugin) {
+        if (!update_plugin_instance($plugin, $tcount)) {
+            print_error($plugin->get_error());
+            return false;
         }
+    }
     return $DB->update_record("tcount", $tcount);
 }
 
@@ -133,11 +155,13 @@ function tcount_update_instance($tcount) {
  * Given an ID of an instance of this module,
  * this function will permanently delete the instance
  * and any data that depends on it.
+ *
  * @todo TO-DO Borrar la información en todas las tablas relacionadas.
- * 
+ *
  * @param int $id Id of the module instance
  * @return boolean Success/Failure
- * */
+ *
+ */
 function tcount_delete_instance($id) {
     global $DB;
 
@@ -150,11 +174,9 @@ function tcount_delete_instance($id) {
     if (!$DB->delete_records('tcount', array('id' => $tcount->id))) {
         $result = false;
     }
-    if (!$DB->delete_records('tcount_statuses', array('tcountid' => $tcount->id))) {
-        $result = false;
-    }
-    if (!$DB->delete_records('tcount_tokens', array('tcountid' => $tcount->id))) {
-        $result = false;
+    $plugins = tcountsocial::get_installed_plugins($tcount);
+    foreach ($plugins as $subtype => $plugin){
+        $result = $result && $plugin->delete_instance();
     }
     tcount_grade_item_update($tcount);
     return $result;
@@ -169,7 +191,8 @@ function tcount_delete_instance($id) {
  *
  * @return null
  * @todo Finish documenting this function
- * */
+ *
+ */
 function tcount_user_outline($course, $user, $mod, $tcount) {
     $return = null;
     return $return;
@@ -181,7 +204,8 @@ function tcount_user_outline($course, $user, $mod, $tcount) {
  *
  * @return boolean
  * @todo Finish documenting this function
- * */
+ *
+ */
 function tcount_user_complete($course, $user, $mod, $tcount) {
     // TODO Check if user has tweets.
     return true;
@@ -195,11 +219,12 @@ function tcount_user_complete($course, $user, $mod, $tcount) {
  * @global $CFG
  * @return boolean
  * @todo Finish documenting this function
- * */
+ *
+ */
 function tcount_print_recent_activity($course, $isteacher, $timestart) {
     global $CFG;
     // TODO report tweets.
-    return false;  //  True if anything was printed, otherwise false.
+    return false; // True if anything was printed, otherwise false.
 }
 
 /**
@@ -210,31 +235,36 @@ function tcount_print_recent_activity($course, $isteacher, $timestart) {
  * @global $CFG
  * @return boolean
  * @todo Finish documenting this function
- * */
+ *
+ */
 
 /**
  * Must return an array of user records (all data) who are participants
- * for a given instance of tcount. Must include every user involved
+ * for a given instance of tcount.
+ * Must include every user involved
  * in the instance, independient of his role (student, teacher, admin...)
  * See other modules as example.
  *
  * @param int $tcountid ID of an instance of this module
  * @return mixed boolean/array of students
- * */
+ *
+ */
 function tcount_get_participants($tcountid) {
     return false;
 }
 
 /**
  * This function returns if a scale is being used by one tcount
- * it it has support for grading and scales. Commented code should be
+ * it it has support for grading and scales.
+ * Commented code should be
  * modified if necessary. See forum, glossary or journal modules
  * as reference.
  *
  * @param int $tcountid ID of an instance of this module
  * @return mixed
  * @todo Finish documenting this function
- * */
+ *
+ */
 function tcount_scale_used($tcountid, $scaleid) {
     $return = false;
 
@@ -250,7 +280,8 @@ function tcount_extend_settings_navigation(settings_navigation $settings, naviga
     }
     if ($PAGE->pagetype == 'mod-tcount-teams-grades' || $PAGE->pagetype == 'mod-tcount-teams-introteams') {
         if (has_capability('mod/tcount:introteams', $cm->context)) {
-            $link = new moodle_url('/mod/tcount/teams/teams_graph.php', array('id' => $cm->id));
+            $link = new moodle_url('/mod/tcount/teams/teams_graph.php', array('id' => $cm->id
+            ));
             $linkname = get_string('view_teams_graph', 'tcount');
             $node = $navref->add($linkname, $link, navigation_node::TYPE_CUSTOM);
         }
@@ -270,13 +301,14 @@ function tcount_has_config() {
  */
 function tcount_grade_item_update($tcount, $grades = null) {
     global $CFG;
-    require_once($CFG->libdir . '/gradelib.php');
+    require_once ($CFG->libdir . '/gradelib.php');
 
     if (!isset($tcount->courseid)) {
         $tcount->courseid = $tcount->course;
     }
     $tcount->cmidnumber = isset($tcount->cmidnumber) ? $tcount->cmidnumber : null;
-    $params = array('itemname' => $tcount->name, 'idnumber' => $tcount->cmidnumber);
+    $params = array('itemname' => $tcount->name, 'idnumber' => $tcount->cmidnumber
+    );
 
     $params['gradetype'] = GRADE_TYPE_VALUE;
     if (isset($tcount->grade)) {
@@ -302,7 +334,7 @@ function tcount_grade_item_update($tcount, $grades = null) {
 function tcount_get_user_grades($tcount, $userid = 0) {
     global $CFG;
 
-    require_once($CFG->dirroot . '/mod/tcount/locallib.php');
+    require_once ($CFG->dirroot . '/mod/tcount/locallib.php');
 
     $grades = tcount_calculate_user_grades($tcount, $userid);
     return $grades;
@@ -317,7 +349,7 @@ function tcount_get_user_grades($tcount, $userid = 0) {
  */
 function tcount_update_grades($tcount, $userid = 0, $nullifnone = true) {
     global $CFG;
-    require_once($CFG->libdir . '/gradelib.php');
+    require_once ($CFG->libdir . '/gradelib.php');
     if ($grades = tcount_get_user_grades($tcount, $userid)) {
         foreach ($grades as $k => $v) {
             if ($v->rawgrade == -1) {

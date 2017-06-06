@@ -27,7 +27,7 @@ $course = get_course($cm->course);
 require_login($course);
 $tcount = $DB->get_record('tcount', array('id' => $cm->instance), '*', MUST_EXIST);
 
-$consumerkey = $CFG->mod_tcount_consumer_key;
+$consumerkey = $CFG->mod_tcount_twitter_consumer_key;
 $consumersecret = $CFG->mod_tcount_consumer_secret;
 
 $oauthrequesttoken = "https://twitter.com/oauth/request_token";
@@ -58,16 +58,12 @@ if ($action == 'callback') { // Twitter callback.
      * Save tokens for future use
      */
     if ($type === 'connect' && has_capability('mod/tcount:manage', $context)) {
-        $record = $DB->get_record('tcount_tweeter_tokens', array("tcount_id" => $cm->instance));
-        if ($record) {
-            $DB->delete_records('tcount_tweeter_tokens', array('id' => $record->id));
-        }
+        
         $record = new stdClass();
-        $record->tcount_id = $cm->instance;
         $record->token = $accoauthdata['oauth_token'];
         $record->token_secret = $accoauthdata['oauth_token_secret'];
         $record->username = $accoauthdata['screen_name'];
-        $DB->insert_record('tcount_tweeter_tokens', $record);
+        $plugin->set_connection_token($record);
         $message = "Configured user $record->username ";
     } else if ($type === 'profile') { // Fill the profile with user id
         $socialname = '@' . $accoauthdata['screen_name'];

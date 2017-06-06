@@ -109,8 +109,15 @@ if (has_capability('mod/tcount:manage', $contextmodule)) {
     
     }
 
-// Description text
+// Description text.
 echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
+// Tabs...
+$rows = array(
+                new tabobject('uno','http://google.com','google','a por todas'),
+                new tabobject('dos','localurl','local','sin ir lejos')
+);
+echo $OUTPUT->tabtree($rows, 'uno');
+
 echo '<div id="my-timeline" style="overflow-y: visible; height: 250px; border: 1px solid #aaa"></div>';
 echo $OUTPUT->spacer(array('height' => 20));
 
@@ -154,20 +161,7 @@ foreach ($userstats->users as $userid => $stat) {
         }
     }
     $usermessage2 = '';
-//    if (tcount_is_tracking_facebook($tcount)) {
-//        $facebookusername = tcount_get_social_username($user, $tcount, 'facebook');
-//        if (!$facebookusername) {
-//            $a = new stdClass();
-//            if ($USER->id == $user->id) {
-//                $url_profile = new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
-//                $usermessage2 = get_string('no_facebook_name_advice2', 'tcount', ['field' => $tcount->fbfieldid, 'userid' => $USER->id, 'courseid' => $course->id, 'url' => $url_profile->out(false)]);
-//            } else {
-//                $usermessage2 = get_string('no_facebook_name_advice', 'tcount', ['field' => $tcount->fbfieldid, 'userid' => $user->id, 'courseid' => $course->id]);
-//            }
-//        } else {
-//            $usermessage = $usermessage . ' ' . tcount_create_user_link($facebookusername, 'facebook');
-//        }
-//    }
+
     $usercard = $userpic . $profilelink;
     $messages = '<p>' . $usermessage . '</p><p>' . $usermessage2 . '</p>';
     $twitterusername = $enabledplugins['twitter']->get_social_userid($user); // TODO: Generalize for plugins....

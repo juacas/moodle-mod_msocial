@@ -25,10 +25,17 @@ defined('MOODLE_INTERNAL') || die();
 
 abstract class tcount_plugin {
 
+    const CONFIG_ENABLED = 'enabled';
     /** @var tcount $tcount the tcount record that contains the global
      *              settings for this instance
      */
     protected $tcount;
+
+    /**
+     *
+     * @var course_modinfo $cm info about the module
+     */
+    protected $cm;
 
     /** @var string $type tcount plugin type */
     private $type = '';
@@ -51,6 +58,10 @@ abstract class tcount_plugin {
     public function __construct($tcount, $type) {
         $this->tcount = (object) $tcount;
         $this->type = $type;
+        if (isset($tcount->id)) {
+            $cm = get_coursemodule_from_instance('tcount', $tcount->id, null, null);
+            $this->cm = $cm;
+        }
     }
 
     /**
@@ -101,7 +112,14 @@ abstract class tcount_plugin {
     public function data_preprocessing(&$defaultvalues) {
         return;
     }
-
+    /**
+     * composes this subplugin's field name for the forms
+     * @param string $setting
+     * @return string
+     */
+    protected function get_form_field_name($setting){
+        return $this->get_type() . '_' . $this->get_subtype() . '_'. $setting;
+    }
     /**
      * The tcount subtype is responsible for saving it's own settings as the database table for the
      * standard type cannot be modified.
@@ -189,7 +207,7 @@ abstract class tcount_plugin {
      */
     public final function enable() {
         $this->enabledcache = true;
-        return $this->set_config('enabled', 1);
+        return $this->set_config(tcount_plugin::CONFIG_ENABLED, 1);
     }
 
     /**

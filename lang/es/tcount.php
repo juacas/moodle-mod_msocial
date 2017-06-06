@@ -42,10 +42,10 @@ $string['fbsearch_help'] = 'Puede ser cualquier expresión permitida por el API 
 $string['widget_id'] = 'Widget id que se va a incluir en la página principal.';
 $string['widget_id_help'] = 'Tweeter obliga a crear manualmente un widget de búsqueda en su página. Entre en su cuenta de Twitter y cree un widget. Copie y pegue el WidgetId creado (Sólo el número que aparece en el código). Puede crear los widgets en <a href="https://twitter.com/settings/widgets">Create and manage yout Twitter Widgets</a>';
 
-$string['counttweetsfromdate'] = 'Momento en que se empiezan a contar los Tweets.';
-$string['counttweetsfromdate_help'] = 'Los tweets previos a la fecha de inicio no se incluirán en las estadísticas.';
-$string['counttweetstodate'] = 'Momento en que terminan el consurso.';
-$string['counttweetstodate_help'] = 'Los tweets posteriores a la fecha de inicio no se incluirán en las estadísticas.';
+$string['startdate'] = 'Momento en que se empiezan a contar los Tweets.';
+$string['startdate_help'] = 'Los tweets previos a la fecha de inicio no se incluirán en las estadísticas.';
+$string['enddate'] = 'Momento en que terminan el consurso.';
+$string['enddate_help'] = 'Los tweets posteriores a la fecha de inicio no se incluirán en las estadísticas.';
 $string['grade_expr'] = 'Formula para convertir las estadísticas en calificaciones.';
 $string['grade_expr_help'] = 'La fórmula puede contener las siguiente variables que se calculan para cada usuario: favs, tweets, retweets, maxfavs, maxtweets, maxretweets y una variedad de funciones como max, min, sum, average, etc. El punto decimal es \'.\' y el separador de variables es \',\' Ejemplo: \'=max(favs,retweets,1.15)\' Las variables maxfavs, maxtweets y maxretweets contienen los valores máximos alcanzados entre todos los usuarios del concurso.';
 

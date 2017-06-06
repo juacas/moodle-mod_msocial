@@ -13,22 +13,17 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * This file contains the settings definition for the twitter social plugin
+ * This file contains the version information for the twitter social plugin
  *
  * @package    tcount_twitter
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_heading('mod_tcount_tweeter_header', 'Tweeter API', 'Keys for Tweeter API Access.'));
 
-    $settings->add(new admin_setting_configtext('mod_tcount_twitter_consumer_key', get_string('tcount_consumer_key', 'tcountsocial_twitter'),
-            get_string('config_consumer_key', 'tcountsocial_twitter'), '', PARAM_RAW_TRIMMED));
-    $settings->add(new admin_setting_configtext('mod_tcount_consumer_secret', get_string('tcount_consumer_secret', 'tcountsocial_twitter'),
-            get_string('config_consumer_secret', 'tcountsocial_twitter'), '', PARAM_RAW_TRIMMED));
-}
-//$ADMIN->add('modtcountfolder', $settings);
-// Tell core we already added the settings structure.
-//$settings = null;
+defined('MOODLE_INTERNAL') || die();
 
+$plugin->version   = 2017053100;
+$plugin->requires  = 2016112900;
+$plugin->component = 'tcountsocial_facebook';

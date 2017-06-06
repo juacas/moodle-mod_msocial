@@ -8,25 +8,26 @@
 //
 // Questournament for Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with TwitterCount for Moodle. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Code fragment to define the version of tcount
  * This fragment is called by moodle_needs_upgrading() and /admin/index.php
  *
  * @author
+ *
  * @version $Id: version.php,v 1.3 2006/08/28 16:41:20 mark-nielsen Exp $
  * @package tcount
  *
  */
-defined('MOODLE_INTERNAL') || die;
+defined ( 'MOODLE_INTERNAL' ) || die ();
 
-$plugin->version = 2017053100;    // The current module version (Date: YYYYMMDDXX).
-$plugin->requires = 2013051407.00;    // Requires this Moodle version.2013111801.11.
+$plugin->version = 2017060500; // The current module version (Date: YYYYMMDDXX).
+$plugin->requires = 2013051407.00; // Requires this Moodle version.2013111801.11.
 $plugin->component = 'mod_tcount'; // Full name of the plugin (used for diagnostics).
-$plugin->cron = 10 * 60;          // Period for cron to check this module (secs).
+$plugin->cron = 10 * 60; // Period for cron to check this module (secs).
 $plugin->maturity = MATURITY_STABLE;
 $plugin->release = 'v1.0-r1';
