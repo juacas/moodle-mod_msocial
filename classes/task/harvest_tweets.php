@@ -43,10 +43,10 @@ class harvest_tweets extends \core\task\scheduled_task {
         mtrace("=======================");
         // Get instances.
         $tcounts = $DB->get_records('tcount');
-        $enabledplugins = \mod_tcount\plugininfo\tcountsocial::get_enabled_plugins();
+        $enabledplugins = \mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins();
         mtrace("Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($tcounts) . " instances.");
         foreach ($tcounts as $tcount) {
-            foreach (\mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $type => $plugin) {
+            foreach (\mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount) as $type => $plugin) {
                 try {
                     if ($plugin->is_tracking()) {
                         $result = $plugin->harvest();

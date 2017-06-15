@@ -21,53 +21,20 @@ use core\plugininfo\base, core_plugin_manager, moodle_url;
 defined('MOODLE_INTERNAL') || die();
 
 
-class tcountview extends base {
+class tcountview extends tcountbase {
     /**
      * Finds all enabled plugins, the result may include missing plugins.
-     * @return array|null of enabled plugins $pluginname=>$pluginname, null means unknown
+     * @return array[string]\tcount_view_plugin |null of enabled plugins $pluginname=>$pluginname, null means unknown
      */
-    public static function get_enabled_plugins() {
-        global $DB;
-
-        $plugins = core_plugin_manager::instance()->get_installed_plugins('tcountview');
-        if (!$plugins) {
-            return array();
-        }
-        $installed = array();
-        foreach ($plugins as $plugin => $version) {
-            $installed[] = 'tcountview_'.$plugin;
-        }
-
-        list($installed, $params) = $DB->get_in_or_equal($installed, SQL_PARAMS_NAMED);
-        $disabled = $DB->get_records_select('config_plugins', "plugin $installed AND name = 'disabled'", $params, 'plugin ASC');
-        foreach ($disabled as $conf) {
-            if (empty($conf->value)) {
-                continue;
-            }
-            list($type, $name) = explode('_', $conf->plugin, 2);
-            unset($plugins[$name]);
-        }
-
-        $enabled = array();
-        foreach ($plugins as $plugin => $version) {
-            $enabled[$plugin] = $plugin;
-        }
-
-        return $enabled;
+    public static function get_enabled_view_plugins($tcount=null) {
+        return parent::get_enabled_plugins($tcount,'view');
     }
 
     public function is_uninstall_allowed() {
         return true;
     }
 
-    /**
-     * Return URL used for management of plugins of this type.
-     * @return moodle_url
-     */
-    public static function get_manage_url() {
-        return new moodle_url('/mod/tcount/adminmanageplugins.php', array('subtype'=>'tcountview'));
-    }
-
+   
     /**
      * Pre-uninstall hook.
      * @private

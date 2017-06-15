@@ -52,5 +52,4 @@ $string['config_consumer_key'] = 'consumer_key according to TwitterAPI (<a href=
 $string['tcount_consumer_secret'] = 'consumer_secret';
 $string['config_consumer_secret'] = 'consumer_secret according to TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
 $string['problemwithtwitteraccount'] = 'Recent attempts to get the tweets resulted in an error. Try to reconnect Twitter with your user. Message: {$a}';
-$string['problemwithfacebookaccount'] = 'Recent attempts to get the posts resulted in an error. Try to reconnect Facebook with your user. Message: {$a}';
 

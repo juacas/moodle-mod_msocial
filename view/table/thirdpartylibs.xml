@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>js/datatables</location>
+    <name>DataTables</name>
+    <license>MIT</license>
+    <version>1.10.15</version>
+    <licenseversion>1.0+</licenseversion>
+  </library>
+</libraries>

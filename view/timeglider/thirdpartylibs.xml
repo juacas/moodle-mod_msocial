@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>js/timeglider</location>
+    <name>Timeglider</name>
+    <license>MIT</license>
+    <version>0.0.9</version>
+    <licenseversion>1.0+</licenseversion>
+  </library>
+</libraries>

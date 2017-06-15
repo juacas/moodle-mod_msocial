@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -8,26 +9,38 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * library class for tcount plugins base class
  *
  * @package tcountsocial_twitter
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace tcount;
+
+use mod_tcount\social\pki;
+
 defined('MOODLE_INTERNAL') || die();
+
 
 abstract class tcount_plugin {
 
     const CONFIG_ENABLED = 'enabled';
-    /** @var tcount $tcount the tcount record that contains the global
-     *              settings for this instance
+    
+    const CAT_VISUALIZATION = 'Visualization';
+    const CAT_ANALYSIS = 'Analysis';
+    const CAT_RESULTS = 'Results';
+
+    /**
+     *
+     * @var tcount $tcount the tcount record that contains the global
+     *      settings for this instance
      */
     protected $tcount;
 
@@ -71,7 +84,7 @@ abstract class tcount_plugin {
      */
     public final function is_first() {
         $order = get_config($this->get_subtype() . '_' . $this->get_type(), 'sortorder');
-
+        
         if ($order == 0) {
             return true;
         }
@@ -89,17 +102,19 @@ abstract class tcount_plugin {
         if ($lastindex == $currentindex) {
             return true;
         }
-
+        
         return false;
     }
 
     /**
-     * This function should be overridden to provide an array of elements that can be added to a moodle
+     * This function should be overridden to provide an array of elements that can be added to a
+     * moodle
      * form for display in the settings page.
+     * 
      * @param MoodleQuickForm $mform The form to add the elements to
      * @return $array
      */
-    public function get_settings(MoodleQuickForm $mform) {
+    public function get_settings(\MoodleQuickForm $mform) {
         return;
     }
 
@@ -107,19 +122,23 @@ abstract class tcount_plugin {
      * Allows the plugin to update the defaultvalues passed in to
      * the settings form (needed to set up draft areas for editor
      * and filemanager elements)
+     * 
      * @param array $defaultvalues
      */
     public function data_preprocessing(&$defaultvalues) {
         return;
     }
+
     /**
      * composes this subplugin's field name for the forms
+     * 
      * @param string $setting
      * @return string
      */
-    protected function get_form_field_name($setting){
-        return $this->get_type() . '_' . $this->get_subtype() . '_'. $setting;
+    protected function get_form_field_name($setting) {
+        return $this->get_type() . '_' . $this->get_subtype() . '_' . $setting;
     }
+
     /**
      * The tcount subtype is responsible for saving it's own settings as the database table for the
      * standard type cannot be modified.
@@ -127,7 +146,7 @@ abstract class tcount_plugin {
      * @param stdClass $formdata - the data submitted from the form
      * @return bool - on error the subtype should call set_error and return false.
      */
-    public function save_settings(stdClass $formdata) {
+    public function save_settings(\stdClass $formdata) {
         return true;
     }
 
@@ -164,6 +183,13 @@ abstract class tcount_plugin {
     public abstract function get_subtype();
 
     /**
+     * Subclassification for grouping in UI.
+     * 
+     * @return string category name
+     */
+    public abstract function get_category();
+
+    /**
      * Should return the type of this plugin.
      *
      * @return string - the type
@@ -171,7 +197,13 @@ abstract class tcount_plugin {
     public final function get_type() {
         return $this->type;
     }
-
+    /**
+     * Reports the list of PKI offered by this plugin.
+     * This method does not include any values, just metadata.
+     *
+     * @return array[string]pki list of PKI names indexed by name
+     */
+    public abstract function get_pki_list();
     /**
      * Get the installed version of this plugin
      *
@@ -248,11 +280,11 @@ abstract class tcount_plugin {
      * @return bool
      */
     public final function is_visible() {
-//        if ($this->visiblecache === null) {
-//            $enabled = get_config($this->get_type() . '_' . $this->get_subtype(), 'enabled');
-//            $this->visiblecache = $enabled;
-//        }
-//        return $this->visiblecache;
+        // if ($this->visiblecache === null) {
+        // $enabled = get_config($this->get_type() . '_' . $this->get_subtype(), 'enabled');
+        // $this->visiblecache = $enabled;
+        // }
+        // return $this->visiblecache;
         return true;
     }
 
@@ -263,7 +295,7 @@ abstract class tcount_plugin {
      */
     public final function has_admin_settings() {
         global $CFG;
-
+        
         $pluginroot = $CFG->dirroot . '/mod/tcount/' . substr($this->get_subtype(), strlen('tcount')) . '/' . $this->get_type();
         $settingsfile = $pluginroot . '/settings.php';
         return file_exists($settingsfile);
@@ -278,13 +310,11 @@ abstract class tcount_plugin {
      */
     public final function set_config($name, $value) {
         global $DB;
-
-        $dbparams = array('tcount' => $this->tcount->id,
-            'subtype' => $this->get_subtype(),
-            'plugin' => $this->get_type(),
-            'name' => $name);
+        
+        $dbparams = array('tcount' => $this->tcount->id, 'subtype' => $this->get_subtype(), 'plugin' => $this->get_type(), 
+                        'name' => $name);
         $current = $DB->get_record('tcount_plugin_config', $dbparams, '*', IGNORE_MISSING);
-
+        
         if ($current) {
             $current->value = $value;
             return $DB->update_record('tcount_plugin_config', $current);
@@ -295,7 +325,7 @@ abstract class tcount_plugin {
             $setting->plugin = $this->get_type();
             $setting->name = $name;
             $setting->value = $value;
-
+            
             return $DB->insert_record('tcount_plugin_config', $setting) > 0;
         }
     }
@@ -308,17 +338,15 @@ abstract class tcount_plugin {
      */
     public final function get_config($setting = null) {
         global $DB;
-
+        
         if ($setting) {
             if (!$this->tcount) {
                 return false;
             }
             $tcount = $this->tcount;
             if ($tcount) {
-                $dbparams = array('tcount' => $tcount->id,
-                    'subtype' => $this->get_subtype(),
-                    'plugin' => $this->get_type(),
-                    'name' => $setting);
+                $dbparams = array('tcount' => $tcount->id, 'subtype' => $this->get_subtype(), 'plugin' => $this->get_type(), 
+                                'name' => $setting);
                 $result = $DB->get_record('tcount_plugin_config', $dbparams, '*', IGNORE_MISSING);
                 if ($result) {
                     return $result->value;
@@ -326,11 +354,9 @@ abstract class tcount_plugin {
             }
             return null;
         }
-        $dbparams = array('tcount' => $this->tcount->id,
-            'subtype' => $this->get_subtype(),
-            'plugin' => $this->get_type());
+        $dbparams = array('tcount' => $this->tcount->id, 'subtype' => $this->get_subtype(), 'plugin' => $this->get_type());
         $results = $DB->get_records('tcount_plugin_config', $dbparams);
-
+        
         $config = new stdClass();
         if (is_array($results)) {
             foreach ($results as $setting) {
@@ -354,11 +380,11 @@ abstract class tcount_plugin {
      * Run cron for this plugin
      */
     public static function cron() {
-        
     }
 
     /**
      * Is this assignment plugin empty? (ie no submission or feedback)
+     * 
      * @param stdClass $submissionorgrade assign_submission or assign_grade
      * @return bool
      */
@@ -371,12 +397,13 @@ abstract class tcount_plugin {
      *
      * If the plugin creates a link to the tcount view.php page with
      * The following required parameters:
-     *      id=coursemoduleid
-     *      plugin=type
-     *      pluginsubtype=tcountview|tcountsocial
-     *      pluginaction=customaction
+     * id=coursemoduleid
+     * plugin=type
+     * pluginsubtype=tcountview|tcountsocial
+     * pluginaction=customaction
      *
      * Then this function will be called to display the page with the pluginaction passed as action
+     * 
      * @param string $action The plugin specified action
      * @return string
      */
@@ -413,5 +440,4 @@ abstract class tcount_plugin {
     public function is_configurable() {
         return true;
     }
-
 }

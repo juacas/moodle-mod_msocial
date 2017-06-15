@@ -57,17 +57,18 @@ if ($action == 'callback') { // Twitter callback.
     /*
      * Save tokens for future use
      */
+    $socialname = $accoauthdata['screen_name'];
     if ($type === 'connect' && has_capability('mod/tcount:manage', $context)) {
         
         $record = new stdClass();
         $record->token = $accoauthdata['oauth_token'];
         $record->token_secret = $accoauthdata['oauth_token_secret'];
-        $record->username = $accoauthdata['screen_name'];
+        $record->username = $socialname;
         $plugin->set_connection_token($record);
         $message = "Configured user $record->username ";
     } else if ($type === 'profile') { // Fill the profile with user id
-        $socialname = '@' . $accoauthdata['screen_name'];
-        $plugin->set_social_userid($USER, $socialname);
+        $socialid = '@' . $socialname;
+        $plugin->set_social_userid($USER, $socialid, $socialname);
         $message = "Profile updated with twitter user $socialname ";
     } else {
         $message = "Access forbidden.";

@@ -13,10 +13,10 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with TwitterCount for Moodle. If not, see <http://www.gnu.org/licenses/>.
-use Facebook\Facebook;
 use Facebook\Authentication\OAuth2Client;
-use mod_tcount\plugininfo\tcountsocial;
+use Facebook\Facebook;
 use Facebook\GraphNodes\GraphNodeFactory;
+use mod_tcount\social\tcount_social_facebook;
 
 require_once ('Facebook/autoload.php');
 require_once ("../../../../config.php");
@@ -57,6 +57,7 @@ if ($action == 'connect') {
     $loginUrl = $helper->getLoginUrl($callbackurl, $permissions);
     
     header("Location: $loginUrl");
+    die;
 } else if ($action == 'callback') {
     $helper = $fb->getRedirectLoginHelper();
     try {
@@ -81,10 +82,7 @@ if ($action == 'connect') {
             try {
                 $accessToken = $oAuth2Client->getLongLivedAccessToken($accessToken);
             } catch (Facebook\Exceptions\FacebookSDKException $e) {
-                echo "<p>Error getting long-lived access token: " . $helper->getMessage() . "</p>\n\n"; // TODO:
-                                                                                                        // pasar
-                                                                                                        // a
-                                                                                                        // lang
+                echo "<p>Error getting long-lived access token: " . $helper->getMessage() . "</p>\n\n";                                                                                            // lang
                 exit();
             }
         }
@@ -103,8 +101,8 @@ if ($action == 'connect') {
             $message = get_string('module_connected_facebook', 'tcountsocial_facebook', $record->username);
             // Fill the profile with username in Facebook.
         } else if ($type === 'profile') {
-            $socialname = $graphuser->getName() . '|' . $graphuser->getId();
-            $plugin->set_social_userid($USER, $socialname);
+            $socialname = $graphuser->getName();
+            $plugin->set_social_userid($USER, $graphuser->getId(),$socialname);
             $message = "Profile updated with facebook user $socialname ";
         } else {
             print_error('unknownuseraction');

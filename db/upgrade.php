@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of TwitterCount activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
@@ -89,5 +88,65 @@ function xmldb_tcount_upgrade($oldversion = 0) {
         $dbman->rename_field($table, new xmldb_field('counttweetstodate', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, 0), 'enddate');
         upgrade_mod_savepoint(true, 2017060500, 'tcount');
     }
+    if ($oldversion < 2017060500){
+        
+        // Define table tcount_interactions to be created.
+        $table = new xmldb_table('tcount_interactions');
+        
+        // Adding fields to table tcount_interactions.
+        $table->add_field('uid', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('tcount', XMLDB_TYPE_INTEGER, '18', null, null, null, null);
+        $table->add_field('fromid', XMLDB_TYPE_INTEGER, '18', null, null, null, null);
+        $table->add_field('nativefrom', XMLDB_TYPE_CHAR, '50', null, null, null, null);
+        $table->add_field('nativefromname', XMLDB_TYPE_CHAR, '100', null, null, null, null);
+        $table->add_field('toid', XMLDB_TYPE_INTEGER, '18', null, null, null, null);
+        $table->add_field('nativeto', XMLDB_TYPE_CHAR, '50', null, null, null, null);
+        $table->add_field('nativetoname', XMLDB_TYPE_CHAR, '100', null, null, null, null);
+        $table->add_field('parentinteraction', XMLDB_TYPE_CHAR, '100', null, null, null, null);
+        $table->add_field('source', XMLDB_TYPE_CHAR, '20', null, null, null, null);
+        $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '18', null, null, null, null);
+        $table->add_field('type', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('nativetype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('rawdata', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        
+        // Adding keys to table tcount_interactions.
+        $table->add_key('uid_tcount', XMLDB_KEY_UNIQUE, array('uid', 'tcount'));
+        
+        // Adding indexes to table tcount_interactions.
+        $table->add_index('source', XMLDB_INDEX_NOTUNIQUE, array('source'));
+        $table->add_index('timestamp', XMLDB_INDEX_NOTUNIQUE, array('timestamp'));
+        $table->add_index('from', XMLDB_INDEX_NOTUNIQUE, array('fromid'));
+        $table->add_index('tcount', XMLDB_INDEX_NOTUNIQUE, array('tcount'));
+        
+        // Conditionally launch create table for tcount_interactions.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        // Define table tcount_social_mapusers to be created.
+        $table = new xmldb_table('tcount_social_mapusers');
+        
+        // Adding fields to table tcount_social_mapusers.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('tcount', XMLDB_TYPE_INTEGER, '9', null, null, null, '0');
+        $table->add_field('type', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('socialid', XMLDB_TYPE_CHAR, '30', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('socialname', XMLDB_TYPE_CHAR, '100', null, null, null, '0');
+        
+        // Adding keys to table tcount_social_mapusers.
+        $table->add_key('tcount_userid', XMLDB_KEY_UNIQUE, array('tcount', 'userid'));
+        $table->add_key('tcount_facebookid', XMLDB_KEY_UNIQUE, array('tcount', 'socialid'));
+        
+        // Conditionally launch create table for tcount_social_mapusers.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        
+        // Tcount savepoint reached.
+        upgrade_mod_savepoint(true, 2017060500, 'tcount');
+    }
+    
     return true;
 }

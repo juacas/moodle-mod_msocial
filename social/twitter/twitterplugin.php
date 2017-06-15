@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -13,6 +14,10 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+namespace mod_tcount\social;
+
+use tcount\tcount_plugin;
+
 defined('MOODLE_INTERNAL') || die();
 require_once ('TwitterAPIExchange.php');
 
@@ -25,7 +30,7 @@ require_once ('TwitterAPIExchange.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tcount_social_twitter extends tcount_social_plugin {
-
+    const CONFIG_HASHTAG = 'hashtag'; 
     /**
      * Get the name of the plugin
      *
@@ -42,11 +47,9 @@ class tcount_social_twitter extends tcount_social_plugin {
      *
      * @param array $defaultvalues
      */
-    public function data_preprocessing(&$defaultvalues) {
-        $twfieldid = $this->get_config('twfieldid');
-        $defaultvalues['tcountsocial_twitter_twfieldid'] = $twfieldid === "" ? null : $twfieldid;
-        $defaultvalues['tcountsocial_twitter_hashtag'] = $this->get_config('hashtag');
-        $defaultvalues['tcountsocial_twitter_enabled'] = $this->get_config('enabled');
+    public function data_preprocessing(&$defaultvalues) {  
+        $defaultvalues[$this->get_form_field_name(self::CONFIG_HASHTAG)] = $this->get_config(self::CONFIG_HASHTAG);
+        $defaultvalues[$this->get_form_field_name(self::CONFIG_ENABLED)] = $this->get_config(tcount_plugin::CONFIG_ENABLED);
         return;
     }
 
@@ -56,36 +59,27 @@ class tcount_social_twitter extends tcount_social_plugin {
      * @param MoodleQuickForm $mform The form to add elements to
      * @return void
      */
-    public function get_settings(MoodleQuickForm $mform) {
-        $idtypeoptions = tcount_get_user_fields();
-        $mform->addElement('select', 'tcountsocial_twitter_twfieldid', get_string("twfieldid", "tcountsocial_twitter"), 
-                $idtypeoptions);
-        $mform->setDefault('tcountsocial_twitter_twfieldid', 'aim');
-        $mform->addHelpButton('tcountsocial_twitter_twfieldid', 'twfieldid', 'tcountsocial_twitter');
-        $mform->addElement('text', 'tcountsocial_twitter_hashtag', get_string("hashtag", "tcountsocial_twitter"), 
+    public function get_settings(\MoodleQuickForm $mform) {
+        
+        $mform->addElement('text', $this->get_form_field_name(self::CONFIG_HASHTAG), get_string("hashtag", "tcountsocial_twitter"), 
                 array('size' => '20'));
-        $mform->setType('tcountsocial_twitter_hashtag', PARAM_TEXT);
-        $mform->addHelpButton('tcountsocial_twitter_hashtag', 'hashtag', 'tcountsocial_twitter');
+        $mform->setType($this->get_form_field_name(self::CONFIG_HASHTAG), PARAM_TEXT);
+        $mform->addHelpButton($this->get_form_field_name(self::CONFIG_HASHTAG), 'hashtag', 'tcountsocial_twitter');
     }
 
     /**
      * Save the settings for twitter plugin
      *
-     * @param stdClass $data
+     * @param \stdClass $data
      * @return bool
      */
-    public function save_settings(stdClass $data) {
-        if (empty($data->tcountsocial_twitter_twfieldid)) {
-            $twfieldid = 0;
-        } else {
-            $twfieldid = $data->tcountsocial_twitter_twfieldid;
+    public function save_settings(\stdClass $data) {
+        
+        if (isset($data->{$this->get_form_field_name(self::CONFIG_HASHTAG)})) {
+            $this->set_config('hashtag', $data->{$this->get_form_field_name(self::CONFIG_HASHTAG)});
         }
-        $this->set_config('twfieldid', $twfieldid);
-        if (isset($data->tcountsocial_twitter_hashtag)) {
-            $this->set_config('hashtag', $data->tcountsocial_twitter_hashtag);
-        }
-        if (isset($data->tcountsocial_twitter_enabled)) {
-            $this->set_config('enabled', $data->tcountsocial_twitter_enabled);
+        if (isset($data->{$this->get_form_field_name(self::CONFIG_ENABLED)})) {
+            $this->set_config('enabled', $data->{$this->get_form_field_name(self::CONFIG_ENABLED)});
         }
         return true;
     }
@@ -95,10 +89,10 @@ class tcount_social_twitter extends tcount_social_plugin {
      *
      * @param mixed $this->tcount can be null
      * @param MoodleQuickForm $mform
-     * @param stdClass $data
+     * @param \stdClass $data
      * @return true if elements were added to the form
      */
-    public function get_form_elements(MoodleQuickForm $mform, stdClass $data) {
+    public function get_form_elements(MoodleQuickForm $mform, \stdClass $data) {
         $elements = array();
         $this->tcount = $this->tcount ? $this->tcount->id : 0;
         
@@ -125,9 +119,15 @@ class tcount_social_twitter extends tcount_social_plugin {
     public function get_subtype() {
         return 'twitter';
     }
-    public function get_icon(){
-        return new moodle_url('/mod/tcount/social/twitter/pix/Twitter_icon.png');
+
+    public function get_category() {
+        return tcount_plugin::CAT_ANALYSIS;
     }
+
+    public function get_icon() {
+        return new \moodle_url('/mod/tcount/social/twitter/pix/Twitter_icon.png');
+    }
+
     /**
      *
      * @global core_renderer $OUTPUT
@@ -140,8 +140,7 @@ class tcount_social_twitter extends tcount_social_plugin {
             list($course, $cm) = get_course_and_cm_from_instance($this->tcount->id, 'tcount');
             $id = $cm->id;
             $token = $DB->get_record('tcount_twitter_tokens', array('tcount' => $this->tcount->id));
-            $url_connect = new moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
-                    array('id' => $id, 'action' => 'connect'));
+            $url_connect = new \moodle_url('/mod/tcount/social/twitter/twitterSSO.php', array('id' => $id, 'action' => 'connect'));
             if ($token) {
                 $username = $token->username;
                 $errorstatus = $token->errorstatus;
@@ -150,23 +149,22 @@ class tcount_social_twitter extends tcount_social_plugin {
                 }
                 echo $OUTPUT->box(
                         get_string('module_connected_twitter', 'tcountsocial_twitter', $username) . $OUTPUT->action_link(
-                                new moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
+                                new \moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
                                         array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
-                                new moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
+                                new \moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
                                         array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $OUTPUT->action_icon(
-                                new moodle_url('/mod/tcount/social/twitter/harvest.php', 
-                                        ['id' => $id]), 
-                                new pix_icon('a/refresh', get_string('harvest_tweets', 'tcountsocial_twitter'))));
+                                new \moodle_url('/mod/tcount/social/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]), 
+                                new \pix_icon('a/refresh', get_string('harvest_tweets', 'tcountsocial_twitter'))));
             } else {
                 echo $OUTPUT->notification(
                         get_string('module_not_connected_twitter', 'tcountsocial_twitter') . $OUTPUT->action_link(
-                                new moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
+                                new \moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
                                         array('id' => $id, 'action' => 'connect')), "Connect"));
             }
             // Check user's social credentials.
             $twitterusername = $this->get_social_userid($USER);
             if (trim($twitterusername) === "") { // Offer to register.
-                $url_profile = new moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
+                $url_profile = new \moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
                         array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
                 $twitteradvice = get_string('no_twitter_name_advice2', 'tcountsocial_twitter', 
                         ['field' => $this->get_userid_fieldname(), 'userid' => $USER->id, 'courseid' => $course->id, 
@@ -192,19 +190,26 @@ class tcount_social_twitter extends tcount_social_plugin {
         $cm = get_coursemodule_from_instance('tcount', $this->tcount->id);
         if (trim($twitterusername) === "") { // Offer to register.
             if ($USER->id == $user->id) {
-                $url_profile = new moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
+                $url_profile = new \moodle_url('/mod/tcount/social/twitter/twitterSSO.php', 
                         array('id' => $cm->id, 'action' => 'connect', 'type' => 'profile'));
                 $usermessage = get_string('no_twitter_name_advice2', 'tcountsocial_twitter', 
                         ['field' => $this->get_userid_fieldname(), 'userid' => $USER->id, 'courseid' => $course->id, 
                                         'url' => $url_profile->out(false)]);
             } else {
-                $usermessage = get_string('no_twitter_name_advice', 'tcount', 
-                        ['field' => $this->tcount->twfieldid, 'userid' => $user->id, 'courseid' => $course->id]);
+                $usermessage = get_string('no_twitter_name_advice', 'tcountsocial_twitter', 
+                        ['field' => $this->get_userid_fieldname(), 'userid' => $user->id, 'courseid' => $course->id]);
             }
         } else {
-            $usermessage = $this->create_user_link($twitterusername, 'twitter');
+            $usermessage = $this->create_user_link($twitterusername);
         }
         return $usermessage;
+    }
+
+    function get_interaction_url(social_interaction $interaction) {
+        $userid = $interaction->nativefrom;
+        $uid= $interaction->uid;
+        $url = "https://twitter.com/$userid/status/$uid";
+        return $url;
     }
 
     /**
@@ -216,7 +221,7 @@ class tcount_social_twitter extends tcount_social_plugin {
         $screenname = $parts[0];
         $userid = isset($parts[1]) ? $parts[1] : $screenname;
         $link = "https://www.twitter.com/$userid";
-        $icon = "pix/Twitter_icon.png";
+        $icon = "social/twitter/pix/Twitter_icon.png";
         return "<a href=\"$link\"><img src=\"$icon\"/> $screenname</a>";
     }
 
@@ -241,9 +246,9 @@ class tcount_social_twitter extends tcount_social_plugin {
         return $fieldname;
     }
 
-    public function set_social_userid($user, $socialname) {
+    public function set_social_userid($user, $socialid, $socialname = null) {
         $fieldid = $this->get_config('twfieldid');
-        tcount_set_user_field_value($user, $fieldid, $socialname);
+        tcount_set_user_field_value($user, $fieldid, $socialid);
     }
 
     /**
@@ -258,16 +263,15 @@ class tcount_social_twitter extends tcount_social_plugin {
         $cm = get_coursemodule_from_instance('tcount', $this->tcount->id, 0, false, MUST_EXIST);
         $stats = $DB->get_records_sql(
                 'SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs ' .
-                         'FROM {tcount_tweets} where tcount = ? and userid is not null group by userid', 
-                        array($this->tcount->id));
-        $userstats = new stdClass();
+                         'FROM {tcount_tweets} where tcount = ? and userid is not null group by userid', array($this->tcount->id));
+        $userstats = new \stdClass();
         $userstats->users = array();
         
         $favs = array();
         $retweets = array();
         $tweets = array();
         foreach ($users as $userid) {
-            $stat = new stdClass();
+            $stat = new \stdClass();
             
             if (isset($stats[$userid])) {
                 $tweets[] = $stat->tweets = $stats[$userid]->tweets;
@@ -280,7 +284,7 @@ class tcount_social_twitter extends tcount_social_plugin {
             }
             $userstats->users[$userid] = $stat;
         }
-        $stat = new stdClass();
+        $stat = new \stdClass();
         $stat->retweets = 0;
         $stat->tweets = count($tweets) == 0 ? 0 : max($tweets);
         $stat->favs = count($favs) == 0 ? 0 : max($favs);
@@ -291,8 +295,13 @@ class tcount_social_twitter extends tcount_social_plugin {
     }
 
     public function get_pki_list() {
-        $pkis = ['tweets', 'retweets', 'favs', 'max_tweets', 'max_retweets', 'max_favs'];
-        return $pkis;
+        $pkiobjs['tweets'] = new pki('tweets');
+        $pkiobjs['retweets'] = new pki('retweets');
+        $pkiobjs['favs'] = new pki('favs');
+        $pkiobjs['max_tweets'] = new pki('max_tweets', null, pki::PKI_AGREGATED);
+        $pkiobjs['max_retweets'] = new pki('max_retweets', null, pki::PKI_AGREGATED);
+        $pkiobjs['max_favs'] = new pki('max_favs', null, pki::PKI_AGREGATED);
+        return $pkiobjs;
     }
 
     /**
@@ -317,7 +326,7 @@ class tcount_social_twitter extends tcount_social_plugin {
      */
     public function set_connection_token($token) {
         global $DB;
-        $token->tcount=$this->tcount->id;
+        $token->tcount = $this->tcount->id;
         
         $record = $DB->get_record('tcount_tweeter_tokens', array("tcount" => $this->tcount->id));
         if ($record) {
@@ -337,6 +346,8 @@ class tcount_social_twitter extends tcount_social_plugin {
         global $DB;
         $result = $this->get_statuses($this->tcount);
         $token = $this->get_connection_token();
+        $hashtag = $this->get_config('hashtag');
+        
         if (isset($result->errors)) {
             if ($token) {
                 $info = "UserToken for:$token->username ";
@@ -345,7 +356,7 @@ class tcount_social_twitter extends tcount_social_plugin {
             }
             $errormessage = $result->errors[0]->message;
             $errormessage = "For module tcount: $this->tcount->name (id=$cm->instance) in course (id=$this->tcount->course) " .
-                     "searching: $this->tcount->hashtag $info ERROR:" . $errormessage;
+                     "searching: $hashtag $info ERROR:" . $errormessage;
             $result->messages[] = $errormessage;
         } else if (isset($result->statuses)) {
             $DB->set_field('tcount_twitter_tokens', 'errorstatus', null, array('id' => $token->id));
@@ -358,9 +369,12 @@ class tcount_social_twitter extends tcount_social_plugin {
                         return isset($status->userauthor);
                     });
             $this->store_status($studentstatuses);
+            
+            $interactions = $this->build_interactions($studentstatuses);
+            social_interaction::store_interactions($interactions, $this->tcount->id);
+            
             $result->messages[] = "For module tcount: $tcount->name (id=$tcount->id) in course (id=$tcount->course) searching: " .
-                     $this->get_config('hashtag') . "  Found " . count($statuses) . " tweets. Students' tweets: " .
-                     count($studentstatuses);
+                     $hashtag . "  Found " . count($statuses) . " tweets. Students' tweets: " . count($studentstatuses);
             $contextcourse = \context_course::instance($this->tcount->course);
             list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
             
@@ -411,6 +425,7 @@ class tcount_social_twitter extends tcount_social_plugin {
     /**
      *
      * @todo Get a list of interactions between the users
+     * @global moodle_database $DB
      * @param integer $fromdate null|starting time
      * @param integer $todate null|end time
      * @param array $users filter of users
@@ -418,6 +433,69 @@ class tcount_social_twitter extends tcount_social_plugin {
      *         mod_tcount\social\social_interaction
      */
     public function get_interactions($fromdate = null, $todate = null, $users = null) {
+        global $DB;
+        $tweets = $DB->get_records('tcount_tweets', ["tcount" => $this->tcount->id], 'tweetid');
+        $interactions = $this->build_interactions($tweets);
+        return $interactions;
+    }
+
+    protected function build_interactions($statuses) {
+        $interactions = [];
+        $icon = $this->get_icon();
+        foreach ($statuses as $status) {
+            
+//             $statusrecord->tcount = $this->tcount->id;
+//             $statusrecord->status = $status;
+//             $statusrecord->userid = $userrecord != null ? $userrecord->id : null;
+//             $statusrecord->retweets = $status->retweet_count;
+//             $statusrecord->favs = $status->favorite_count;
+//             $statusrecord->hashtag = $this->get_config(self::CONFIG_HASHTAG);
+            
+            
+            $interaction = new social_interaction();
+            $interaction->uid = $status->id;
+            $interaction->rawdata = json_encode($status);
+            $interaction->icon = $icon;
+            $interaction->source = $this->get_subtype();
+            $interaction->fromid = $this->get_userid($interaction->nativefrom);
+            $interaction->nativetype = 'tweet';
+            $interaction->nativefrom = $status->user->id;
+            $interaction->nativefromname = $status->user->screen_name;
+            $interaction->timestamp = new \DateTime($status->created_at);
+            $interaction->toid = $this->get_userid($interaction->nativeto);
+            $interaction->nativeto = $status->in_reply_to_user_id;
+            $interaction->nativetoname = $status->in_reply_to_screen_name;
+            
+            $interaction->description = $status->text;
+            if ($status->in_reply_to_user_id == null) {
+                $interaction->type = social_interaction::POST;
+            } else {
+                $interaction->type = social_interaction::REPLY;
+            }
+            $interactions[] = $interaction;
+            
+            // Process mentions
+            foreach ($status->entities->user_mentions as $mention) {
+                $mentioninteraction = new social_interaction();
+                $mentioninteraction->rawdata = json_encode($mention);
+                $mentioninteraction->icon = $icon;
+                $mentioninteraction->source = $this->get_subtype();
+                $mentioninteraction->nativetype = 'mention';
+                $mentioninteraction->toid = $this->get_userid($mention->id);
+                $mentioninteraction->nativeto= $mention->id;
+                $mentioninteraction->nativetoname = $mention->screen_name;
+                $mentioninteraction->timestamp = new \DateTime($status->created_at);
+                $mentioninteraction->type = social_interaction::MENTION;                
+                $mentioninteraction->nativefrom = $interaction->nativefrom;
+                $mentioninteraction->fromid = $interaction->fromid;
+                $mentioninteraction->nativefromname = $interaction->nativefromname;
+                $mentioninteraction->description = '@'.$mention->id." ($mention->name)";
+                $mentioninteraction->uid = $interaction->uid.'-'.$mention->id;
+                $mentioninteraction->parentinteraction = $interaction->uid;
+                $interactions[] = $mentioninteraction;
+            }
+        }
+        return $interactions;
     }
 
     /**
@@ -428,7 +506,7 @@ class tcount_social_twitter extends tcount_social_plugin {
      * @return array[] student statuses meeting criteria.
      */
     function process_statuses($statuses) {
-        $context = context_course::instance($this->tcount->course);
+        $context = \context_course::instance($this->tcount->course);
         list($students, $nonstudent, $active, $userrecords) = eduvalab_get_users_by_type($context);
         $all = array_keys($userrecords); // Include all users (including teachers).
                                          // Get tweeter usernames from users' profile.
@@ -475,7 +553,7 @@ class tcount_social_twitter extends tcount_social_plugin {
 
     /**
      * TODO : save records in bunches.
-     *
+     * @deprecated
      * @global moodle_database $DB
      * @param array[]mixed $status
      * @param mixed $userrecord
@@ -487,7 +565,7 @@ class tcount_social_twitter extends tcount_social_plugin {
             $tweetid = $status->id_str;
             $statusrecord = $DB->get_record('tcount_tweets', array('tweetid' => $tweetid));
             if (!$statusrecord) {
-                $statusrecord = new stdClass();
+                $statusrecord = new \stdClass();
             } else {
                 $DB->delete_records('tcount_tweets', array('tweetid' => $tweetid));
             }
@@ -498,7 +576,7 @@ class tcount_social_twitter extends tcount_social_plugin {
             $statusrecord->userid = $userrecord != null ? $userrecord->id : null;
             $statusrecord->retweets = $status->retweet_count;
             $statusrecord->favs = $status->favorite_count;
-            $statusrecord->hashtag = $this->tcount->hashtag;
+            $statusrecord->hashtag = $this->get_config(self::CONFIG_HASHTAG);
             $DB->insert_record('tcount_tweets', $statusrecord);
         }
     }
@@ -509,7 +587,7 @@ class tcount_social_twitter extends tcount_social_plugin {
      * @global type $CFG
      * @param type $tokens oauth tokens
      * @param type $hashtag hashtag to search for
-     * @return stdClass result->statuses o result->errors[]->message (From Twitter API.)
+     * @return \stdClass result->statuses o result->errors[]->message (From Twitter API.)
      */
     function search_tweeter($tokens, $hashtag) {
         if (!$tokens) {
@@ -531,7 +609,7 @@ class tcount_social_twitter extends tcount_social_plugin {
         $url = 'https://api.twitter.com/1.1/search/tweets.json';
         $getfield = "q=$hashtag&count=100";
         $requestmethod = "GET";
-        $twitter = new TwitterAPIExchange($settings);
+        $twitter = new \TwitterAPIExchange($settings);
         $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
         $result = json_decode($json);
         if ($result == null) {

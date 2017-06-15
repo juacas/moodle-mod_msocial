@@ -1,4 +1,7 @@
 <?php
+use mod_tcount\plugininfo\tcountsocial;
+use mod_tcount\plugininfo\tcountview;
+
 // This file is part of TwitterCount activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
@@ -107,6 +110,7 @@ class OAuthCurl {
 }
 
 /**
+ * @deprecated
  * REturns true if the user shows no activity in the stats
  * @param type $userid
  * @param type $stat
@@ -173,36 +177,6 @@ function tcount_calculate_user_grades($tcount, $userid = 0) {
     return $grades;
 }
 
-/**
- * @deprecated since version number
- * @param type $user
- * @param type $tcount
- * @param type $network
- * @return string username in the social network
- */
-function tcount_get_social_username($user, $tcount, $network) {
-    switch ($network) {
-        case 'facebook': $fieldid = $tcount->fbfieldid;
-            break;
-        case 'twitter': $fieldid = $tcount->twfieldid;
-            break;
-        default:
-            print_error('notsupported');
-    }
-
-    if (tcount_is_custom_field_name($fieldid)) {
-        global $CFG;
-        require_once($CFG->dirroot . '/user/profile/lib.php');
-        $profile = profile_user_record($user->id);
-        return $profile->$fieldid;
-    } else {
-        if (isset($user->$fieldid) && $user->$fieldid != '') {
-            return $user->$fieldid;
-        } else {
-            return null;
-        }
-    }
-}
 
 function tcount_set_user_field_value($user, $fieldid, $value) {
     global $CFG;
@@ -253,38 +227,7 @@ function tcount_get_user_fields(){
     $idtypeoptions = $options1 + $options2;
     return $idtypeoptions;
 }
-/**
- * @deprecated since version number
- * @global type $CFG
- * @param stdClass $user
- * @param type $tcount
- * @param type $socialname
- * @param type $network
- */
-function tcount_set_social_username(stdClass $user, $tcount, $socialname, $network) {
-    switch ($network) {
-        case 'facebook': $fieldid = $tcount->fbfieldid;
-            break;
-        case 'twitter': $fieldid = $tcount->twfieldid;
-            break;
-        default:
-            print_error('notsupported');
-    }
-    if (tcount_is_custom_field_name($fieldid)) {
-        global $CFG;
-        require_once($CFG->dirroot . '/user/profile/lib.php');
-        $usernew = new stdClass();
-//        $usernew = profile_user_record($user->id);
-        $usernew->id = $user->id;
 
-        $usernew->{'profile_field_' . $fieldid} = $socialname;
-        profile_save_data($usernew);
-    } else {
-        $user->$fieldid = $socialname;
-        require_once("../../user/lib.php");
-        user_update_user($user);
-    }
-}
 
 function tcount_is_custom_field_name($fieldid) {
     if (in_array($fieldid, ['aim', 'msn', 'skype', 'yahoo'])) {
@@ -294,9 +237,6 @@ function tcount_is_custom_field_name($fieldid) {
     }
 }
 
-function tcount_is_tracking_facebook(stdClass $tcount) {
-    return trim($tcount->fbsearch) != "";
-}
 
 
 /**
@@ -350,3 +290,72 @@ function merge_stats($statsA, $statsB) {
     $statsA->users = $userstatsA;
     return $statsA;
 }
+/**
+ * @global core_renderer $OUTPUT
+ * @param stdClass $tcount record for instante tcount
+ * @param course_modinfo $cm
+ * @param context $contextmodule
+ * @return ta
+ */
+function tcount_tabbed_reports($tcount,$view,$cm,$contextmodule, $categorized=false){
+    global $OUTPUT;
+    $plugins = tcountview::get_enabled_view_plugins($tcount);
+    $rows = [];
+    /** @var tcount_view_plugin*/
+    foreach ($plugins as $name=>$plugin){
+        $icon = $plugin->get_icon();
+        $icondecoration =html_writer::img($icon->out_as_local_url(), $plugin->get_name().' icon.',['height'=>32]);
+        $url = new moodle_url('/mod/tcount/view.php',['id'=>$cm->id,'view'=>$plugin->get_subtype()]);
+        $plugintab = new tabobject($plugin->get_subtype(), $url, $icondecoration.$plugin->get_name());
+        if ($categorized){
+            $category = $plugin->get_category();
+        if (isset($rows[$category])){
+            $parenttab = $rows[$category];
+        }else{
+            $parenttab = new tabobject($category,null,$category);
+            
+            $rows[$category]=$parenttab;
+        }
+        $parenttab->subtree[]=$plugintab;
+        }else{
+            $rows[]=$plugintab;
+        }
+    }
+    return $OUTPUT->tabtree($rows,$view);
+}
+/**
+ * This function creates a minimal JS script that requires and calls a single function from an AMD module with arguments.
+ * If it is called multiple times, it will be executed multiple times.
+ *
+ * @param string $fullmodule The format for module names is <component name>/<module name>.
+ * @param string $func The function from the module to call
+ * @param array $params The params to pass to the function. They will be json encoded, so no nasty classes/types please.
+ */
+function tcount_js_call_subplugin_amd($fullmodule, $func, $params = array(),$req) {
+    global $CFG;
+    
+    list($component, $subtype,$plugin,$module) = explode('/', $fullmodule, 4);
+    
+    $component = clean_param($component, PARAM_COMPONENT);
+    $module = clean_param($module, PARAM_ALPHANUMEXT);
+    $subtype = clean_param($subtype, PARAM_ALPHANUMEXT);
+    $plugin = clean_param($plugin, PARAM_ALPHANUMEXT);
+    $func = clean_param($func, PARAM_ALPHANUMEXT);
+    
+    $jsonparams = array();
+    foreach ($params as $param) {
+        $jsonparams[] = json_encode($param);
+    }
+    $strparams = implode(', ', $jsonparams);
+    if ($CFG->debugdeveloper) {
+        $toomanyparamslimit = 1024;
+        if (strlen($strparams) > $toomanyparamslimit) {
+            debugging('Too many params passed to js_call_amd("' . $fullmodule . '", "' . $func . '")', DEBUG_DEVELOPER);
+        }
+    }
+    
+    $js = 'require(["' . $component . '/' .$subtype.'/'. $plugin .'/'.$module . '"], function(amd) { amd.' . $func . '(' . $strparams . '); });';
+    
+    $req->js_amd_inline($js);
+}
+               

@@ -17,34 +17,20 @@
 namespace mod_tcount\plugininfo;
 
 use core\plugininfo\base, core_plugin_manager, moodle_url;
-
+require_once 'tcountbase.php';
 require_once ($CFG->dirroot . '/mod/tcount/tcountsocialplugin.php');
 defined('MOODLE_INTERNAL') || die();
 
-class tcountsocial extends base {
+class tcountsocial extends tcountbase {
 
-    private static $plugins = null;
     /**
      * Finds all installed plugins, the result may include missing plugins.
      *
      * @return array(tcountsocialplugin)|null of installed plugins $pluginname=>$plugin, null means
      *         unknown
      */
-    public static function get_installed_plugins($tcount = null) {
-        global $DB;
-            $plugins = core_plugin_manager::instance()->get_installed_plugins('tcountsocial');
-            if (!$plugins) {
-                return array();
-            }
-            $installed = array();
-            foreach ($plugins as $plugin => $version) {
-                $installed[] = 'tcountsocial_' . $plugin;
-            }
-        $result = array();    
-        foreach ($plugins as $plugin => $version) {
-            $result[$plugin] = \tcount_social_plugin::instance($tcount, $plugin);
-        }
-        return $result;
+    public static function get_installed_social_plugins($tcount = null) {
+        return parent::get_installed_plugins($tcount,'social');
     }
     /**
      * Finds all enabled plugins, the result may include missing plugins.
@@ -52,50 +38,12 @@ class tcountsocial extends base {
      * @return array(tcountsocialplugin)|null of enabled plugins $pluginname=>$plugin, null means
      *         unknown
      */
-    public static function get_enabled_plugins($tcount = null) {
-        global $DB;
-        if (tcountsocial::$plugins === null) {
-            $plugins = core_plugin_manager::instance()->get_installed_plugins('tcountsocial');
-            if (!$plugins) {
-                return array();
-            }
-            $installed = array();
-            foreach ($plugins as $plugin => $version) {
-                $installed[] = 'tcountsocial_' . $plugin;
-            }
-
-            list($installed, $params) = $DB->get_in_or_equal($installed, SQL_PARAMS_NAMED);
-            $disabled = $DB->get_records_select('config_plugins', "plugin $installed AND name = 'disabled'", $params, 'plugin ASC');
-            foreach ($disabled as $conf) {
-                if (empty($conf->value)) {
-                    continue;
-                }
-                list($type, $name) = explode('_', $conf->plugin, 2);
-                unset($plugins[$name]);
-            }
-            tcountsocial::$plugins = $plugins;
-        } else {
-            $plugins = tcountsocial::$plugins;
-        }
-        $enabled = array();
-        foreach ($plugins as $plugin => $version) {
-            $enabled[$plugin] = \tcount_social_plugin::instance($tcount, $plugin);
-        }
-        return $enabled;
+    public static function get_enabled_social_plugins($tcount = null) {
+       return parent::get_enabled_plugins($tcount,'social');
     }
 
     public function is_uninstall_allowed() {
         return true;
-    }
-
-    /**
-     * Return URL used for management of plugins of this type.
-     *
-     * @return moodle_url
-     */
-    public static function get_manage_url() {
-        return new moodle_url('/mod/tcount/adminmanageplugins.php', array('subtype' => 'tcountsocial'
-        ));
     }
 
     /**

@@ -1,8 +1,9 @@
-//SimileAjax_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/js/simile-ajax/';
-Timeline_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/js/timeline/';
-Timeline_ajax_url = document.URL.substr(0, document.URL.lastIndexOf('/')) + "/js/simile-ajax/simile-ajax-api.js"
+Timeline_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/view/timeline/js/timeline/';
+Timeline_ajax_url = document.URL.substr(0, document.URL.lastIndexOf('/')) + "/view/timeline/js/simile-ajax/simile-ajax-api.js"
+SimileAjax_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/view/timeline/js/simile-ajax/';
+Timeline_parameters='bundle=false&timeline-use-local-resources=true';
 function init_timeline(Y, tcountid, user) {
-    if ("Timeline" in window) {
+    if (typeof Timeline != 'undefined' && typeof Timeline.DefaultEventSource != 'undefined') {
         deferred_init_timeline(Y, tcountid, user);
     } else {
         setTimeout(init_timeline, 100, Y, tcountid, user);
@@ -19,7 +20,7 @@ function deferred_init_timeline(Y, tcountid, user) {
     theme1.event.track.offset = 32;
     theme1.event.instant.iconHeight = 32;
     theme1.event.instant.iconWidth = 32;
-    theme1.event.instant.icon = "pix/Twitter_icon.png";
+    theme1.event.instant.icon = "social/twitter/pix/Twitter_icon.png";
     theme1.event.track.height = 8;
     theme1.mouseWheel = 'zoom';
 

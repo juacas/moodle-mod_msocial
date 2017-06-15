@@ -116,7 +116,7 @@ function tcount_add_instance($tcount) {
     tcount_grade_item_update($tcount);
     // Call save_settings hook for submission plugins.
     /** @var tcount_plugin $plugin */
-    foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $type => $plugin) {
+    foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount) as $type => $plugin) {
         $plugin->enable(); // Default value is enabled...
         if (!update_plugin_instance($plugin, $tcount)) {
             print_error($plugin->get_error());
@@ -142,7 +142,7 @@ function tcount_update_instance($tcount) {
     tcount_grade_item_update($tcount);
 
     // Call save_settings hook for submission plugins.
-    foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($tcount) as $type => $plugin) {
+    foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount) as $type => $plugin) {
         if (!update_plugin_instance($plugin, $tcount)) {
             print_error($plugin->get_error());
             return false;

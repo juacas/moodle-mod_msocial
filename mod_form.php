@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of TwitterCount activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
@@ -81,10 +82,7 @@ class mod_tcount_mod_form extends moodleform_mod {
         
         $this->add_all_plugin_settings($mform);
         
-        // $mform->addElement('select', 'fbfieldid', get_string("fbfieldid", "tcount"),
-        // $idtypeoptions);
-        // $mform->setDefault('fbfieldid', 'aim');
-        // $mform->addHelpButton('fbfieldid', 'fbfieldid', 'tcount');
+       
         
         $mform->addElement('text', 'widget_id', get_string("widget_id", "tcount"), array('size' => '20'));
         $mform->setType('widget_id', PARAM_TEXT);
@@ -105,12 +103,17 @@ class mod_tcount_mod_form extends moodleform_mod {
         $calculation = get_string('grade_expr', 'tcount');
         $varliststr = '';
         /** @var tcount_plugin $plugin */
-        foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins() as $type => $plugin) {
+        $enabled_social_plugins = mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins();
+        $enabled_view_plugins = mod_tcount\plugininfo\tcountview::get_enabled_view_plugins();
+        $enabled_plugins = array_merge($enabled_social_plugins, $enabled_view_plugins);
+        foreach ($enabled_plugins as $type => $plugin) {
             $vars = $plugin->get_pki_list();
-            $varliststr = $varliststr . '<p><b>' . $plugin->get_name() . '</b>: ' . implode(',', $vars) . '</p>';
+            if (count($vars) > 0) {
+                $varliststr = $varliststr . '<p><b>' . $plugin->get_name() . '</b>: ' . implode(',', array_keys($vars)) . '</p>';
+            }
         }
         
-        $variables = $mform->addElement('static', 'list_of_variables', get_string('grade_variables', 'tcount'), $varliststr);
+        $mform->addElement('static', 'list_of_variables', get_string('grade_variables', 'tcount'), $varliststr);
         $mform->addElement('text', 'grade_expr', $calculation);
         $mform->setDefault('grade_expr', '=100*(favs+retweets+tweets)/(maxfavs+maxretweets+maxtweets)');
         $mform->addHelpButton('grade_expr', 'grade_expr', 'tcount');
@@ -149,8 +152,6 @@ class mod_tcount_mod_form extends moodleform_mod {
         return $errors;
     }
 
-   
-
     /**
      * Add settings to edit plugin form.
      *
@@ -161,21 +162,18 @@ class mod_tcount_mod_form extends moodleform_mod {
     function add_all_plugin_settings(MoodleQuickForm $mform) {
         $mform->addElement('header', 'socialtypes', get_string('socialconnectors', 'tcount'));
         
-         foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins(null) as $pluginname => $plugin) {
+        foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins(null) as $pluginname => $plugin) {
             $this->add_plugin_settings($plugin, $mform);
         }
-      
-        // $mform->addElement('header', 'viewtypes', get_string('socialviews', 'tcount'));
-        // $viewpluginsenabled = array();
-        // $group = $mform->addGroup(array(), 'viewplugins', get_string('socialviews', 'tcount'),
-        // array(' '), false);
-        // foreach (mod_tcount\plugininfo\tcountview::get_enabled_plugins() as $pluginname) {
-        // $plugin = tcount_view_plugin::instance(null, $pluginname);
-        // $this->add_plugin_settings($plugin, $mform, $viewpluginsenabled);
-        // }
-        // $group->setElements($viewpluginsenabled);
+        $mform->addElement('header', 'viewtypes', get_string('socialviews', 'tcount'));
+        
+        foreach (mod_tcount\plugininfo\tcountview::get_enabled_view_plugins(null) as $pluginname => $plugin) {
+            $this->add_plugin_settings($plugin, $mform);
+        }
         $mform->setExpanded('socialtypes');
+        $mform->setExpanded('viewtypes');
     }
+
     /**
      * Add one plugins settings to edit plugin form.
      *
@@ -184,7 +182,7 @@ class mod_tcount_mod_form extends moodleform_mod {
      *        This form is modified directly (not returned).
      * @return void
      */
-    function add_plugin_settings($plugin, MoodleQuickForm $mform ) {
+    function add_plugin_settings($plugin, MoodleQuickForm $mform) {
         global $PAGE;
         $enabledfieldname = $plugin->get_type() . '_' . $plugin->get_subtype() . '_enabled';
         if ($plugin->is_visible() && !$plugin->is_configurable() && $plugin->is_enabled()) {
@@ -204,6 +202,7 @@ class mod_tcount_mod_form extends moodleform_mod {
         }
         $mform->setDefault($enabledfieldname, true);
     }
+
     /**
      * Allow each plugin an opportunity to update the defaultvalues
      * passed in to the settings form (needed to set up draft areas for
@@ -213,7 +212,7 @@ class mod_tcount_mod_form extends moodleform_mod {
      * @param array $defaultvalues
      */
     function plugin_data_preprocessing(&$defaultvalues) {
-        foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_plugins($defaultvalues) as $pluginname => $plugin) {
+        foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($defaultvalues) as $pluginname => $plugin) {
             if ($plugin->is_visible()) {
                 $plugin->data_preprocessing($defaultvalues);
             }

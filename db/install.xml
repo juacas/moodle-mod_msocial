@@ -1,56 +1,106 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/tcount/db" VERSION="20150602" COMMENT="XMLDB file for Moodle mod/tcount"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
->
-  <TABLES>
-    <TABLE NAME="tcount" COMMENT="Describes instances of Twitter Count Module">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="TCount instance ID"/>
-        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Identificates the course"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of tcount instance"/>
-        <FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="text format of intro field"/>
-        <FIELD NAME="startdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The initial date of the accounting."/>
-        <FIELD NAME="enddate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The final date after which tweets will no longer be accounted."/>
-        <FIELD NAME="grade_expr" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="expression for computing the grade"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-    </TABLE>
-   
-    <TABLE NAME="tcount_fbtokens" COMMENT="Facebook access tokens">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="tcount_id" TYPE="int" LENGTH="9" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="token" TYPE="char" LENGTH="1024" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="username" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="errorstatus" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="tcount_id" TYPE="foreign-unique" FIELDS="tcount_id" REFTABLE="tcount" REFFIELDS="id"/>
-      </KEYS>
-    </TABLE>
-    <TABLE NAME="tcount_plugin_config" COMMENT="Config data for an instance of a plugin in an tcount">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="tcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="plugin" TYPE="char" LENGTH="28" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="subtype" TYPE="char" LENGTH="28" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="28" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="value" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The value of the config setting. Stored as text but can be interpreted by the plugin however it likes."/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Unique id to identify this plugin setting value."/>
-        <KEY NAME="tcount" TYPE="foreign" FIELDS="tcount" REFTABLE="tcount" REFFIELDS="id" COMMENT="The tcount instance this config value relates to."/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="plugin" UNIQUE="false" FIELDS="plugin" COMMENT="The type of this plugin."/>
-        <INDEX NAME="subtype" UNIQUE="false" FIELDS="subtype" COMMENT="The subtype of this plugin (tcountsocial or tcountview)."/>
-        <INDEX NAME="name" UNIQUE="false" FIELDS="name" COMMENT="The name of this plugin setting."/>
-      </INDEXES>
-    </TABLE>
-  </TABLES>
+<XMLDB PATH="mod/tcount/db" VERSION="20150602"
+	COMMENT="XMLDB file for Moodle mod/tcount" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+	<TABLES>
+		<TABLE NAME="tcount" COMMENT="Describes instances of Twitter Count Module">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="true" COMMENT="TCount instance ID" />
+				<FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false" COMMENT="Identificates the course" />
+				<FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"
+					SEQUENCE="false" COMMENT="Name of tcount instance" />
+				<FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false" />
+				<FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false" COMMENT="text format of intro field" />
+				<FIELD NAME="startdate" TYPE="int" LENGTH="10" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false" COMMENT="The initial date of the accounting." />
+				<FIELD NAME="enddate" TYPE="int" LENGTH="10" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false"
+					COMMENT="The final date after which tweets will no longer be accounted." />
+				<FIELD NAME="grade_expr" TYPE="char" LENGTH="100" NOTNULL="false"
+					SEQUENCE="false" COMMENT="expression for computing the grade" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+			</KEYS>
+		</TABLE>
+
+		<TABLE NAME="tcount_plugin_config"
+			COMMENT="Config data for an instance of a plugin in an tcount">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="true" />
+				<FIELD NAME="tcount" TYPE="int" LENGTH="10" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="plugin" TYPE="char" LENGTH="28" NOTNULL="true"
+					SEQUENCE="false" />
+				<FIELD NAME="subtype" TYPE="char" LENGTH="28" NOTNULL="true"
+					SEQUENCE="false" />
+				<FIELD NAME="name" TYPE="char" LENGTH="28" NOTNULL="true"
+					SEQUENCE="false" />
+				<FIELD NAME="value" TYPE="text" NOTNULL="false" SEQUENCE="false"
+					COMMENT="The value of the config setting. Stored as text but can be interpreted by the plugin however it likes." />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id"
+					COMMENT="Unique id to identify this plugin setting value." />
+				<KEY NAME="tcount" TYPE="foreign" FIELDS="tcount" REFTABLE="tcount"
+					REFFIELDS="id" COMMENT="The tcount instance this config value relates to." />
+			</KEYS>
+			<INDEXES>
+				<INDEX NAME="plugin" UNIQUE="false" FIELDS="plugin"
+					COMMENT="The type of this plugin." />
+				<INDEX NAME="subtype" UNIQUE="false" FIELDS="subtype"
+					COMMENT="The subtype of this plugin (tcountsocial or tcountview)." />
+				<INDEX NAME="name" UNIQUE="false" FIELDS="name"
+					COMMENT="The name of this plugin setting." />
+			</INDEXES>
+		</TABLE>
+		<TABLE NAME="tcount_interactions" COMMENT="tcount_interactions table retrofitted from MySQL">
+			<FIELDS>
+				<FIELD NAME="uid" TYPE="char" LENGTH="100" NOTNULL="true"
+					SEQUENCE="false" />
+				<FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true"
+					SEQUENCE="true" />
+				<FIELD NAME="tcount" TYPE="int" LENGTH="18" NOTNULL="false"
+					SEQUENCE="false" />
+				<FIELD NAME="fromid" TYPE="int" LENGTH="18" NOTNULL="false"
+					SEQUENCE="false" />
+				<FIELD NAME="nativefrom" TYPE="char" LENGTH="50" NOTNULL="false"
+					SEQUENCE="false" />
+				<FIELD NAME="nativefromname" TYPE="char" LENGTH="100" NOTNULL="false"
+					SEQUENCE="false" />
+				<FIELD NAME="toid" TYPE="int" LENGTH="18" NOTNULL="false"
+					SEQUENCE="false" />
+				<FIELD NAME="nativeto" TYPE="char" LENGTH="50" NOTNULL="false"
+					SEQUENCE="false" />
+				<FIELD NAME="nativetoname" TYPE="char" LENGTH="100" NOTNULL="false"
+					SEQUENCE="false" />
+				<FIELD NAME="parentinteraction" TYPE="char" LENGTH="100"
+					NOTNULL="false" SEQUENCE="false" />
+				<FIELD NAME="source" TYPE="char" LENGTH="20" NOTNULL="false"
+					SEQUENCE="false" />
+				<FIELD NAME="timestamp" TYPE="int" LENGTH="18" NOTNULL="false"
+					SEQUENCE="false" />
+				<FIELD NAME="type" TYPE="char" LENGTH="20" NOTNULL="true"
+					SEQUENCE="false" />
+				<FIELD NAME="nativetype" TYPE="char" LENGTH="20" NOTNULL="true"
+					SEQUENCE="false" />
+				<FIELD NAME="description" TYPE="text" NOTNULL="false"
+					SEQUENCE="false" />
+				<FIELD NAME="rawdata" TYPE="text" NOTNULL="false" SEQUENCE="false" />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="uid_tcount" TYPE="unique" FIELDS="uid, tcount" />
+			</KEYS>
+			<INDEXES>
+				<INDEX NAME="source" UNIQUE="false" FIELDS="source" />
+				<INDEX NAME="timestamp" UNIQUE="false" FIELDS="timestamp" />
+				<INDEX NAME="from" UNIQUE="false" FIELDS="fromid" />
+				<INDEX NAME="tcount" UNIQUE="false" FIELDS="tcount" />
+			</INDEXES>
+		</TABLE>
+	</TABLES>
 </XMLDB>

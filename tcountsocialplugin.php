@@ -1,5 +1,4 @@
 <?php
-use mod_tcount\social\social_interaction;
 
 // This file is part of Moodle - http://moodle.org/
 //
@@ -23,11 +22,23 @@ use mod_tcount\social\social_interaction;
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_tcount\social;
+
+use mod_tcount\social\social_interaction;
+use tcount\tcount_plugin;
+use mod_tcount\social\pki;
+
 defined('MOODLE_INTERNAL') || die();
-require_once ($CFG->dirroot .'/mod/tcount/tcountplugin.php');
-require_once($CFG->dirroot .'/mod/tcount/social/socialinteraction.php');
+require_once ($CFG->dirroot . '/mod/tcount/tcountplugin.php');
+require_once ($CFG->dirroot . '/mod/tcount/pki.php');
+require_once ($CFG->dirroot . '/mod/tcount/social/socialinteraction.php');
+
 
 abstract class tcount_social_plugin extends tcount_plugin {
+
+    protected $user_to_social_mapping = null;
+
+    protected $social_to_user_mapping = null;
 
     /**
      * Constructor for the abstract plugin type class
@@ -39,38 +50,15 @@ abstract class tcount_social_plugin extends tcount_plugin {
         parent::__construct($tcount, 'tcountsocial');
     }
 
-    /**
-     * Renders the section of the page to inform and manage social plugins.
-     */
-    // public abstract function get_status_section(core_renderer $output);
-    /**
-     * Maps a Moodle's $user to a user id in the social media.
-     *
-     * @param \stdClass $user user record
-     */
-    public abstract function get_social_userid($user);
     public abstract function get_connection_token();
+
     public abstract function set_connection_token($token);
+
     /**
+     *
      * @return moodle_url url of the icon for this service
      */
     public abstract function get_icon();
-    /**
-     * Stores the $socialname in the profile information of the $user
-     *
-     * @param \stdClass $user user record
-     * @param string $socialname The name/id used by the user in the social service
-     */
-    public abstract function set_social_userid($user, $socialname);
-
-    /** @var tcount_social_plugin $pluginsocial */
-
-    /**
-     * Reports the list of PKI calculated from this plugin
-     *
-     * @return array[]string list of PKI names
-     */
-    public abstract function get_pki_list();
 
     /**
      *
@@ -94,34 +82,91 @@ abstract class tcount_social_plugin extends tcount_plugin {
     public abstract function view_user_linking($user);
 
     /**
+     * URL to a page with the social interaction.
      *
-     * @global core_renderer $OUTPUT
-     * @global moodle_database $DB
-     * @param core_renderer $output
+     * @param social_interaction $interaction
      */
+    public abstract function get_interaction_url(social_interaction $interaction);
 
     /**
-     *
-     * @param \stdClass $tcount db record.
-     * @param course_modinfo $cm course module info
-     * @return tcount_social_plugin
-     */
-    public static function instance($tcount, $subtype) {
-        $path = core_component::get_plugin_directory('tcountsocial', $subtype);
-        $classfile = $subtype . 'plugin.php';
-        if (file_exists($path . '/' . $classfile)) {
-            require_once ($path . '/' . $classfile);
-            $pluginclass = 'tcount_social_' . $subtype;
-            $plugin = new $pluginclass($tcount);
-            return $plugin;
-        }
-    }
-    /**
      * Get a list of interactions between the users
+     *
      * @param integer $fromdate null|starting time
      * @param integer $todate null|end time
      * @param array $users filter of users
-     * @return array[]mod_tcount\social\social_interaction of interactions. @see mod_tcount\social\social_interaction
+     * @return array[]mod_tcount\social\social_interaction of interactions. @see
+     *         mod_tcount\social\social_interaction
      */
-    public abstract function get_interactions($fromdate=null, $todate=null,$users=null);
+    public function get_interactions($fromdate = null, $todate = null, $users = null) {
+        $conditions = "source = '$this->get_subtype()'";
+        return social_interaction::load_interactions((int) $this->tcount->id, $conditions, $fromdate, $todate, $users);
+    }
+
+    /**
+     * Stores the $socialname in the profile information of the $user
+     *
+     * @param \stdClass|int $user user record or userid
+     * @param string $socialid The identifier or the user.
+     * @param string $socialname The name used by the user in the social service
+     */
+    public function set_social_userid($user, $socialid, $socialname) {
+        global $DB;
+        $record = $DB->get_record('tcount_social_mapusers', 
+                ['tcount' => $this->tcount->id, 'type' => $this->get_subtype(), 'userid' => $user->id]);
+        if ($record === false) {
+            $record = new \stdClass();
+        }
+        $record->tcount = $this->tcount->id;
+        $record->userid = $user->id;
+        $record->socialid = $socialid;
+        $record->socialname = $socialname;
+        if (isset($record->id)) {
+            $DB->update_record('tcount_social_mapusers', $record);
+        } else {
+            $DB->insert_record('tcount_social_mapusers', $record);
+        }
+        // Reset cache...
+        $this->user_to_social_mapping = null;
+    }
+
+    /**
+     * Maps social ids to moodle's user ids
+     *
+     * @param int $socialid
+     */
+    public function get_userid($socialid) {
+        $this->check_mapping_cache();
+        return isset($this->social_to_user_mapping[$socialid]) ? $this->social_to_user_mapping[$socialid] : null;
+    }
+
+    /**
+     * Maps a Moodle's $user to a user id in the social media.
+     *
+     * @param \stdClass|int $user user record or userid
+     * @return \stdClass socialid, socialname
+     */
+    public function get_social_userid($user) {
+        if ($user instanceof \stdClass) {
+            $userid = $user->id;
+        } else {
+            $userid = (int) $user;
+        }
+        $this->check_mapping_cache();
+        return isset($this->user_to_social_mapping[$userid]) ? $this->user_to_social_mapping[$userid] : null;
+    }
+
+    private function check_mapping_cache() {
+        global $DB;
+        if ($this->user_to_social_mapping == null || $this->social_to_user_mapping == null) {
+            $records = $DB->get_records('tcount_social_mapusers', ['tcount' => $this->tcount->id, 
+                            'type' => $this->get_subtype()], null, 'userid,socialid,socialname');
+            $this->user_to_social_mapping = [];
+            $this->social_to_user_mapping = [];
+            foreach ($records as $record) {
+                $this->social_to_user_mapping[$record->socialid] = $record->userid;
+                $this->user_to_social_mapping[$record->userid] = (object) ['socialid' => $record->socialid, 
+                                'socialname' => $record->socialname];
+            }
+        }
+    }
 }
