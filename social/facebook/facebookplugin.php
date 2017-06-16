@@ -41,6 +41,8 @@ class tcount_social_facebook extends tcount_social_plugin {
     const CONFIG_FBGROUP = 'fbgroup';
 
     const CONFIG_FBGROUPNAME = 'fbgroupname';
+    
+    const LAST_HARVEST = 'lastharvest';
 
     private $min_words = 0;
 

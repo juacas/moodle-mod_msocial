@@ -3,7 +3,10 @@ Timeline_ajax_url = document.URL.substr(0, document.URL.lastIndexOf('/')) + "/vi
 SimileAjax_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/view/timeline/js/simile-ajax/';
 Timeline_parameters='bundle=false&timeline-use-local-resources=true';
 function init_timeline(Y, tcountid, user) {
-    if (typeof Timeline != 'undefined' && typeof Timeline.DefaultEventSource != 'undefined') {
+    if (typeof Timeline != 'undefined'
+    	&& typeof Timeline.DefaultEventSource != 'undefined'
+    	&& typeof Timeline.GregorianDateLabeller.monthNames != 'undefined'
+    	&& Object.keys(Timeline.GregorianDateLabeller.monthNames).length >0 ) {
         deferred_init_timeline(Y, tcountid, user);
     } else {
         setTimeout(init_timeline, 100, Y, tcountid, user);

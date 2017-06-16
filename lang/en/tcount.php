@@ -17,6 +17,8 @@
 $string['socialconnectors'] = 'Social connectors.';
 $string['socialviews'] = 'Social visualizations.';
 $string['settings'] = 'Config TCount';
+$string['disable_social_subplugin'] = 'Disable {$a->name} connector.';
+$string['disable_view_subplugin'] = 'Disable {$a->name} view plugin.';
 $string['modulename'] = 'Social activity count contest';
 $string['modulenameplural'] = 'Social activity count contests';
 $string['modulename_help'] = 'The tcount activity enables a teacher to define a search string for the twitter timeline and facebook posts and tell the students to publish messages using certain hashtags or terms.
@@ -25,7 +27,6 @@ The module runs periodically in the background checking the activity of the time
 
 The teacher need to have a Twitter and/or Facebook account and to connect the activity with his Twitter user to give permissions to the module to query Twitter and/or Facebook. Additionally the teacher can insert a Twitter widget in the main page of the activity to show the selected timeline to the students.';
 $string['pluginname'] = 'Social Activity count module';
-
 
 $string['widget_id'] = 'Widget id to be embedded in the main page.';
 $string['widget_id_help'] = 'weeter API forces to create mannually a search widget in yout twitter account to be embedded in any page. Create one and copy and paste the WidgetId created. You can create the widgets at <a href="https://twitter.com/settings/widgets">Create and manage yout Twitter Widgets</a>';
@@ -38,9 +39,7 @@ $string['grade_variables'] = 'Social variables';
 $string['grade_variables_help'] = 'Variables generated from the social network activities. They can be used in the grading formula';
 $string['grade_expr'] = 'Formula for converting stats into grades.';
 $string['grade_expr_help'] = 'The formula for converting stats into grades can contain the following params: favs, tweets, retweets, maxfavs, maxtweets, maxretweets and a variet of functions like max, min, sum, average, etc. The decimal point is \'.\' and the separator for parameters is \',\' Example: \'=max(favs,retweets,1.15)\' Parameters maxtweets, maxretweets and maxfavs account for the maximun numbers achieved among the participants.';
-
 $string['pluginadministration'] = 'Social networks conquest';
-$string['harvest_tweets'] = 'Search Twitter timeline for student activity';
 // MainPage.
 $string['mainpage'] = 'Social networks contest main page';
 $string['mainpage_help'] = 'Social networks contest main page. You can view your achievements in Social networks contest';

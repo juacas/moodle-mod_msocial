@@ -25,5 +25,5 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2017053100;
-$plugin->requires  = 2016112900;
+$plugin->requires  = 2013051407;
 $plugin->component = 'tcountview_timeline';

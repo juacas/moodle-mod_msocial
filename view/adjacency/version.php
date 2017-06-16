@@ -13,18 +13,17 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * This file contains the settings definition for the twitter social plugin
+ * This file contains the version information for the sequence view plugin
  *
- * @package    tcount_twitter
+ * @package    tcount_view
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-    $settings->add(new admin_setting_heading('mod_tcount_tweeter_header', 'Tweeter API', 'Keys for Tweeter API Access.'));
+defined('MOODLE_INTERNAL') || die();
 
-    $settings->add(new admin_setting_configtext('tcountsocial_twitter/consumer_key', get_string('tcount_consumer_key', 'tcountsocial_twitter'),
-            get_string('config_consumer_key', 'tcountsocial_twitter'), '', PARAM_RAW_TRIMMED));
-    $settings->add(new admin_setting_configtext('tcountsocial_twitter/consumer_secret', get_string('tcount_consumer_secret', 'tcountsocial_twitter'),
-            get_string('config_consumer_secret', 'tcountsocial_twitter'), '', PARAM_RAW_TRIMMED));
-
+$plugin->version   = 2017061500;
+$plugin->requires  = 2013051407;
+$plugin->component = 'tcountview_adjacency';

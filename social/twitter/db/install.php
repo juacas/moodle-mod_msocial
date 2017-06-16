@@ -34,10 +34,10 @@ function xmldb_tcountsocial_twitter_install() {
     $dbman = $DB->get_manager();
     $table = new xmldb_table('tcount_tokens');
     if ($dbman->table_exists($table)) {
-        $sql = "insert into {tcount_tweeter_tokens} select * from {tcount_tokens} where true";
+        $sql = "insert into {tcount_twitter_tokens} select * from {tcount_tokens} where true";
         $DB->execute($sql);
         // Double check the copy of info.
-        if ($DB->count_records('tcount_tweeter_tokens') == $DB->count_records('tcount_tokens')) {
+        if ($DB->count_records('tcount_twitter_tokens') == $DB->count_records('tcount_tokens')) {
             $dbman->drop_table($table);
         }
     }

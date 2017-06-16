@@ -29,7 +29,9 @@ class tcountview extends tcountbase {
     public static function get_enabled_view_plugins($tcount=null) {
         return parent::get_enabled_plugins($tcount,'view');
     }
-
+    public static function get_enabled_plugins($tcount = null,$subtype=null) {
+        return self::get_enabled_view_plugins($tcount);
+    }
     public function is_uninstall_allowed() {
         return true;
     }
@@ -75,7 +77,6 @@ class tcountview extends tcountbase {
         }
 
         $section = $this->get_settings_section_name();
-
         $settings = new \admin_settingpage($section, $this->displayname, 'moodle/site:config', $this->is_enabled() === false);
 
         if ($adminroot->fulltree) {
@@ -83,6 +84,6 @@ class tcountview extends tcountbase {
             include($this->full_path('settings.php'));
         }
 
-        $adminroot->add($this->type . 'plugins', $settings);
+        $adminroot->add($parentnodename, $settings);
     }
 }

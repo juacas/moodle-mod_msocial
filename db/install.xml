@@ -94,6 +94,7 @@
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="uid_tcount" TYPE="unique" FIELDS="uid, tcount" />
+				<KEY NAME="id" TYPE="unique" FIELDS="id" />
 			</KEYS>
 			<INDEXES>
 				<INDEX NAME="source" UNIQUE="false" FIELDS="source" />

@@ -17,9 +17,11 @@
 namespace mod_tcount\plugininfo;
 
 use core\plugininfo\base, core_plugin_manager, moodle_url;
+
 require_once 'tcountbase.php';
 require_once ($CFG->dirroot . '/mod/tcount/tcountsocialplugin.php');
 defined('MOODLE_INTERNAL') || die();
+
 
 class tcountsocial extends tcountbase {
 
@@ -30,8 +32,13 @@ class tcountsocial extends tcountbase {
      *         unknown
      */
     public static function get_installed_social_plugins($tcount = null) {
-        return parent::get_installed_plugins($tcount,'social');
+        return parent::get_installed_plugins($tcount, 'social');
     }
+
+    public static function get_enabled_plugins($tcount = null,$subtype=null) {
+        return self::get_enabled_social_plugins($tcount);
+    }
+
     /**
      * Finds all enabled plugins, the result may include missing plugins.
      *
@@ -39,7 +46,7 @@ class tcountsocial extends tcountbase {
      *         unknown
      */
     public static function get_enabled_social_plugins($tcount = null) {
-       return parent::get_enabled_plugins($tcount,'social');
+        return parent::get_enabled_plugins($tcount, 'social');
     }
 
     public function is_uninstall_allowed() {
@@ -52,10 +59,9 @@ class tcountsocial extends tcountbase {
      */
     public function uninstall_cleanup() {
         global $DB;
-
-        $DB->delete_records('tcount_plugin_config', array('plugin' => $this->name, 'subtype' => 'tcountsocial'
-        ));
-
+        
+        $DB->delete_records('tcount_plugin_config', array('plugin' => $this->name, 'subtype' => 'tcountsocial'));
+        
         parent::uninstall_cleanup();
     }
 
@@ -77,23 +83,24 @@ class tcountsocial extends tcountbase {
         global $CFG, $USER, $DB, $OUTPUT, $PAGE; // In case settings.php wants to refer to them.
         $ADMIN = $adminroot; // May be used in settings.php.
         $plugininfo = $this; // Also can be used inside settings.php.
-
+        
         if (!$this->is_installed_and_upgraded()) {
             return;
         }
-
+        
         if (!$hassiteconfig or !file_exists($this->full_path('settings.php'))) {
             return;
         }
-
+        
         $section = $this->get_settings_section_name();
-
-        $settings = new \admin_settingpage($section, $this->displayname, 'moodle/site:config', $this->is_enabled() === false);
-
+        $enabled = $this->is_enabled();
+        $settings = new \admin_settingpage($section, $this->displayname, 'moodle/site:config', $enabled === false);
+        
         if ($adminroot->fulltree) {
             $shortsubtype = substr($this->type, strlen('tcount'));
             include ($this->full_path('settings.php'));
         }
-        $adminroot->add($this->type . 'plugins', $settings);
+        $adminroot->add($parentnodename, $settings);
+        $settings = null;
     }
 }

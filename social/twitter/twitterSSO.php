@@ -27,8 +27,8 @@ $course = get_course($cm->course);
 require_login($course);
 $tcount = $DB->get_record('tcount', array('id' => $cm->instance), '*', MUST_EXIST);
 
-$consumerkey = $CFG->mod_tcount_twitter_consumer_key;
-$consumersecret = $CFG->mod_tcount_consumer_secret;
+$consumerkey = get_config("tcountsocial_twitter","consumer_key");
+$consumersecret = get_config("tcountsocial_twitter","consumer_secret");
 
 $oauthrequesttoken = "https://twitter.com/oauth/request_token";
 $oauthauthorize = "https://twitter.com/oauth/authorize";

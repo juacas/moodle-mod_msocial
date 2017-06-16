@@ -36,10 +36,8 @@ $context = context_module::instance($id);
 $tcount = $DB->get_record('tcount', array('id' => $cm->instance), '*', MUST_EXIST);
 $plugin = new tcount_social_facebook($tcount);
 
-// $appid = '176559559452612';
-// $appsecret = 'd2d4813b97e830b35b46939a8eb86ee2';
-$appid = $CFG->mod_tcount_facebook_appid;
-$appsecret = $CFG->mod_tcount_facebook_appsecret;
+$appid = get_config("tcountsocial_facebook","appid");
+$appsecret = get_config("tcountsocial_facebook","appsecret");
 /**@var \Facebook\Facebook $fb */
 $fb = new \Facebook\Facebook(
         ['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.7', 

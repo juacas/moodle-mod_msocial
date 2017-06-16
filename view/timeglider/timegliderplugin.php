@@ -225,7 +225,7 @@ public function get_category(){
         echo '<div id="my-timeglider" ></div>';
         echo $renderer->spacer(array('height' => 20));
         $reqs->js('/mod/tcount/view/timeglider/js/init_timeglider.js');
-        $reqs->js_init_call("init_timeglider", [$this->cm->id, null], false);
+        $reqs->js_init_call("init_view", [$this->cm->id, null], false);
     }
 
     /**

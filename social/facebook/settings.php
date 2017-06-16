@@ -20,15 +20,9 @@
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading('mod_tcount_facebook_header', 'Facebook API', 'Keys for Facebook API Access.'));
 
-    $settings->add(new admin_setting_configtext('mod_tcount_facebook_appid', get_string('facebook_app_id', 'tcountsocial_facebook'),
+    $settings->add(new admin_setting_configtext('tcountsocial_facebook/appid', get_string('facebook_app_id', 'tcountsocial_facebook'),
             get_string('config_app_id', 'tcountsocial_facebook'), '', PARAM_RAW_TRIMMED));
-    $settings->add(new admin_setting_configtext('mod_tcount_facebook_appsecret', get_string('facebook_app_secret', 'tcountsocial_facebook'),
+    $settings->add(new admin_setting_configtext('tcountsocial_facebook/appsecret', get_string('facebook_app_secret', 'tcountsocial_facebook'),
             get_string('config_app_secret', 'tcountsocial_facebook'), '', PARAM_RAW_TRIMMED));
-}
-//$ADMIN->add('modtcountfolder', $settings);
-// Tell core we already added the settings structure.
-//$settings = null;
-

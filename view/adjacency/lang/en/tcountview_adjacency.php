@@ -20,5 +20,5 @@
  */
 
 
-$string['pluginname'] = 'Table report';
+$string['pluginname'] = 'Adjacency matrix report';
 
