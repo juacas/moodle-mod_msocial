@@ -46,7 +46,7 @@ foreach ($interactions as $interaction) {
     if ($interaction->nativeto !== null && $interaction->nativefrom !== null) {
         $plugin = $plugins[$interaction->source];
         
-        $nodenamefrom = get_fullname($interaction->fromid,$userrecords, $interaction->nativefromname);
+        $nodenamefrom = get_fullname($interaction->fromid,$userrecords, "[$interaction->nativefromname]");
         if ($nodenamefrom == null) {
             continue;
         }
@@ -86,7 +86,7 @@ foreach ($interactions as $interaction) {
         $url = $plugin->get_interaction_url($interaction);
         
         $edge = (object) ['source' => $nodemap[$nodenamefrom], 'target' => $nodemap[$nodenameto], 'value' => $typevalue, 
-                        'subtype' => $subtype, 'description' => $interaction->description, 'icon' => $plugin->get_icon()->out(), 
+                        'interactiontype' => $interaction->type, 'subtype' => $subtype, 'description' => $interaction->description, 'icon' => $plugin->get_icon()->out(), 
                         'link' => $url];
         $edges[] = $edge;
     }

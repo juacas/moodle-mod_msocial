@@ -22,8 +22,8 @@
 
 function initview(Y,cmid) {
 	var margin = {top: 160, right: 0, bottom: 10, left: 160},
-    width = 720,
-    height = 720;
+    width = 320,
+    height = 320;
 
 var x = d3.scale.ordinal().rangeBands([0, width]),
     z = d3.scale.linear().domain([0, 4]).clamp(true),
@@ -32,7 +32,7 @@ var x = d3.scale.ordinal().rangeBands([0, width]),
 var svg = d3.select("#diagram").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-    .style("margin-left", -margin.left + "px")
+//    .style("margin-left", 100 + "px")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -48,7 +48,7 @@ d3.json("view/adjacency/jsonized.php?id="+cmid, function(interactions) {
     matrix[i] = d3.range(n).map(function(j) { return {x: j, y: i, z: 0}; });
   });
 
-  // Convert links to matrix; count character occurrences.
+  // Convert links to matrix; count occurrences.
   interactions.links.forEach(function(link) {
     matrix[link.source][link.target].z += link.value;
     matrix[link.target][link.source].z += link.value;
