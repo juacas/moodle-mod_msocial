@@ -22,10 +22,12 @@ use mod_tcount\social\social_interaction;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot.'/mod/tcount/tcountviewplugin.php');
+require_once ($CFG->dirroot . '/mod/tcount/tcountviewplugin.php');
+
 
 /**
- * library class for view the network activity as a sequence diagram extending view plugin base class
+ * library class for view the network activity as a sequence diagram extending view plugin base
+ * class
  *
  * @package tcountview_sequence
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
@@ -91,16 +93,13 @@ class tcount_view_sequence extends tcount_view_plugin {
     public function get_subtype() {
         return 'sequence';
     }
-    public function get_category(){
+
+    public function get_category() {
         return tcount_plugin::CAT_VISUALIZATION;
     }
+
     public function get_icon() {
         return new \moodle_url('/mod/tcount/view/sequence/pix/icon.svg');
-    }
-
-    public function get_pki_list() {
-        $pkis = [];
-        return $pkis;
     }
 
     /**
@@ -113,6 +112,7 @@ class tcount_view_sequence extends tcount_view_plugin {
         $result = (object) ['messages' => []];
         return $result;
     }
+
     /**
      *
      * {@inheritdoc}
@@ -122,15 +122,16 @@ class tcount_view_sequence extends tcount_view_plugin {
     public function render_header_requirements($reqs, $viewparam) {
         if ($viewparam == 'sequence') {
             // Sequence view.
-           $reqs->jquery();
-            $reqs->js('/mod/tcount/view/sequence/js/svg-pan-zoom.js',true);
-            $reqs->js('/mod/tcount/view/sequence/js/underscore-min.js',true);
-            $reqs->js('/mod/tcount/view/sequence/js/snap.svg-min.js',true);
-            $reqs->js('/mod/tcount/view/sequence/js/webfont.js',true);
-            $reqs->js('/mod/tcount/view/sequence/js/sequence-diagram-min.js',true);
-            $reqs->js('/mod/tcount/view/sequence/js/viewlib.js',true);
+            $reqs->jquery();
+            $reqs->js('/mod/tcount/view/sequence/js/svg-pan-zoom.js', true);
+            $reqs->js('/mod/tcount/view/sequence/js/underscore-min.js', true);
+            $reqs->js('/mod/tcount/view/sequence/js/snap.svg-min.js', true);
+            $reqs->js('/mod/tcount/view/sequence/js/webfont.js', true);
+            $reqs->js('/mod/tcount/view/sequence/js/sequence-diagram-min.js', true);
+            $reqs->js('/mod/tcount/view/sequence/js/viewlib.js', true);
         }
     }
+
     /**
      *
      * {@inheritdoc}
@@ -140,14 +141,13 @@ class tcount_view_sequence extends tcount_view_plugin {
      */
     public function render_view($renderer, $reqs) {
         global $USER;
- 
+
         $contextmodule = \context_module::instance($this->cm->id);
         $contextcourse = \context_course::instance($this->cm->course);
-        
+
         $diagram = '';
-        $interactions = social_interaction::load_interactions((int) $this->tcount->id, "", null, null,[22,23,24]);
-        
         list($students, $nonstudents, $activeids, $userrecords) = eduvalab_get_users_by_type($contextcourse);
+        $interactions = social_interaction::load_interactions((int) $this->tcount->id, "", null, null,null);
         /** @var social_interaction $interaction */
         foreach ($interactions as $interaction) {
             if ($interaction->type == social_interaction::MENTION || $interaction->type == social_interaction::REACTION) {

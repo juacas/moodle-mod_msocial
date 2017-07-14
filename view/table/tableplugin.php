@@ -18,10 +18,13 @@ namespace mod_tcount\view;
 
 use mod_tcount\plugininfo\tcountsocial;
 use tcount\tcount_plugin;
+use mod_tcount\social\pki_info;
+use mod_tcount\plugininfo\tcountbase;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot.'/mod/tcount/tcountviewplugin.php');
+require_once ($CFG->dirroot . '/mod/tcount/tcountviewplugin.php');
+
 
 /**
  * library class for view the network activity as a table extending view plugin base class
@@ -90,19 +93,13 @@ class tcount_view_table extends tcount_view_plugin {
     public function get_subtype() {
         return 'table';
     }
-    public function get_category(){
+
+    public function get_category() {
         return tcount_plugin::CAT_ANALYSIS;
     }
+
     public function get_icon() {
         return new \moodle_url('/mod/tcount/view/table/pix/icon.svg');
-    }
-
-  
-
-    
-    public function get_pki_list() {
-        $pkis = [];
-        return $pkis;
     }
 
     /**
@@ -115,6 +112,7 @@ class tcount_view_table extends tcount_view_plugin {
         $result = (object) ['messages' => []];
         return $result;
     }
+
     /**
      *
      * {@inheritdoc}
@@ -131,6 +129,7 @@ class tcount_view_table extends tcount_view_plugin {
             $reqs->js('/mod/tcount/view/table/js/configurerequire.js', false);
         }
     }
+
     /**
      *
      * {@inheritdoc}
@@ -140,11 +139,11 @@ class tcount_view_table extends tcount_view_plugin {
      */
     public function render_view($renderer, $reqs) {
         global $USER;
- 
+
         $contextmodule = \context_module::instance($this->cm->id);
         $contextcourse = \context_course::instance($this->cm->course);
         $showinactive = optional_param('showinactive', true, PARAM_BOOL);
-        
+
         // Table view.
         if (has_capability('mod/tcount:viewothers', $contextmodule)) {
             list($students, $nonstudents, $activeusers, $userrecords) = eduvalab_get_users_by_type($contextcourse);
@@ -154,54 +153,46 @@ class tcount_view_table extends tcount_view_plugin {
             $userrecords[$USER->id] = $USER;
         }
         $groups = groups_get_activity_allowed_groups($this->cm);
-        $userstats = (object) ['users' => [], 'maximums' => (object) []];
-        $enabledplugins = tcountsocial::get_enabled_social_plugins($this->tcount);
-        $pkis = [];
-        $pkisall = [];
-       
-        /** @var tcount_social_plugin $plugin */
-        foreach ($enabledplugins as $type => $plugin) {
-            $partialuserstats = $plugin->calculate_stats($students);
-            $userstats = merge_stats($userstats, $partialuserstats);
-            // Get PKIs.
-            
-            $pkis[$type] = $plugin->get_pki_list();
-            $pkiindividual[$type] = array_filter($pkis[$type], 
-                    function ($pki) {
-                        return $pki->individual === true;
-                    });
-            $pkisall = array_merge($pkisall, $pkiindividual[$type]);
+        $enabledsocialplugins = tcountsocial::get_enabled_social_plugins($this->tcount);
+        $enabledplugins = tcountbase::get_enabled_plugins_all_types($this->tcount);
 
+        $pkis = $this->get_pkis($students, null);
+        $pkiinfosall = [];
+        foreach ($enabledplugins as $type => $plugin) {
+            // Get PKIs.
+            $pkilist = $plugin->get_pki_list();
+            if (count($pkilist) > 0) {
+                $pkiinfos[$type] = $pkilist;
+                $pkiindividual[$type] = array_filter($pkiinfos[$type],
+                        function ($pki) {
+                            return $pki->individual === pki_info::PKI_INDIVIDUAL;
+                        });
+                $pkiinfosall = array_merge($pkiinfosall, $pkiindividual[$type]);
+            }
         }
         // Define column groups.
-        $columnstart=2;
-        $pkicolumns =  range($columnstart,$columnstart+count($pkisall)-1);
-        foreach ($enabledplugins as $type => $plugin){
-            $columnend=$columnstart+count($pkiindividual[$type])-1;
-            $columns=range($columnstart,$columnend);
-            $restcolumns= array_values(array_diff($pkicolumns,$columns));
-            $showcolumns = (array)array_merge([0,1],$columns);
-            $columngroups[]=(object)["extend"=>"colvisGroup",
-                            "text"=>$plugin->get_name(),
-                            "show"=> $showcolumns,
-                            "hide"=> $restcolumns
-            ];
-            $columnstart=$columnend+1;
+        $columnstart = 2;
+        $pkicolumns = range($columnstart, $columnstart + count($pkiinfosall) - 1);
+        foreach ($pkiindividual as $type => $pkiinfs) {
+            $columnend = $columnstart + count($pkiinfs) - 1;
+            $columns = range($columnstart, $columnend);
+            $restcolumns = array_values(array_diff($pkicolumns, $columns));
+            $showcolumns = (array) array_merge([0, 1], $columns);
+            $columngroups[] = (object) ["extend" => "colvisGroup", "text" => $type, "show" => $showcolumns,
+                            "hide" => $restcolumns];
+            $columnstart = $columnend + 1;
         }
-        $columngroups[]=(object)["extend"=>"colvisGroup",
-                        "text"=>"All",
-                        "show"=> ":hidden"
-        ];
+        $columngroups[] = (object) ["extend" => "colvisGroup", "text" => "All", "show" => ":hidden"];
         $reqs->js_call_amd('tcountview/table', 'initview', ['#pkitable', $columngroups]);
         echo $renderer->heading('Table of PKIs');
         $table = new \html_table();
         $table->id = 'pkitable';
-        $table->head = array_merge(array('Student', 'Identity'), array_keys($pkisall));
-        foreach ($userstats->users as $userid => $stat) {
-            if ($showinactive == false && $userid != $USER->id && tcount_user_inactive($userid, $stat)) {
+        $table->head = array_merge(array('Student', 'Identity'), array_keys($pkiinfosall));
+        foreach ($pkis as $userid => $pki) {
+            if (!isset($userrecords[$userid]) || ($showinactive == false && $userid != $USER->id && $pki->seems_inactive())) {
                 continue;
             }
-            
+
             $row = new \html_table_row();
             // Photo and link for the user profile.
             $user = $userrecords[$userid];
@@ -215,20 +206,20 @@ class tcount_view_table extends tcount_view_plugin {
                 $profilelink = '';
             }
             $usersociallink = '';
-            foreach ($enabledplugins as $type => $plugin) {
+            foreach ($enabledsocialplugins as $type => $plugin) {
                 if ($plugin->is_tracking()) {
-                    $usersociallink .= '<p>' . $plugin->view_user_linking($user) . '</p>';
+                    $usersociallink .= '<p fontsize="8" >' . $plugin->view_user_linking($user) . '</p>';
                 }
             }
-            
+
             $usercard = $userpic . $profilelink;
             $socialids = '<p>' . $usersociallink . '</p>';
             $row->cells[] = new \html_table_cell($usercard);
             $row->cells[] = new \html_table_cell($socialids);
             // Get the PKIs.
-            foreach ($enabledplugins as $type => $plugin) {
-                foreach ($pkiindividual[$type] as $pki) {
-                    $row->cells[] = new \html_table_cell(isset($stat->{$pki->name}) ? $stat->{$pki->name} : '--');
+            foreach ($pkiindividual as $type => $pkinfs) {
+                foreach ($pkinfs as $pkiinfo) {
+                    $row->cells[] = new \html_table_cell(isset($pki->{$pkiinfo->name}) ? $pki->{$pkiinfo->name} : '--');
                 }
             }
             // $tweetsdata = '<a href="https://twitter.com/search?q=' .
@@ -236,6 +227,8 @@ class tcount_view_table extends tcount_view_plugin {
             // '%20from%3A' . $twitterusername . '&src=typd">' . $stat->tweets . "</a>";
             $table->data[] = $row;
         }
+        echo '<div id="tablepkis" class="container">';
         echo \html_writer::table($table);
+        echo '</div>';
     }
 }

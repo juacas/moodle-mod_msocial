@@ -8,18 +8,18 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Post-install code for the tcountsocial_twitter module.
  *
  * @package tcountsocial_twitter
  * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -50,5 +50,17 @@ function xmldb_tcountsocial_twitter_install() {
             $dbman->drop_table($table);
         }
     }
+
+    require_once ($CFG->dirroot . '/mod/tcount/social/twitter/twitterplugin.php');
+    $table = new xmldb_table('tcount_pkis');
+    $plugininfo = new mod_tcount\social\tcount_social_twitter(null);
+    $pkilist = $plugininfo->get_pki_list();
+    foreach ($pkilist as $pkiname) {
+        $pkifield = new xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
+        if (!$dbman->field_exists($table, $pkifield)) {
+            $dbman->add_field($table, $pkifield);
+        }
+    }
+
     return true;
 }

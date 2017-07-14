@@ -8,12 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -22,22 +21,22 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool
  */
 function xmldb_tcountsocial_twitter_upgrade($oldversion) {
-    global $CFG;
+    global $CFG, $THEME, $DB;
+    /* @var $dbman database_manager */
+    $dbman = $DB->get_manager();
 
-    // Moodle v2.8.0 release upgrade line.
-    // Put any upgrade step following this.
-
-    // Moodle v2.9.0 release upgrade line.
-    // Put any upgrade step following this.
-
-    // Moodle v3.0.0 release upgrade line.
-    // Put any upgrade step following this.
-
-    // Moodle v3.1.0 release upgrade line.
-    // Put any upgrade step following this.
-
-    // Automatically generated Moodle v3.2.0 release upgrade line.
-    // Put any upgrade step following this.
-
-    return true;
+    if ($oldversion < 2017071001) {
+        require_once ($CFG->dirroot . '/mod/tcount/social/twitter/twitterplugin.php');
+        $table = new xmldb_table('tcount_pkis');
+        $plugininfo = new mod_tcount\social\tcount_social_twitter(null);
+        $pkilist = $plugininfo->get_pki_list();
+        foreach ($pkilist as $pkiname => $pki) {
+            $pkifield = new xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
+            if (!$dbman->field_exists($table, $pkifield)) {
+                $dbman->add_field($table, $pkifield);
+            }
+        }
+        // Twitter savepoint reached.
+        upgrade_plugin_savepoint(true, 2017071001, 'tcountsocial', 'twitter');
+    }
 }

@@ -26,7 +26,7 @@ namespace mod_tcount\social;
 
 use mod_tcount\social\social_interaction;
 use tcount\tcount_plugin;
-use mod_tcount\social\pki;
+use mod_tcount\social\pki_info;
 
 defined('MOODLE_INTERNAL') || die();
 require_once ($CFG->dirroot . '/mod/tcount/tcountplugin.php');
@@ -35,6 +35,8 @@ require_once ($CFG->dirroot . '/mod/tcount/social/socialinteraction.php');
 
 
 abstract class tcount_social_plugin extends tcount_plugin {
+
+    const LAST_HARVEST_TIME = 'lastharvest';
 
     protected $user_to_social_mapping = null;
 
@@ -53,7 +55,7 @@ abstract class tcount_social_plugin extends tcount_plugin {
     public abstract function get_connection_token();
 
     public abstract function set_connection_token($token);
-
+    public abstract function unset_connection_token();
     /**
      *
      * @return moodle_url url of the icon for this service
@@ -81,6 +83,16 @@ abstract class tcount_social_plugin extends tcount_plugin {
      */
     public abstract function view_user_linking($user);
 
+    /**
+     * Gets an href fragment that links to the user's page in the social network.
+     * @param \stdClass $user user record
+     */
+    function create_user_link($user) {
+        $link = $this->get_user_url($user);
+        $socialuserid = $this->get_social_userid($user);
+        $icon = $this->get_icon();
+        return "<a href=\"$link\"><img src=\"$icon\"/> $socialuserid->socialname </a>";
+    }
     /**
      * URL to a page with the social interaction.
      *
@@ -111,24 +123,37 @@ abstract class tcount_social_plugin extends tcount_plugin {
      */
     public function set_social_userid($user, $socialid, $socialname) {
         global $DB;
-        $record = $DB->get_record('tcount_social_mapusers', 
-                ['tcount' => $this->tcount->id, 'type' => $this->get_subtype(), 'userid' => $user->id]);
-        if ($record === false) {
-            $record = new \stdClass();
-        }
+        // Clean previous maps.
+        $DB->delete_records('tcount_social_mapusers',['tcount' => $this->tcount->id, 'type' => $this->get_subtype(), 'socialid' => $socialid]);
+        $DB->delete_records('tcount_social_mapusers',['tcount' => $this->tcount->id, 'type' => $this->get_subtype(), 'userid' => $user->id]);
+
+        $record = new \stdClass();
         $record->tcount = $this->tcount->id;
         $record->userid = $user->id;
         $record->socialid = $socialid;
         $record->socialname = $socialname;
-        if (isset($record->id)) {
-            $DB->update_record('tcount_social_mapusers', $record);
-        } else {
-            $DB->insert_record('tcount_social_mapusers', $record);
-        }
+        $record->type = $this->get_subtype();
+
+        $DB->insert_record('tcount_social_mapusers', $record);
         // Reset cache...
         $this->user_to_social_mapping = null;
+        $this->refresh_interaction_users($record);
+        $pkis = $this->calculate_pkis([$user->id => $user]);
+        $this->store_pkis($pkis);
     }
-
+    /**
+     * Try to fill  interactions with null fromid or toid.
+     * This can be filled if a user has mapped his socialid after harvesting.
+     * @global \moodle_database $DB
+     * @param \stdClass $socialuser  struct with userid, socialid, socialname, type fields.
+     */
+    protected function refresh_interaction_users($socialuser){
+        global $DB;
+        $DB->set_field('tcount_interactions', 'fromid', $socialuser->userid,
+                ['nativefrom' => $socialuser->socialid, 'source' => $socialuser->type]);
+        $DB->set_field('tcount_interactions', 'toid', $socialuser->userid,
+                ['nativeto' => $socialuser->socialid, 'source' => $socialuser->type]);
+    }
     /**
      * Maps social ids to moodle's user ids
      *
@@ -158,13 +183,13 @@ abstract class tcount_social_plugin extends tcount_plugin {
     private function check_mapping_cache() {
         global $DB;
         if ($this->user_to_social_mapping == null || $this->social_to_user_mapping == null) {
-            $records = $DB->get_records('tcount_social_mapusers', ['tcount' => $this->tcount->id, 
+            $records = $DB->get_records('tcount_social_mapusers', ['tcount' => $this->tcount->id,
                             'type' => $this->get_subtype()], null, 'userid,socialid,socialname');
             $this->user_to_social_mapping = [];
             $this->social_to_user_mapping = [];
             foreach ($records as $record) {
                 $this->social_to_user_mapping[$record->socialid] = $record->userid;
-                $this->user_to_social_mapping[$record->userid] = (object) ['socialid' => $record->socialid, 
+                $this->user_to_social_mapping[$record->userid] = (object) ['socialid' => $record->socialid,
                                 'socialname' => $record->socialname];
             }
         }

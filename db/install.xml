@@ -103,5 +103,32 @@
 				<INDEX NAME="tcount" UNIQUE="false" FIELDS="tcount" />
 			</INDEXES>
 		</TABLE>
+		<TABLE NAME="tcount_pkis"
+			COMMENT="Key performance indicator to be used by every sub-plugin.">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="true" />
+				<FIELD NAME="tcount" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" COMMENT="Activity instance that generated the PKIs." />
+				<FIELD NAME="user" TYPE="int" LENGTH="10" NOTNULL="true"
+					SEQUENCE="false" COMMENT="Moodle user id." />
+				<FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="false"
+					SEQUENCE="false" COMMENT="Time when the PKI row was last updated." />
+				<FIELD NAME="historical" TYPE="int" LENGTH="1" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false"
+					COMMENT="Flag to easily identify last and old records." />
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
+				<KEY NAME="tcount_user_time" TYPE="unique" FIELDS="tcount, user, timestamp"
+					COMMENT="Unique definition of a PKI row" />
+			</KEYS>
+			<INDEXES>
+				<INDEX NAME="historical_idx" UNIQUE="false" FIELDS="historical"
+					COMMENT="Search current records." />
+				<INDEX NAME="tcount_idx" UNIQUE="false" FIELDS="tcount"
+					COMMENT="search tcount records" />
+			</INDEXES>
+		</TABLE>
 	</TABLES>
 </XMLDB>

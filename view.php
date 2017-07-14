@@ -51,7 +51,7 @@ require_once ("tcountviewplugin.php");
 /* @var $OUTPUT \core_renderer */
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);
-$view = optional_param('view', 'timeline', PARAM_ALPHA);
+$view = optional_param('view', 'table', PARAM_ALPHA);
 $cattab = optional_param('cattab', tcount_plugin::CAT_VISUALIZATION, PARAM_ALPHA);
 
 $cm = get_coursemodule_from_id('tcount', $id, null, null, MUST_EXIST);
@@ -72,8 +72,8 @@ $requ = $PAGE->requires;
 $requ->css('/mod/tcount/styles.css');
 $requ->jquery();
 // Configure header for plugins.
-$enabled_view_plugins = tcountview::get_enabled_view_plugins($tcount);
-foreach ($enabled_view_plugins as $name => $plugin) {
+$enabledviewplugins = tcountview::get_enabled_view_plugins($tcount);
+foreach ($enabledviewplugins as $name => $plugin) {
     $plugin->render_header_requirements($requ, $view);
 }
 // Print the page header.
@@ -85,27 +85,30 @@ echo $OUTPUT->spacer(array('height' => 20));
 echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpage', 'tcount'));
 // Print the information about the linking of the module with social plugins..
 if (has_capability('mod/tcount:manage', $contextmodule)) {
-    $enabled_social_plugins = \mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount);
-    /** @var tcount_social_plugin $plugin Enabled social plugins status section. */
-    foreach ($enabled_social_plugins as $name => $pluginsocial) {
-        /** @var tcount_social_plugin $pluginsocial */
-        echo $pluginsocial->view_header();
+    $enabledsocialplugins = \mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount);
+    $enabledplugins = array_merge($enabledviewplugins,$enabledsocialplugins);
+    /** @var tcount_plugin $plugin Enabled social plugins status section. */
+    foreach ($enabledplugins as $name => $enabledplugin) {
+        /** @var tcount_plugin $enabledplugin */
+        echo $enabledplugin->view_header();
     }
 }
 // Description text.
-echo $OUTPUT->box(format_text($tcount->intro, FORMAT_MOODLE), 'generalbox', 'intro');
-
-// Reporting area
+echo $OUTPUT->box_start('generalbox boxaligncenter', 'intro');
+echo format_module_intro('tcount', $tcount, $cm->id);
+echo $OUTPUT->box_end();
+// Reporting area...
 
 // Tabs...
 
 echo tcount_tabbed_reports($tcount, $view, $cm, $contextmodule, false);
 
-if (isset($enabled_view_plugins[$view])) {
-    $enabled_view_plugins[$view]->render_view($OUTPUT, $requ);
+if (isset($enabledviewplugins[$view])) {
+    $enabledviewplugins[$view]->render_view($OUTPUT, $requ);
 }
 
 // Insert widget view.
+/*
 if (isset($tcount->widget_id)) {
     echo ('<a class="twitter-timeline" data-dnt="true" target="_blank" href="https://twitter.com/search?q=' .
              urlencode($tcount->hashtag) . '" data-widget-id="' . $tcount->widget_id . '">Tweets sobre ' . $tcount->hashtag . '</a>');
@@ -121,6 +124,6 @@ if (isset($tcount->widget_id)) {
         }(document, "script", "twitter-wjs");</script>
 <?php
 }
-
+*/
 // Finish the page.
 echo $OUTPUT->footer();

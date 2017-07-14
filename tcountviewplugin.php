@@ -50,15 +50,18 @@ abstract class tcount_view_plugin extends tcount_plugin {
     public abstract function get_icon();
 
     /**
-     * Process other plugins and collect the activity.
+     * Collect information and calculate fresh PKIs if supported.
      *
-     * @return string messages generated
+     * @return mixed $result->statuses $result->messages[]string $result->errors[]->message
      */
-    public abstract function harvest();
+    public function harvest() {
+        $result = (object) ['messages' => []];
+        return $result;
+    }
 
     /**
      * Render the content of the view
-     * 
+     *
      * @param page_requirements_manager $reqs
      * @param core_renderer $renderer
      */
@@ -71,4 +74,22 @@ abstract class tcount_view_plugin extends tcount_plugin {
      * @param string $viewparam
      */
     public abstract function render_header_requirements($reqs, $viewparam);
+
+    public function calculate_stats($users = null) {
+        $stats = new \stdClass();
+        $stats->maximums = new \stdClass();
+        $stats->users = [];
+        return $stats;
+    }
+
+    public function calculate_pkis($users, $pkis = []) {
+        return [];
+    }
+    public function is_tracking() {
+        return $this->is_enabled();
+    }
+    public function get_pki_list() {
+        $pkis = [];
+        return $pkis;
+    }
 }

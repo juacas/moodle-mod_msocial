@@ -15,15 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the version information for the twitter social plugin
+ * This file contains the version information for the facebook social plugin
  *
- * @package    tcount_twitter
+ * @package    tcount_facebook
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017053100;
+$plugin->version   = 2017071001;
 $plugin->requires  = 2013051407;
 $plugin->component = 'tcountsocial_facebook';

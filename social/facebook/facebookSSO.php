@@ -40,7 +40,7 @@ $appid = get_config("tcountsocial_facebook","appid");
 $appsecret = get_config("tcountsocial_facebook","appsecret");
 /**@var \Facebook\Facebook $fb */
 $fb = new \Facebook\Facebook(
-        ['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.7', 
+        ['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.9',
                         'default_access_token' => '{access-token}' // optional
 ]);
 $record = $DB->get_record('tcount_facebook_tokens', array("tcount" => $cm->instance));
@@ -49,11 +49,11 @@ if ($action == 'connect') {
     $helper = $fb->getRedirectLoginHelper();
     $permissions = ['posts', 'user_likes', 'pages_show_list', 'user_posts', 'user_about_me'];
     $permissions = ['user_managed_groups'];
-    $moodleurl = new moodle_url("/mod/tcount/social/facebook/facebookSSO.php", 
+    $moodleurl = new moodle_url("/mod/tcount/social/facebook/facebookSSO.php",
             array('id' => $id, 'action' => 'callback', 'type' => $type));
     $callbackurl = $moodleurl->out($escaped = false);
     $loginUrl = $helper->getLoginUrl($callbackurl, $permissions);
-    
+
     header("Location: $loginUrl");
     die;
 } else if ($action == 'callback') {
@@ -114,14 +114,14 @@ if ($action == 'connect') {
     $url = new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id));
     $PAGE->set_url($url);
     $PAGE->set_title(format_string($cm->name));
-    
+
     $PAGE->set_heading($course->fullname);
     // Print the page header.
     echo $OUTPUT->header();
     echo $OUTPUT->box($message);
     echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $id)));
 } else if ($action == 'disconnect') {
-    $DB->delete_records('tcount_facebook_tokens', array('tcount' => $cm->instance));
+    $plugin->unset_connection_token();
     // Show headings and menus of page.
     $url = new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id));
     $PAGE->set_url($url);
@@ -129,7 +129,7 @@ if ($action == 'connect') {
     $PAGE->set_heading($course->fullname);
     // Print the page header.
     echo $OUTPUT->header();
-    echo $OUTPUT->box("Module disconnected from facebook. It won't work until a facebook account is linked again. ");
+    echo $OUTPUT->box(get_string('module_not_connected_facebook','tcountsocial_facebook'));
     echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $id)));
 } else if ($action == 'selectgroup') {
     $url = new moodle_url('/mod/tcount/facebookSSO.php', array('id' => $id, 'action' => 'selectgroup'));
@@ -154,13 +154,13 @@ if ($action == 'connect') {
     // Print the page header.
     echo $OUTPUT->header();
     echo $OUTPUT->box(get_string('selectthisgroup','tcountsocial_facebook').':'.$gname);
-    
+
     // Save the configuration
     $plugin->set_config(tcount_social_facebook::CONFIG_FBGROUP, $gid);
     $plugin->set_config(tcount_social_facebook::CONFIG_FBGROUPNAME, $gname);
-    
+
     echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $id)));
-    
+
 } else {
     print_error("Bad action code");
 }

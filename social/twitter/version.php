@@ -24,6 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017053100;
+$plugin->version   = 2017071001;
 $plugin->requires  = 2013051407;
 $plugin->component = 'tcountsocial_twitter';

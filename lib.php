@@ -141,8 +141,14 @@ function tcount_update_instance($tcount) {
     $tcount->id = $tcount->instance;
     tcount_grade_item_update($tcount);
 
-    // Call save_settings hook for submission plugins.
+    // Call save_settings hook for subplugins.
     foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount) as $type => $plugin) {
+        if (!update_plugin_instance($plugin, $tcount)) {
+            print_error($plugin->get_error());
+            return false;
+        }
+    }
+    foreach (mod_tcount\plugininfo\tcountview::get_enabled_view_plugins($tcount) as $type => $plugin) {
         if (!update_plugin_instance($plugin, $tcount)) {
             print_error($plugin->get_error());
             return false;

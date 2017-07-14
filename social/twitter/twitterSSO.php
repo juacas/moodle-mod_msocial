@@ -1,4 +1,6 @@
 <?php
+use mod_tcount\social\tcount_social_twitter;
+
 // This file is part of TwitterCount activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
@@ -59,7 +61,7 @@ if ($action == 'callback') { // Twitter callback.
      */
     $socialname = $accoauthdata['screen_name'];
     if ($type === 'connect' && has_capability('mod/tcount:manage', $context)) {
-        
+
         $record = new stdClass();
         $record->token = $accoauthdata['oauth_token'];
         $record->token_secret = $accoauthdata['oauth_token_secret'];
@@ -67,7 +69,7 @@ if ($action == 'callback') { // Twitter callback.
         $plugin->set_connection_token($record);
         $message = "Configured user $record->username ";
     } else if ($type === 'profile') { // Fill the profile with user id
-        $socialid = '@' . $socialname;
+        $socialid = $accoauthdata['user_id'];
         $plugin->set_social_userid($USER, $socialid, $socialname);
         $message = "Profile updated with twitter user $socialname ";
     } else {
@@ -109,7 +111,7 @@ if ($action == 'callback') { // Twitter callback.
 
     header("Location: $accreq");
 } else if ($action == 'disconnect') {
-    $DB->delete_records('tcount_tokens', array('tcount_id' => $cm->instance));
+    $plugin->unset_connection_token();
     // Show headings and menus of page.
     $url = new moodle_url('/mod/tcount/social/twitter/twitterSSO.php', array('id' => $id));
     $PAGE->set_url($url);
@@ -117,7 +119,7 @@ if ($action == 'callback') { // Twitter callback.
     $PAGE->set_heading($course->fullname);
     // Print the page header.
     echo $OUTPUT->header();
-    echo $OUTPUT->box("Module disconnected from twitter. It won't work until an twitter account is configured. ");
+    echo $OUTPUT->box(get_string('module_not_connected_twitter','tcountsocial_twitter'));
     echo $OUTPUT->continue_button(new moodle_url('/mod/tcount/view.php', array('id' => $cm->id)));
     echo $OUTPUT->footer();
 } else {

@@ -64,7 +64,12 @@ class social_interaction {
      * @var string
      */
     const REACTION = 'reaction';
-
+    /**
+     * Interaction source.
+     * @var string
+     */
+    const DIRECTION_AUTHOR = 'fromid';
+    const DIRECTION_RECIPIENT = 'toid';
     /**
      * Name of the subplugin that generated this
      *
@@ -177,10 +182,18 @@ class social_interaction {
                 $inter->$key = $value;
             }
         }
-        
+
         return $inter;
     }
-
+/**
+ *
+ * @param unknown $tcountid
+ * @param unknown $conditions
+ * @param unknown $fromdate
+ * @param unknown $todate
+ * @param array(int) $users list of moodle identifiers
+ * @return \mod_tcount\social\social_interaction[]
+ */
     static function load_interactions($tcountid, $conditions=null, $fromdate=null, $todate=null,$users=null) {
         global $DB;
         $interactions = [];
@@ -217,14 +230,18 @@ class social_interaction {
      */
     static function store_interactions(array $interactions, $tcountid) {
         global $DB;
+
         $uids = array_map(function ($inter) {
             return $inter->uid;
         }, $interactions);
+        if (count($uids)==0){
+            return;
+        }
         list($whereuids, $params) = $DB->get_in_or_equal($uids);
         $where = "uid $whereuids and tcount=?";
         $params[] = $tcountid;
         $DB->delete_records_select('tcount_interactions', $where, $params);
-        $fields = ['uid', 'tcount', 'fromid', 'nativefrom','nativefromname', 'toid', 'nativeto','nativetoname', 'parentinteraction', 'source', 'timestamp', 
+        $fields = ['uid', 'tcount', 'fromid', 'nativefrom','nativefromname', 'toid', 'nativeto','nativetoname', 'parentinteraction', 'source', 'timestamp',
                         'type', 'nativetype', 'description', 'rawdata'];
         $records = [];
         foreach ($interactions as $inter) {

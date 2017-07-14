@@ -1,0 +1,19 @@
+{
+    "name": "eduvalab/social-analysis",
+    "description": "Description of project SocialAnalysis.",
+    "authors": [
+        {
+            "name": "juacas",
+            "email": "jpdecastro@tel.uva.es"
+        }
+    ],
+    "require": {
+        "graphp/algorithms": "*",
+        "graphp/graphviz": "v0.2.1"
+    },
+     "extra": {
+        "installer-paths": {
+            "view/graph/vendor/{$name}": ["vendor/package"]
+        }
+    }
+}

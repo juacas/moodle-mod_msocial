@@ -28,13 +28,13 @@ class tcountbase extends base {
 
     /**
      * Finds all installed plugins, the result may include missing plugins.
-     * 
+     *
      * @param \stdClass $tcount record of the instance for innitiallizing plugins
      * @param string $subtype name of the subplugins types. ie. 'social','view'
      * @return array(tcountsocialplugin)|null of installed plugins $pluginname=>$plugin, null means
      *         unknown
      */
-    public static function get_installed_plugins($tcount = null, $subtype=null) {
+    public static function get_installed_plugins($tcount = null, $subtype = null) {
         global $DB;
         $plugins = core_plugin_manager::instance()->get_installed_plugins($subtype);
         if (!$plugins) {
@@ -59,21 +59,33 @@ class tcountbase extends base {
      * @return unknown
      */
     public static function instance($tcount, $subtype, $pluginname) {
-        $path = \core_component::get_plugin_directory('tcount'.$subtype, $pluginname);
+        $path = \core_component::get_plugin_directory('tcount' . $subtype, $pluginname);
         $classfile = $pluginname . 'plugin.php';
         if (file_exists($path . '/' . $classfile)) {
             require_once ($path . '/' . $classfile);
-            $pluginclass = '\mod_tcount\\'.$subtype.'\\tcount_'.$subtype.'_'.$pluginname;
+            $pluginclass = '\mod_tcount\\' . $subtype . '\\tcount_' . $subtype . '_' . $pluginname;
             $plugin = new $pluginclass($tcount);
             return $plugin;
         }
     }
+    /**
+     * Finds all enabled plugins, the result may include missing plugins.
+     *
+     * @param \stdClass $tcount record of the instance for innitiallizing plugins
+     * @return array(tcount_plugin)|null of enabled plugins $pluginname=>$plugin, null means
+     *         unknown
+     */
+    public static function get_enabled_plugins_all_types($tcount) {
+        $social = self::get_enabled_plugins($tcount, 'social');
+        $view = self::get_enabled_plugins($tcount, 'view');
+        return array_merge($social, $view);
+    }
 
     /**
      * Finds all enabled plugins, the result may include missing plugins.
-     * 
+     *
      * @param \stdClass $tcount record of the instance for innitiallizing plugins
-     * @param unknown $subtype 'social' or 'view'
+     * @param string $subtype 'social' or 'view'
      * @return array(tcountsocialplugin)|null of enabled plugins $pluginname=>$plugin, null means
      *         unknown
      */
@@ -86,9 +98,9 @@ class tcountbase extends base {
             }
             $installed = array();
             foreach ($plugins as $pluginname => $version) {
-                $installed[] = 'tcount'.$subtype.'_' . $pluginname;
+                $installed[] = 'tcount' . $subtype . '_' . $pluginname;
             }
-            
+
             list($installed, $params) = $DB->get_in_or_equal($installed, SQL_PARAMS_NAMED);
             $disabled = $DB->get_records_select('config_plugins', "plugin $installed AND name = 'disabled'", $params, 'plugin ASC');
             foreach ($disabled as $conf) {
@@ -98,13 +110,13 @@ class tcountbase extends base {
                 list($type, $name) = explode('_', $conf->plugin, 2);
                 unset($plugins[$name]);
             }
-            self::$plugins[$subtype]= $plugins;
+            self::$plugins[$subtype] = $plugins;
         } else {
             $plugins = self::$plugins[$subtype];
         }
         $enabled = array();
         foreach ($plugins as $pluginname => $version) {
-            $enabled[$pluginname] = self::instance($tcount, $subtype,$pluginname);
+            $enabled[$pluginname] = self::instance($tcount, $subtype, $pluginname);
         }
         return $enabled;
     }
@@ -128,9 +140,9 @@ class tcountbase extends base {
      */
     public function uninstall_cleanup() {
         global $DB;
-        
+
         $DB->delete_records('tcount_plugin_config', array('plugin' => $this->name, 'subtype' => 'tcountsocial'));
-        
+
         parent::uninstall_cleanup();
     }
 
@@ -152,19 +164,19 @@ class tcountbase extends base {
         global $CFG, $USER, $DB, $OUTPUT, $PAGE; // In case settings.php wants to refer to them.
         $ADMIN = $adminroot; // May be used in settings.php.
         $plugininfo = $this; // Also can be used inside settings.php.
-        
+
         if (!$this->is_installed_and_upgraded()) {
             return;
         }
-        
+
         if (!$hassiteconfig or !file_exists($this->full_path('settings.php'))) {
             return;
         }
-        
+
         $section = $this->get_settings_section_name();
-        
+
         $settings = new \admin_settingpage($section, $this->displayname, 'moodle/site:config', $this->is_enabled() === false);
-        
+
         if ($adminroot->fulltree) {
             $shortsubtype = substr($this->type, strlen('tcount'));
             include ($this->full_path('settings.php'));

@@ -24,7 +24,10 @@
  */
 namespace tcount;
 
+use mod_tcount\social\pki_info;
 use mod_tcount\social\pki;
+use core_calendar\local\event\proxies\std_proxy;
+use mod_tcount\social\social_interaction;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -32,9 +35,11 @@ defined('MOODLE_INTERNAL') || die();
 abstract class tcount_plugin {
 
     const CONFIG_ENABLED = 'enabled';
-    
+
     const CAT_VISUALIZATION = 'Visualization';
+
     const CAT_ANALYSIS = 'Analysis';
+
     const CAT_RESULTS = 'Results';
 
     /**
@@ -42,7 +47,7 @@ abstract class tcount_plugin {
      * @var tcount $tcount the tcount record that contains the global
      *      settings for this instance
      */
-    protected $tcount;
+    public $tcount;
 
     /**
      *
@@ -84,7 +89,7 @@ abstract class tcount_plugin {
      */
     public final function is_first() {
         $order = get_config($this->get_subtype() . '_' . $this->get_type(), 'sortorder');
-        
+
         if ($order == 0) {
             return true;
         }
@@ -102,7 +107,7 @@ abstract class tcount_plugin {
         if ($lastindex == $currentindex) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -110,7 +115,7 @@ abstract class tcount_plugin {
      * This function should be overridden to provide an array of elements that can be added to a
      * moodle
      * form for display in the settings page.
-     * 
+     *
      * @param MoodleQuickForm $mform The form to add the elements to
      * @return $array
      */
@@ -122,7 +127,7 @@ abstract class tcount_plugin {
      * Allows the plugin to update the defaultvalues passed in to
      * the settings form (needed to set up draft areas for editor
      * and filemanager elements)
-     * 
+     *
      * @param array $defaultvalues
      */
     public function data_preprocessing(&$defaultvalues) {
@@ -131,7 +136,7 @@ abstract class tcount_plugin {
 
     /**
      * composes this subplugin's field name for the forms
-     * 
+     *
      * @param string $setting
      * @return string
      */
@@ -143,10 +148,13 @@ abstract class tcount_plugin {
      * The tcount subtype is responsible for saving it's own settings as the database table for the
      * standard type cannot be modified.
      *
-     * @param stdClass $formdata - the data submitted from the form
+     * @param \stdClass $formdata - the data submitted from the form
      * @return bool - on error the subtype should call set_error and return false.
      */
-    public function save_settings(\stdClass $formdata) {
+    public function save_settings(\stdClass $data) {
+        if (isset($data->{$this->get_form_field_name(self::CONFIG_ENABLED)})) {
+            $this->set_config('enabled', $data->{$this->get_form_field_name(self::CONFIG_ENABLED)});
+        }
         return true;
     }
 
@@ -184,7 +192,7 @@ abstract class tcount_plugin {
 
     /**
      * Subclassification for grouping in UI.
-     * 
+     *
      * @return string category name
      */
     public abstract function get_category();
@@ -197,6 +205,83 @@ abstract class tcount_plugin {
     public final function get_type() {
         return $this->type;
     }
+
+    public function get_cmid() {
+        return $this->cm->id;
+    }
+
+    public function get_tcountid() {
+        return $this->tcount->id;
+    }
+
+    /**
+     * Statistics for grading
+     *
+     * @param array[]integer $users array with the userids to be calculated, null if all
+     * @return array[string]object object->userstats with PKIs for each user object->maximums max
+     *         values for normalization.
+     */
+    public abstract function calculate_stats($users);
+
+    /**
+     * Aggregate fields by pki_info metadata form interaction database.
+     * Calculates max_field.
+     * @param unknown $users
+     */
+    public function calculate_pkis($users, $pkis = []) {
+        global $DB;
+        $pkiinfos = $this->get_pki_list();
+        $subtype = $this->get_subtype();
+        // Initialize for requested users.
+        foreach ($users as $user) {
+            if (!isset($pkis[$user->id])) {
+                $pkis[$user->id] = new pki($user->id, $this->tcount->id);
+                // Reset to 0 to avoid nulls.
+                foreach ($pkiinfos as $pkiinfo) {
+                    $pki = $pkis[$user->id];
+                    $pki->{$pkiinfo->name} = 0;
+                }
+            }
+        }
+        // Calculate totals.
+        $stats = [];
+        /** @var pki_info $pkiinfo description of pki.*/
+        foreach ($pkiinfos as $pkiinfo) {
+            if ($pkiinfo->individual == pki_info::PKI_INDIVIDUAL && $pkiinfo->interaction_type !== pki_info::PKI_CUSTOM) {
+                // Calculate posts.
+                $nativetypequery = '';
+                if ($pkiinfo->interaction_nativetype_query !== null && $pkiinfo->interaction_nativetype_query !== '*') {
+                    $nativetypequery = "and nativetype = '$pkiinfo->interaction_nativetype_query' ";
+                }
+                $sql = "SELECT fromid as userid, count(*) as total
+                    from {tcount_interactions}
+                    where tcount=?
+                        and source='$subtype'
+                        and type='$pkiinfo->interaction_type'
+                        $nativetypequery
+                        and $pkiinfo->interaction_source IS NOT NULL
+                    group by $pkiinfo->interaction_source";
+                $aggregatedrecords = $DB->get_records_sql($sql, [$this->tcount->id]);
+                // Process users' pkis.
+                foreach ($aggregatedrecords as $aggr) {
+                    $pki = $pkis[$aggr->userid];
+                    $pki->{$pkiinfo->name} = $aggr->total;
+                    $stats['max_' . $pkiinfo->name] = max(
+                            [0, $aggr->total, isset($stats[$pkiinfo->name]) ? $stats[$pkiinfo->name] : 0]);
+                }
+            }
+        }
+        foreach ($pkiinfos as $pkiinfo) {
+            if ($pkiinfo->individual == pki_info::PKI_AGREGATED && isset($stats[$pkiinfo->name])) {
+                foreach ($users as $user) {
+                    $pki = $pkis[$user->id];
+                    $pki->{$pkiinfo->name} = $stats[$pkiinfo->name];
+                }
+            }
+        }
+        return $pkis;
+    }
+
     /**
      * Reports the list of PKI offered by this plugin.
      * This method does not include any values, just metadata.
@@ -204,6 +289,7 @@ abstract class tcount_plugin {
      * @return array[string]pki list of PKI names indexed by name
      */
     public abstract function get_pki_list();
+
     /**
      * Get the installed version of this plugin
      *
@@ -216,6 +302,92 @@ abstract class tcount_plugin {
         } else {
             return '';
         }
+    }
+
+    /**
+     * Add to the pkis the fields in the arguments or insert new records.
+     * TODO: create and manage historical pkis
+     * Timestamp updated
+     * @param array(pki) $pkis
+     */
+    public function store_pkis($pkis, $newversion = false) {
+        global $DB;
+        $insert = false;
+        $users = array();
+        /** @var pki $pki */
+        foreach ($pkis as $pki) {
+            $users[$pki->user] = $pki;
+        }
+        $records = $DB->get_records_select('tcount_pkis', "historical=0  and tcount=?", [$this->tcount->id]);
+        $recordindex = [];
+        foreach ($records as $record) {
+            $recordindex[$record->user] = $record;
+        }
+        // Create record templates from pki.
+        $newrecords = [];
+        $columnsinfo = $DB->get_columns('tcount_pkis');
+
+        foreach ($pkis as $pki) {
+            $record = new \stdClass();
+            // Create template fields.
+            foreach (array_keys($columnsinfo) as $field) {
+                if ($field !== 'id') {
+                    $record->{$field} = null;
+                }
+            }
+            // Copy previous values.
+            if (isset($recordindex[$pki->user])) {
+                $prevrecord = $recordindex[$pki->user];
+                foreach ($prevrecord as $propname => $value) {
+                    if ($propname !== 'id') {
+                        $record->{$propname} = $value;
+                    }
+                }
+            }
+            // Copy new values;
+            foreach ($pki as $propname => $value) {
+                $record->{$propname} = $value;
+            }
+            $record->user = $pki->user;
+            $record->tcount = $this->tcount->id;
+            $record->historical = 0;
+            $record->timestamp = time();
+            $newrecords[$pki->user] = $record;
+        }
+        $transaction = $DB->start_delegated_transaction();
+        // Remove old pkis.
+        $DB->delete_records_list('tcount_pkis', 'id', array_keys($records));
+        // Insert new records.
+        $DB->insert_records('tcount_pkis', $newrecords);
+        $DB->commit_delegated_transaction($transaction);
+    }
+
+    /**
+     * TODO: impelement historical pkis.
+     * Load all PKIs from the cached table
+     * @param array(int) $users
+     * @param int $timestamp
+     * @return array of pkis indexed by userid. All users are represented. Empty pki will be created
+     *         to fill the gaps.
+     */
+    public function get_pkis($users = null, $timestamp = null) {
+        global $DB;
+        // Initialize response.
+        $pkiindexed = [];
+        foreach ($users as $userid) {
+            $pkiindexed[$userid] = new pki($userid, $this->tcount->id);
+        }
+        $users = null; // TODO for debug.
+        if ($users == null) { // All records.
+            $pkis = $DB->get_records('tcount_pkis', ['tcount' => $this->tcount->id, 'historical' => 0]);
+        } else {
+            $pkis = []; // TODO: query only selected users.
+        }
+        // Store the real Pkis.
+        foreach ($pkis as $pki) {
+            $pkiindexed[$pki->user] = $pki;
+        }
+        return $pkiindexed;
     }
 
     /**
@@ -295,7 +467,7 @@ abstract class tcount_plugin {
      */
     public final function has_admin_settings() {
         global $CFG;
-        
+
         $pluginroot = $CFG->dirroot . '/mod/tcount/' . substr($this->get_subtype(), strlen('tcount')) . '/' . $this->get_type();
         $settingsfile = $pluginroot . '/settings.php';
         return file_exists($settingsfile);
@@ -310,22 +482,22 @@ abstract class tcount_plugin {
      */
     public final function set_config($name, $value) {
         global $DB;
-        
-        $dbparams = array('tcount' => $this->tcount->id, 'subtype' => $this->get_subtype(), 'plugin' => $this->get_type(), 
+
+        $dbparams = array('tcount' => $this->tcount->id, 'subtype' => $this->get_subtype(), 'plugin' => $this->get_type(),
                         'name' => $name);
         $current = $DB->get_record('tcount_plugin_config', $dbparams, '*', IGNORE_MISSING);
-        
+
         if ($current) {
             $current->value = $value;
             return $DB->update_record('tcount_plugin_config', $current);
         } else {
-            $setting = new stdClass();
+            $setting = new \stdClass();
             $setting->tcount = $this->tcount->id;
             $setting->subtype = $this->get_subtype();
             $setting->plugin = $this->get_type();
             $setting->name = $name;
             $setting->value = $value;
-            
+
             return $DB->insert_record('tcount_plugin_config', $setting) > 0;
         }
     }
@@ -338,14 +510,14 @@ abstract class tcount_plugin {
      */
     public final function get_config($setting = null) {
         global $DB;
-        
+
         if ($setting) {
             if (!$this->tcount) {
                 return false;
             }
             $tcount = $this->tcount;
             if ($tcount) {
-                $dbparams = array('tcount' => $tcount->id, 'subtype' => $this->get_subtype(), 'plugin' => $this->get_type(), 
+                $dbparams = array('tcount' => $tcount->id, 'subtype' => $this->get_subtype(), 'plugin' => $this->get_type(),
                                 'name' => $setting);
                 $result = $DB->get_record('tcount_plugin_config', $dbparams, '*', IGNORE_MISSING);
                 if ($result) {
@@ -356,8 +528,8 @@ abstract class tcount_plugin {
         }
         $dbparams = array('tcount' => $this->tcount->id, 'subtype' => $this->get_subtype(), 'plugin' => $this->get_type());
         $results = $DB->get_records('tcount_plugin_config', $dbparams);
-        
-        $config = new stdClass();
+
+        $config = new \stdClass();
         if (is_array($results)) {
             foreach ($results as $setting) {
                 $name = $setting->name;
@@ -383,16 +555,6 @@ abstract class tcount_plugin {
     }
 
     /**
-     * Is this assignment plugin empty? (ie no submission or feedback)
-     * 
-     * @param stdClass $submissionorgrade assign_submission or assign_grade
-     * @return bool
-     */
-    public function is_empty(stdClass $submissionorgrade) {
-        return true;
-    }
-
-    /**
      * This allows a plugin to render a page in the context of the tcount
      *
      * If the plugin creates a link to the tcount view.php page with
@@ -403,7 +565,7 @@ abstract class tcount_plugin {
      * pluginaction=customaction
      *
      * Then this function will be called to display the page with the pluginaction passed as action
-     * 
+     *
      * @param string $action The plugin specified action
      * @return string
      */

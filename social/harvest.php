@@ -65,7 +65,9 @@ $PAGE->set_heading($course->fullname);
 // Print the page header.
 echo $OUTPUT->header();
 
-$enabledplugins = mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount);
+$enabledsocialplugins = mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount);
+$enabledviewplugins = mod_tcount\plugininfo\tcountview::get_enabled_view_plugins($tcount);
+$enabledplugins = array_merge($enabledsocialplugins,$enabledviewplugins);
 if ($subtype){
     $enabledplugins = [$subtype => $enabledplugins[$subtype]];
 }

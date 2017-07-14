@@ -31,16 +31,26 @@ define('tcountview/table',
 		], function($, jqui, datatables) {
 
 	var init = {
-		initview : function(container,colgroupsconfig) {
+		initview : function(containerid,colgroupsconfig) {
 			$(document).ready(function() {
-				$('#pkitable').DataTable({
-					scrollY : '560px',
+				$(containerid).DataTable({
+					scrollY : '600px',
+					scrollX : false,
 					colReorder : true,
-					fixedHeader : true,
-					fixedFooter : true,
-					responsive : true,
-					dom: 'Bfrtip',
-					buttons : [ 'colvis', 'copy', 'excel', 'pdf', colgroupsconfig],
+					fixedHeader : false,
+//					fixedFooter : true,
+//					responsive : true,
+					paging: true,
+					dom: 'Blpftip',
+					buttons : [ 
+						'colvis',
+						'copy',
+						'excel',
+						'pdf',
+						colgroupsconfig
+						],
+					"pageLength": 25,
+					"lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ]
 				});
 			});
 		} // End of function init.

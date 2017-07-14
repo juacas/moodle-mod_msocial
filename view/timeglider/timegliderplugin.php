@@ -83,9 +83,11 @@ class tcount_view_timeglider extends tcount_view_plugin {
         $result = true;
         return $result;
     }
-public function get_category(){
-    return tcount_plugin::CAT_VISUALIZATION;
-}
+
+    public function get_category() {
+        return tcount_plugin::CAT_VISUALIZATION;
+    }
+
     public function get_subtype() {
         return 'timeglider';
     }
@@ -94,118 +96,6 @@ public function get_category(){
         return new \moodle_url('/mod/tcount/view/timeglider/pix/icon.svg');
     }
 
-    /**
-     * Statistics for grading
-     *
-     * @param array[]integer $users array with the userids to be calculated
-     * @return array[string]object object->userstats with PKIs for each user object->maximums max
-     *         values for normalization.
-     */
-    public function calculate_stats($users) {
-        global $DB;
-        $cm = get_coursemodule_from_instance('tcount', $this->tcount->id, 0, false, MUST_EXIST);
-        $stats = $DB->get_records_sql(
-                'SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs ' .
-                         'FROM {tcount_tweets} where tcount = ? and userid is not null group by userid', array($this->tcount->id));
-        $userstats = new \stdClass();
-        $userstats->users = array();
-        
-        $favs = array();
-        $retweets = array();
-        $tweets = array();
-        foreach ($users as $userid) {
-            $stat = new \stdClass();
-            
-            if (isset($stats[$userid])) {
-                $tweets[] = $stat->tweets = $stats[$userid]->tweets;
-                $retweets[] = $stat->retweets = $stats[$userid]->retweets;
-                $favs[] = $stat->favs = $stats[$userid]->favs;
-            } else {
-                $stat->retweets = 0;
-                $stat->tweets = 0;
-                $stat->favs = 0;
-            }
-            $userstats->users[$userid] = $stat;
-        }
-        $stat = new \stdClass();
-        $stat->retweets = 0;
-        $stat->tweets = count($tweets) == 0 ? 0 : max($tweets);
-        $stat->favs = count($favs) == 0 ? 0 : max($favs);
-        $stat->retweets = count($retweets) == 0 ? 0 : max($retweets);
-        $userstats->maximums = $stat;
-        
-        return $userstats;
-    }
-
-    public function get_pki_list() {
-        $pkis = [];
-        return $pkis;
-    }
-
-    /**
-     *
-     * @global moodle_database $DB
-     * @return mixed $result->statuses $result->messages[]string $result->errors[]->message
-     */
-    public function harvest() {
-        global $DB;
-        $result = (object) ['messages' => []];
-        // $result = $this->get_statuses($this->tcount);
-        // $token = $this->get_connection_token();
-        // $hashtag = $this->get_config('hashtag');
-        
-        // if (isset($result->errors)) {
-        // if ($token) {
-        // $info = "UserToken for:$token->username ";
-        // } else {
-        // $info = "No table token defined!!";
-        // }
-        // $errormessage = $result->errors[0]->message;
-        // $errormessage = "For module tcount: $this->tcount->name (id=$cm->instance) in course
-        // (id=$this->tcount->course) " .
-        // "searching: $hashtag $info ERROR:" . $errormessage;
-        // $result->messages[] = $errormessage;
-        // } else if (isset($result->statuses)) {
-        // $DB->set_field('tcount_table_tokens', 'errorstatus', null, array('id' => $token->id));
-        // $statuses = count($result->statuses) == 0 ? array() : $result->statuses;
-        // $tcount = $this->tcount;
-        
-        // $processedstatuses = $this->process_statuses($statuses, $this->tcount);
-        // $studentstatuses = array_filter($processedstatuses,
-        // function ($status) {
-        // return isset($status->userauthor);
-        // });
-        // $this->store_status($studentstatuses);
-        // $result->messages[] = "For module tcount: $tcount->name (id=$tcount->id) in course
-        // (id=$tcount->course) searching: " .
-        // $hashtag . " Found " . count($statuses) . " tweets. Students' tweets: " .
-        // count($studentstatuses);
-        // $contextcourse = \context_course::instance($this->tcount->course);
-        // list($students, $nonstudents, $active, $users) =
-        // eduvalab_get_users_by_type($contextcourse);
-        
-        // // TODO: implements grading with plugins.
-        // // tcount_update_grades($this->tcount, $students);
-        // $errormessage = null;
-        // } else {
-        // $errormessage = "ERROR querying table results null! Maybe there is no tweeter account
-        // linked in this activity.";
-        // $result->errors[0]->message = $errormessage;
-        // $result->messages[] = "For module tcount: $this->tcount->name (id=$this->tcount->id) in
-        // course (id=$this->tcount->course) searching: $this->tcount->hashtag " .
-        // $errormessage;
-        // }
-        // if ($token) {
-        // $token->errorstatus = $errormessage;
-        // $DB->update_record('tcount_table_tokens', $token);
-        // if ($errormessage) { // Marks this tokens as erroneous to warn the teacher.
-        // $message = "Uptatind token with id = $token->id with $errormessage";
-        // $result->errors[] = (object) ['message' => $message];
-        // $result->messages[] = $message;
-        // }
-        // }
-        return $result;
-    }
 
     /**
      *
@@ -214,7 +104,7 @@ public function get_category(){
      * @see tcount_view_plugin::render_view()
      */
     public function render_view($renderer, $reqs) {
-       echo "<style type='text/css'>
+        echo "<style type='text/css'>
         /* timeline div style */
 		#my-timeglider {
 			width:750px;
@@ -237,9 +127,9 @@ public function get_category(){
     public function render_header_requirements($reqs, $viewparam) {
         if ($viewparam == $this->get_subtype()) {
             $reqs->css('/mod/tcount/view/timeglider/css/aristo/jquery-ui-1.8.5.custom.css');
-            
+
             $reqs->css('/mod/tcount/view/timeglider/js/timeglider/Timeglider.css');
-            $reqs->js('/mod/tcount/view/timeglider/js/jquery-1.4.4.min.js',true);
+            $reqs->js('/mod/tcount/view/timeglider/js/jquery-1.4.4.min.js', true);
             $reqs->js('/mod/tcount/view/timeglider/js/jquery-ui-1.8.9.custom.min.js');
             $reqs->js('/mod/tcount/view/timeglider/js/jquery.tmpl.js');
             $reqs->js('/mod/tcount/view/timeglider/js/underscore-min.js');
@@ -256,7 +146,6 @@ public function get_category(){
             $reqs->js('/mod/tcount/view/timeglider/js/timeglider/TG_TimelineView.js');
             $reqs->js('/mod/tcount/view/timeglider/js/timeglider/TG_Mediator.js');
             $reqs->js('/mod/tcount/view/timeglider/js/timeglider/timeglider.timeline.widget.js');
-           
         }
     }
 }

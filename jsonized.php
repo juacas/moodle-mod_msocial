@@ -37,6 +37,7 @@ if ($subtype) {
 }
 // Process interactions.
 $interactions = social_interaction::load_interactions((int) $tcount->id, $subtypefilter, $fromdate, $todate);
+$events=[];
 foreach ($interactions as $interaction) {
     if ($interaction->timestamp == null) {
         continue;
