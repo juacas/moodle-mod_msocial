@@ -84,7 +84,6 @@ echo $OUTPUT->header();
 echo $OUTPUT->spacer(array('height' => 20));
 echo $OUTPUT->heading(format_string($tcount->name) . $OUTPUT->help_icon('mainpage', 'tcount'));
 // Print the information about the linking of the module with social plugins..
-if (has_capability('mod/tcount:manage', $contextmodule)) {
     $enabledsocialplugins = \mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount);
     $enabledplugins = array_merge($enabledviewplugins,$enabledsocialplugins);
     /** @var tcount_plugin $plugin Enabled social plugins status section. */
@@ -92,7 +91,7 @@ if (has_capability('mod/tcount:manage', $contextmodule)) {
         /** @var tcount_plugin $enabledplugin */
         echo $enabledplugin->view_header();
     }
-}
+
 // Description text.
 echo $OUTPUT->box_start('generalbox boxaligncenter', 'intro');
 echo format_module_intro('tcount', $tcount, $cm->id);
@@ -103,7 +102,7 @@ echo $OUTPUT->box_end();
 
 echo tcount_tabbed_reports($tcount, $view, $cm, $contextmodule, false);
 
-if (isset($enabledviewplugins[$view])) {
+if (isset($enabledviewplugins[$view]) && $enabledviewplugins[$view]->is_enabled()) {
     $enabledviewplugins[$view]->render_view($OUTPUT, $requ);
 }
 

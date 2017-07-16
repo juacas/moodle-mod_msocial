@@ -82,7 +82,7 @@ function eduvalab_time_is_between($date, $fromdate, $todate) {
 class OAuthCurl {
 
     public function __construct() {
-        
+
     }
 
     public static function fetch_data($url) {
@@ -260,7 +260,7 @@ function update_plugin_instance($plugin, stdClass $formdata) {
     return true;
 }
 /**
- * 
+ *
  * @param object $userstatsA
  * @param object $userstatsB
  * @return type
@@ -303,6 +303,9 @@ function tcount_tabbed_reports($tcount,$view,$cm,$contextmodule, $categorized=fa
     $rows = [];
     /** @var tcount_view_plugin*/
     foreach ($plugins as $name=>$plugin){
+        if ($plugin->is_enabled() == false){
+            continue;
+        }
         $icon = $plugin->get_icon();
         $icondecoration =html_writer::img($icon->out_as_local_url(), $plugin->get_name().' icon.',['height'=>32]);
         $url = new moodle_url('/mod/tcount/view.php',['id'=>$cm->id,'view'=>$plugin->get_subtype()]);
@@ -313,7 +316,7 @@ function tcount_tabbed_reports($tcount,$view,$cm,$contextmodule, $categorized=fa
             $parenttab = $rows[$category];
         }else{
             $parenttab = new tabobject($category,null,$category);
-            
+
             $rows[$category]=$parenttab;
         }
         $parenttab->subtree[]=$plugintab;
@@ -333,15 +336,15 @@ function tcount_tabbed_reports($tcount,$view,$cm,$contextmodule, $categorized=fa
  */
 function tcount_js_call_subplugin_amd($fullmodule, $func, $params = array(),$req) {
     global $CFG;
-    
+
     list($component, $subtype,$plugin,$module) = explode('/', $fullmodule, 4);
-    
+
     $component = clean_param($component, PARAM_COMPONENT);
     $module = clean_param($module, PARAM_ALPHANUMEXT);
     $subtype = clean_param($subtype, PARAM_ALPHANUMEXT);
     $plugin = clean_param($plugin, PARAM_ALPHANUMEXT);
     $func = clean_param($func, PARAM_ALPHANUMEXT);
-    
+
     $jsonparams = array();
     foreach ($params as $param) {
         $jsonparams[] = json_encode($param);
@@ -353,9 +356,8 @@ function tcount_js_call_subplugin_amd($fullmodule, $func, $params = array(),$req
             debugging('Too many params passed to js_call_amd("' . $fullmodule . '", "' . $func . '")', DEBUG_DEVELOPER);
         }
     }
-    
+
     $js = 'require(["' . $component . '/' .$subtype.'/'. $plugin .'/'.$module . '"], function(amd) { amd.' . $func . '(' . $strparams . '); });';
-    
+
     $req->js_amd_inline($js);
 }
-               

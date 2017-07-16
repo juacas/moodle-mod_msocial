@@ -34,6 +34,8 @@ defined('MOODLE_INTERNAL') || die();
 
 abstract class tcount_plugin {
 
+    const CONFIG_DISABLED = 'disabled';
+
     const CONFIG_ENABLED = 'enabled';
 
     const CAT_VISUALIZATION = 'Visualization';
@@ -131,6 +133,7 @@ abstract class tcount_plugin {
      * @param array $defaultvalues
      */
     public function data_preprocessing(&$defaultvalues) {
+        $defaultvalues[$this->get_form_field_name(tcount_plugin::CONFIG_ENABLED)] = $this->is_enabled();
         return;
     }
 
@@ -152,8 +155,14 @@ abstract class tcount_plugin {
      * @return bool - on error the subtype should call set_error and return false.
      */
     public function save_settings(\stdClass $data) {
-        if (isset($data->{$this->get_form_field_name(self::CONFIG_ENABLED)})) {
-            $this->set_config('enabled', $data->{$this->get_form_field_name(self::CONFIG_ENABLED)});
+        $formfield = $this->get_form_field_name(tcount_plugin::CONFIG_ENABLED);
+        if (isset($data->{$formfield})) {
+            if ($data->{$formfield})
+            {
+                $this->enable();
+            } else {
+                $this->disable();
+            }
         }
         return true;
     }
@@ -223,6 +232,42 @@ abstract class tcount_plugin {
      */
     public abstract function calculate_stats($users);
 
+    /**
+     * Add pki fields to the database in table tcount_pkis.
+     */
+    public function create_pki_fields() {
+        global $DB;
+        /* @var $dbman database_manager */
+        $dbman = $DB->get_manager();
+        $table = new \xmldb_table('tcount_pkis');
+        $pkilist = $this->get_pki_list();
+        $transaction = $DB->start_delegated_transaction();
+        foreach ($pkilist as $pkiname => $pkiinfo) {
+            $pkifield = new \xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
+            if (!$dbman->field_exists($table, $pkifield)) {
+                $dbman->add_field($table, $pkifield);
+            }
+        }
+        $DB->commit_delegated_transaction($transaction);
+    }
+    /**
+     * @global moodle_database $DB
+     */
+    public function drop_pki_fields(){
+        global $DB;
+        /* @var  database_manager $dbman */
+        $dbman = $DB->get_manager();
+        $table = new \xmldb_table('tcount_pkis');
+        $pkilist = $this->get_pki_list();
+        $transaction = $DB->start_delegated_transaction();
+        foreach ($pkilist as $pkiname => $pkiinfo) {
+            $pkifield = new \xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
+            if ($dbman->field_exists($table, $pkifield)) {
+                $dbman->drop_field($table, $pkifield);
+            }
+        }
+        $DB->commit_delegated_transaction($transaction);
+    }
     /**
      * Aggregate fields by pki_info metadata form interaction database.
      * Calculates max_field.
@@ -411,7 +456,7 @@ abstract class tcount_plugin {
      */
     public final function enable() {
         $this->enabledcache = true;
-        return $this->set_config(tcount_plugin::CONFIG_ENABLED, 1);
+        return $this->set_config(tcount_plugin::CONFIG_DISABLED, 0);
     }
 
     /**
@@ -421,7 +466,7 @@ abstract class tcount_plugin {
      */
     public final function disable() {
         $this->enabledcache = false;
-        return $this->set_config('enabled', 0);
+        return $this->set_config(self::CONFIG_DISABLED, 1);
     }
 
     /**
@@ -431,7 +476,8 @@ abstract class tcount_plugin {
      */
     public function is_enabled() {
         if ($this->enabledcache === null) {
-            $this->enabledcache = $this->get_config('enabled');
+            $disabled = $this->get_config(self::CONFIG_DISABLED);
+            $this->enabledcache = !$disabled;
         }
         return $this->enabledcache;
     }

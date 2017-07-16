@@ -44,12 +44,15 @@ $edges = [];
 $index=0;
 foreach ($interactions as $interaction) {
     if ($interaction->nativeto !== null && $interaction->nativefrom !== null) {
-        $plugin = $plugins[$interaction->source];
-        
+        $subtype = $interaction->source;
+        $plugin = $plugins[$subtype];
+        if ($plugin->is_enabled()==false){
+            continue;
+        }
         $nodenamefrom = get_fullname($interaction->fromid,$userrecords, "[$interaction->nativefromname]");
         //         $userlinkfrom = isset($userrecords[$interaction->fromid])?$plugin->view_user_linking($userrecords[$interaction->fromid]):null;
                 $userlinkfrom = isset($userrecords[$interaction->fromid])?$plugin->get_user_url($userrecords[$interaction->fromid]):null;
-        
+
         if ($nodenamefrom == null) {
             continue;
         }
@@ -61,7 +64,7 @@ foreach ($interactions as $interaction) {
         $nodenameto =  get_fullname($interaction->toid,$userrecords, $interaction->nativetoname);
 //         $userlinkto = isset($userrecords[$interaction->toid])?$plugin->view_user_linking($userrecords[$interaction->toid]):null;
         $userlinkto = isset($userrecords[$interaction->toid])?$plugin->get_user_url($userrecords[$interaction->toid]):null;
-        
+
         if ($nodenameto == null) {
             continue;
         }
@@ -88,12 +91,10 @@ foreach ($interactions as $interaction) {
                 $typevalue = 5;
                 break;
         }
-        $subtype = $interaction->source;
-        $plugin = $plugins[$subtype];
         $url = $plugin->get_interaction_url($interaction);
-        
-        $edge = (object) ['source' => $nodemap[$nodenamefrom], 'target' => $nodemap[$nodenameto], 'value' => $typevalue, 
-                        'interactiontype' => $interaction->type, 'subtype' => $subtype, 'description' => $interaction->description, 'icon' => $plugin->get_icon()->out(), 
+
+        $edge = (object) ['source' => $nodemap[$nodenamefrom], 'target' => $nodemap[$nodenameto], 'value' => $typevalue,
+                        'interactiontype' => $interaction->type, 'subtype' => $subtype, 'description' => $interaction->description, 'icon' => $plugin->get_icon()->out(),
                         'link' => $url, ];
         $edges[] = $edge;
     }

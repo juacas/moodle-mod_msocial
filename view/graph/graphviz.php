@@ -4,10 +4,14 @@ use Graphp\GraphViz\Dot;
 require_once ('socialgraph.php');
 require_once ('vendor/autoload.php');
 $interactions = social_interaction::load_interactions($this->tcount->id);
+$plugins = mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($this->tcount);
 $socialgraph = new SocialMatrix();
 $context = context_module::instance($this->cm->id);
 list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
 foreach ($interactions as $interaction) {
+    if (!isset($plugins[$interaction->source]) || $plugins[$interaction->source]->is_enabled()==false){
+        continue;
+    }
     if ($interaction->fromid == null) {
         $from = $interaction->nativefromname;
     } else {

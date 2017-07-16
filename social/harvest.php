@@ -1,4 +1,6 @@
 <?php
+use mod_tcount\plugininfo\tcountbase;
+
 // This file is part of TwitterCount activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
@@ -65,9 +67,7 @@ $PAGE->set_heading($course->fullname);
 // Print the page header.
 echo $OUTPUT->header();
 
-$enabledsocialplugins = mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount);
-$enabledviewplugins = mod_tcount\plugininfo\tcountview::get_enabled_view_plugins($tcount);
-$enabledplugins = array_merge($enabledsocialplugins,$enabledviewplugins);
+$enabledplugins = tcountbase::get_enabled_plugins_all_types($tcount);
 if ($subtype){
     $enabledplugins = [$subtype => $enabledplugins[$subtype]];
 }

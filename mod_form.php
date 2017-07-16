@@ -54,48 +54,37 @@ class mod_tcount_mod_form extends moodleform_mod {
     public function definition() {
         global $DB;
         $mform = & $this->_form;
-        
+
         $key = mt_rand(0xFFF, 0x7FFFFFFF);
         $mform->addElement('hidden', 'randomkey', $key);
         $mform->setType('randomkey', PARAM_INT);
         $mform->setDefault('randomkey', $key);
-        
+
         // Cabecera.
         $mform->addElement('header', 'general', get_string('general', 'form'));
-        
+
         // Nombre.
         $mform->addElement('text', 'name', get_string('name', 'moodle'), array('size' => '64'));
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
-        
+
         // Descripción.
         $this->standard_intro_elements();
-        // Identificador.
-        $options1 = array('skype' => 'SKYPE', 'yahoo' => 'Yahoo', 'aim' => 'AIM', 'msn' => 'MSN');
-        $options2 = array();
-        if ($options = $DB->get_records_menu("user_info_field", null, "name", "shortname, name")) {
-            foreach ($options as $shortname => $name) {
-                $options2[$shortname] = $name;
-            }
-        }
-        $idtypeoptions = $options1 + $options2;
-        
+
         $this->add_all_plugin_settings($mform);
-        
-       
-        
+
         $mform->addElement('text', 'widget_id', get_string("widget_id", "tcount"), array('size' => '20'));
         $mform->setType('widget_id', PARAM_TEXT);
         $mform->addHelpButton('widget_id', 'widget_id', 'tcount');
-        
+
         $mform->addElement('header', 'availability', get_string('availability', 'assign'));
         $mform->setExpanded('availability', true);
-        
+
         $name = get_string('startdate', 'tcount');
         $options = array('optional' => true);
         $mform->addElement('date_time_selector', 'startdate', $name, $options);
         $mform->addHelpButton('startdate', 'startdate', 'tcount');
-        
+
         $name = get_string('enddate', 'tcount');
         $mform->addElement('date_time_selector', 'enddate', $name, array('optional' => true));
         $mform->addHelpButton('enddate', 'enddate', 'tcount');
@@ -112,13 +101,13 @@ class mod_tcount_mod_form extends moodleform_mod {
                 $varliststr = $varliststr . '<p><b>' . $plugin->get_name() . '</b>: ' . implode(',', array_keys($vars)) . '</p>';
             }
         }
-        
+
         $mform->addElement('static', 'list_of_variables', get_string('grade_variables', 'tcount'), $varliststr);
         $mform->addElement('text', 'grade_expr', $calculation);
         $mform->setDefault('grade_expr', '=100*(favs+retweets+tweets)/(maxfavs+maxretweets+maxtweets)');
         $mform->addHelpButton('grade_expr', 'grade_expr', 'tcount');
         $mform->setType('grade_expr', PARAM_TEXT);
-        
+
         // $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();
         $this->apply_admin_defaults();
@@ -134,7 +123,7 @@ class mod_tcount_mod_form extends moodleform_mod {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        
+
         $formula = $data['grade_expr'];
         $formula = calc_formula::unlocalize($formula);
         $calculation = new calc_formula($formula);
@@ -148,7 +137,7 @@ class mod_tcount_mod_form extends moodleform_mod {
                 $errors['enddate'] = get_string('enddatevalidation', 'tcount');
             }
         }
-        
+
         return $errors;
     }
 
@@ -161,12 +150,12 @@ class mod_tcount_mod_form extends moodleform_mod {
      */
     function add_all_plugin_settings(MoodleQuickForm $mform) {
         $mform->addElement('header', 'socialtypes', get_string('socialconnectors', 'tcount'));
-        
+
         foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins(null) as $pluginname => $plugin) {
             $this->add_plugin_settings($plugin, $mform);
         }
         $mform->addElement('header', 'viewtypes', get_string('socialviews', 'tcount'));
-        
+
         foreach (mod_tcount\plugininfo\tcountview::get_enabled_view_plugins(null) as $pluginname => $plugin) {
             $this->add_plugin_settings($plugin, $mform);
         }
@@ -212,7 +201,7 @@ class mod_tcount_mod_form extends moodleform_mod {
      * @param array $defaultvalues
      */
     function plugin_data_preprocessing(&$defaultvalues) {
-        foreach (mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($defaultvalues) as $pluginname => $plugin) {
+        foreach (mod_tcount\plugininfo\tcountbase::get_enabled_plugins_all_types($defaultvalues) as $pluginname => $plugin) {
             if ($plugin->is_visible()) {
                 $plugin->data_preprocessing($defaultvalues);
             }
@@ -244,9 +233,9 @@ class mod_tcount_mod_form extends moodleform_mod {
     function load_plugins($subtype) {
         global $CFG;
         $result = array();
-        
+
         $names = core_component::get_plugin_list($subtype);
-        
+
         foreach ($names as $name => $path) {
             $shortsubtype = substr($subtype, strlen('tcount'));
             if (file_exists($path . '/' . $shortsubtype . 'plugin.php')) {

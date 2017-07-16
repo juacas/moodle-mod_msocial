@@ -89,6 +89,7 @@ class tcount_view_graph extends tcount_view_plugin {
      */
     public function delete_instance() {
         global $DB;
+        $this->drop_pki_fields();
         $result = true;
         return $result;
     }
@@ -148,11 +149,11 @@ class tcount_view_graph extends tcount_view_plugin {
 
     public function get_pki_list() {
         $pkiobjs['closeness'] = new pki_info('closeness', 'Centralidad de cercanía.', pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['max_closeness'] = new pki_info('max_closeness', null, pki_info::PKI_AGREGATED);
         $pkiobjs['degree'] = new pki_info('degree', 'Centralidad de grado.', pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['max_degree'] = new pki_info('max_degree', null, pki_info::PKI_AGREGATED);
         $pkiobjs['betweenness'] = new pki_info('betweenness', 'Centralidad de intermediación.', pki_info::PKI_INDIVIDUAL,
                 pki_info::PKI_CUSTOM);
+        $pkiobjs['max_closeness'] = new pki_info('max_closeness', null, pki_info::PKI_AGREGATED);
+        $pkiobjs['max_degree'] = new pki_info('max_degree', null, pki_info::PKI_AGREGATED);
         $pkiobjs['max_betweenness'] = new pki_info('max_betweenness', null, pki_info::PKI_AGREGATED);
         return $pkiobjs;
     }
@@ -202,6 +203,7 @@ class tcount_view_graph extends tcount_view_plugin {
      */
     public function render_view($renderer, $reqs) {
         global $USER, $OUTPUT;
+
         $contextmodule = \context_module::instance($this->cm->id);
         $contextcourse = \context_course::instance($this->cm->course);
         $subview = optional_param('subview', 'matrix', PARAM_ALPHA);

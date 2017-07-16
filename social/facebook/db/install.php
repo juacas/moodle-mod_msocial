@@ -1,4 +1,6 @@
 <?php
+use tcount\tcount_plugin;
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -32,15 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_tcountsocial_facebook_install() {
     global $CFG, $DB;
     require_once ($CFG->dirroot . '/mod/tcount/social/facebook/facebookplugin.php');
-    $dbman = $DB->get_manager();
-    $table = new xmldb_table('tcount_pkis');
-    $plugininfo = new mod_tcount\social\tcount_social_facebook(null);
-    $pkilist = $plugininfo->get_pki_list();
-    foreach ($pkilist as $pkiname) {
-        $pkifield = new xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
-        if (!$dbman->field_exists($table, $pkifield)) {
-            $dbman->add_field($table, $pkifield);
-        }
-    }
+    $plugin = new mod_tcount\social\tcount_social_facebook(null);
+    $plugin->create_pki_fields();
     return true;
 }

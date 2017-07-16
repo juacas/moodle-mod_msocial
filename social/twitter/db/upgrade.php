@@ -21,21 +21,11 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool
  */
 function xmldb_tcountsocial_twitter_upgrade($oldversion) {
-    global $CFG, $THEME, $DB;
-    /* @var $dbman database_manager */
-    $dbman = $DB->get_manager();
-
+    global $CFG, $DB;
     if ($oldversion < 2017071001) {
         require_once ($CFG->dirroot . '/mod/tcount/social/twitter/twitterplugin.php');
-        $table = new xmldb_table('tcount_pkis');
         $plugininfo = new mod_tcount\social\tcount_social_twitter(null);
-        $pkilist = $plugininfo->get_pki_list();
-        foreach ($pkilist as $pkiname => $pki) {
-            $pkifield = new xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
-            if (!$dbman->field_exists($table, $pkifield)) {
-                $dbman->add_field($table, $pkifield);
-            }
-        }
+        $plugininfo->create_pki_fields();
         // Twitter savepoint reached.
         upgrade_plugin_savepoint(true, 2017071001, 'tcountsocial', 'twitter');
     }

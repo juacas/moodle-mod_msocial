@@ -52,15 +52,7 @@ function xmldb_tcountsocial_twitter_install() {
     }
 
     require_once ($CFG->dirroot . '/mod/tcount/social/twitter/twitterplugin.php');
-    $table = new xmldb_table('tcount_pkis');
     $plugininfo = new mod_tcount\social\tcount_social_twitter(null);
-    $pkilist = $plugininfo->get_pki_list();
-    foreach ($pkilist as $pkiname) {
-        $pkifield = new xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
-        if (!$dbman->field_exists($table, $pkifield)) {
-            $dbman->add_field($table, $pkifield);
-        }
-    }
-
+    $plugininfo->create_pki_fields();
     return true;
 }

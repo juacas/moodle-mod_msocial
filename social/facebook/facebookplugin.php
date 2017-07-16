@@ -66,18 +66,6 @@ class tcount_social_facebook extends tcount_social_plugin {
     }
 
     /**
-     * Allows the plugin to update the defaultvalues passed in to
-     * the settings form (needed to set up draft areas for editor
-     * and filemanager elements)
-     *
-     * @param array $defaultvalues
-     */
-    public function data_preprocessing(&$defaultvalues) {
-        $defaultvalues[$this->get_form_field_name(tcount_plugin::CONFIG_ENABLED)] = $this->get_config(tcount_plugin::CONFIG_ENABLED);
-        return;
-    }
-
-    /**
      * Get the instance settings for the plugin
      *
      * @param MoodleQuickForm $mform The form to add elements to
@@ -101,8 +89,8 @@ class tcount_social_facebook extends tcount_social_plugin {
      * @return bool
      */
     public function save_settings(\stdClass $data) {
-        if (isset($data->{$this->get_form_field_name(self::CONFIG_ENABLED)})) {
-            $this->set_config(tcount_plugin::CONFIG_ENABLED, $data->{$this->get_form_field_name(self::CONFIG_ENABLED)});
+        if (isset($data->{$this->get_form_field_name(self::CONFIG_DISABLED)})) {
+            $this->set_config(tcount_plugin::CONFIG_ENABLED, $data->{$this->get_form_field_name(self::CONFIG_DISABLED)});
         }
         return true;
     }
@@ -127,7 +115,7 @@ class tcount_social_facebook extends tcount_social_plugin {
         if (!$DB->delete_records('tcount_plugin_config', array('tcount' => $this->tcount->id, 'subtype' => $this->get_subtype()))) {
             $result = false;
         }
-        // TODO: remove columns from tcount_pkis.
+        $this->drop_pki_fields();
         return $result;
     }
 
@@ -160,49 +148,52 @@ class tcount_social_facebook extends tcount_social_plugin {
             $context = \context_module::instance($this->cm->id);
             list($course, $cm) = get_course_and_cm_from_instance($this->tcount->id, 'tcount');
             $id = $cm->id;
-            $token = $DB->get_record('tcount_facebook_tokens', array('tcount' => $this->tcount->id));
-            $url_connect = new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php', array('id' => $id, 'action' => 'connect'));
-            if ($token) {
-                $username = $token->username;
-                $errorstatus = $token->errorstatus;
-                if ($errorstatus) {
-                    echo $OUTPUT->notify_problem(get_string('problemwithfacebookaccount', 'tcount', $errorstatus));
-                }
-                echo $OUTPUT->box(
-                        get_string('module_connected_facebook', 'tcountsocial_facebook', $username) . $OUTPUT->action_link(
-                                new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
-                                        array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
-                                new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
-                                        array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $OUTPUT->action_icon(
-                                new \moodle_url('/mod/tcount/social/harvest.php',
-                                        ['id' => $id, 'subtype' => $this->get_subtype()]),
-                                new \pix_icon('a/refresh', get_string('harvest', 'tcountsocial_facebook'))));
-                // Check facebook group...
-                $fbgroup = $this->get_config(self::CONFIG_FBGROUP);
-                if (trim($fbgroup) === "") {
-                    $action = '';
-                    if (has_capability('mod/tcount:manage', $context)) {
-                        $action = $OUTPUT->action_link(
-                                new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
-                                        array('id' => $id, 'action' => 'selectgroup')), "Select group");
+            if (has_capability('mod/tcount:manage', $context)) {
+                $token = $DB->get_record('tcount_facebook_tokens', array('tcount' => $this->tcount->id));
+                $url_connect = new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
+                        array('id' => $id, 'action' => 'connect'));
+                if ($token) {
+                    $username = $token->username;
+                    $errorstatus = $token->errorstatus;
+                    if ($errorstatus) {
+                        echo $OUTPUT->notify_problem(get_string('problemwithfacebookaccount', 'tcount', $errorstatus));
                     }
-                    echo $OUTPUT->notification("No hay grupo seleccionado." . $action);
+                    echo $OUTPUT->box(
+                            get_string('module_connected_facebook', 'tcountsocial_facebook', $username) . $OUTPUT->action_link(
+                                    new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
+                                            array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
+                                    new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
+                                            array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $OUTPUT->action_icon(
+                                    new \moodle_url('/mod/tcount/social/harvest.php',
+                                            ['id' => $id, 'subtype' => $this->get_subtype()]),
+                                    new \pix_icon('a/refresh', get_string('harvest', 'tcountsocial_facebook'))));
+                    // Check facebook group...
+                    $fbgroup = $this->get_config(self::CONFIG_FBGROUP);
+                    if (trim($fbgroup) === "") {
+                        $action = '';
+                        if (has_capability('mod/tcount:manage', $context)) {
+                            $action = $OUTPUT->action_link(
+                                    new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
+                                            array('id' => $id, 'action' => 'selectgroup')), "Select group");
+                        }
+                        echo $OUTPUT->notification("No hay grupo seleccionado." . $action);
+                    } else {
+                        $groupinfo = '<a target="blank" href="https://www.facebook.com/groups/' .
+                                 $this->get_config(self::CONFIG_FBGROUP) . '">' . $this->get_config(self::CONFIG_FBGROUPNAME) . "</a>";
+                        $action = '';
+                        if (has_capability('mod/tcount:manage', $context)) {
+                            $action = $OUTPUT->action_link(
+                                    new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
+                                            array('id' => $id, 'action' => 'selectgroup')), "Change group");
+                        }
+                        echo $OUTPUT->box('Grupo seleccionado:"' . $groupinfo . '" ' . $action, 'generalbox', 'intro');
+                    }
                 } else {
-                    $groupinfo = '<a target="blank" href="https://www.facebook.com/groups/' . $this->get_config(self::CONFIG_FBGROUP) .
-                             '">' . $this->get_config(self::CONFIG_FBGROUPNAME) . "</a>";
-                    $action = '';
-                    if (has_capability('mod/tcount:manage', $context)) {
-                        $action = $OUTPUT->action_link(
-                                new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
-                                        array('id' => $id, 'action' => 'selectgroup')), "Change group");
-                    }
-                    echo $OUTPUT->box('Grupo seleccionado:"' . $groupinfo . '" ' . $action, 'generalbox', 'intro');
+                    echo $OUTPUT->notification(
+                            get_string('module_not_connected_facebook', 'tcountsocial_facebook') . $OUTPUT->action_link(
+                                    new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
+                                            array('id' => $id, 'action' => 'connect')), "Connect"));
                 }
-            } else {
-                echo $OUTPUT->notification(
-                        get_string('module_not_connected_facebook', 'tcountsocial_facebook') . $OUTPUT->action_link(
-                                new \moodle_url('/mod/tcount/social/facebook/facebookSSO.php',
-                                        array('id' => $id, 'action' => 'connect')), "Connect"));
             }
             // Check user's social credentials.
             $socialuserids = $this->get_social_userid($USER);
@@ -245,9 +236,11 @@ class tcount_social_facebook extends tcount_social_plugin {
         }
         return $usermessage;
     }
+
     /**
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
      * @see \mod_tcount\social\tcount_social_plugin::get_user_url()
      */
     function get_user_url($user) {
@@ -306,8 +299,6 @@ class tcount_social_facebook extends tcount_social_plugin {
         return \html_writer::table($table);
     }
 
-
-
     /**
      * Statistics for grading
      *
@@ -363,15 +354,20 @@ class tcount_social_facebook extends tcount_social_plugin {
     }
 
     public function get_pki_list() {
-        $pkiobjs['posts'] = new pki_info('posts',null,pki_info::PKI_INDIVIDUAL,social_interaction::POST,'POST',social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['replies'] = new pki_info('replies',null,pki_info::PKI_INDIVIDUAL,social_interaction::REPLY,'*',social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['likes'] = new pki_info('likes',null,pki_info::PKI_INDIVIDUAL,social_interaction::REACTION,'nativetype = "LIKE"',social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['reactions'] = new pki_info('likes',null,pki_info::PKI_INDIVIDUAL,social_interaction::REACTION,'*',social_interaction::DIRECTION_RECIPIENT);
-//         $pkiobjs['shares'] = new pki_info('shares',null,pki_info::PKI_INDIVIDUAL,social_interaction::POST,'shares',social_interaction::DIRECTION_AUTHOR);
+        $pkiobjs['posts'] = new pki_info('posts', null, pki_info::PKI_INDIVIDUAL, social_interaction::POST, 'POST',
+                social_interaction::DIRECTION_AUTHOR);
+        $pkiobjs['replies'] = new pki_info('replies', null, pki_info::PKI_INDIVIDUAL, social_interaction::REPLY, '*',
+                social_interaction::DIRECTION_RECIPIENT);
+        $pkiobjs['likes'] = new pki_info('likes', null, pki_info::PKI_INDIVIDUAL, social_interaction::REACTION, 'nativetype = "LIKE"',
+                social_interaction::DIRECTION_RECIPIENT);
+        $pkiobjs['reactions'] = new pki_info('likes', null, pki_info::PKI_INDIVIDUAL, social_interaction::REACTION, '*',
+                social_interaction::DIRECTION_RECIPIENT);
+        // $pkiobjs['shares'] = new
+        // pki_info('shares',null,pki_info::PKI_INDIVIDUAL,social_interaction::POST,'shares',social_interaction::DIRECTION_AUTHOR);
         $pkiobjs['max_posts'] = new pki_info('max_posts', null, pki_info::PKI_AGREGATED);
         $pkiobjs['max_replies'] = new pki_info('max_replies', null, pki_info::PKI_AGREGATED);
         $pkiobjs['max_likes'] = new pki_info('max_likes', null, pki_info::PKI_AGREGATED);
-//         $pkiobjs['max_shares'] = new pki_info('max_shares', null, pki_info::PKI_AGREGATED);
+        // $pkiobjs['max_shares'] = new pki_info('max_shares', null, pki_info::PKI_AGREGATED);
         return $pkiobjs;
     }
 
@@ -437,7 +433,7 @@ class tcount_social_facebook extends tcount_social_plugin {
         global $DB;
         $DB->delete_records('tcount_facebook_tokens', array('tcount' => $this->tcount->id));
         // Remove group selection.
-        $this->set_config(self::CONFIG_FBGROUP,'');
+        $this->set_config(self::CONFIG_FBGROUP, '');
     }
 
     protected function store_interactions(array $interactions) {

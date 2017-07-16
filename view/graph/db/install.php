@@ -30,17 +30,10 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool
  */
 function xmldb_tcountview_graph_install() {
-    global $CFG, $DB;
+    global $CFG;
+
     require_once ($CFG->dirroot . '/mod/tcount/view/graph/graphplugin.php');
-    $dbman = $DB->get_manager();
-    $table = new xmldb_table('tcount_pkis');
     $plugininfo = new mod_tcount\social\tcount_view_graph(null);
-    $pkilist = $plugininfo->get_pki_list();
-    foreach ($pkilist as $pkiname) {
-        $pkifield = new xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
-        if (!$dbman->field_exists($table, $pkifield)) {
-            $dbman->add_field($table, $pkifield);
-        }
-    }
+    $plugininfo->create_pki_fields();
     return true;
 }

@@ -44,17 +44,6 @@ class tcount_view_sequence extends tcount_view_plugin {
         return get_string('pluginname', 'tcountview_sequence');
     }
 
-    /**
-     * Allows the plugin to update the defaultvalues passed in to
-     * the settings form (needed to set up draft areas for editor
-     * and filemanager elements)
-     *
-     * @param array $defaultvalues
-     */
-    public function data_preprocessing(&$defaultvalues) {
-        $defaultvalues['tcountview_sequence_enabled'] = $this->get_config('enabled');
-        return;
-    }
 
     /**
      * Get the settings for the plugin
@@ -63,19 +52,6 @@ class tcount_view_sequence extends tcount_view_plugin {
      * @return void
      */
     public function get_settings(\MoodleQuickForm $mform) {
-    }
-
-    /**
-     * Save the settings for table plugin
-     *
-     * @param \stdClass $data
-     * @return bool
-     */
-    public function save_settings(\stdClass $data) {
-        if (isset($data->tcountview_sequence_enabled)) {
-            $this->set_config('enabled', $data->tcountview_sequence_enabled);
-        }
-        return true;
     }
 
     /**

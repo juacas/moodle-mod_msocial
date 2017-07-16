@@ -45,18 +45,6 @@ class tcount_view_table extends tcount_view_plugin {
     }
 
     /**
-     * Allows the plugin to update the defaultvalues passed in to
-     * the settings form (needed to set up draft areas for editor
-     * and filemanager elements)
-     *
-     * @param array $defaultvalues
-     */
-    public function data_preprocessing(&$defaultvalues) {
-        $defaultvalues['tcountview_table_enabled'] = $this->get_config('enabled');
-        return;
-    }
-
-    /**
      * Get the settings for the plugin
      *
      * @param MoodleQuickForm $mform The form to add elements to
@@ -160,14 +148,16 @@ class tcount_view_table extends tcount_view_plugin {
         $pkiinfosall = [];
         foreach ($enabledplugins as $type => $plugin) {
             // Get PKIs.
-            $pkilist = $plugin->get_pki_list();
-            if (count($pkilist) > 0) {
-                $pkiinfos[$type] = $pkilist;
-                $pkiindividual[$type] = array_filter($pkiinfos[$type],
-                        function ($pki) {
-                            return $pki->individual === pki_info::PKI_INDIVIDUAL;
-                        });
-                $pkiinfosall = array_merge($pkiinfosall, $pkiindividual[$type]);
+            if ($plugin->is_enabled()) {
+                $pkilist = $plugin->get_pki_list();
+                if (count($pkilist) > 0) {
+                    $pkiinfos[$type] = $pkilist;
+                    $pkiindividual[$type] = array_filter($pkiinfos[$type],
+                            function ($pki) {
+                                return $pki->individual === pki_info::PKI_INDIVIDUAL;
+                            });
+                    $pkiinfosall = array_merge($pkiinfosall, $pkiindividual[$type]);
+                }
             }
         }
         // Define column groups.
