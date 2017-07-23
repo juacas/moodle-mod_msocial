@@ -1,8 +1,5 @@
 <?php
-use mod_tcount\plugininfo\tcountsocial;
-use mod_tcount\plugininfo\tcountview;
-
-// This file is part of TwitterCount activity for Moodle http://moodle.org/
+// This file is part of MSocial activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -11,21 +8,21 @@ use mod_tcount\plugininfo\tcountview;
 //
 // Questournament for Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
-require_once($CFG->libdir . '/gradelib.php');
-require_once($CFG->libdir . '/mathslib.php');
+// along with MSocial for Moodle. If not, see <http://www.gnu.org/licenses/>.
+use mod_msocial\plugininfo\msocialview;
+defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
+require_once ($CFG->libdir . '/gradelib.php');
+require_once ($CFG->libdir . '/mathslib.php');
 
-
-/**
- * Find the list of users and get a list with the ids of students and a list of non-students
+/** Find the list of users and get a list with the ids of students and a list of non-students
  * @param type $contextcourse
- * @return array(array($studentIds), array($non_studentIds), array($activeids), array($user_records))
- */
+ * @return array(array($studentIds), array($non_studentIds), array($activeids),
+ *         array($user_records)) */
 function eduvalab_get_users_by_type($contextcourse) {
     // Get users with gradable roles.
     global $CFG;
@@ -59,12 +56,10 @@ function eduvalab_get_users_by_type($contextcourse) {
 }
 
 /**
- *
  * @param int $date
  * @param int|null $fromdate
  * @param int|null $todate
- * @return bool
- */
+ * @return bool */
 function eduvalab_time_is_between($date, $fromdate, $todate) {
     if ($fromdate == "0") {
         $fromdate = null;
@@ -72,17 +67,13 @@ function eduvalab_time_is_between($date, $fromdate, $todate) {
     if ($todate == "0") {
         $todate = null;
     }
-    return ( (!isset($fromdate) || $date > $fromdate) &&
-            (!isset($todate) || $date < $todate));
+    return ((!isset($fromdate) || $date > $fromdate) && (!isset($todate) || $date < $todate));
 }
 
-/**
- * Curl wrapper for OAuth
- */
+/** Curl wrapper for OAuth */
 class OAuthCurl {
 
     public function __construct() {
-
     }
 
     public static function fetch_data($url) {
@@ -90,8 +81,7 @@ class OAuthCurl {
             CURLOPT_RETURNTRANSFER => true, // ...return web page.
             CURLOPT_HEADER => false, // ...don't return headers.
             CURLOPT_FOLLOWLOCATION => true, // ...follow redirects.
-            CURLOPT_SSL_VERIFYPEER => false,
-        );
+            CURLOPT_SSL_VERIFYPEER => false);
 
         $ch = curl_init($url);
         curl_setopt_array($ch, $options);
@@ -106,17 +96,14 @@ class OAuthCurl {
         $header['content'] = $content;
         return $header;
     }
-
 }
 
 /**
- * @deprecated
- * REturns true if the user shows no activity in the stats
+ * @deprecated REturns true if the user shows no activity in the stats
  * @param type $userid
  * @param type $stat
- * @return boolean
- */
-function tcount_user_inactive($userid, $stat) {
+ * @return boolean */
+function msocial_user_inactive($userid, $stat) {
     if ($stat->favs == 0 && $stat->tweets == 0 && $stat->retweets == 0) {
         return true;
     } else {
@@ -124,31 +111,26 @@ function tcount_user_inactive($userid, $stat) {
     }
 }
 
-/**
- * Apply a formula to calculate a raw grade.
+/** Apply a formula to calculate a raw grade.
  *
- * @param type $tcount module instance
+ * @param type $msocial module instance
  * @param type $stats aggregated statistics of the tweets
- * @see tcount_calculate_stats
- * @return \stdClass grade struct with grade->rawgrade = -1 if no calculation is possible
- */
-function tcount_calculate_grades($tcount, $stats) {
+ * @see msocial_calculate_stats
+ * @return \stdClass grade struct with grade->rawgrade = -1 if no calculation is possible */
+function msocial_calculate_grades($msocial, $stats) {
     $grades = array();
     foreach ($stats->users as $userid => $stat) {
         $grade = new stdClass();
         $grade->userid = $userid;
         $grade->itemname = 'twitterscore';
 
-        $formula = $tcount->grade_expr;
+        $formula = $msocial->grade_expr;
         $formula = calc_formula::unlocalize($formula);
         $calculation = new calc_formula($formula);
-        $calculation->set_params(array('favs' => $stat->favs,
-            'retweets' => $stat->retweets,
-            'tweets' => $stat->tweets,
-            'maxfavs' => $stats->maximums->favs,
-            'maxtweets' => $stats->maximums->tweets,
-            'maxretweets' => $stats->maximums->retweets,
-        ));
+        $calculation->set_params(
+                array('favs' => $stat->favs, 'retweets' => $stat->retweets, 'tweets' => $stat->tweets,
+                                'maxfavs' => $stats->maximums->favs, 'maxtweets' => $stats->maximums->tweets,
+                                'maxretweets' => $stats->maximums->retweets));
         $value = $stat->tweets == 0 ? false : $calculation->evaluate();
         if ($value !== false) {
             $grade->rawgrade = $value;
@@ -161,8 +143,8 @@ function tcount_calculate_grades($tcount, $stats) {
     return $grades;
 }
 
-function tcount_calculate_user_grades($tcount, $userid = 0) {
-    $cm = get_coursemodule_from_instance('tcount', $tcount->id, 0, false, MUST_EXIST);
+function msocial_calculate_user_grades($msocial, $userid = 0) {
+    $cm = get_coursemodule_from_instance('msocial', $msocial->id, 0, false, MUST_EXIST);
     if ($userid == 0) {
         $context = context_module::instance($cm->id);
         list($sudents) = eduvalab_get_users_by_type($context);
@@ -172,33 +154,32 @@ function tcount_calculate_user_grades($tcount, $userid = 0) {
         $students = array($userid);
     }
 
-    $stats = tcount_calculate_stats($tcount, $students);
-    $grades = tcount_calculate_grades($tcount, $stats);
+    $stats = msocial_calculate_stats($msocial, $students);
+    $grades = msocial_calculate_grades($msocial, $stats);
     return $grades;
 }
 
-
-function tcount_set_user_field_value($user, $fieldid, $value) {
+function msocial_set_user_field_value($user, $fieldid, $value) {
     global $CFG;
-    if (tcount_is_custom_field_name($fieldid)) {
-        require_once($CFG->dirroot . '/user/profile/lib.php');
+    if (msocial_is_custom_field_name($fieldid)) {
+        require_once ($CFG->dirroot . '/user/profile/lib.php');
         $usernew = new stdClass();
         $usernew->id = $user->id;
         $usernew->{'profile_field_' . $fieldid} = $value;
         profile_save_data($usernew);
     } else {
         $user->$fieldid = $value;
-        require_once($CFG->dirroot . "/user/lib.php");
+        require_once ($CFG->dirroot . "/user/lib.php");
         user_update_user($user);
     }
 }
 
-function tcount_get_user_field_value($user, $fieldid) {
+function msocial_get_user_field_value($user, $fieldid) {
     if (!$fieldid) {
         return null;
-    } elseif (tcount_is_custom_field_name($fieldid)) {
+    } else if (msocial_is_custom_field_name($fieldid)) {
         global $CFG;
-        require_once($CFG->dirroot . '/user/profile/lib.php');
+        require_once ($CFG->dirroot . '/user/profile/lib.php');
         $profile = profile_user_record($user->id);
         return $profile->$fieldid;
     } else {
@@ -209,14 +190,12 @@ function tcount_get_user_field_value($user, $fieldid) {
         }
     }
 }
-/**
- * Return the list of available user's profile fields
- * @return array[string]string array with id->name of user fields
- */
-function tcount_get_user_fields(){
+
+/** Return the list of available user's profile fields
+ * @return array[string]string array with id->name of user fields */
+function msocial_get_user_fields() {
     global $DB;
-    $options1 = array('skype' => 'SKYPE', 'yahoo' => 'Yahoo', 'aim' => 'AIM', 'msn' => 'MSN'
-    );
+    $options1 = array('skype' => 'SKYPE', 'yahoo' => 'Yahoo', 'aim' => 'AIM', 'msn' => 'MSN');
     $options2 = array();
     $options = $DB->get_records_menu("user_info_field", null, "name", "shortname, name");
     if ($options) {
@@ -228,8 +207,7 @@ function tcount_get_user_fields(){
     return $idtypeoptions;
 }
 
-
-function tcount_is_custom_field_name($fieldid) {
+function msocial_is_custom_field_name($fieldid) {
     if (in_array($fieldid, ['aim', 'msn', 'skype', 'yahoo'])) {
         return false;
     } else {
@@ -237,15 +215,11 @@ function tcount_is_custom_field_name($fieldid) {
     }
 }
 
-
-
-/**
- * Update the settings for a single plugin.
+/** Update the settings for a single plugin.
  *
- * @param tcount_plugin $plugin The plugin to update
+ * @param msocial_plugin $plugin The plugin to update
  * @param stdClass $formdata The form data
- * @return bool false if an error occurs
- */
+ * @return bool false if an error occurs */
 function update_plugin_instance($plugin, stdClass $formdata) {
     $enabledname = $plugin->get_type() . '_' . $plugin->get_subtype() . '_enabled';
     if (!empty($formdata->$enabledname)) {
@@ -259,85 +233,85 @@ function update_plugin_instance($plugin, stdClass $formdata) {
     }
     return true;
 }
+
 /**
- *
- * @param object $userstatsA
- * @param object $userstatsB
- * @return type
- */
-function merge_stats($statsA, $statsB) {
-    $userstatsA = $statsA->users;
-    $userstatsB = $statsB->users;
-    foreach ($userstatsB as $user => $stat) {
-        if (key_exists($user, $userstatsA)) {
-            $statmerged = (object) array_merge((array) $userstatsA[$user], (array) $stat);
-            $userstatsA[$user] = $statmerged;
+ * @param object $userstatsa
+ * @param object $userstatsb
+ * @return type */
+function merge_stats($statsa, $statsb) {
+    $userstatsa = $statsa->users;
+    $userstatsb = $statsb->users;
+    foreach ($userstatsb as $user => $stat) {
+        if (key_exists($user, $userstatsa)) {
+            $statmerged = (object) array_merge((array) $userstatsa[$user], (array) $stat);
+            $userstatsa[$user] = $statmerged;
         } else {
-            $userstatsA[$user] = $stat;
+            $userstatsa[$user] = $stat;
         }
     }
     // Get maximums.
-    $maxA = $statsA->maximums;
-    $maxB = $statsB->maximums;
-    foreach($maxB as $name => $value) {
-        if (isset($maxA->$name)) {
-            $maxA->$name = max([$maxA->$name, $value]);
+    $maxa = $statsa->maximums;
+    $maxb = $statsb->maximums;
+    foreach ($maxb as $name => $value) {
+        if (isset($maxa->$name)) {
+            $maxa->$name = max([$maxa->$name, $value]);
         } else {
-            $maxA->$name = $value;
+            $maxa->$name = $value;
         }
     }
-    $statsA->maximums = $maxA;
-    $statsA->users = $userstatsA;
-    return $statsA;
+    $statsa->maximums = $maxa;
+    $statsa->users = $userstatsa;
+    return $statsa;
 }
+
 /**
  * @global core_renderer $OUTPUT
- * @param stdClass $tcount record for instante tcount
+ * @param stdClass $msocial record for instante msocial
  * @param course_modinfo $cm
  * @param context $contextmodule
- * @return ta
- */
-function tcount_tabbed_reports($tcount,$view,$cm,$contextmodule, $categorized=false){
+ * @return ta */
+function msocial_tabbed_reports($msocial, $view, $cm, $contextmodule, $categorized = false) {
     global $OUTPUT;
-    $plugins = tcountview::get_enabled_view_plugins($tcount);
+    $plugins = msocialview::get_enabled_view_plugins($msocial);
     $rows = [];
-    /** @var tcount_view_plugin*/
-    foreach ($plugins as $name=>$plugin){
-        if ($plugin->is_enabled() == false){
+    /** @var msocial_view_plugin*/
+    foreach ($plugins as $name => $plugin) {
+        if ($plugin->is_enabled() == false) {
             continue;
         }
         $icon = $plugin->get_icon();
-        $icondecoration =html_writer::img($icon->out_as_local_url(), $plugin->get_name().' icon.',['height'=>32]);
-        $url = new moodle_url('/mod/tcount/view.php',['id'=>$cm->id,'view'=>$plugin->get_subtype()]);
-        $plugintab = new tabobject($plugin->get_subtype(), $url, $icondecoration.$plugin->get_name());
-        if ($categorized){
+        $icondecoration = html_writer::img($icon->out_as_local_url(), $plugin->get_name() . ' icon.', ['height' => 32]);
+        $url = new moodle_url('/mod/msocial/view.php', ['id' => $cm->id, 'view' => $plugin->get_subtype()]);
+        $plugintab = new tabobject($plugin->get_subtype(), $url, $icondecoration . $plugin->get_name());
+        if ($categorized) {
             $category = $plugin->get_category();
-        if (isset($rows[$category])){
-            $parenttab = $rows[$category];
-        }else{
-            $parenttab = new tabobject($category,null,$category);
+            if (isset($rows[$category])) {
+                $parenttab = $rows[$category];
+            } else {
+                $parenttab = new tabobject($category, null, $category);
 
-            $rows[$category]=$parenttab;
-        }
-        $parenttab->subtree[]=$plugintab;
-        }else{
-            $rows[]=$plugintab;
+                $rows[$category] = $parenttab;
+            }
+            $parenttab->subtree[] = $plugintab;
+        } else {
+            $rows[] = $plugintab;
         }
     }
-    return $OUTPUT->tabtree($rows,$view);
+    return $OUTPUT->tabtree($rows, $view);
 }
-/**
- * This function creates a minimal JS script that requires and calls a single function from an AMD module with arguments.
+
+/** This function creates a minimal JS script that requires and calls a single function from an AMD
+ * module with arguments.
  * If it is called multiple times, it will be executed multiple times.
  *
  * @param string $fullmodule The format for module names is <component name>/<module name>.
  * @param string $func The function from the module to call
- * @param array $params The params to pass to the function. They will be json encoded, so no nasty classes/types please.
- */
-function tcount_js_call_subplugin_amd($fullmodule, $func, $params = array(),$req) {
+ * @param array $params The params to pass to the function. They will be json encoded, so no nasty
+ *        classes/types please. */
+function msocial_js_call_subplugin_amd($fullmodule, $func, $params = array(), $req) {
     global $CFG;
 
-    list($component, $subtype,$plugin,$module) = explode('/', $fullmodule, 4);
+    list($component, $subtype, $plugin, $module) = explode('/', $fullmodule, 4);
 
     $component = clean_param($component, PARAM_COMPONENT);
     $module = clean_param($module, PARAM_ALPHANUMEXT);
@@ -357,7 +331,8 @@ function tcount_js_call_subplugin_amd($fullmodule, $func, $params = array(),$req
         }
     }
 
-    $js = 'require(["' . $component . '/' .$subtype.'/'. $plugin .'/'.$module . '"], function(amd) { amd.' . $func . '(' . $strparams . '); });';
+    $js = 'require(["' . $component . '/' . $subtype . '/' . $plugin . '/' . $module . '"], function(amd) { amd.' . $func . '(' .
+             $strparams . '); });';
 
     $req->js_amd_inline($js);
 }

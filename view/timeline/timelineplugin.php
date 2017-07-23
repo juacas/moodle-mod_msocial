@@ -13,9 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-namespace mod_tcount\view;
+namespace mod_msocial\view;
 
-use tcount\tcount_plugin;
+use msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -23,11 +23,11 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * library class for view the network activity as a table extending view plugin base class
  *
- * @package tcountview_timeline
+ * @package msocialview_timeline
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tcount_view_timeline extends tcount_view_plugin {
+class msocial_view_timeline extends msocial_view_plugin {
 
     /**
      * Get the name of the plugin
@@ -35,7 +35,7 @@ class tcount_view_timeline extends tcount_view_plugin {
      * @return string
      */
     public function get_name() {
-        return get_string('pluginname', 'tcountview_timeline');
+        return get_string('pluginname', 'msocialview_timeline');
     }
 
 
@@ -55,14 +55,14 @@ class tcount_view_timeline extends tcount_view_plugin {
      * @return bool
      */
     public function save_settings(\stdClass $data) {
-        if (isset($data->tcountview_timeline_enabled)) {
-            $this->set_config('enabled', $data->tcountview_timeline_enabled);
+        if (isset($data->msocialview_timeline_enabled)) {
+            $this->set_config('enabled', $data->msocialview_timeline_enabled);
         }
         return true;
     }
 
     /**
-     * The tcount has been deleted - cleanup subplugin
+     * The msocial has been deleted - cleanup subplugin
      *
      * @global moodle_database $DB
      * @return bool
@@ -74,7 +74,7 @@ class tcount_view_timeline extends tcount_view_plugin {
     }
 
     public function get_category() {
-        return tcount_plugin::CAT_VISUALIZATION;
+        return msocial_plugin::CAT_VISUALIZATION;
     }
 
     public function get_subtype() {
@@ -82,7 +82,7 @@ class tcount_view_timeline extends tcount_view_plugin {
     }
 
     public function get_icon() {
-        return new \moodle_url('/mod/tcount/view/timeline/pix/icon.svg');
+        return new \moodle_url('/mod/msocial/view/timeline/pix/icon.svg');
     }
 
     /**
@@ -94,10 +94,10 @@ class tcount_view_timeline extends tcount_view_plugin {
      */
     public function calculate_stats($users) {
         global $DB;
-        $cm = get_coursemodule_from_instance('tcount', $this->tcount->id, 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_instance('msocial', $this->msocial->id, 0, false, MUST_EXIST);
         $stats = $DB->get_records_sql(
                 'SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs ' .
-                         'FROM {tcount_tweets} where tcount = ? and userid is not null group by userid', array($this->tcount->id));
+                         'FROM {msocial_tweets} where msocial = ? and userid is not null group by userid', array($this->msocial->id));
         $userstats = new \stdClass();
         $userstats->users = array();
 
@@ -143,7 +143,7 @@ class tcount_view_timeline extends tcount_view_plugin {
      *
      * {@inheritdoc}
      *
-     * @see tcount_view_plugin::render_view()
+     * @see msocial_view_plugin::render_view()
      */
     public function render_view($renderer, $reqs) {
         echo '<div id="my-timeline" style="overflow-y: visible; height: 250px; border: 1px solid #aaa"></div>';
@@ -155,12 +155,12 @@ class tcount_view_timeline extends tcount_view_plugin {
      *
      * {@inheritdoc}
      *
-     * @see tcount_view_plugin::view_set_requirements()
+     * @see msocial_view_plugin::view_set_requirements()
      */
     public function render_header_requirements($reqs, $viewparam) {
         if ($viewparam == $this->get_subtype()) {
-            $reqs->js('/mod/tcount/view/timeline/js/init_timeline.js', true);
-            $reqs->js('/mod/tcount/view/timeline/js/timeline/timeline-api.js?bundle=true', true);
+            $reqs->js('/mod/msocial/view/timeline/js/init_timeline.js', true);
+            $reqs->js('/mod/msocial/view/timeline/js/timeline/timeline-api.js?bundle=true', true);
         }
     }
 }

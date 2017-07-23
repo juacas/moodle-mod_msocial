@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -14,64 +13,53 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-namespace mod_tcount\view;
+namespace mod_msocial\view;
 
-use mod_tcount\plugininfo\tcountsocial;
-use tcount\tcount_plugin;
-use mod_tcount\social\pki_info;
-use mod_tcount\plugininfo\tcountbase;
+use mod_msocial\plugininfo\msocialconnector;
+use msocial\msocial_plugin;
+use mod_msocial\connector\pki_info;
+use mod_msocial\plugininfo\msocialbase;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once ($CFG->dirroot . '/mod/tcount/tcountviewplugin.php');
+require_once ($CFG->dirroot . '/mod/msocial/msocialviewplugin.php');
 
-
-/**
- * library class for view the network activity as a table extending view plugin base class
+/** library class for view the network activity as a table extending view plugin base class
  *
- * @package tcountview_table
+ * @package msocialview_table
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class tcount_view_table extends tcount_view_plugin {
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
+class msocial_view_table extends msocial_view_plugin {
 
-    /**
-     * Get the name of the plugin
+    /** Get the name of the plugin
      *
-     * @return string
-     */
+     * @return string */
     public function get_name() {
-        return get_string('pluginname', 'tcountview_table');
+        return get_string('pluginname', 'msocialview_table');
     }
 
-    /**
-     * Get the settings for the plugin
+    /** Get the settings for the plugin
      *
      * @param MoodleQuickForm $mform The form to add elements to
-     * @return void
-     */
+     * @return void */
     public function get_settings(\MoodleQuickForm $mform) {
     }
 
-    /**
-     * Save the settings for table plugin
+    /** Save the settings for table plugin
      *
      * @param \stdClass $data
-     * @return bool
-     */
+     * @return bool */
     public function save_settings(\stdClass $data) {
-        if (isset($data->tcountview_table_enabled)) {
-            $this->set_config('enabled', $data->tcountview_table_enabled);
+        if (isset($data->msocialview_table_enabled)) {
+            $this->set_config('enabled', $data->msocialview_table_enabled);
         }
         return true;
     }
 
-    /**
-     * The tcount has been deleted - cleanup subplugin
+    /** The msocial has been deleted - cleanup subplugin
      *
      * @global moodle_database $DB
-     * @return bool
-     */
+     * @return bool */
     public function delete_instance() {
         global $DB;
         $result = true;
@@ -83,18 +71,16 @@ class tcount_view_table extends tcount_view_plugin {
     }
 
     public function get_category() {
-        return tcount_plugin::CAT_ANALYSIS;
+        return msocial_plugin::CAT_ANALYSIS;
     }
 
     public function get_icon() {
-        return new \moodle_url('/mod/tcount/view/table/pix/icon.svg');
+        return new \moodle_url('/mod/msocial/view/table/pix/icon.svg');
     }
 
     /**
-     *
      * @global moodle_database $DB
-     * @return mixed $result->statuses $result->messages[]string $result->errors[]->message
-     */
+     * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
     public function harvest() {
         global $DB;
         $result = (object) ['messages' => []];
@@ -102,29 +88,25 @@ class tcount_view_table extends tcount_view_plugin {
     }
 
     /**
-     *
      * {@inheritdoc}
      *
-     * @see tcount_view_plugin::view_set_requirements()
-     */
+     * @see msocial_view_plugin::view_set_requirements() */
     public function render_header_requirements($reqs, $viewparam) {
         if ($viewparam == 'table') {
             // Table view.
-            $reqs->css('/mod/tcount/view/table/css/jquery.dataTables.css');
-            $reqs->css('/mod/tcount/view/table/css/buttons.jqueryui.css');
-            $reqs->css('/mod/tcount/view/table/css/buttons.dataTables.css');
-            $reqs->css('/mod/tcount/view/table/css/colReorder.jqueryui.css');
-            $reqs->js('/mod/tcount/view/table/js/configurerequire.js', false);
+            $reqs->css('/mod/msocial/view/table/css/jquery.dataTables.css');
+            $reqs->css('/mod/msocial/view/table/css/buttons.jqueryui.css');
+            $reqs->css('/mod/msocial/view/table/css/buttons.dataTables.css');
+            $reqs->css('/mod/msocial/view/table/css/colReorder.jqueryui.css');
+            $reqs->js('/mod/msocial/view/table/js/configurerequire.js', false);
         }
     }
 
     /**
-     *
      * {@inheritdoc}
      *
      * @global \stdClass $USER
-     * @see tcount_view_plugin::render_view()
-     */
+     * @see msocial_view_plugin::render_view() */
     public function render_view($renderer, $reqs) {
         global $USER;
 
@@ -133,7 +115,7 @@ class tcount_view_table extends tcount_view_plugin {
         $showinactive = optional_param('showinactive', true, PARAM_BOOL);
 
         // Table view.
-        if (has_capability('mod/tcount:viewothers', $contextmodule)) {
+        if (has_capability('mod/msocial:viewothers', $contextmodule)) {
             list($students, $nonstudents, $activeusers, $userrecords) = eduvalab_get_users_by_type($contextcourse);
             $students = array_merge($students, $nonstudents);
         } else {
@@ -141,8 +123,8 @@ class tcount_view_table extends tcount_view_plugin {
             $userrecords[$USER->id] = $USER;
         }
         $groups = groups_get_activity_allowed_groups($this->cm);
-        $enabledsocialplugins = tcountsocial::get_enabled_social_plugins($this->tcount);
-        $enabledplugins = tcountbase::get_enabled_plugins_all_types($this->tcount);
+        $enabledsocialplugins = msocialconnector::get_enabled_connector_plugins($this->msocial);
+        $enabledplugins = msocialbase::get_enabled_plugins_all_types($this->msocial);
 
         $pkis = $this->get_pkis($students, null);
         $pkiinfosall = [];
@@ -173,7 +155,7 @@ class tcount_view_table extends tcount_view_plugin {
             $columnstart = $columnend + 1;
         }
         $columngroups[] = (object) ["extend" => "colvisGroup", "text" => "All", "show" => ":hidden"];
-        $reqs->js_call_amd('tcountview/table', 'initview', ['#pkitable', $columngroups]);
+        $reqs->js_call_amd('msocialview/table', 'initview', ['#pkitable', $columngroups]);
         echo $renderer->heading('Table of PKIs');
         $table = new \html_table();
         $table->id = 'pkitable';

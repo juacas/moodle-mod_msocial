@@ -17,7 +17,7 @@
 /**
  * This file contains the version information for the sequence view plugin
  *
- * @package    tcount_view
+ * @package    msocial_view
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,4 +26,4 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2017061500;
 $plugin->requires  = 2013051407;
-$plugin->component = 'tcountview_sequence';
+$plugin->component = 'msocialview_sequence';

@@ -1,6 +1,5 @@
 <?php
-
-// This file is part of TwitterCount activity for Moodle http://moodle.org/
+// This file is part of MSocial activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,9 +12,8 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with TwitterCount for Moodle. If not, see <http://www.gnu.org/licenses/>.
-/**
- * This file keeps track of upgrades to the tcount module
+// along with MSocial for Moodle. If not, see <http://www.gnu.org/licenses/>.
+/** This file keeps track of upgrades to the msocial module
  *
  * Sometimes, changes between versions involve alterations to database
  * structures and other major things that may break installations. The upgrade
@@ -27,23 +25,20 @@
  *
  * @package mod-clusterer
  * @copyright 2009 Your Name
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-/**
- * xmldb_tcountview_graph_upgrade
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
+defined('MOODLE_INTERNAL') || die();
+/** xmldb_msocialview_graph_upgrade
  *
  * @global moodle_database $DB
  * @param int $oldversion
- * @return bool
- */
-function xmldb_tcountview_graph_upgrade($oldversion = 0) {
+ * @return bool */
+function xmldb_msocialview_graph_upgrade($oldversion = 0) {
     global $CFG, $DB;
     if ($oldversion < 2017071302) {
-        require_once ($CFG->dirroot . '/mod/tcount/view/graph/graphplugin.php');
-        $plugininfo = new mod_tcount\view\tcount_view_graph(null);
+        require_once ($CFG->dirroot . '/mod/msocial/view/graph/graphplugin.php');
+        $plugininfo = new mod_msocial\view\msocial_view_graph(null);
         $plugininfo->create_pki_fields();
         // graph savepoint reached.
-        upgrade_plugin_savepoint(true, 2017071302, 'tcountview', 'graph');
+        upgrade_plugin_savepoint(true, 2017071302, 'msocialview', 'graph');
     }
 }

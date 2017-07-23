@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,51 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * library class for tcount social pki structure
+/** library class for msocial social pki structure
  *
- * @package tcountsocial
+ * @package msocialconnector
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-namespace mod_tcount\social;
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
+namespace mod_msocial\connector;
 
-use tcount\tcount_plugin;
-use Box\Spout\Common\Helper\StringHelper;
+use msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 
-
 class pki {
 
-    /**
-     * Moodle userid this pki refers to.
-     * @var int
-     */
+    /** Moodle userid this pki refers to.
+     * @var int */
     public $user;
-
-    public $tcount;
-
+    public $msocial;
     public $historical = false;
-
     public $timestamp;
 
-    function __construct($userid, $tcountid) {
+    public function __construct($userid, $msocialid) {
         $this->user = $userid;
-        $this->tcount = $tcountid;
+        $this->msocial = $msocialid;
         $this->timestamp = time();
     }
 
     /**
-     *
      * @param unknown $user
      * @param unknown $stat
-     * @param tcount_plugin $tcountplugin
-     * @param pki $pki existent pki. For chaining calls. Assumes user and tcountid are coherent.
-     * @return \mod_tcount\social\pki_info[]
-     */
-    static function fromStat($user, $stat, $stataggregated, $tcountplugin, $pki = null) {
-        $pki = $pki==null?new pki($user, $tcountplugin->tcount->id):$pki;
+     * @param msocial_plugin $msocialplugin
+     * @param pki $pki existent pki. For chaining calls. Assumes user and msocialid are coherent.
+     * @return \mod_msocial\connector\pki_info[] */
+    public static function from_stat($user, $stat, $stataggregated, $msocialplugin, $pki = null) {
+        $pki = $pki == null ? new pki($user, $msocialplugin->msocial->id) : $pki;
         foreach ($stat as $propname => $value) {
             $pki->{$propname} = $value;
         }
@@ -71,11 +59,9 @@ class pki {
     }
 
     /**
-     *
-     * @return true if the pki fields are 0. fields 'id', 'name', 'tcount', 'timestamp',
-     *         'historical' and starting with max_ are ignored.
-     */
-    function seems_inactive() {
+     * @return true if the pki fields are 0. fields 'id', 'name', 'msocial', 'timestamp',
+     *         'historical' and starting with max_ are ignored. */
+    public function seems_inactive() {
         $ignore = ['id', 'name', 'timestamp', 'historical'];
         foreach ($this as $prop => $value) {
             if ($value !== 0 && !array_search($prop, $ignore) && strpos($prop, 'max_') !== 0) {
@@ -86,70 +72,49 @@ class pki {
     }
 }
 
-
 class pki_info {
-
     const PKI_INDIVIDUAL = true;
-
     const PKI_AGREGATED = false;
-    /**
-     * This pki is calculated by dedicated code of a plugin, not from recorded interactions.
-     * @var string
-     */
+    /** This pki is calculated by dedicated code of a plugin, not from recorded interactions.
+     * @var string */
     const PKI_CUSTOM = 'custom_pki';
-    /**
-     * Measures a person indicator or not.
+    /** Measures a person indicator or not.
      *
-     * @var boolean
-     */
+     * @var boolean */
     public $individual = true;
 
-    /**
-     * Name of the PKI.
+    /** Name of the PKI.
      *
-     * @var string
-     */
+     * @var string */
     public $name;
 
-    /**
-     * Description of the PKI.
+    /** Description of the PKI.
      *
-     * @var variant
-     */
+     * @var variant */
     public $description;
 
-    /**
-     * Interaction Type for aggregation.
-     * @var string
-     */
+    /** Interaction Type for aggregation.
+     * @var string */
     public $interaction_type;
 
-    /**
-     * Query for native types.
+    /** Query for native types.
      * I.e. "nativetype = 'LIKE' OR nativetype = 'HAHA'"
-     * @var string
-     */
+     * @var string */
     public $interaction_nativetype_query;
 
-    /**
-     * Source of the interactions aggregated.
+    /** Source of the interactions aggregated.
      * Groups by this field.
-     * @var string
-     */
+     * @var string */
     public $interaction_source;
 
     /**
-     *
      * @param string $name
      * @param string $description
      * @param string $individual
      * @param string $interaction_type
      * @param string $interaction_nativetype_query
-     * @param string $interaction_source
-     */
-    function __construct($name, $description = null, $individual = self::PKI_INDIVIDUAL,
-            $interaction_type = null,
-            $interaction_nativetype_query = '*',
+     * @param string $interaction_source */
+    public function __construct($name, $description = null, $individual = self::PKI_INDIVIDUAL, $interaction_type = null, $interaction_nativetype_query = '*',
             $interaction_source = 'fromid') {
         $this->name = $name;
         $this->value = $description;

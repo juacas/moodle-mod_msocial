@@ -1,5 +1,5 @@
 <?php
-// This file is part of TwitterCount activity for Moodle http://moodle.org/
+// This file is part of MSocial activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,33 +12,46 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with TwitterCount for Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with MSocial for Moodle. If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
 
-$ADMIN->add('modsettings', new admin_category('modtcountfolder', new lang_string('pluginname', 'mod_tcount'), $module->is_enabled() === false));
+$ADMIN->add('modsettings',
+        new admin_category('modmsocialfolder', new lang_string('pluginname', 'mod_msocial'), $module->is_enabled() === false));
 
-$modtcountsettings = new admin_settingpage($section, get_string('settings', 'mod_tcount'), 'moodle/site:config', $module->is_enabled() === false);
-$ADMIN->add('modtcountfolder', $modtcountsettings);
+$modmsocialsettings = new admin_settingpage($section, get_string('settings', 'mod_msocial'), 'moodle/site:config',
+        $module->is_enabled() === false);
+$ADMIN->add('modmsocialfolder', $modmsocialsettings);
 
-$ADMIN->add('modtcountfolder', new admin_category('tcountviewplugins', new lang_string('socialviews', 'tcount'), !$module->is_enabled()));
-$ADMIN->add('modtcountfolder', new admin_category('tcountsocialplugins', new lang_string('socialconnectors', 'tcount'), !$module->is_enabled()));
+$ADMIN->add('modmsocialfolder',
+        new admin_category('msocialviewplugins', new lang_string('socialviews', 'msocial'), !$module->is_enabled()));
+$ADMIN->add('modmsocialfolder',
+        new admin_category('msocialconnectorplugins', new lang_string('socialconnectors', 'msocial'), !$module->is_enabled()));
 
-$modtcountsettings->add(new admin_setting_heading('tcountsocial_header', get_string('socialconnectors','tcount'),get_string('socialconnectors','tcount')));
+$modmsocialsettings->add(
+        new admin_setting_heading('msocialconnector_header', get_string('socialconnectors', 'msocial'),
+                get_string('socialconnectors', 'msocial')));
 
-foreach (core_plugin_manager::instance()->get_plugins_of_type('tcountsocial') as $plugin) {
-    /** @var \mod_tcount\plugininfo\tcountsocial $plugin */
-    $plugin->load_settings($ADMIN, 'tcountsocialplugins', $hassiteconfig); 
-    $modtcountsettings->add(new admin_setting_configcheckbox($plugin->get_settings_section_name().'/disabled', get_string('disable_social_subplugin','tcount',$plugin),get_string('disable_social_subplugin','tcount',$plugin), false));
+foreach (core_plugin_manager::instance()->get_plugins_of_type('msocialconnector') as $plugin) {
+    /** @var \mod_msocial\plugininfo\msocialconnector $plugin */
+    $plugin->load_settings($ADMIN, 'msocialconnectorplugins', $hassiteconfig);
+    $modmsocialsettings->add(
+            new admin_setting_configcheckbox($plugin->get_settings_section_name() . '/disabled',
+                    get_string('disable_social_subplugin', 'msocial', $plugin),
+                    get_string('disable_social_subplugin', 'msocial', $plugin), false));
 }
-$modtcountsettings->add(new admin_setting_heading('tcountview_header', get_string('socialviews','tcount'),get_string('socialviews','tcount')));
+$modmsocialsettings->add(
+        new admin_setting_heading('msocialview_header', get_string('socialviews', 'msocial'), get_string('socialviews', 'msocial')));
 
-foreach (core_plugin_manager::instance()->get_plugins_of_type('tcountview') as $plugin) {
-     /** @var \mod_tcount\plugininfo\tcountview $plugin */
-     $plugin->load_settings($ADMIN,  'tcountviewplugins', $hassiteconfig);
-     $modtcountsettings->add(new admin_setting_configcheckbox($plugin->get_settings_section_name().'/disabled', get_string('disable_view_subplugin','tcount',$plugin),get_string('disable_view_subplugin','tcount',$plugin), false));
+foreach (core_plugin_manager::instance()->get_plugins_of_type('msocialview') as $plugin) {
+    /** @var \mod_msocial\plugininfo\msocialview $plugin */
+    $plugin->load_settings($ADMIN, 'msocialviewplugins', $hassiteconfig);
+    $modmsocialsettings->add(
+            new admin_setting_configcheckbox($plugin->get_settings_section_name() . '/disabled',
+                    get_string('disable_view_subplugin', 'msocial', $plugin), get_string('disable_view_subplugin', 'msocial', $plugin),
+                    false));
 }
 
- $settings=null;
+$settings = null;
  // Tell core we already added the settings structure.
 
 

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -14,79 +13,57 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-namespace mod_tcount\view;
+namespace mod_msocial\view;
 
-use mod_tcount\social\social_interaction;
-use tcount\tcount_plugin;
-use mod_tcount\social\pki_info;
-use mod_tcount\social\pki;
-use mod_tcount\social\tcount_social_plugin;
+use mod_msocial\connector\social_interaction;
+use msocial\msocial_plugin;
+use mod_msocial\connector\pki_info;
+use mod_msocial\connector\pki;
+use mod_msocial\connector\msocial_connector_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once ($CFG->dirroot . '/mod/tcount/tcountviewplugin.php');
-require_once ($CFG->dirroot . '/mod/tcount/pki.php');
+require_once ($CFG->dirroot . '/mod/msocial/msocialviewplugin.php');
+require_once ($CFG->dirroot . '/mod/msocial/pki.php');
 
-
-/**
- * library class for view the network activity as a sequence diagram extending view plugin base
+/** library class for view the network activity as a sequence diagram extending view plugin base
  * class
  *
- * @package tcountview_graph
+ * @package msocialview_graph
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class tcount_view_graph extends tcount_view_plugin {
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
+class msocial_view_graph extends msocial_view_plugin {
 
-    /**
-     * Get the name of the plugin
+    /** Get the name of the plugin
      *
-     * @return string
-     */
+     * @return string */
     public function get_name() {
-        return get_string('pluginname', 'tcountview_graph');
+        return get_string('pluginname', 'msocialview_graph');
     }
 
-    /**
-     * Allows the plugin to update the defaultvalues passed in to
-     * the settings form (needed to set up draft areas for editor
-     * and filemanager elements)
-     *
-     * @param array $defaultvalues
-     */
-    public function data_preprocessing(&$defaultvalues) {
-        $defaultvalues['tcountview_graph_enabled'] = $this->get_config('enabled');
-        return;
-    }
 
-    /**
-     * Get the settings for the plugin
+    /** Get the settings for the plugin
      *
      * @param MoodleQuickForm $mform The form to add elements to
-     * @return void
-     */
+     * @return void */
     public function get_settings(\MoodleQuickForm $mform) {
     }
 
-    /**
-     * Save the settings for table plugin
+    /** Save the settings for table plugin
      *
      * @param \stdClass $data
-     * @return bool
-     */
+     * @return bool */
     public function save_settings(\stdClass $data) {
-        if (isset($data->tcountview_graph_enabled)) {
-            $this->set_config('enabled', $data->tcountview_graph_enabled);
+        if (isset($data->msocialview_graph_enabled)) {
+            $this->set_config('enabled', $data->msocialview_graph_enabled);
         }
         return true;
     }
 
-    /**
-     * The tcount has been deleted - cleanup subplugin
+    /** The msocial has been deleted - cleanup subplugin
      *
      * @global moodle_database $DB
-     * @return bool
-     */
+     * @return bool */
     public function delete_instance() {
         global $DB;
         $this->drop_pki_fields();
@@ -99,25 +76,23 @@ class tcount_view_graph extends tcount_view_plugin {
     }
 
     public function get_category() {
-        return tcount_plugin::CAT_VISUALIZATION;
+        return msocial_plugin::CAT_VISUALIZATION;
     }
 
     public function get_icon() {
-        return new \moodle_url('/mod/tcount/view/graph/pix/icon.svg');
+        return new \moodle_url('/mod/msocial/view/graph/pix/icon.svg');
     }
 
     /**
-     *
      * {@inheritdoc}
      *
-     * @see \mod_tcount\view\tcount_view_plugin::calculate_pkis()
-     */
+     * @see \mod_msocial\view\msocial_view_plugin::calculate_pkis() */
     public function calculate_pkis($users, $pkis = []) {
         require_once ('socialgraph.php');
         $pkiinfos = $this->get_pki_list();
         foreach ($users as $user) {
             if (!isset($pkis[$user->id])) {
-                $pkis[$user->id] = new pki($user->id, $this->tcount->id);
+                $pkis[$user->id] = new pki($user->id, $this->msocial->id);
                 // Reset to 0 to avoid nulls.
                 foreach ($pkiinfos as $pkiinfo) {
                     $pki = $pkis[$user->id];
@@ -126,22 +101,21 @@ class tcount_view_graph extends tcount_view_plugin {
             }
         }
         // get Interactions of all users, both known and anonymous.
-        $interactions = social_interaction::load_interactions($this->tcount->id, null, null, null, null);
+        $interactions = social_interaction::load_interactions($this->msocial->id, null, null, null, null);
         // Socialmatrix analyzer.
         $social = new \SocialMatrix();
         foreach ($interactions as $interaction) {
             $social->register_interaction($interaction->fromid ? $interaction->fromid : $interaction->nativefrom,
-                    $interaction->toid ? $interaction->toid : $interaction->nativeto,
-                    $interaction->type);
+                    $interaction->toid ? $interaction->toid : $interaction->nativeto, $interaction->type);
         }
-        $results = $social->calculateCentralities();
+        $results = $social->calculate_centralities();
         list($degreein, $degreeout) = $social->centralidad_grado(array_keys($pkis));
 
         foreach ($results as $userid => $result) {
             if (isset($pkis[$userid])) {
-                $pkis[$userid]->closeness = isset($result->cercania)?$result->cercania:0;
-                $pkis[$userid]->degree = isset($degreeout[$userid])?$degreeout[$userid]:0;
-                $pkis[$userid]->betweenness = isset($result->intermediacion)?$result->intermediacion:0;
+                $pkis[$userid]->closeness = isset($result->cercania) ? $result->cercania : 0;
+                $pkis[$userid]->degree = isset($degreeout[$userid]) ? $degreeout[$userid] : 0;
+                $pkis[$userid]->betweenness = isset($result->intermediacion) ? $result->intermediacion : 0;
             }
         }
         return $pkis;
@@ -159,19 +133,17 @@ class tcount_view_graph extends tcount_view_plugin {
     }
 
     /**
-     *
      * @global moodle_database $DB
-     * @return mixed $result->statuses $result->messages[]string $result->errors[]->message
-     */
+     * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
     public function harvest() {
         $result = (object) ['messages' => []];
-        $contextcourse = \context_course::instance($this->tcount->course);
+        $contextcourse = \context_course::instance($this->msocial->course);
         list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
-        $pkis= $this->calculate_pkis($users);
-        $this->store_pkis($pkis,true);
-        $this->set_config(tcount_social_plugin::LAST_HARVEST_TIME, time());
-        $tcount=$this->tcount;
-        $result->messages[] = "For module tcount: $tcount->name (id=$tcount->id) in course (id=$tcount->course) processing network topology.";
+        $pkis = $this->calculate_pkis($users);
+        $this->store_pkis($pkis, true);
+        $this->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
+        $msocial = $this->msocial;
+        $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) processing network topology.";
         return $result;
     }
 
@@ -179,28 +151,25 @@ class tcount_view_graph extends tcount_view_plugin {
     }
 
     /**
-     *
      * {@inheritdoc}
      *
-     * @see \tcount\tcount_plugin::view_header()
-     */
+     * @see \msocial\msocial_plugin::view_header() */
     public function view_header() {
         global $OUTPUT;
         if ($this->is_enabled()) {
-            $headline = $this->get_name() . ' refresca el calculo' . $OUTPUT->action_icon(
-                    new \moodle_url('/mod/tcount/social/harvest.php',
-                            ['id' => $this->get_cmid(), 'subtype' => $this->get_subtype()]), new \pix_icon('a/refresh', ''));
-            echo $OUTPUT->box($headline);
+
+            $headline = $this->get_name() . ' : ' . $OUTPUT->action_icon(
+                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->get_cmid(),
+                                    'subtype' => $this->get_subtype()]), new \pix_icon('a/refresh', ''));
+                    $this->notify($headline, self::NOTIFY_WARNING);
         }
     }
 
     /**
-     *
      * {@inheritdoc}
      *
      * @global \stdClass $USER
-     * @see tcount_view_plugin::render_view()
-     */
+     * @see msocial_view_plugin::render_view() */
     public function render_view($renderer, $reqs) {
         global $USER, $OUTPUT;
 
@@ -211,7 +180,7 @@ class tcount_view_graph extends tcount_view_plugin {
         foreach ($this->viewfiles() as $name => $path) {
             // $icondecoration =html_writer::img($icon->out_as_local_url(), $plugin->get_name().'
             // icon.',['height'=>32]);
-            $url = new \moodle_url('/mod/tcount/view.php',
+            $url = new \moodle_url('/mod/msocial/view.php',
                     ['id' => $this->cm->id, 'view' => $this->get_subtype(), 'subview' => $name]);
             $plugintab = new \tabobject($name, $url, $name);
             $rows[] = $plugintab;
@@ -224,10 +193,10 @@ class tcount_view_graph extends tcount_view_plugin {
 
     protected function viewfiles() {
         global $CFG;
-        $files = ['matrix' => $CFG->dirroot . '/mod/tcount/view/graph/matrix.php',
-                        'forcedgraph' => $CFG->dirroot . '/mod/tcount/view/graph/forcedgraph.php',
-                        'chord' => $CFG->dirroot . '/mod/tcount/view/graph/chord.php',
-                        'graphviz' => $CFG->dirroot . '/mod/tcount/view/graph/graphviz.php'];
+        $files = ['matrix' => $CFG->dirroot . '/mod/msocial/view/graph/matrix.php',
+                        'forcedgraph' => $CFG->dirroot . '/mod/msocial/view/graph/forcedgraph.php',
+                        'chord' => $CFG->dirroot . '/mod/msocial/view/graph/chord.php',
+                        'graphviz' => $CFG->dirroot . '/mod/msocial/view/graph/graphviz.php'];
 
         return $files;
     }

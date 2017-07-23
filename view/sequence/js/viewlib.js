@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http:// www.gnu.org/licenses/>.
 /**
  * @module sequence diagram
- * @package mod_tcount/view/sequence
+ * @package mod_msocial/view/sequence
  * @copyright 2017 Juan Pablo de Castro <jpdecastro@tel.uva.es>
  * @author Juan Pablo de Castro <jpdecastro@tel.uva.es>
  * @license http:// www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.

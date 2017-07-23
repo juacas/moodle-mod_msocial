@@ -34,21 +34,21 @@ require_course_login($course, true);
 $PAGE->set_pagelayout('incourse');
 
 // Get all required strings.
-$sttcounts = get_string('modulenameplural', 'mod_tcount');
-$strtcount = get_string('modulename', 'mod_tcount');
+$stmsocials = get_string('modulenameplural', 'mod_msocial');
+$strmsocial = get_string('modulename', 'mod_msocial');
 $strname = get_string('name');
 $strintro = get_string('moduleintro');
 $strlastmodified = get_string('lastmodified');
 
-$PAGE->set_url('/mod/tcount/index.php', array('id' => $course->id));
-$PAGE->set_title($course->shortname . ': ' . $sttcounts);
+$PAGE->set_url('/mod/msocial/index.php', array('id' => $course->id));
+$PAGE->set_title($course->shortname . ': ' . $stmsocials);
 $PAGE->set_heading($course->fullname);
-$PAGE->navbar->add($sttcounts);
+$PAGE->navbar->add($stmsocials);
 echo $OUTPUT->header();
 
 // Get all the appropriate data.
-if (!$tcounts = get_all_instances_in_course('tcount', $course)) {
-    notice(get_string('thereareno', 'moodle', $sttcounts), "$CFG->wwwroot/course/view.php?id=$course->id");
+if (!$msocials = get_all_instances_in_course('msocial', $course)) {
+    notice(get_string('thereareno', 'moodle', $stmsocials), "$CFG->wwwroot/course/view.php?id=$course->id");
     die;
 }
 
@@ -68,29 +68,29 @@ if ($usesections) {
 
 $modinfo = get_fast_modinfo($course);
 $currentsection = '';
-foreach ($tcounts as $tcount) {
-    $cm = $modinfo->get_cm($tcount->coursemodule);
+foreach ($msocials as $msocial) {
+    $cm = $modinfo->get_cm($msocial->coursemodule);
     if ($usesections) {
         $printsection = '';
-        if ($tcount->section !== $currentsection) {
-            if ($tcount->section) {
-                $printsection = get_section_name($course, $tcount->section);
+        if ($msocial->section !== $currentsection) {
+            if ($msocial->section) {
+                $printsection = get_section_name($course, $msocial->section);
             }
             if ($currentsection !== '') {
                 $table->data[] = 'hr';
             }
-            $currentsection = $tcount->section;
+            $currentsection = $msocial->section;
         }
     } else {
-        $printsection = html_writer::tag('span', userdate($tcount->timemodified), array('class' => 'smallinfo'));
+        $printsection = html_writer::tag('span', userdate($msocial->timemodified), array('class' => 'smallinfo'));
     }
 
-    $class = $tcount->visible ? null : array('class' => 'dimmed'); // Hidden modules are dimmed.
+    $class = $msocial->visible ? null : array('class' => 'dimmed'); // Hidden modules are dimmed.
 
     $table->data[] = array(
         $printsection,
-        html_writer::link(new moodle_url('view.php', array('id' => $cm->id)), format_string($tcount->name), $class),
-        format_module_intro('tcount', $tcount, $cm->id));
+        html_writer::link(new moodle_url('view.php', array('id' => $cm->id)), format_string($msocial->name), $class),
+        format_module_intro('msocial', $msocial, $cm->id));
 }
 
 echo html_writer::table($table);
