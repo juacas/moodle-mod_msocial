@@ -24,6 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017071302;
+$plugin->version   = 2017072801;
 $plugin->requires  = 2013051407;
 $plugin->component = 'msocialview_graph';

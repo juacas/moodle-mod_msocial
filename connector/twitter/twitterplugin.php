@@ -16,6 +16,7 @@
 namespace mod_msocial\connector;
 
 use msocial\msocial_plugin;
+use mod_msocial\pki_info;
 
 defined('MOODLE_INTERNAL') || die();
 require_once ('TwitterAPIExchange.php');
@@ -116,13 +117,13 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @global core_renderer $OUTPUT
      * @global moodle_database $DB
      * @param core_renderer $output */
-    public function view_header() {
+    public function render_header() {
         global $OUTPUT, $DB, $USER;
         if ($this->is_enabled()) {
             list($course, $cm) = get_course_and_cm_from_instance($this->msocial->id, 'msocial');
             $id = $cm->id;
             $icon = $this->get_icon();
-            $icondecoration = \html_writer::img($icon->out_as_local_url(), $this->get_name().' icon.',['height'=>16]) . ' ';
+            $icondecoration = \html_writer::img($icon->out_as_local_url(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
             $contextmodule = \context_module::instance($cm->id);
             if (has_capability('mod/msocial:manage', $contextmodule)) {
                 $token = $DB->get_record('msocial_twitter_tokens', array('msocial' => $this->msocial->id));
@@ -132,7 +133,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     $username = $token->username;
                     $errorstatus = $token->errorstatus;
                     if ($errorstatus) {
-                        $this->notify( get_string('problemwithtwitteraccount', 'msocial', $errorstatus),self::NOTIFY_WARNING);
+                        $this->notify(get_string('problemwithtwitteraccount', 'msocial', $errorstatus), self::NOTIFY_WARNING);
                     }
                     $this->notify(
                             get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
@@ -148,16 +149,15 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     $this->notify(
                             get_string('module_not_connected_twitter', 'msocialconnector_twitter') . $OUTPUT->action_link(
                                     new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
-                                            array('id' => $id, 'action' => 'connect')), "Connect"),self::NOTIFY_WARNING);
+                                            array('id' => $id, 'action' => 'connect')), "Connect"), self::NOTIFY_WARNING);
                 }
             }
             // Check hashtag search field.
             $hashtag = $this->get_config('hashtag');
             if (trim($hashtag) == "") {
-                $this->notify( get_string('hashtag_missing', 'msocialconnector_twitter'),self::NOTIFY_WARNING);
+                $this->notify(get_string('hashtag_missing', 'msocialconnector_twitter'), self::NOTIFY_WARNING);
             } else {
-                $this->notify( get_string('hashtag_reminder', 'msocialconnector_twitter',$hashtag));
-
+                $this->notify(get_string('hashtag_reminder', 'msocialconnector_twitter', $hashtag));
             }
             // Check user's social credentials.
             $twitterusername = $this->get_social_userid($USER);
@@ -166,7 +166,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                         array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
                 $twitteradvice = get_string('no_twitter_name_advice2', 'msocialconnector_twitter',
                         ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false)]);
-                $this->notify( $twitteradvice, self::NOTIFY_WARNING);
+                $this->notify($twitteradvice, self::NOTIFY_WARNING);
             }
         }
     }
@@ -177,7 +177,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @global object $COURSE
      * @param object $user user record
      * @return string message with the linking info of the user */
-    public function view_user_linking($user) {
+    public function render_user_linking($user) {
         global $USER, $COURSE;
         $course = $COURSE;
         $usermessage = '';
@@ -239,6 +239,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
     /** Statistics for grading
      * @deprecated
+     *
      * @param array[]integer $users array with the userids to be calculated, null not filter by
      *        users.
      * @return array[string]object object->userstats with PKIs for each user object->maximums max
@@ -431,14 +432,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         $interactions = [];
         $icon = $this->get_icon();
         foreach ($statuses as $status) {
-
-            // $statusrecord->msocial = $this->msocial->id;
-            // $statusrecord->status = $status;
-            // $statusrecord->userid = $userrecord != null ? $userrecord->id : null;
-            // $statusrecord->retweets = $status->retweet_count;
-            // $statusrecord->favs = $status->favorite_count;
-            // $statusrecord->hashtag = $this->get_config(self::CONFIG_HASHTAG);
-
             $interaction = new social_interaction();
             $interaction->uid = $status->id;
             $interaction->rawdata = json_encode($status);
@@ -460,8 +453,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $interaction->type = social_interaction::REPLY;
             }
             $interactions[] = $interaction;
-
-            // Process mentions
+            // Process mentions...
             foreach ($status->entities->user_mentions as $mention) {
                 $mentioninteraction = new social_interaction();
                 $mentioninteraction->rawdata = json_encode($mention);

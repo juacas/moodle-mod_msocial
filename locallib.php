@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with MSocial for Moodle. If not, see <http://www.gnu.org/licenses/>.
 use mod_msocial\plugininfo\msocialview;
+use mod_msocial\plugininfo\msocialbase;
+use msocial\msocial_plugin;
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
 require_once ($CFG->libdir . '/gradelib.php');
@@ -77,11 +79,10 @@ class OAuthCurl {
     }
 
     public static function fetch_data($url) {
-        $options = array(
-            CURLOPT_RETURNTRANSFER => true, // ...return web page.
-            CURLOPT_HEADER => false, // ...don't return headers.
-            CURLOPT_FOLLOWLOCATION => true, // ...follow redirects.
-            CURLOPT_SSL_VERIFYPEER => false);
+        $options = array(CURLOPT_RETURNTRANSFER => true, // ...return web page.
+CURLOPT_HEADER => false, // ...don't return headers.
+CURLOPT_FOLLOWLOCATION => true, // ...follow redirects.
+CURLOPT_SSL_VERIFYPEER => false);
 
         $ch = curl_init($url);
         curl_setopt_array($ch, $options);
@@ -114,35 +115,45 @@ function msocial_user_inactive($userid, $stat) {
 /** Apply a formula to calculate a raw grade.
  *
  * @param type $msocial module instance
- * @param type $stats aggregated statistics of the tweets
  * @see msocial_calculate_stats
  * @return \stdClass grade struct with grade->rawgrade = -1 if no calculation is possible */
-function msocial_calculate_grades($msocial, $stats) {
+function msocial_calculate_grades($msocial) {
+    require_once ('pki.php');
     $grades = array();
-    foreach ($stats->users as $userid => $stat) {
+    $pkis = msocial_plugin::get_pkis($msocial);
+    /** @var \mod_msocial\pki $pki */
+    foreach ($pkis as $userid => $pki) {
         $grade = new stdClass();
         $grade->userid = $userid;
-        $grade->itemname = 'twitterscore';
+        $grade->itemname = 'msocial';
 
         $formula = $msocial->grade_expr;
         $formula = calc_formula::unlocalize($formula);
         $calculation = new calc_formula($formula);
-        $calculation->set_params(
-                array('favs' => $stat->favs, 'retweets' => $stat->retweets, 'tweets' => $stat->tweets,
-                                'maxfavs' => $stats->maximums->favs, 'maxtweets' => $stats->maximums->tweets,
-                                'maxretweets' => $stats->maximums->retweets));
-        $value = $stat->tweets == 0 ? false : $calculation->evaluate();
+        // Extract fields as variables.
+        $vars = $pki->as_array();
+        $calculation->set_params($vars);
+        $value = $calculation->evaluate();
         if ($value !== false) {
             $grade->rawgrade = $value;
+            $descr = [];
+            foreach ($vars as $varname => $varvalue) {
+                $descr[] = $varname . '=' . number_format($varvalue);
+            }
+            $grade->feedback = "You have " . join(', ', $descr);
         } else {
             $grade->rawgrade = -1;
+            $grade->feedback = "Error: " . $calculation->get_error() . ". Contact your teacher.";
         }
-        $grade->feedback = "You have $stat->favs Favs $stat->retweets retweets and $stat->tweets tweets.";
         $grades[$userid] = $grade;
     }
     return $grades;
 }
 
+/** Calculates grades for one or a set of users.
+ * @param stdClass $msocial instance of the plugin.
+ * @param int\array(int) $userid Userid or an array of user ids.
+ * @return stdClass */
 function msocial_calculate_user_grades($msocial, $userid = 0) {
     $cm = get_coursemodule_from_instance('msocial', $msocial->id, 0, false, MUST_EXIST);
     if ($userid == 0) {
@@ -154,8 +165,7 @@ function msocial_calculate_user_grades($msocial, $userid = 0) {
         $students = array($userid);
     }
 
-    $stats = msocial_calculate_stats($msocial, $students);
-    $grades = msocial_calculate_grades($msocial, $stats);
+    $grades = msocial_calculate_grades($msocial);
     return $grades;
 }
 

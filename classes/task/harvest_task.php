@@ -16,7 +16,7 @@
 /**
  * For debugging:
  * SET XDEBUG_CONFIG=netbeans-xdebug=xdebug
- * php.exe admin\tool\task\cli\schedule_task.php --execute=\mod_msocial\task\harvest_tweets
+ * php.exe admin\tool\task\cli\schedule_task.php --execute=\mod_msocial\task\harvest_task
  */
 namespace mod_msocial\task;
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');

@@ -83,7 +83,7 @@ $enabledsocialplugins = \mod_msocial\plugininfo\msocialconnector::get_enabled_co
 $enabledplugins = array_merge($enabledviewplugins, $enabledsocialplugins);
 /** @var msocial_plugin $enabledplugin */
 foreach ($enabledplugins as $name => $enabledplugin) {
-    echo $enabledplugin->view_header();
+    echo $enabledplugin->render_header();
 }
 
 // Description text.

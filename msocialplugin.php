@@ -20,13 +20,14 @@
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 namespace msocial;
+
 defined('MOODLE_INTERNAL') || die();
 require_once ('classes/plugininfo/msocialbase.php');
 require_once ($CFG->dirroot . '/mod/msocial/pki.php');
 require_once ($CFG->dirroot . '/mod/msocial/socialinteraction.php');
 
-use mod_msocial\connector\pki;
-use mod_msocial\connector\pki_info;
+use mod_msocial\pki;
+use mod_msocial\pki_info;
 use mod_msocial\plugininfo\msocialbase;
 
 defined('MOODLE_INTERNAL') || die();
@@ -187,7 +188,6 @@ abstract class msocial_plugin {
     public function get_msocialid() {
         return $this->msocial->id;
     }
-
 
     /** Add pki fields to the database in table msocial_pkis. */
     public function create_pki_fields() {
@@ -355,27 +355,34 @@ abstract class msocial_plugin {
         $DB->commit_delegated_transaction($transaction);
     }
 
-    /** TODO: impelement historical pkis.
-     * Load all PKIs from the cached table
+    /** Load all PKIs from the table.
+     * TODO: impleement historical pkis.
+     * TODO: see if a cache of pkis is needed.
+     * @param \stdClass $msocial instance of a module.
      * @param array(int) $users
      * @param int $timestamp
      * @return array of pkis indexed by userid. All users are represented. Empty pki will be created
      *         to fill the gaps. */
-    public function get_pkis($users = null, $timestamp = null) {
+    public static function get_pkis($msocial, $users = null, $timestamp = null) {
         global $DB;
         // Initialize response.
         $pkiindexed = [];
-        foreach ($users as $userid) {
-            $pkiindexed[$userid] = new pki($userid, $this->msocial->id);
+        if ($users) { // Fill the absent users.
+            foreach ($users as $userid) {
+                $pkiindexed[$userid] = new pki($userid, $msocial->id);
+            }
         }
-        $users = null; // TODO for debug.
         if ($users == null) { // All records.
-            $pkis = $DB->get_records('msocial_pkis', ['msocial' => $this->msocial->id, 'historical' => 0]);
+            $pkirecords = $DB->get_records('msocial_pkis', ['msocial' => $msocial->id, 'historical' => 0]);
         } else {
-            $pkis = []; // TODO: query only selected users.
+            list($insql, $params) = $DB->get_in_or_equal($users);
+            $selectquery = 'msocial = ? and historical = 0 and user ' . $insql;
+            $params = array_merge([$msocial->id], $params);
+            $pkirecords = $DB->get_records_select('msocial_pkis', $selectquery, $params);
         }
         // Store the real Pkis.
-        foreach ($pkis as $pki) {
+        foreach ($pkirecords as $pkirecord) {
+            $pki = pki::from_record($pkirecord);
             $pkiindexed[$pki->user] = $pki;
         }
         return $pkiindexed;
@@ -524,8 +531,7 @@ abstract class msocial_plugin {
     public static function cron() {
     }
 
-    /**
-     * Executes the harvest procedures of one or all plugins in this msocial instance.
+    /** Executes the harvest procedures of one or all plugins in this msocial instance.
      * First connector plugins, then view plugins.
      * @param \stdClass $msocial module instance
      * @param string $subtype name of the only subplugin to harvest */
@@ -570,7 +576,7 @@ abstract class msocial_plugin {
      * right below the activity's "intro" section on the main msocial page.
      *
      * @return string */
-    public function view_header() {
+    public function render_header() {
         return '';
     }
 
@@ -587,7 +593,7 @@ abstract class msocial_plugin {
 
     /** If this plugin should not include a column in the grading table or a row on the summary page
      * then return false
-     *
+     * TODO: Implement user_summary
      * @return bool */
     public function has_user_summary() {
         return true;

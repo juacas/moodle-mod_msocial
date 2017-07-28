@@ -17,7 +17,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $tasks = array(
     array(
-        'classname' => 'mod_msocial\task\harvest_tweets',
+        'classname' => 'mod_msocial\task\harvest_task',
         'blocking' => 0,
         'minute' => '*/10',
         'hour' => '*',

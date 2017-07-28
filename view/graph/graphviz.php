@@ -23,14 +23,16 @@ foreach ($interactions as $interaction) {
         $to = fullname($users[$interaction->toid]);
     }
     $type = $interaction->type;
-
-    $socialgraph->register_interaction($from, $to, $type, ['graphviz.label' => $type]);
+    $socialgraph->register_interaction( $interaction,
+                                        ['graphviz.label' => $type],
+                                        ['graphviz.label' => $from],
+                                        ['graphviz.label' => $to]);
 }
 $dot = new Dot();
-$dotsource = $dot->getOutput($socialgraph->get_graph());
-// Inject formatting.
-$formatdot = "	rankdir=LR;";
-$dotsource = str_replace('digraph G {', "digraph G {\n$formatdot\n", $dotsource);
+$graph = $socialgraph->get_graph();
+$graph->getAttributeBag()->setAttribute('graphviz.graph.rankdir', 'LR');
+$dotsource = $dot->getOutput($graph);
+
 $reqs->js('/mod/msocial/view/graph/js/configuregraphvizrequire.js', false);
 $reqs->js_call_amd('msocialview/graphviz', 'initview', ['#graph', '#dot_src']);
 /* @var $OUTPUT \core_renderer */

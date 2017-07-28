@@ -17,8 +17,8 @@ namespace mod_msocial\view;
 
 use mod_msocial\connector\social_interaction;
 use msocial\msocial_plugin;
-use mod_msocial\connector\pki_info;
-use mod_msocial\connector\pki;
+use mod_msocial\pki_info;
+use mod_msocial\pki;
 use mod_msocial\connector\msocial_connector_plugin;
 
 defined('MOODLE_INTERNAL') || die();
@@ -105,16 +105,16 @@ class msocial_view_graph extends msocial_view_plugin {
         // Socialmatrix analyzer.
         $social = new \SocialMatrix();
         foreach ($interactions as $interaction) {
-            $social->register_interaction($interaction->fromid ? $interaction->fromid : $interaction->nativefrom,
-                    $interaction->toid ? $interaction->toid : $interaction->nativeto, $interaction->type);
+            $social->register_interaction($interaction);
         }
         $results = $social->calculate_centralities();
-        list($degreein, $degreeout) = $social->centralidad_grado(array_keys($pkis));
+        list($degreein, $degreeout) = $social->degree_centrality(array_keys($pkis));
 
         foreach ($results as $userid => $result) {
             if (isset($pkis[$userid])) {
                 $pkis[$userid]->closeness = isset($result->cercania) ? $result->cercania : 0;
-                $pkis[$userid]->degree = isset($degreeout[$userid]) ? $degreeout[$userid] : 0;
+                $pkis[$userid]->degreeout = isset($degreeout[$userid]) ? $degreeout[$userid] : 0;
+                $pkis[$userid]->degreein = isset($degreein[$userid]) ? $degreein[$userid] : 0;
                 $pkis[$userid]->betweenness = isset($result->intermediacion) ? $result->intermediacion : 0;
             }
         }
@@ -123,11 +123,13 @@ class msocial_view_graph extends msocial_view_plugin {
 
     public function get_pki_list() {
         $pkiobjs['closeness'] = new pki_info('closeness', 'Centralidad de cercanía.', pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['degree'] = new pki_info('degree', 'Centralidad de grado.', pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
+        $pkiobjs['degreein'] = new pki_info('degreein', 'Centralidad de grado de entrada (interacciones recibidas).', pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
+        $pkiobjs['degreeout'] = new pki_info('degreeout', 'Centralidad de grado de salida (interacciones emitidas).', pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
         $pkiobjs['betweenness'] = new pki_info('betweenness', 'Centralidad de intermediación.', pki_info::PKI_INDIVIDUAL,
                 pki_info::PKI_CUSTOM);
         $pkiobjs['max_closeness'] = new pki_info('max_closeness', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_degree'] = new pki_info('max_degree', null, pki_info::PKI_AGREGATED);
+        $pkiobjs['max_degreein'] = new pki_info('max_degreein', null, pki_info::PKI_AGREGATED);
+        $pkiobjs['max_degreeout'] = new pki_info('max_degreeout', null, pki_info::PKI_AGREGATED);
         $pkiobjs['max_betweenness'] = new pki_info('max_betweenness', null, pki_info::PKI_AGREGATED);
         return $pkiobjs;
     }
@@ -154,14 +156,14 @@ class msocial_view_graph extends msocial_view_plugin {
      * {@inheritdoc}
      *
      * @see \msocial\msocial_plugin::view_header() */
-    public function view_header() {
+    public function render_header() {
         global $OUTPUT;
         if ($this->is_enabled()) {
 
             $headline = $this->get_name() . ' : ' . $OUTPUT->action_icon(
                     new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->get_cmid(),
                                     'subtype' => $this->get_subtype()]), new \pix_icon('a/refresh', ''));
-                    $this->notify($headline, self::NOTIFY_WARNING);
+                    $this->notify($headline);
         }
     }
 

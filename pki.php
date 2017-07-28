@@ -19,9 +19,10 @@
  * @package msocialconnector
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
-namespace mod_msocial\connector;
+namespace mod_msocial;
 
 use msocial\msocial_plugin;
+use core_calendar\local\event\proxies\std_proxy;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,6 +34,7 @@ class pki {
     public $msocial;
     public $historical = false;
     public $timestamp;
+    protected static $_base_fields = ['id', 'name', 'timestamp', 'historical','msocial','user'];
 
     public function __construct($userid, $msocialid) {
         $this->user = $userid;
@@ -62,13 +64,39 @@ class pki {
      * @return true if the pki fields are 0. fields 'id', 'name', 'msocial', 'timestamp',
      *         'historical' and starting with max_ are ignored. */
     public function seems_inactive() {
-        $ignore = ['id', 'name', 'timestamp', 'historical'];
         foreach ($this as $prop => $value) {
-            if ($value !== 0 && !array_search($prop, $ignore) && strpos($prop, 'max_') !== 0) {
+            if ($value !== 0 && array_search($prop, self::$_base_fields) !== false && strpos($prop, 'max_') !== 0) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * Return only pki-related fields
+     * @return string[] property-values array */
+    public function as_array() {
+        $result = [];
+        foreach ($this as $prop => $value) {
+            if (array_search($prop, self::$_base_fields) === false) {
+                $result[$prop] = $value;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Load pki-fields from the database record.
+     * @param \stdClass $record database record with pki data.
+     * @return \mod_msocial\pki */
+    public static function from_record($record) {
+        $pki = new pki($record->user, $record->msocial);
+        foreach ($record as $prop => $value) {
+            if (array_search($prop, self::$_base_fields) === false) {
+                $pki->{$prop} = $value;
+            }
+        }
+        return $pki;
     }
 }
 

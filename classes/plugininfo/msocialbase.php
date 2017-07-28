@@ -68,7 +68,7 @@ class msocialbase extends base {
      * @param \stdClass $msocial record of the instance for innitiallizing plugins
      * @return array(msocial_plugin)|null of enabled plugins $pluginname=>$plugin, null means
      *         unknown */
-    public static function get_enabled_plugins_all_types($msocial) {
+    public static function get_enabled_plugins_all_types($msocial=null) {
         $connectors = self::get_enabled_plugins($msocial, 'connector');
         $views = self::get_enabled_plugins($msocial, 'view');
         return array_merge($connectors, $views);

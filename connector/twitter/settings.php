@@ -20,7 +20,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 defined('MOODLE_INTERNAL') || die();
 $settings->add(new admin_setting_heading('mod_msocial_tweeter_header', 'Tweeter API', 'Keys for Tweeter API Access.'));
-$settings->addHelpButton('msocialconnector_twitter/consumer_key', 'widget_id', 'msocial');
+// $settings->addHelpButton('msocialconnector_twitter/consumer_key', 'widget_id', 'msocial');
 // TODO: Add explaination text about Twitter app id, need, and implications.
 $settings->add(
         new admin_setting_configtext('msocialconnector_twitter/consumer_key', get_string('msocial_consumer_key', 'msocialconnector_twitter'),

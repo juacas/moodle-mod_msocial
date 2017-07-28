@@ -157,7 +157,7 @@ class social_interaction {
 
     public $shortdescription;
 
-    public $weight;
+    public $score;
 
     /**
      * native JSON representation of the item

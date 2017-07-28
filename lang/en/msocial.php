@@ -15,7 +15,7 @@
 // along with MSocial for Moodle. If not, see <http://www.gnu.org/licenses/>.
 $string['socialconnectors'] = 'Social connectors.';
 $string['socialviews'] = 'Social visualizations.';
-$string['settings'] = 'Config TCount';
+$string['settings'] = 'MSocial settings';
 $string['disable_social_subplugin'] = 'Disable {$a->name} connector.';
 $string['disable_view_subplugin'] = 'Disable {$a->name} view plugin.';
 $string['modulename'] = 'Social activity count contest';

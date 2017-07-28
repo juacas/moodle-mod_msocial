@@ -15,7 +15,7 @@
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 namespace mod_msocial\connector;
 
-use mod_msocial\connector\pki_info;
+use mod_msocial\pki_info;
 use moodleforum\GraphNodes\GraphEdge;
 use moodleforum\moodleforum as moodleforum;
 use msocial\msocial_plugin;
@@ -86,7 +86,7 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
     /**
      * @global \core_renderer $OUTPUT
      * @global \moodle_database $DB */
-    public function view_header() {
+    public function render_header() {
         global $OUTPUT, $USER;
         if ($this->is_enabled()) {
             $icon = $this->get_icon();
@@ -109,7 +109,7 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
      * @global object $COURSE
      * @param object $user user record
      * @return string message with the linking info of the user */
-    public function view_user_linking($user) {
+    public function render_user_linking($user) {
         return '';
     }
 

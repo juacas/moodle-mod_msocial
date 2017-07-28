@@ -61,7 +61,8 @@ $PAGE->set_heading($course->fullname);
 // Print the page header.
 echo $OUTPUT->header();
 
-msocial_plugin::execute_harvests($msocial,$subtype);
+msocial_plugin::execute_harvests($msocial, $subtype);
+msocial_update_grades($msocial);
 
 echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));
 echo $OUTPUT->footer();

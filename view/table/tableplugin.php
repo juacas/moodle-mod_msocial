@@ -17,7 +17,7 @@ namespace mod_msocial\view;
 
 use mod_msocial\plugininfo\msocialconnector;
 use msocial\msocial_plugin;
-use mod_msocial\connector\pki_info;
+use mod_msocial\pki_info;
 use mod_msocial\plugininfo\msocialbase;
 
 defined('MOODLE_INTERNAL') || die();
@@ -126,7 +126,7 @@ class msocial_view_table extends msocial_view_plugin {
         $enabledsocialplugins = msocialconnector::get_enabled_connector_plugins($this->msocial);
         $enabledplugins = msocialbase::get_enabled_plugins_all_types($this->msocial);
 
-        $pkis = $this->get_pkis($students, null);
+        $pkis = msocial_plugin::get_pkis($this->msocial, $students, null);
         $pkiinfosall = [];
         foreach ($enabledplugins as $type => $plugin) {
             // Get PKIs.
@@ -180,7 +180,7 @@ class msocial_view_table extends msocial_view_plugin {
             $usersociallink = '';
             foreach ($enabledsocialplugins as $type => $plugin) {
                 if ($plugin->is_tracking()) {
-                    $usersociallink .= '<p fontsize="8" >' . $plugin->view_user_linking($user) . '</p>';
+                    $usersociallink .= '<p fontsize="8" >' . $plugin->render_user_linking($user) . '</p>';
                 }
             }
 

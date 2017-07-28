@@ -1,4 +1,6 @@
 <?php
+use msocial\msocial_plugin;
+
 // This file is part of MSocial activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
@@ -20,21 +22,17 @@
  * students of telecommunication engineering of Valladolid
  * Copyright 2009-2011 EdUVaLab http://www.eduvalab.uva.es
  * this module is provides as-is without any guarantee. Use it as your own risk.
- *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  * @author Juan Pablo de Castro and other contributors.
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package msocial
@@ -46,7 +44,6 @@ require_once ($CFG->dirroot . '/course/moodleform_mod.php');
 require_once ('locallib.php');
 require_once ('msocialconnectorplugin.php');
 require_once ($CFG->libdir . '/mathslib.php');
-
 
 class mod_msocial_mod_form extends moodleform_mod {
 
@@ -72,9 +69,10 @@ class mod_msocial_mod_form extends moodleform_mod {
 
         $this->add_all_plugin_settings($mform);
 
-//         $mform->addElement('text', 'widget_id', get_string("widget_id", "msocial"), array('size' => '20'));
-//         $mform->setType('widget_id', PARAM_TEXT);
-//         $mform->addHelpButton('widget_id', 'widget_id', 'msocial');
+        // $mform->addElement('text', 'widget_id', get_string("widget_id", "msocial"), array('size'
+        // => '20'));
+        // $mform->setType('widget_id', PARAM_TEXT);
+        // $mform->addHelpButton('widget_id', 'widget_id', 'msocial');
 
         $mform->addElement('header', 'availability', get_string('availability', 'assign'));
         $mform->setExpanded('availability', true);
@@ -91,9 +89,7 @@ class mod_msocial_mod_form extends moodleform_mod {
         $calculation = get_string('grade_expr', 'msocial');
         $varliststr = '';
         /** @var msocial_plugin $plugin */
-        $enabledsocialplugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins();
-        $enabledviewplugins = mod_msocial\plugininfo\msocialview::get_enabled_view_plugins();
-        $enabledplugins = array_merge($enabledsocialplugins, $enabledviewplugins);
+        $enabledplugins = mod_msocial\plugininfo\msocialbase::get_enabled_plugins_all_types();
         foreach ($enabledplugins as $type => $plugin) {
             $vars = $plugin->get_pki_list();
             if (count($vars) > 0) {
@@ -114,20 +110,25 @@ class mod_msocial_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
-    /**
-     * Perform minimal validation on the settings form
+    /** Perform minimal validation on the settings form
      *
      * @param array $data
-     * @param array $files
-     */
+     * @param array $files */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
 
         $formula = $data['grade_expr'];
         $formula = calc_formula::unlocalize($formula);
         $calculation = new calc_formula($formula);
-        $calculation->set_params(
-                array('favs' => 1, 'retweets' => 1, 'tweets' => 1, 'maxfavs' => 1, 'maxretweets' => 1, 'maxtweets' => 1));
+        $enabledplugins = mod_msocial\plugininfo\msocialbase::get_enabled_plugins_all_types($data);
+        $vars = [];
+        foreach ($enabledplugins as $plugin) {
+            /** @var \mod_msocial\pki_info $pki */
+            foreach ($plugin->get_pki_list() as $pkiinfo) {
+                $vars[$pkiinfo->name] = 1;
+            }
+        }
+        $calculation->set_params($vars);
         if ($calculation->evaluate() === false) {
             $errors['grade_expr'] = $calculation->get_error();
         }
@@ -140,13 +141,11 @@ class mod_msocial_mod_form extends moodleform_mod {
         return $errors;
     }
 
-    /**
-     * Add settings to edit plugin form.
+    /** Add settings to edit plugin form.
      *
      * @param MoodleQuickForm $mform The form to add the configuration settings to.
      *        This form is modified directly (not returned).
-     * @return void
-     */
+     * @return void */
     public function add_all_plugin_settings(MoodleQuickForm $mform) {
         $mform->addElement('header', 'socialtypes', get_string('socialconnectors', 'msocial'));
 
@@ -162,14 +161,12 @@ class mod_msocial_mod_form extends moodleform_mod {
         $mform->setExpanded('viewtypes');
     }
 
-    /**
-     * Add one plugins settings to edit plugin form.
+    /** Add one plugins settings to edit plugin form.
      *
      * @param msocial_plugin $plugin The plugin to add the settings from
      * @param MoodleQuickForm $mform The form to add the configuration settings to.
      *        This form is modified directly (not returned).
-     * @return void
-     */
+     * @return void */
     public function add_plugin_settings($plugin, MoodleQuickForm $mform) {
         global $PAGE;
         $enabledfieldname = $plugin->get_type() . '_' . $plugin->get_subtype() . '_enabled';
@@ -191,14 +188,12 @@ class mod_msocial_mod_form extends moodleform_mod {
         $mform->setDefault($enabledfieldname, true);
     }
 
-    /**
-     * Allow each plugin an opportunity to update the defaultvalues
+    /** Allow each plugin an opportunity to update the defaultvalues
      * passed in to the settings form (needed to set up draft areas for
      * editor and filemanager elements)
      * TODO: Check usage.
      *
-     * @param array $defaultvalues
-     */
+     * @param array $defaultvalues */
     public function plugin_data_preprocessing(&$defaultvalues) {
         foreach (mod_msocial\plugininfo\msocialbase::get_enabled_plugins_all_types($defaultvalues) as $pluginname => $plugin) {
             if ($plugin->is_visible()) {
@@ -207,23 +202,19 @@ class mod_msocial_mod_form extends moodleform_mod {
         }
     }
 
-    /**
-     * Any data processing needed before the form is displayed
+    /** Any data processing needed before the form is displayed
      * (needed to set up draft areas for editor and filemanager elements)
      *
-     * @param array $defaultvalues
-     */
+     * @param array $defaultvalues */
     public function data_preprocessing(&$defaultvalues) {
         $this->plugin_data_preprocessing($defaultvalues);
     }
 
-    /**
-     * Load the plugins from the sub folders under subtype.
+    /** Load the plugins from the sub folders under subtype.
      * TODO check use
      *
      * @param string $subtype - either submission or feedback
-     * @return array - The sorted list of plugins
-     */
+     * @return array - The sorted list of plugins */
     public function load_plugins($subtype) {
         global $CFG;
         $result = array();

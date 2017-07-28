@@ -64,7 +64,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      *
      * @param object $user user record
      * @return string message with the linking info of the user */
-    public abstract function view_user_linking($user);
+    public abstract function render_user_linking($user);
 
     /** Gets an href fragment that links to the user's page in the social network.
      * @param \stdClass $user user record */

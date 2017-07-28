@@ -18,7 +18,7 @@ namespace mod_msocial\connector;
 use Facebook\Facebook as Facebook;
 use Facebook\GraphNodes\GraphEdge;
 use Facebook\GraphNodes\GraphNode;
-use mod_msocial\connector\pki_info;
+use mod_msocial\pki_info;
 use msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die();
@@ -116,7 +116,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /**
      * @global \core_renderer $OUTPUT
      * @global \moodle_database $DB */
-    public function view_header() {
+    public function render_header() {
         global $OUTPUT, $DB, $USER;
         if ($this->is_enabled()) {
             $context = \context_module::instance($this->cm->id);
@@ -189,7 +189,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * @global object $COURSE
      * @param object $user user record
      * @return string message with the linking info of the user */
-    public function view_user_linking($user) {
+    public function render_user_linking($user) {
         global $USER, $COURSE;
         $course = $COURSE;
         $usermessage = '';

@@ -15,6 +15,8 @@
 // along with MSocial for Moodle. If not, see <http://www.gnu.org/licenses/>.
 defined('MOODLE_INTERNAL') || die();
 
+// TODO: check duplication of admin menu.
+
 $ADMIN->add('modsettings',
         new admin_category('modmsocialfolder', new lang_string('pluginname', 'mod_msocial'), $module->is_enabled() === false));
 
