@@ -15,25 +15,25 @@
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Post-install code for the tcountview_graph module.
+ * Post-install code for the msocialview_graph module.
  *
- * @package tcountview_graph
+ * @package msocialview_graph
  * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Code run after the tcountview_graph module database tables have been created.
+ * Code run after the msocialview_graph module database tables have been created.
  * Migrate from old tables
  * @global moodle_database $DB
  * @return bool
  */
-function xmldb_tcountview_graph_install() {
+function xmldb_msocialview_graph_install() {
     global $CFG;
 
-    require_once ($CFG->dirroot . '/mod/tcount/view/graph/graphplugin.php');
-    $plugininfo = new mod_tcount\social\tcount_view_graph(null);
-    $plugininfo->create_pki_fields();
+    require_once ($CFG->dirroot . '/mod/msocial/view/graph/graphplugin.php');
+    $plugin = new mod_msocial\view\msocial_view_graph(null);
+    $plugin->create_pki_fields();
     return true;
 }

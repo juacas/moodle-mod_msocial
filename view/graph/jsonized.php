@@ -1,7 +1,5 @@
 <?php
-use mod_tcount\social\social_interaction;
-
-// This file is part of TwitterCount activity for Moodle http://moodle.org/
+// This file is part of MSocial activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,22 +12,23 @@ use mod_tcount\social\social_interaction;
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with TwitterCount for Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with MSocial for Moodle. If not, see <http://www.gnu.org/licenses/>.
+use mod_msocial\connector\social_interaction;
 require_once ('../../../../config.php');
 require_once ('../../locallib.php');
-require_once ('../../tcountsocialplugin.php');
-require_once ('../../social/socialinteraction.php');
+require_once ('../../msocialconnectorplugin.php');
+require_once ('../../socialinteraction.php');
 
 header('Content-Type: application/json; charset=utf-8');
 $id = required_param('id', PARAM_INT);
 $fromdate = optional_param('from', null, PARAM_ALPHANUMEXT);
 $todate = optional_param('from', null, PARAM_ALPHANUMEXT);
 $subtype = optional_param('subtype', null, PARAM_ALPHA);
-$cm = get_coursemodule_from_id('tcount', $id, null, null, MUST_EXIST);
-$tcount = $DB->get_record('tcount', array('id' => $cm->instance), '*', MUST_EXIST);
+$cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);
+$msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
 require_login($cm->course, false, $cm);
-$plugins = mod_tcount\plugininfo\tcountsocial::get_enabled_social_plugins($tcount);
-$contextcourse = context_course::instance($tcount->course);
+$plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
+$contextcourse = context_course::instance($msocial->course);
 if ($subtype) {
     $subtypefilter = "source ='$subtype'";
 } else {
@@ -37,40 +36,39 @@ if ($subtype) {
 }
 list($students, $nonstudents, $activeusers, $userrecords) = eduvalab_get_users_by_type($contextcourse);
 // Process interactions.
-$interactions = social_interaction::load_interactions((int) $tcount->id, $subtypefilter, $fromdate, $todate);
+$interactions = social_interaction::load_interactions((int) $msocial->id, $subtypefilter, $fromdate, $todate);
 $nodes = [];
 $nodemap = [];
 $edges = [];
-$index=0;
+$index = 0;
 foreach ($interactions as $interaction) {
     if ($interaction->nativeto !== null && $interaction->nativefrom !== null) {
         $subtype = $interaction->source;
         $plugin = $plugins[$subtype];
-        if ($plugin->is_enabled()==false){
+        if ($plugin->is_enabled() == false) {
             continue;
         }
-        $nodenamefrom = get_fullname($interaction->fromid,$userrecords, "[$interaction->nativefromname]");
-        //         $userlinkfrom = isset($userrecords[$interaction->fromid])?$plugin->view_user_linking($userrecords[$interaction->fromid]):null;
-                $userlinkfrom = isset($userrecords[$interaction->fromid])?$plugin->get_user_url($userrecords[$interaction->fromid]):null;
+        $nodenamefrom = get_fullname($interaction->fromid, $userrecords, "[$interaction->nativefromname]");
+        $userlinkfrom = isset($userrecords[$interaction->fromid]) ? $plugin->get_user_url($userrecords[$interaction->fromid]) : null;
 
         if ($nodenamefrom == null) {
             continue;
         }
         if (!array_key_exists($nodenamefrom, $nodemap)) {
-            $node = (object) ['id'=>$index, 'name' => $nodenamefrom, 'group' => $interaction->fromid == null,'userlink'=>$userlinkfrom];
+            $node = (object) ['id' => $index, 'name' => $nodenamefrom, 'group' => $interaction->fromid == null,
+                            'userlink' => $userlinkfrom];
             $nodes[] = $node;
             $nodemap[$node->name] = $index++;
         }
-        $nodenameto =  get_fullname($interaction->toid,$userrecords, $interaction->nativetoname);
-//         $userlinkto = isset($userrecords[$interaction->toid])?$plugin->view_user_linking($userrecords[$interaction->toid]):null;
-        $userlinkto = isset($userrecords[$interaction->toid])?$plugin->get_user_url($userrecords[$interaction->toid]):null;
+        $nodenameto = get_fullname($interaction->toid, $userrecords, $interaction->nativetoname);
+        $userlinkto = isset($userrecords[$interaction->toid]) ? $plugin->get_user_url($userrecords[$interaction->toid]) : null;
 
         if ($nodenameto == null) {
             continue;
         }
         if (!array_key_exists($nodenameto, $nodemap)) {
-            $node = (object) ['id'=>$index,'name' => $nodenameto, 'group' => $interaction->toid == null,
-                            'userlink'=>$userlinkto];
+            $node = (object) ['id' => $index, 'name' => $nodenameto, 'group' => $interaction->toid == null,
+                            'userlink' => $userlinkto];
             $nodes[] = $node;
             $nodemap[$node->name] = $index++;
         }
@@ -94,8 +92,8 @@ foreach ($interactions as $interaction) {
         $url = $plugin->get_interaction_url($interaction);
 
         $edge = (object) ['source' => $nodemap[$nodenamefrom], 'target' => $nodemap[$nodenameto], 'value' => $typevalue,
-                        'interactiontype' => $interaction->type, 'subtype' => $subtype, 'description' => $interaction->description, 'icon' => $plugin->get_icon()->out(),
-                        'link' => $url, ];
+                        'interactiontype' => $interaction->type, 'subtype' => $subtype, 'description' => $interaction->description,
+                        'icon' => $plugin->get_icon()->out(), 'link' => $url];
         $edges[] = $edge;
     }
 }
@@ -104,8 +102,8 @@ $jsondata = (object) ['nodes' => $nodes, 'links' => $edges];
 $jsonencoded = json_encode($jsondata);
 echo $jsonencoded;
 
-function get_fullname($userid, $users,$default) {
-    if ($userid!=null && isset($users[$userid])) {
+function get_fullname($userid, $users, $default) {
+    if ($userid != null && isset($users[$userid])) {
         $user = $users[$userid];
         return fullname($user);
     } else {

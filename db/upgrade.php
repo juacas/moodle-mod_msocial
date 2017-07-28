@@ -1,6 +1,5 @@
 <?php
-
-// This file is part of TwitterCount activity for Moodle http://moodle.org/
+// This file is part of MSocial activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,9 +12,8 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with TwitterCount for Moodle. If not, see <http://www.gnu.org/licenses/>.
-/**
- * This file keeps track of upgrades to the tcount module
+// along with MSocial for Moodle. If not, see <http://www.gnu.org/licenses/>.
+/** This file keeps track of upgrades to the msocial module
  *
  * Sometimes, changes between versions involve alterations to database
  * structures and other major things that may break installations. The upgrade
@@ -27,53 +25,54 @@
  *
  * @package mod-clusterer
  * @copyright 2009 Your Name
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
+defined('MOODLE_INTERNAL') || die();
 
-/**
- * xmldb_tcount_upgrade
+/** xmldb_msocial_upgrade
  *
+ * TODO: Clean upgrade function.
  * @global moodle_database $DB
  * @param int $oldversion
  * @return bool
+ *
  */
-function xmldb_tcount_upgrade($oldversion = 0) {
+function xmldb_msocial_upgrade($oldversion = 0) {
     global $CFG, $THEME, $DB;
     /* @var $dbman database_manager */
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2016092600) {
-        $table = new xmldb_table('tcount_tokens');
+        $table = new xmldb_table('msocial_tokens');
         $field = new xmldb_field('errorstatus', XMLDB_TYPE_CHAR, 50);
         $dbman->add_field($table, $field);
-        upgrade_mod_savepoint(true, 2016092600, 'tcount');
+        upgrade_mod_savepoint(true, 2016092600, 'msocial');
     }
     if ($oldversion < 2016092700) {
-        $table = new xmldb_table('tcount');
+        $table = new xmldb_table('msocial');
         $field = new xmldb_field('fbsearch', XMLDB_TYPE_CHAR, 512);
         $dbman->add_field($table, $field);
-        upgrade_mod_savepoint(true, 2016092700, 'tcount');
+        upgrade_mod_savepoint(true, 2016092700, 'msocial');
     }
     if ($oldversion < 2017053100) {
-        $table = new xmldb_table('tcount_plugin_config');
+        $table = new xmldb_table('msocial_plugin_config');
         $table->addField(new xmldb_field('id', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, XMLDB_SEQUENCE));
-        $table->addField(new xmldb_field('tcount', XMLDB_TYPE_INTEGER, 10, false, XMLDB_NOTNULL, false, 0));
+        $table->addField(new xmldb_field('msocial', XMLDB_TYPE_INTEGER, 10, false, XMLDB_NOTNULL, false, 0));
         $table->addField(new xmldb_field('plugin', XMLDB_TYPE_CHAR, 28, false, XMLDB_NOTNULL));
         $table->addField(new xmldb_field('subtype', XMLDB_TYPE_CHAR, 28, false, XMLDB_NOTNULL));
         $table->addField(new xmldb_field('name', XMLDB_TYPE_CHAR, 28, false, XMLDB_NOTNULL));
         $table->addField(new xmldb_field('value', XMLDB_TYPE_TEXT, null, false, false));
 
         $table->addKey(new xmldb_key('primary', XMLDB_KEY_PRIMARY, ['id']));
-        $table->addKey(new xmldb_key('tcount', XMLDB_KEY_FOREIGN, ['tcount'], 'tcount', 'id'));
+        $table->addKey(new xmldb_key('msocial', XMLDB_KEY_FOREIGN, ['msocial'], 'msocial', 'id'));
         $table->addIndex(new xmldb_index('plugin', XMLDB_INDEX_NOTUNIQUE, ['plugin']));
         $table->addIndex(new xmldb_index('subtype', XMLDB_INDEX_NOTUNIQUE, ['subtype']));
         $table->addIndex(new xmldb_index('name', XMLDB_INDEX_NOTUNIQUE, ['name']));
 
         $dbman->create_table($table);
-        upgrade_mod_savepoint(true, 2017053100, 'tcount');
+        upgrade_mod_savepoint(true, 2017053100, 'msocial');
     }
     if ($oldversion < 2017060500) {
-        $table = new xmldb_table('tcount');
+        $table = new xmldb_table('msocial');
         $field = new xmldb_field('hashtag');
         if ($dbman->field_exists($table, $field)) {
             $dbman->drop_field($table, $field);
@@ -94,17 +93,17 @@ function xmldb_tcount_upgrade($oldversion = 0) {
         $dbman->rename_field($table, new xmldb_field('counttweetsfromdate', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, 0),
                 'startdate');
         $dbman->rename_field($table, new xmldb_field('counttweetstodate', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, 0), 'enddate');
-        upgrade_mod_savepoint(true, 2017060500, 'tcount');
+        upgrade_mod_savepoint(true, 2017060500, 'msocial');
     }
     if ($oldversion < 2017060500) {
 
-        // Define table tcount_interactions to be created.
-        $table = new xmldb_table('tcount_interactions');
+        // Define table msocial_interactions to be created.
+        $table = new xmldb_table('msocial_interactions');
 
-        // Adding fields to table tcount_interactions.
+        // Adding fields to table msocial_interactions.
         $table->add_field('uid', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
         $table->add_field('id', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('tcount', XMLDB_TYPE_INTEGER, '18', null, null, null, null);
+        $table->add_field('msocial', XMLDB_TYPE_INTEGER, '18', null, null, null, null);
         $table->add_field('fromid', XMLDB_TYPE_INTEGER, '18', null, null, null, null);
         $table->add_field('nativefrom', XMLDB_TYPE_CHAR, '50', null, null, null, null);
         $table->add_field('nativefromname', XMLDB_TYPE_CHAR, '100', null, null, null, null);
@@ -119,69 +118,68 @@ function xmldb_tcount_upgrade($oldversion = 0) {
         $table->add_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null);
         $table->add_field('rawdata', XMLDB_TYPE_TEXT, null, null, null, null, null);
 
-        // Adding keys to table tcount_interactions.
-        $table->add_key('uid_tcount', XMLDB_KEY_UNIQUE, array('uid', 'tcount'));
+        // Adding keys to table msocial_interactions.
+        $table->add_key('uid_msocial', XMLDB_KEY_UNIQUE, array('uid', 'msocial'));
 
-        // Adding indexes to table tcount_interactions.
+        // Adding indexes to table msocial_interactions.
         $table->add_index('source', XMLDB_INDEX_NOTUNIQUE, array('source'));
         $table->add_index('timestamp', XMLDB_INDEX_NOTUNIQUE, array('timestamp'));
         $table->add_index('from', XMLDB_INDEX_NOTUNIQUE, array('fromid'));
-        $table->add_index('tcount', XMLDB_INDEX_NOTUNIQUE, array('tcount'));
+        $table->add_index('msocial', XMLDB_INDEX_NOTUNIQUE, array('msocial'));
 
-        // Conditionally launch create table for tcount_interactions.
+        // Conditionally launch create table for msocial_interactions.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-        // Define table tcount_social_mapusers to be created.
-        $table = new xmldb_table('tcount_social_mapusers');
-
-        // Adding fields to table tcount_social_mapusers.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('tcount', XMLDB_TYPE_INTEGER, '9', null, null, null, '0');
-        $table->add_field('type', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('userid', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('socialid', XMLDB_TYPE_CHAR, '30', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('socialname', XMLDB_TYPE_CHAR, '100', null, null, null, '0');
-
-        // Adding keys to table tcount_social_mapusers.
-        $table->add_key('tcount_userid', XMLDB_KEY_UNIQUE, array('tcount', 'userid','type'));
-        $table->add_key('tcount_socialid', XMLDB_KEY_UNIQUE, array('tcount', 'socialid','type'));
-
-        // Conditionally launch create table for tcount_social_mapusers.
+        // Define table msocial_mapusers to be created.
+        $table = new xmldb_table('msocial_mapusers');
+        // Conditionally launch create table for msocial_mapusers.
         if (!$dbman->table_exists($table)) {
+            // Adding fields to table msocial_mapusers.
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '18', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('msocial', XMLDB_TYPE_INTEGER, '9', null, null, null, '0');
+            $table->add_field('type', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('userid', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('socialid', XMLDB_TYPE_CHAR, '30', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('socialname', XMLDB_TYPE_CHAR, '100', null, null, null, '0');
+
+            // Adding keys to table msocial_mapusers.
+            $table->add_key('msocial_userid', XMLDB_KEY_UNIQUE, array('msocial', 'userid', 'type'));
+            $table->add_key('msocial_connectorid', XMLDB_KEY_UNIQUE, array('msocial', 'socialid', 'type'));
+
             $dbman->create_table($table);
         }
 
-        // Tcount savepoint reached.
-        upgrade_mod_savepoint(true, 2017060500, 'tcount');
+        // MSocial savepoint reached.
+        upgrade_mod_savepoint(true, 2017060500, 'msocial');
     }
     if ($oldversion < 2017071000) {
 
-        // Define table tcount_pkis to be created.
-        $table = new xmldb_table('tcount_pkis');
+        // Define table msocial_pkis to be created.
+        $table = new xmldb_table('msocial_pkis');
 
-        // Adding fields to table tcount_pkis.
+        // Adding fields to table msocial_pkis.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('tcount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('msocial', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('user', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('historical', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
 
-        // Adding keys to table tcount_pkis.
+        // Adding keys to table msocial_pkis.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('tcount_user_time', XMLDB_KEY_UNIQUE, array('tcount', 'user', 'timestamp'));
+        $table->add_key('msocial_user_time', XMLDB_KEY_UNIQUE, array('msocial', 'user', 'timestamp'));
 
-        // Adding indexes to table tcount_pkis.
+        // Adding indexes to table msocial_pkis.
         $table->add_index('historical_idx', XMLDB_INDEX_NOTUNIQUE, array('historical'));
-        $table->add_index('tcount_idx', XMLDB_INDEX_NOTUNIQUE, array('tcount'));
+        $table->add_index('msocial_idx', XMLDB_INDEX_NOTUNIQUE, array('msocial'));
 
-        // Conditionally launch create table for tcount_pkis.
+        // Conditionally launch create table for msocial_pkis.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
 
-        // Tcount savepoint reached.
-        upgrade_mod_savepoint(true, 2017071000, 'tcount');
+        // MSocial savepoint reached.
+        upgrade_mod_savepoint(true, 2017071000, 'msocial');
     }
     return true;
 }

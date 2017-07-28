@@ -7,7 +7,7 @@
  *
  *==================================================
  */
-//SimileAjax_urlPrefix = '/moodle3/mod/tcount/js/simile-ajax/';
+//SimileAjax_urlPrefix = '/moodle3/mod/msocial/js/simile-ajax/';
 if (typeof SimileAjax == "undefined") {
     var SimileAjax = {
         loaded:                 false,

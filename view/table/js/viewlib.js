@@ -14,13 +14,13 @@
 // along with Moodle.  If not, see <http:// www.gnu.org/licenses/>.
 /**
  * @module enhancetable
- * @package mod_tcount/view/table
+ * @package mod_msocial/view/table
  * @copyright 2017 Juan Pablo de Castro <jpdecastro@tel.uva.es>
  * @author Juan Pablo de Castro <jpdecastro@tel.uva.es>
  * @license http:// www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 
-define('tcountview/table',
+define('msocialview/table',
 		[ 'jquery',
 		'jqueryui',
 		'datatables.net',

@@ -17,7 +17,7 @@
 /**
  * This file contains the version information for the table timeline plugin
  *
- * @package    tcount_table
+ * @package    msocial_table
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,4 +26,4 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2017053100;
 $plugin->requires  = 2013051407;
-$plugin->component = 'tcountview_timeline';
+$plugin->component = 'msocialview_timeline';

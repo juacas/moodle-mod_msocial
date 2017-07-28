@@ -1,7 +1,7 @@
 /**
  * 
  */
-define('tcountview/graphviz', [ 'renderer' ], function(
+define('msocialview/graphviz', [ 'renderer' ], function(
 		renderer, svgPanZoom) {
 
 	var init = {

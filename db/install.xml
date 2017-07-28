@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/tcount/db" VERSION="20150602"
-	COMMENT="XMLDB file for Moodle mod/tcount" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<XMLDB PATH="mod/msocial/db" VERSION="20150602"
+	COMMENT="XMLDB file for Moodle mod/msocial" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
 	<TABLES>
-		<TABLE NAME="tcount" COMMENT="Describes instances of Twitter Count Module">
+		<TABLE NAME="msocial" COMMENT="Describes instances of MSocial Module">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" COMMENT="TCount instance ID" />
 				<FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true"
 					DEFAULT="0" SEQUENCE="false" COMMENT="Identificates the course" />
 				<FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"
-					SEQUENCE="false" COMMENT="Name of tcount instance" />
+					SEQUENCE="false" COMMENT="Name of msocial instance" />
 				<FIELD NAME="intro" TYPE="text" NOTNULL="true" SEQUENCE="false" />
 				<FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true"
 					DEFAULT="0" SEQUENCE="false" COMMENT="text format of intro field" />
@@ -27,12 +27,12 @@
 			</KEYS>
 		</TABLE>
 
-		<TABLE NAME="tcount_plugin_config"
-			COMMENT="Config data for an instance of a plugin in an tcount">
+		<TABLE NAME="msocial_plugin_config"
+			COMMENT="Config data for an instance of a plugin in an msocial">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
-				<FIELD NAME="tcount" TYPE="int" LENGTH="10" NOTNULL="true"
+				<FIELD NAME="msocial" TYPE="int" LENGTH="10" NOTNULL="true"
 					DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="plugin" TYPE="char" LENGTH="28" NOTNULL="true"
 					SEQUENCE="false" />
@@ -46,25 +46,25 @@
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id"
 					COMMENT="Unique id to identify this plugin setting value." />
-				<KEY NAME="tcount" TYPE="foreign" FIELDS="tcount" REFTABLE="tcount"
-					REFFIELDS="id" COMMENT="The tcount instance this config value relates to." />
+				<KEY NAME="msocial" TYPE="foreign" FIELDS="msocial" REFTABLE="msocial"
+					REFFIELDS="id" COMMENT="The msocial instance this config value relates to." />
 			</KEYS>
 			<INDEXES>
 				<INDEX NAME="plugin" UNIQUE="false" FIELDS="plugin"
 					COMMENT="The type of this plugin." />
 				<INDEX NAME="subtype" UNIQUE="false" FIELDS="subtype"
-					COMMENT="The subtype of this plugin (tcountsocial or tcountview)." />
+					COMMENT="The subtype of this plugin (msocialconnector or msocialview)." />
 				<INDEX NAME="name" UNIQUE="false" FIELDS="name"
 					COMMENT="The name of this plugin setting." />
 			</INDEXES>
 		</TABLE>
-		<TABLE NAME="tcount_interactions" COMMENT="tcount_interactions table retrofitted from MySQL">
+		<TABLE NAME="msocial_interactions" COMMENT="msocial_interactions table">
 			<FIELDS>
-				<FIELD NAME="uid" TYPE="char" LENGTH="100" NOTNULL="true"
-					SEQUENCE="false" />
 				<FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true"
 					SEQUENCE="true" />
-				<FIELD NAME="tcount" TYPE="int" LENGTH="18" NOTNULL="false"
+				<FIELD NAME="uid" TYPE="char" LENGTH="100" NOTNULL="true"
+					SEQUENCE="false" />
+				<FIELD NAME="msocial" TYPE="int" LENGTH="18" NOTNULL="false"
 					SEQUENCE="false" />
 				<FIELD NAME="fromid" TYPE="int" LENGTH="18" NOTNULL="false"
 					SEQUENCE="false" />
@@ -93,22 +93,44 @@
 				<FIELD NAME="rawdata" TYPE="text" NOTNULL="false" SEQUENCE="false" />
 			</FIELDS>
 			<KEYS>
-				<KEY NAME="uid_tcount" TYPE="unique" FIELDS="uid, tcount" />
-				<KEY NAME="id" TYPE="unique" FIELDS="id" />
+				<KEY NAME="id" TYPE="primary" FIELDS="id" />
+				<KEY NAME="uid_msocial" TYPE="unique" FIELDS="uid, msocial" />
 			</KEYS>
 			<INDEXES>
 				<INDEX NAME="source" UNIQUE="false" FIELDS="source" />
 				<INDEX NAME="timestamp" UNIQUE="false" FIELDS="timestamp" />
 				<INDEX NAME="from" UNIQUE="false" FIELDS="fromid" />
-				<INDEX NAME="tcount" UNIQUE="false" FIELDS="tcount" />
+				<INDEX NAME="msocial" UNIQUE="false" FIELDS="msocial" />
 			</INDEXES>
 		</TABLE>
-		<TABLE NAME="tcount_pkis"
+		<TABLE NAME="msocial_mapusers"
+			COMMENT="Maps local users to social network's ids.">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true"
+					SEQUENCE="true" />
+				<FIELD NAME="msocial" TYPE="int" LENGTH="9" NOTNULL="false"
+					DEFAULT="0" SEQUENCE="false" />
+				<FIELD NAME="type" TYPE="char" LENGTH="10" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false" COMMENT="name of the connector that generated the mapping."/>
+				<FIELD NAME="userid" TYPE="int" LENGTH="9" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false" COMMENT="Known local user id."/>
+				<FIELD NAME="socialid" TYPE="char" LENGTH="30" NOTNULL="true"
+					DEFAULT="0" SEQUENCE="false" COMMENT="Unique id of the user in the social network."/>
+				<FIELD NAME="socialname" TYPE="char" LENGTH="100" NOTNULL="false"
+					DEFAULT="0" SEQUENCE="false" COMMENT="Screen name of the user in the social network."/>
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="id" TYPE="primary" FIELDS="id" />
+				<KEY NAME="msocial_userid" TYPE="unique" FIELDS="tcount, userid, type" />
+				<KEY NAME="msocial_facebookid" TYPE="unique" FIELDS="tcount, socialid, type" />
+			</KEYS>
+		</TABLE>
+		<TABLE NAME="msocial_pkis"
 			COMMENT="Key performance indicator to be used by every sub-plugin.">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="true" />
-				<FIELD NAME="tcount" TYPE="int" LENGTH="10" NOTNULL="true"
+				<FIELD NAME="msocial" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="false" COMMENT="Activity instance that generated the PKIs." />
 				<FIELD NAME="user" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="false" COMMENT="Moodle user id." />
@@ -120,14 +142,14 @@
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-				<KEY NAME="tcount_user_time" TYPE="unique" FIELDS="tcount, user, timestamp"
+				<KEY NAME="msocial_user_time" TYPE="unique" FIELDS="msocial, user, timestamp"
 					COMMENT="Unique definition of a PKI row" />
 			</KEYS>
 			<INDEXES>
 				<INDEX NAME="historical_idx" UNIQUE="false" FIELDS="historical"
 					COMMENT="Search current records." />
-				<INDEX NAME="tcount_idx" UNIQUE="false" FIELDS="tcount"
-					COMMENT="search tcount records" />
+				<INDEX NAME="msocial_idx" UNIQUE="false" FIELDS="msocial"
+					COMMENT="search msocial records" />
 			</INDEXES>
 		</TABLE>
 	</TABLES>

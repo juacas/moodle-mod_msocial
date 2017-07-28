@@ -1,5 +1,5 @@
 <?php
-// This file is part of TwitterCount activity for Moodle http://moodle.org/
+// This file is part of MSocial activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,10 +12,12 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with MSocial for Moodle.  If not, see <http://www.gnu.org/licenses/>.
+defined('MOODLE_INTERNAL') || die();
+
 $tasks = array(
     array(
-        'classname' => 'mod_tcount\task\harvest_tweets',
+        'classname' => 'mod_msocial\task\harvest_task',
         'blocking' => 0,
         'minute' => '*/10',
         'hour' => '*',

@@ -1,6 +1,6 @@
-<!-- Build for tcount Pretty much the only purpose is to deploy the apache 
+<!-- Build for msocial Pretty much the only purpose is to deploy the apache 
     htdocs as defined in build.properties -->
-<project name="tcount" default="deploy" basedir=".">
+<project name="msocial" default="deploy" basedir=".">
  <property file="build.properties"></property>
  <target name="deploy">
      <delete dir="${full.deploy.path}"></delete>

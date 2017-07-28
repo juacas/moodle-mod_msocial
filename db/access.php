@@ -1,5 +1,5 @@
 <?php
-// This file is part of TwitterCount activity for Moodle http://moodle.org/
+// This file is part of MSocial activity for Moodle http://moodle.org/
 //
 // Questournament for Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with TwitterCount for Moodle.  If not, see <http://www.gnu.org/licenses/>.
+// along with MSocial for Moodle.  If not, see <http://www.gnu.org/licenses/>.
 //
 // Capability definitions for the assignment module.
 //
@@ -45,7 +45,7 @@
 // For the core capabilities, the variable is $moodle_capabilities.
 
 $capabilities = array(
-    'mod/tcount:addinstance' => array(
+    'mod/msocial:addinstance' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -55,7 +55,7 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ),
-    'mod/tcount:view' => array(
+    'mod/msocial:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
@@ -66,7 +66,7 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
-    'mod/tcount:viewothers' => array(
+    'mod/msocial:viewothers' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
@@ -76,7 +76,7 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
-    'mod/tcount:manage' => array(
+    'mod/msocial:manage' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(

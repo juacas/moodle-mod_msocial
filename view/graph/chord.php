@@ -19,8 +19,8 @@ path.chord {
 	display: none;
 }
 </style>
-<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
-<script src="//d3js.org/queue.v1.min.js"></script>
+<script src="view/graph/js/d3/d3.v3.min.js" charset="utf-8"></script>
+<script src="view/graph/js/queue.v1.min.js"></script>
 <script src="view/graph/chord.js"></script>
 <div id="chord"></div>
 <script>
