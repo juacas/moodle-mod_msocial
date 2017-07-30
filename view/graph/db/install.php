@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+/* ***************************
+ * Module developed at the University of Valladolid
+ * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
+ * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
+ * @author Juan Pablo de Castro
+ * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @package msocial
+ * *******************************************************************************
+ */
 
 /**
  * Post-install code for the msocialview_graph module.

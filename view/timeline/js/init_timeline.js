@@ -1,3 +1,12 @@
+/* ***************************
+ * Module developed at the University of Valladolid
+ * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
+ * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
+ * @author Juan Pablo de Castro
+ * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @package msocial
+ * *******************************************************************************
+ */
 Timeline_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/view/timeline/js/timeline/';
 Timeline_ajax_url = document.URL.substr(0, document.URL.lastIndexOf('/')) + "/view/timeline/js/simile-ajax/simile-ajax-api.js"
 SimileAjax_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/view/timeline/js/simile-ajax/';

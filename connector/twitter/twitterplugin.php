@@ -13,6 +13,15 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+/* ***************************
+ * Module developed at the University of Valladolid
+ * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
+ * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
+ * @author Juan Pablo de Castro
+ * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @package msocial
+ * *******************************************************************************
+ */
 namespace mod_msocial\connector;
 
 use msocial\msocial_plugin;
@@ -199,10 +208,14 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         return $usermessage;
     }
 
+    public function get_social_user_url($userid) {
+        return "https://twitter.com/$userid->socialname";
+    }
+
     public function get_user_url($user) {
         $userid = $this->get_social_userid($user);
         if ($userid) {
-            $link = "https://twitter.com/$userid->socialname";
+            $link = $this->get_social_user_url($userid);
         } else {
             $link = '';
         }

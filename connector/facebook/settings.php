@@ -13,15 +13,24 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/** This file contains the settings definition for the twitter social plugin
+/* ***************************
+ * Module developed at the University of Valladolid
+ * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
+ * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
+ * @author Juan Pablo de Castro
+ * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @package msocial
+ * *******************************************************************************
+ */
+/** This file contains the settings definition for the facebook social plugin
  *
- * @package msocial_twitter
+ * @package msocial_facebook
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 defined('MOODLE_INTERNAL') || die();
 
 $settings->add(new admin_setting_heading('mod_msocial_facebook_header', 'Facebook API', 'Keys for Facebook API Access.'));
-// TODO: Add explaination text about Twitter app id, need, and implications.
+// TODO: Add explaination text about facebook app id, need, and implications.
 $settings->add(
         new admin_setting_configtext('msocialconnector_facebook/appid', get_string('facebook_app_id', 'msocialconnector_facebook'),
                 get_string('config_app_id', 'msocialconnector_facebook'), '', PARAM_RAW_TRIMMED));

@@ -12,6 +12,8 @@ foreach ($interactions as $interaction) {
     if (!isset($plugins[$interaction->source]) || $plugins[$interaction->source]->is_enabled() == false) {
         continue;
     }
+    $graphviztoattr = [];
+
     if ($interaction->fromid == null) {
         $from = $interaction->nativefromname;
     } else {
@@ -22,11 +24,15 @@ foreach ($interactions as $interaction) {
     } else {
         $to = fullname($users[$interaction->toid]);
     }
+    if ($to == null) {
+        $to = 'Community';
+        $graphviztoattr['graphviz.shape'] = 'box';
+    }
+    $graphviztoattr['graphviz.label'] = $to;
+
     $type = $interaction->type;
-    $socialgraph->register_interaction( $interaction,
-                                        ['graphviz.label' => $type],
-                                        ['graphviz.label' => $from],
-                                        ['graphviz.label' => $to]);
+    $socialgraph->register_interaction($interaction, ['graphviz.label' => $type], ['graphviz.label' => $from],
+            $graphviztoattr);
 }
 $dot = new Dot();
 $graph = $socialgraph->get_graph();

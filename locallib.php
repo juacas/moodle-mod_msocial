@@ -1,18 +1,27 @@
 <?php
 // This file is part of MSocial activity for Moodle http://moodle.org/
 //
-// Questournament for Moodle is free software: you can redistribute it and/or modify
+// MSocial for Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Questournament for Moodle is distributed in the hope that it will be useful,
+// MSocial for Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with MSocial for Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+/* ***************************
+ * Module developed at the University of Valladolid
+ * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
+ * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
+ * @author Juan Pablo de Castro
+ * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @package msocial
+ * *******************************************************************************
+ */
 use mod_msocial\plugininfo\msocialview;
 use mod_msocial\plugininfo\msocialbase;
 use msocial\msocial_plugin;
@@ -79,10 +88,12 @@ class OAuthCurl {
     }
 
     public static function fetch_data($url) {
-        $options = array(CURLOPT_RETURNTRANSFER => true, // ...return web page.
-CURLOPT_HEADER => false, // ...don't return headers.
-CURLOPT_FOLLOWLOCATION => true, // ...follow redirects.
-CURLOPT_SSL_VERIFYPEER => false);
+        $options = [
+                        CURLOPT_RETURNTRANSFER => true, // ...return web page.
+                        CURLOPT_HEADER => false, // ...don't return headers.
+                        CURLOPT_FOLLOWLOCATION => true, // ...follow redirects.
+                        CURLOPT_SSL_VERIFYPEER => false
+                    ];
 
         $ch = curl_init($url);
         curl_setopt_array($ch, $options);

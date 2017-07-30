@@ -1,18 +1,27 @@
 <?php
 // This file is part of MSocial activity for Moodle http://moodle.org/
 //
-// Questournament for Moodle is free software: you can redistribute it and/or modify
+// MSocial for Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Questournament for Moodle is distributed in the hope that it will be useful,
+// MSocial for Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with MSocial for Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+/* ***************************
+ * Module developed at the University of Valladolid
+ * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
+ * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
+ * @author Juan Pablo de Castro
+ * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @package msocial
+ * *******************************************************************************
+ */
 use Facebook\Authentication\OAuth2Client;
 use Facebook\Facebook;
 use Facebook\GraphNodes\GraphNodeFactory;
@@ -74,13 +83,13 @@ if ($action == 'connect') {
     if (isset($accesstoken)) {
         // Logged in!
         // The OAuth 2.0 client handler helps us manage access tokens.
-        $oAuth2Client = $fb->getOAuth2Client();
+        $oauth2client = $fb->getOAuth2Client();
         if (!$accesstoken->isLongLived()) {
-            // Exchanges a short-lived access token for a long-lived one
+            // Exchanges a short-lived access token for a long-lived one.
             try {
-                $accesstoken = $oAuth2Client->getLongLivedAccessToken($accesstoken);
+                $accesstoken = $oauth2client->getLongLivedAccessToken($accesstoken);
             } catch (Facebook\Exceptions\FacebookSDKException $e) {
-                echo "<p>Error getting long-lived access token: " . $helper->getMessage() . "</p>\n\n"; // lang.
+                echo "<p>Error getting long-lived access token: " . $helper->getMessage() . "</p>\n\n"; // TODO lang.
                 exit();
             }
         }
@@ -110,7 +119,7 @@ if ($action == 'connect') {
         $message = get_string('module_not_connected_facebook', 'msocialconnector_facebook');
     }
     // Show headings and menus of page.
-    $url = new moodle_url('/mod/msocial/facebookSSO.php', array('id' => $id));
+    $url = new moodle_url('/mod/msocial/connector/facebook/facebookSSO.php', array('id' => $id));
     $PAGE->set_url($url);
     $PAGE->set_title(format_string($cm->name));
 
@@ -122,7 +131,7 @@ if ($action == 'connect') {
 } else if ($action == 'disconnect') {
     $plugin->unset_connection_token();
     // Show headings and menus of page.
-    $url = new moodle_url('/mod/msocial/facebookSSO.php', array('id' => $id));
+    $url = new moodle_url('/mod/msocial/connector/facebook/facebookSSO.php', array('id' => $id));
     $PAGE->set_url($url);
     $PAGE->set_title(format_string($cm->name));
     $PAGE->set_heading($course->fullname);
@@ -131,7 +140,7 @@ if ($action == 'connect') {
     echo $OUTPUT->box(get_string('module_not_connected_facebook', 'msocialconnector_facebook'));
     echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));
 } else if ($action == 'selectgroup') {
-    $url = new moodle_url('/mod/msocial/facebookSSO.php', array('id' => $id, 'action' => 'selectgroup'));
+    $url = new moodle_url('/mod/msocial/connector/facebook/facebookSSO.php', array('id' => $id, 'action' => 'selectgroup'));
     $PAGE->set_url($url);
     $PAGE->set_title(format_string($cm->name));
     $PAGE->set_heading($course->fullname);

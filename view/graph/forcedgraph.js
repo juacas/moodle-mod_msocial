@@ -1,7 +1,10 @@
 /**
- * 
+ * @module forcedgraph
+ * @package mod_msocial/view/graph
+ * @copyright 2017 Juan Pablo de Castro <jpdecastro@tel.uva.es>
+ * @author Juan Pablo de Castro <jpdecastro@tel.uva.es>
+ * @license http:// www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
-
 function createGraph(graph) {
 	
 	var svg = d3.select("#graph");

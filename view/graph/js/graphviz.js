@@ -1,8 +1,11 @@
 /**
- * 
+ * @module graphviz_social
+ * @package mod_msocial/view/graphviz
+ * @copyright 2017 Juan Pablo de Castro <jpdecastro@tel.uva.es>
+ * @author Juan Pablo de Castro <jpdecastro@tel.uva.es>
+ * @license http:// www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
-define('msocialview/graphviz', [ 'renderer' ], function(
-		renderer, svgPanZoom) {
+define('msocialview/graphviz', [ 'renderer' ], function(renderer) {
 
 	var init = {
 		initview : function(container, dotSourceDiv) {
@@ -12,7 +15,7 @@ define('msocialview/graphviz', [ 'renderer' ], function(
 			// to properly reset the image.
 			var zoomFunc = renderer.init({
 				element : container,
-				zoom : [ 0.0, 0.0 ]
+//				zoom : [ 0.1, 0.9 ]
 			});
 			var dotSource = $(dotSourceDiv).text();
 			// Update stage with new dot source.
