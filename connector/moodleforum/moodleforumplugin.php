@@ -30,6 +30,7 @@ global $CFG;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 class msocial_connector_moodleforum extends msocial_connector_plugin {
     private $lastinteractions = array();
+    const CONFIG_ACTIVITIES = 'activities';
 
     /** Get the name of the plugin
      *
@@ -90,14 +91,29 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
         global $OUTPUT, $USER;
         if ($this->is_enabled()) {
             $icon = $this->get_icon();
-            $icondecoration = \html_writer::img($icon->out_as_local_url(), $this->get_name().' icon.',['height'=>16]) . ' ';
+            $icondecoration = \html_writer::img($icon->out_as_local_url(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
             $context = \context_module::instance($this->cm->id);
+            $activities = $this->get_config(self::CONFIG_ACTIVITIES);
+            if (has_capability('mod/msocial:manage', $context)) {
+                $linktoselect = \html_writer::link(
+                        new \moodle_url('/mod/msocial/connector/moodleforum/activitychoice.php', ['id' => $this->cm->id]),
+                        'Select forums.');
+            } else {
+                $linktoselect = '';
+            }
+
+            if ($activities) {
+                $this->notify(get_string('onlyasetofactivities', 'msocialconnector_moodleforum') . ' ' . $linktoselect);
+            } else {
+                $this->notify(get_string('allactivities', 'msocialconnector_moodleforum') . ' ' . $linktoselect);
+            }
             if (has_capability('mod/msocial:manage', $context)) {
                 $this->notify(
                         get_string('harvest', 'msocialconnector_moodleforum') . $OUTPUT->action_icon(
                                 new \moodle_url('/mod/msocial/harvest.php',
                                         ['id' => $this->cm->id, 'subtype' => $this->get_subtype()]),
-                                new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_moodleforum'))), self::NOTIFY_NORMAL);
+                                new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_moodleforum'))),
+                        self::NOTIFY_NORMAL);
             }
         }
     }
@@ -118,13 +134,21 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
      *
      * @see \mod_msocial\connector\msocial_connector_plugin::get_user_url() */
     public function get_user_url($user) {
-        $userid = $user->id;
+        if (isset($user->id)) {
+            $userid = $user->id;
+        } else {
+            $userid = (int) $user;
+        }
         if ($userid) {
-            $link = new \moodle_url("/user/view.php", ['id' => $userid]);
+            $link = $this->get_social_user_url((object) ['userid' => $userid]);
         } else {
             $link = null;
         }
         return $link;
+    }
+
+    public function get_social_user_url($userid) {
+        return new \moodle_url("/user/view.php", ['id' => $userid->userid]);
     }
 
     public function get_interaction_url(social_interaction $interaction) {
@@ -232,12 +256,21 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
             // Query moodleforum...
             $since = '';
             $lastharvest = $this->get_config(self::LAST_HARVEST_TIME);
+            $activities = $this->get_config(self::CONFIG_ACTIVITIES);
             if ($lastharvest) {
                 $since = "&since=$lastharvest";
             }
             // Read forum_posts.
-            $sql = 'select p.* from {forum_posts} p left join {forum_discussions} d on d.id = p.discussion where d.course = ?';
-            $posts = $DB->get_records_sql($sql, [$this->msocial->course]);
+            $params = [$this->msocial->course];
+            if ($activities) {
+                list($insql, $inparams) = $DB->get_in_or_equal($activities);
+                $sql = 'select p.* from {forum_posts} p left join {forum_discussions} d on d.id = p.discussion where d.course = ? and d.forum ' .
+                         $insql;
+                $params = array_merge($params, $inparams);
+            } else {
+                $sql = 'select p.* from {forum_posts} p left join {forum_discussions} d on d.id = p.discussion where d.course = ?';
+            }
+            $posts = $DB->get_records_sql($sql, $params);
 
             // Iterate the posts.
             foreach ($posts as $post) {
@@ -282,5 +315,4 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
 
     public function unset_connection_token() {
     }
-
 }
