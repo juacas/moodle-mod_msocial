@@ -247,12 +247,11 @@ function msocial_extend_settings_navigation(settings_navigation $settings, navig
     if (!$cm) {
         return;
     }
-    if ($PAGE->pagetype == 'mod-msocial-teams-grades' || $PAGE->pagetype == 'mod-msocial-teams-introteams') {
-        if (has_capability('mod/msocial:introteams', $cm->context)) {
-            $link = new moodle_url('/mod/msocial/teams/teams_graph.php', array('id' => $cm->id));
-            $linkname = get_string('view_teams_graph', 'msocial');
-            $node = $navref->add($linkname, $link, navigation_node::TYPE_CUSTOM);
-        }
+
+    if (has_capability('mod/msocial:viewothers', $cm->context)) {
+        $link = new moodle_url('/mod/msocial/socialusers.php', array('id' => $cm->id));
+        $linkname = get_string('view_social_users', 'msocial');
+        $node = $navref->add($linkname, $link, navigation_node::TYPE_CUSTOM);
     }
 }
 

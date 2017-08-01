@@ -51,12 +51,12 @@ $requ = $PAGE->requires;
 $requ->css('/mod/msocial/styles.css');
 
 // Print the page header.
-$PAGE->set_title("Social Users");
+$PAGE->set_title(get_string('view_social_users','msocial'));
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 // Print the main part of the page.
 echo $OUTPUT->spacer(array('height' => 20));
-echo $OUTPUT->heading(format_string($msocial->name) . " summary of social users" );
+echo $OUTPUT->heading(get_string('view_social_users','msocial'));
 // Print the information about the linking of the module with social plugins..
 $enabledsocialplugins = \mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
 
