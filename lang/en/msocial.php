@@ -49,6 +49,7 @@ $string['grade_expr'] = 'Formula for converting stats into grades.';
 $string['grade_expr_help'] = 'The formula for converting stats into grades can contain the following params: favs, tweets, retweets, maxfavs, maxtweets, maxretweets and a variet of functions like max, min, sum, average, etc. The decimal point is \'.\' and the separator for parameters is \',\' Example: \'=max(favs,retweets,1.15)\' Parameters maxtweets, maxretweets and maxfavs account for the maximun numbers achieved among the participants.';
 $string['harvest_task'] = 'Scheduled harvesting of social networks and calculation of pkis.';
 $string['pluginadministration'] = 'Social networks conquest';
+$string['view_social_users'] = 'Social users table';
 // MainPage.
 $string['mainpage'] = 'Social networks contest main page';
 $string['mainpage_help'] = 'Social networks contest main page. You can view your achievements in Social networks contest';

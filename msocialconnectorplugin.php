@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -77,16 +78,18 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     /** Gets an href fragment that links to the user's page in the social network.
      * @param \stdClass $user user record */
     public function create_user_link($user) {
-//         $link = $this->get_user_url($user);
         $socialuserid = $this->get_social_userid($user);
-        $link = $this->get_social_user_url($socialuserid);
-        $icon = $this->get_icon();
-        return "<a href=\"$link\"><img src=\"$icon\"/> $socialuserid->socialname </a>";
+        if ($socialuserid) {
+            $link = $this->get_social_user_url($socialuserid);
+            $icon = $this->get_icon();
+            return "<a href=\"$link\"><img src=\"$icon\"/> $socialuserid->socialname </a>";
+        } else {
+            return '';
+        }
     }
-    /**
-     * Construct a native link
-     * @param unknown $socialid
-     */
+
+    /** Construct a native link
+     * @param unknown $socialid */
     abstract public function get_social_user_url($socialid);
 
     /** URL to a page with the social interaction.
@@ -154,6 +157,12 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         return isset($this->socialtousermapping[$socialid]) ? $this->socialtousermapping[$socialid] : null;
     }
 
+    /** Reports if the users are from an external social network or from a Moodle activity.
+     * @return boolean */
+    public function users_are_local() {
+        return false;
+    }
+
     /** Maps a Moodle's $user to a user id in the social media.
      *
      * @param \stdClass|int $user user record or userid
@@ -171,8 +180,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     private function check_mapping_cache() {
         global $DB;
         if ($this->usertosocialmapping == null || $this->socialtousermapping == null) {
-            $records = $DB->get_records('msocial_mapusers',
-                    ['msocial' => $this->msocial->id, 'type' => $this->get_subtype()], null, 'userid,socialid,socialname');
+            $records = $DB->get_records('msocial_mapusers', ['msocial' => $this->msocial->id, 'type' => $this->get_subtype()],
+                    null, 'userid,socialid,socialname');
             $this->usertosocialmapping = [];
             $this->socialtousermapping = [];
             foreach ($records as $record) {

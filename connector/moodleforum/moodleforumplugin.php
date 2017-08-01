@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -141,6 +142,14 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
     /**
      * {@inheritdoc}
      *
+     * @see \mod_msocial\connector\msocial_connector_plugin::users_are_local() */
+    public function users_are_local() {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @see \mod_msocial\connector\msocial_connector_plugin::get_user_url() */
     public function get_user_url($user) {
         if (isset($user->id)) {
@@ -157,7 +166,7 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
     }
 
     public function get_social_user_url($userid) {
-        return new \moodle_url("/user/view.php", ['id' => $userid->userid]);
+        return new \moodle_url("/user/view.php", ['id' => $userid->userid]) . out();
     }
 
     public function get_interaction_url(social_interaction $interaction) {
