@@ -592,7 +592,7 @@ abstract class msocial_plugin {
     public function notify($message, $level = self::NOTIFY_NORMAL) {
         global $OUTPUT;
         $icon = $this->get_icon();
-        $icondecoration = \html_writer::img($icon->out_as_local_url(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
+        $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
         if ($level === self::NOTIFY_NORMAL) {
             echo $OUTPUT->box($icondecoration . $message);
         } else if ($level === self::NOTIFY_WARNING) {

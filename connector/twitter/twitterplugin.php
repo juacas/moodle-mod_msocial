@@ -132,7 +132,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             list($course, $cm) = get_course_and_cm_from_instance($this->msocial->id, 'msocial');
             $id = $cm->id;
             $icon = $this->get_icon();
-            $icondecoration = \html_writer::img($icon->out_as_local_url(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
+            $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
             $contextmodule = \context_module::instance($cm->id);
             if (has_capability('mod/msocial:manage', $contextmodule)) {
                 $token = $DB->get_record('msocial_twitter_tokens', array('msocial' => $this->msocial->id));

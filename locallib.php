@@ -301,7 +301,7 @@ function msocial_tabbed_reports($msocial, $view, $cm, $contextmodule, $categoriz
             continue;
         }
         $icon = $plugin->get_icon();
-        $icondecoration = html_writer::img($icon->out_as_local_url(), $plugin->get_name() . ' icon.', ['height' => 32]);
+        $icondecoration = html_writer::img($icon->out(), $plugin->get_name() . ' icon.', ['height' => 32]);
         $url = new moodle_url('/mod/msocial/view.php', ['id' => $cm->id, 'view' => $plugin->get_subtype()]);
         $plugintab = new tabobject($plugin->get_subtype(), $url, $icondecoration . $plugin->get_name());
         if ($categorized) {

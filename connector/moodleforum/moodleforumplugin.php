@@ -101,7 +101,7 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
         global $OUTPUT, $USER;
         if ($this->is_enabled()) {
             $icon = $this->get_icon();
-            $icondecoration = \html_writer::img($icon->out_as_local_url(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
+            $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
             $context = \context_module::instance($this->cm->id);
             $activities = $this->get_config(self::CONFIG_ACTIVITIES);
             if (has_capability('mod/msocial:manage', $context)) {
