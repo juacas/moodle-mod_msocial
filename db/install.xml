@@ -6,7 +6,7 @@
 		<TABLE NAME="msocial" COMMENT="Describes instances of MSocial Module">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"
-					SEQUENCE="true" COMMENT="TCount instance ID" />
+					SEQUENCE="true" COMMENT="msocial instance ID" />
 				<FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true"
 					DEFAULT="0" SEQUENCE="false" COMMENT="Identificates the course" />
 				<FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"
@@ -121,8 +121,8 @@
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="id" TYPE="primary" FIELDS="id" />
-				<KEY NAME="msocial_userid" TYPE="unique" FIELDS="tcount, userid, type" />
-				<KEY NAME="msocial_facebookid" TYPE="unique" FIELDS="tcount, socialid, type" />
+				<KEY NAME="msocial_userid" TYPE="unique" FIELDS="msocial, userid, type" />
+				<KEY NAME="msocial_facebookid" TYPE="unique" FIELDS="msocial, socialid, type" />
 			</KEYS>
 		</TABLE>
 		<TABLE NAME="msocial_pkis"

@@ -48,11 +48,11 @@ class backup_msocial_activity_task extends backup_activity_task {
 
         // Link to the list of choices.
         $search = "/(" . $base . "\/mod\/msocial\/index.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@TCOUNTINDEX*$2@$', $content);
+        $content = preg_replace($search, '$@MSOCIALINDEX*$2@$', $content);
 
         // Link to choice view by moduleid.
         $search = "/(" . $base . "\/mod\/msocial\/view.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@TCOUNTVIEWBYID*$2@$', $content);
+        $content = preg_replace($search, '$@MSOCIALVIEWBYID*$2@$', $content);
 
         return $content;
     }
