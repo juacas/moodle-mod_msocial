@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -63,12 +64,6 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * @param MoodleQuickForm $mform The form to add elements to
      * @return void */
     public function get_settings(\MoodleQuickForm $mform) {
-
-        // $mform->addElement('text', $this->get_form_field_name(self::CONFIG_FBSEARCH),
-        // get_string("fbsearch", "msocialconnector_facebook"), array('size' => '20'));
-        // $mform->setType($this->get_form_field_name(self::CONFIG_FBSEARCH), PARAM_TEXT);
-        // $mform->addHelpButton($this->get_form_field_name(self::CONFIG_FBSEARCH), 'fbsearch',
-        // 'msocialconnector_facebook');
         $mform->addElement('static', 'config_group', get_string('fbgroup', 'msocialconnector_facebook'),
                 get_string('connectgroupinpage', 'msocialconnector_facebook'));
     }
@@ -233,9 +228,11 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         }
         return $link;
     }
+
     public function get_social_user_url($userid) {
         return "https://www.facebook.com/app_scoped_user_id/$userid->socialid";
     }
+
     public function get_interaction_url(social_interaction $interaction) {
         // Facebook uid for a comment is generated with group id and comment id.
         $parts = explode('_', $interaction->uid);
@@ -365,7 +362,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * @return string */
     private function get_appid() {
         global $CFG;
-        $appid = $CFG->mod_msocial_facebook_appid;
+        $appid = get_config('msocialconnector_facebook', 'appid');
         return $appid;
     }
 
@@ -374,7 +371,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * @return string */
     private function get_appsecret() {
         global $CFG;
-        $appsecret = $CFG->mod_msocial_facebook_appsecret;
+        $appsecret = get_config('msocialconnector_facebook', 'appsecret');
         return $appsecret;
     }
 
@@ -531,7 +528,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * @return boolean $ok */
     protected function is_short_comment($message) {
         $numwords = str_word_count($message, 0);
-        $minwords = $this->get_config(self::MIN_WORDS);
+        $minwords = $this->get_config(self::CONFIG_MIN_WORDS);
         return ($numwords <= ($minwords == null ? 2 : $minwords));
     }
 
@@ -564,7 +561,8 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $appid = $this->get_appid();
         $appsecret = $this->get_appsecret();
         $this->lastinteractions = [];
-        // TODO: Check time configuration in some plattforms workaround: date_default_timezone_set('Europe/Madrid');!
+        // TODO: Check time configuration in some plattforms workaround:
+        // date_default_timezone_set('Europe/Madrid');!
         try {
             /* @var Facebook\Facebook $fb api entry point */
             $fb = new Facebook(['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.7']);
@@ -620,7 +618,10 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 $posts->next();
             }
         } catch (\Exception $e) {
-            $errormessage = "For module msocial\social\facebook: $this->msocial->name (id=$this->cm->instance) in course (id=$this->msocial->course) " .
+            $cm = $this->cm;
+            $msocial = $this->msocial;
+
+            $errormessage = "For module msocial\social\facebook: $msocial->name (id=$cm->instance) in course (id=$msocial->course) " .
                      "searching group: $groupid  ERROR:" . $e->getMessage();
             $result->messages[] = $errormessage;
             $result->errors[] = (object) ['message' => $errormessage];
