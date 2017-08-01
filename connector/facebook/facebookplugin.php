@@ -271,7 +271,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             $info = '<a target="blank" href="https://www.facebook.com/groups/' . $group->getId() . '">' . $group->getName() . "</a> " .
                      $group->getDescription();
             $url = new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                    ['id' => 66, 'gid' => $group->getId(), 'action' => 'setgroup', 'gname' => $group->getName()]);
+                    ['id' => $this->cm->id, 'gid' => $group->getId(), 'action' => 'setgroup', 'gname' => $group->getName()]);
             $action = \html_writer::link($url, get_string('selectthisgroup', 'msocialconnector_facebook'));
             $row->cells = [$cover, $info, $action];
             $table->data[] = $row;
