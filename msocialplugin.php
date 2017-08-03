@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -589,14 +590,17 @@ abstract class msocial_plugin {
         return '';
     }
 
-    public function notify($message, $level = self::NOTIFY_NORMAL) {
+    public function notify(array $messages, $level = self::NOTIFY_NORMAL) {
         global $OUTPUT;
-        $icon = $this->get_icon();
-        $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
-        if ($level === self::NOTIFY_NORMAL) {
-            echo $OUTPUT->box($icondecoration . $message);
-        } else if ($level === self::NOTIFY_WARNING) {
-            echo $OUTPUT->notification($icondecoration . $message);
+        if (count($messages) > 0) {
+            $icon = $this->get_icon();
+            $text =  join('<br/>', $messages);
+            $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
+            if ($level === self::NOTIFY_NORMAL) {
+                echo $OUTPUT->box($icondecoration . $text);
+            } else if ($level === self::NOTIFY_WARNING) {
+                echo $OUTPUT->notification($icondecoration . $text);
+            }
         }
     }
 

@@ -101,6 +101,8 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
         global $OUTPUT, $USER;
         if ($this->is_enabled()) {
             $icon = $this->get_icon();
+            $messages = [];
+            $notifications = [];
             $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
             $context = \context_module::instance($this->cm->id);
             $activities = $this->get_config(self::CONFIG_ACTIVITIES);
@@ -113,18 +115,17 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
             }
 
             if ($activities) {
-                $this->notify(get_string('onlyasetofactivities', 'msocialconnector_moodleforum') . ' ' . $linktoselect);
+                $messages[] = get_string('onlyasetofactivities', 'msocialconnector_moodleforum') . ' ' . $linktoselect;
             } else {
-                $this->notify(get_string('allactivities', 'msocialconnector_moodleforum') . ' ' . $linktoselect);
+                $messages[] = get_string('allactivities', 'msocialconnector_moodleforum') . ' ' . $linktoselect;
             }
             if (has_capability('mod/msocial:manage', $context)) {
-                $this->notify(
-                        get_string('harvest', 'msocialconnector_moodleforum') . $OUTPUT->action_icon(
-                                new \moodle_url('/mod/msocial/harvest.php',
-                                        ['id' => $this->cm->id, 'subtype' => $this->get_subtype()]),
-                                new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_moodleforum'))),
-                        self::NOTIFY_NORMAL);
+                $messages[] = get_string('harvest', 'msocialconnector_moodleforum') . $OUTPUT->action_icon(
+                        new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->cm->id, 'subtype' => $this->get_subtype()]),
+                        new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_moodleforum')));
             }
+            $this->notify($notifications, self::NOTIFY_WARNING);
+            $this->notify($messages, self::NOTIFY_NORMAL);
         }
     }
 

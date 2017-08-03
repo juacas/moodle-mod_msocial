@@ -132,6 +132,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             list($course, $cm) = get_course_and_cm_from_instance($this->msocial->id, 'msocial');
             $id = $cm->id;
             $icon = $this->get_icon();
+            $messages = [];
+            $notifications = [];
             $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
             $contextmodule = \context_module::instance($cm->id);
             if (has_capability('mod/msocial:manage', $contextmodule)) {
@@ -144,7 +146,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     if ($errorstatus) {
                         $this->notify(get_string('problemwithtwitteraccount', 'msocial', $errorstatus), self::NOTIFY_WARNING);
                     }
-                    $this->notify(
+                    $messages[] =
                             get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
                                     new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
                                             array('id' => $id, 'action' => 'connect')), "Change user") . '/' .
@@ -153,20 +155,20 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                                                     array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $OUTPUT->action_icon(
                                             new \moodle_url('/mod/msocial/harvest.php',
                                                     ['id' => $id, 'subtype' => $this->get_subtype()]),
-                                            new \pix_icon('a/refresh', get_string('harvest_tweets', 'msocialconnector_twitter'))));
+                                            new \pix_icon('a/refresh', get_string('harvest_tweets', 'msocialconnector_twitter')));
                 } else {
-                    $this->notify(
+                    $notifications[] =
                             get_string('module_not_connected_twitter', 'msocialconnector_twitter') . $OUTPUT->action_link(
                                     new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
-                                            array('id' => $id, 'action' => 'connect')), "Connect"), self::NOTIFY_WARNING);
+                                            array('id' => $id, 'action' => 'connect')), "Connect");
                 }
             }
             // Check hashtag search field.
             $hashtag = $this->get_config('hashtag');
             if (trim($hashtag) == "") {
-                $this->notify(get_string('hashtag_missing', 'msocialconnector_twitter'), self::NOTIFY_WARNING);
+                $notifications[] = get_string('hashtag_missing', 'msocialconnector_twitter');
             } else {
-                $this->notify(get_string('hashtag_reminder', 'msocialconnector_twitter', $hashtag));
+                $messages[] = get_string('hashtag_reminder', 'msocialconnector_twitter', $hashtag);
             }
             // Check user's social credentials.
             $twitterusername = $this->get_social_userid($USER);
@@ -175,8 +177,10 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                         array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
                 $twitteradvice = get_string('no_twitter_name_advice2', 'msocialconnector_twitter',
                         ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false)]);
-                $this->notify($twitteradvice, self::NOTIFY_WARNING);
+                $notifications[] = $twitteradvice;
             }
+            $this->notify($notifications,self::NOTIFY_WARNING);
+            $this->notify($messages, self::NOTIFY_NORMAL);
         }
     }
 

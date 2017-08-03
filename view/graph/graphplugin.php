@@ -172,7 +172,7 @@ class msocial_view_graph extends msocial_view_plugin {
             $headline = $this->get_name() . ' : ' . $OUTPUT->action_icon(
                     new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->get_cmid(),
                                     'subtype' => $this->get_subtype()]), new \pix_icon('a/refresh', ''));
-                    $this->notify($headline);
+                    $this->notify([$headline],self::NOTIFY_NORMAL);
         }
     }
 

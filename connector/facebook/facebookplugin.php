@@ -123,6 +123,8 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     public function render_header() {
         global $OUTPUT, $DB, $USER;
         if ($this->is_enabled()) {
+            $notifications = [];
+            $messages = [];
             $context = \context_module::instance($this->cm->id);
             list($course, $cm) = get_course_and_cm_from_instance($this->msocial->id, 'msocial');
             $id = $cm->id;
@@ -134,18 +136,16 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                     $username = $token->username;
                     $errorstatus = $token->errorstatus;
                     if ($errorstatus) {
-                        $this->notify(get_string('problemwithfacebookaccount', 'msocial', $errorstatus), self::NOTIFY_WARNING);
+                        $notifications .= '<p>' . get_string('problemwithfacebookaccount', 'msocial', $errorstatus);
                     }
-                    $this->notify(
-                            get_string('module_connected_facebook', 'msocialconnector_facebook', $username) . $OUTPUT->action_link(
+                    $messages[] = get_string('module_connected_facebook', 'msocialconnector_facebook', $username) . $OUTPUT->action_link(
+                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+                                    array('id' => $id, 'action' => 'connect')), "Change user") . '/' .
+                             $OUTPUT->action_link(
                                     new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                                            array('id' => $id, 'action' => 'connect')), "Change user") . '/' .
-                                     $OUTPUT->action_link(
-                                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                                                    array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $OUTPUT->action_icon(
-                                            new \moodle_url('/mod/msocial/harvest.php',
-                                                    ['id' => $id, 'subtype' => $this->get_subtype()]),
-                                            new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_facebook'))));
+                                            array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $OUTPUT->action_icon(
+                                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
+                                    new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_facebook')));
                     // Check facebook group...
                     $fbgroup = $this->get_config(self::CONFIG_FBGROUP);
                     if (trim($fbgroup) === "") {
@@ -155,8 +155,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                                     new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
                                             array('id' => $id, 'action' => 'selectgroup')), "Select group");
                         }
-                        $this->notify($icondecoration . get_string('fbgroup', 'msocialconnector_facebook') . " : " . $action,
-                                self::NOTIFY_WARNING);
+                        $notifications[] = get_string('fbgroup', 'msocialconnector_facebook') . " : " . $action;
                     } else {
                         $groupinfo = '<a target="blank" href="https://www.facebook.com/groups/' .
                                  $this->get_config(self::CONFIG_FBGROUP) . '">' . $this->get_config(self::CONFIG_FBGROUPNAME) . "</a>";
@@ -166,13 +165,12 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                                     new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
                                             array('id' => $id, 'action' => 'selectgroup')), "Change group");
                         }
-                        $this->notify(get_string('fbgroup', 'msocialconnector_facebook') . ' : "' . $groupinfo . '" ' . $action);
+                        $messages[] = get_string('fbgroup', 'msocialconnector_facebook') . ' : "' . $groupinfo . '" ' . $action;
                     }
                 } else {
-                    $this->notify(
-                            get_string('module_not_connected_facebook', 'msocialconnector_facebook') . $OUTPUT->action_link(
-                                    new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                                            array('id' => $id, 'action' => 'connect')), "Connect"), self::NOTIFY_WARNING);
+                    $notifications[] = get_string('module_not_connected_facebook', 'msocialconnector_facebook') . $OUTPUT->action_link(
+                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+                                    array('id' => $id, 'action' => 'connect')), "Connect");
                 }
             }
             // Check user's social credentials.
@@ -182,8 +180,10 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                         array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
                 $facebookadvice = get_string('no_facebook_name_advice2', 'msocialconnector_facebook',
                         ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false)]);
-                $this->notify($facebookadvice, self::NOTIFY_WARNING);
+                $notifications[] = $facebookadvice;
             }
+            $this->notify($notifications, self::NOTIFY_WARNING);
+            $this->notify($messages, self::NOTIFY_NORMAL);
         }
     }
 
