@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -127,19 +128,38 @@ if ($action == 'callback') { // Twitter callback.
         // Print the page header.
         echo $OUTPUT->header();
         $continue = new moodle_url('/mod/msocial/view.php', array('id' => $cm->id));
-        print_error('Error authenticating with Twitter.', null, $continue->out(),$reqdata['errmsg']);
+        print_error('Error authenticating with Twitter.', null, $continue->out(), $reqdata['errmsg']);
     }
 } else if ($action == 'disconnect') {
-    $plugin->unset_connection_token();
-    // Show headings and menus of page.
-    $PAGE->set_url($thispageurl);
-    $PAGE->set_title(format_string($cm->name));
-    $PAGE->set_heading($course->fullname);
-    // Print the page header.
-    echo $OUTPUT->header();
-    echo $OUTPUT->box(get_string('module_not_connected_twitter', 'msocialconnector_twitter'));
-    echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $cm->id)));
-    echo $OUTPUT->footer();
+    if ($type == 'profile') {
+        $userid = required_param('userid', PARAM_INT);
+        $socialid = required_param('socialid', PARAM_RAW_TRIMMED);
+        $user = (object) ['id' => $userid];
+        // Remove the mapping.
+        $plugin->unset_social_userid($user, $socialid);
+        // Show headings and menus of page.
+        $PAGE->set_url($thispageurl);
+        $PAGE->set_title(format_string($cm->name));
+        $PAGE->set_heading($course->fullname);
+        // Print the page header.
+        echo $OUTPUT->header();
+        echo $OUTPUT->box($plugin->render_user_linking($user));
+        echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $cm->id)));
+        echo $OUTPUT->footer();
+
+    } else {
+        require_capability('mod/msocial:manage', $context);
+        $plugin->unset_connection_token();
+        // Show headings and menus of page.
+        $PAGE->set_url($thispageurl);
+        $PAGE->set_title(format_string($cm->name));
+        $PAGE->set_heading($course->fullname);
+        // Print the page header.
+        echo $OUTPUT->header();
+        echo $OUTPUT->box(get_string('module_not_connected_twitter', 'msocialconnector_twitter'));
+        echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $cm->id)));
+        echo $OUTPUT->footer();
+    }
 } else {
     print_error("Bad action code");
 }

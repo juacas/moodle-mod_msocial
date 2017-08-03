@@ -188,7 +188,7 @@ class msocial_view_table extends msocial_view_plugin {
             }
             $usersociallink = '';
             foreach ($enabledsocialplugins as $type => $plugin) {
-                if ($plugin->is_tracking()) {
+                if ($plugin->is_enabled()) {
                     $usersociallink .= '<p fontsize="8" >' . $plugin->render_user_linking($user) . '</p>';
                 }
             }

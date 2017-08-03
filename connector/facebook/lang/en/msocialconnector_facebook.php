@@ -37,7 +37,7 @@ $string['fbsearch_help'] = 'It can be any string as specified in Facebook search
 $string['harvest'] = 'Search Facebook groups for student activity';
 
 $string['no_facebook_name_advice'] = 'No Facebook name.';
-$string['no_facebook_name_advice2'] = 'No Facebook name. Register using Facebook clicking in <a href="{$a->url}"><img src="connector/facebook/pix/loginwithfacebook.png" alt="Facebook login"/></a>';
+$string['no_facebook_name_advice2'] = 'No Facebook name. Register using Facebook clicking in <a href="{$a->url}"><img src="{$a->pixurl}/loginwithfacebook.png" alt="Facebook login"/></a>';
 
 $string['module_connected_facebook'] = 'Module connected with Facebook as user "{$a}" ';
 $string['module_not_connected_facebook'] = 'Module disconnected from facebook. It won\'t work until a facebook account is linked again.';

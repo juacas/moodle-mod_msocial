@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -26,6 +27,7 @@ namespace mod_msocial\connector;
 
 use msocial\msocial_plugin;
 use mod_msocial\pki_info;
+use mod_msocial\pki;
 
 defined('MOODLE_INTERNAL') || die();
 require_once ('TwitterAPIExchange.php');
@@ -146,21 +148,18 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     if ($errorstatus) {
                         $this->notify(get_string('problemwithtwitteraccount', 'msocial', $errorstatus), self::NOTIFY_WARNING);
                     }
-                    $messages[] =
-                            get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
+                    $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
+                            new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
+                                    array('id' => $id, 'action' => 'connect')), "Change user") . '/' .
+                             $OUTPUT->action_link(
                                     new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
-                                            array('id' => $id, 'action' => 'connect')), "Change user") . '/' .
-                                     $OUTPUT->action_link(
-                                            new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
-                                                    array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $OUTPUT->action_icon(
-                                            new \moodle_url('/mod/msocial/harvest.php',
-                                                    ['id' => $id, 'subtype' => $this->get_subtype()]),
-                                            new \pix_icon('a/refresh', get_string('harvest_tweets', 'msocialconnector_twitter')));
+                                            array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $OUTPUT->action_icon(
+                                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
+                                    new \pix_icon('a/refresh', get_string('harvest_tweets', 'msocialconnector_twitter')));
                 } else {
-                    $notifications[] =
-                            get_string('module_not_connected_twitter', 'msocialconnector_twitter') . $OUTPUT->action_link(
-                                    new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
-                                            array('id' => $id, 'action' => 'connect')), "Connect");
+                    $notifications[] = get_string('module_not_connected_twitter', 'msocialconnector_twitter') . $OUTPUT->action_link(
+                            new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
+                                    array('id' => $id, 'action' => 'connect')), "Connect");
                 }
             }
             // Check hashtag search field.
@@ -179,7 +178,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                         ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false)]);
                 $notifications[] = $twitteradvice;
             }
-            $this->notify($notifications,self::NOTIFY_WARNING);
+            $this->notify($notifications, self::NOTIFY_WARNING);
             $this->notify($messages, self::NOTIFY_NORMAL);
         }
     }
@@ -200,14 +199,29 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             if ($USER->id == $user->id) {
                 $urlprofile = new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
                         array('id' => $cm->id, 'action' => 'connect', 'type' => 'profile'));
+                $pixurl = new \moodle_url('/mod/msocial/connector/twitter/pix');
+
                 $usermessage = get_string('no_twitter_name_advice2', 'msocialconnector_twitter',
-                        ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false)]);
+                        ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false),
+                                        'pixurl' => $pixurl->out()]);
             } else {
                 $usermessage = get_string('no_twitter_name_advice', 'msocialconnector_twitter',
                         ['userid' => $user->id, 'courseid' => $course->id]);
             }
         } else {
+
             $usermessage = $this->create_user_link($user);
+            $contextmodule = \context_module::instance($this->cm->id);
+            if ($USER->id == $user->id || has_capability('mod/msocial:manage', $contextmodule)) {
+                $icon = new \pix_icon('t/delete', 'delete');
+                $urlprofile = new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
+                        array('id' => $this->cm->id, 'action' => 'disconnect', 'type' => 'profile', 'userid' => $user->id,
+                                        'socialid' => $twitterusername->socialid));
+                global $OUTPUT;
+                $link = \html_writer::link($urlprofile, $OUTPUT->render($icon));
+
+                $usermessage .= $link;
+            }
         }
         return $usermessage;
     }
@@ -249,7 +263,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         // Convert stats to PKI.
         foreach ($stats->users as $userid => $stat) {
             $pki = isset($pkis[$userid]) ? $pkis[$userid] : null;
-            $pkis[$userid] = pki::fromStat($userid, $stat, $stataggregated, $this, $pki);
+            $pkis[$userid] = pki::from_stat($userid, $stat, $stataggregated, $this, $pki);
         }
         return $pkis;
     }

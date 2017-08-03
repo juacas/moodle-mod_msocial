@@ -36,7 +36,7 @@ $string['mainpage_help'] = 'Twitter contest main page. You can view your achieve
 $string['module_connected_twitter'] = 'Module connected with Twitter as user "{$a}" ';
 $string['module_not_connected_twitter'] = 'Module disconnected from twitter. It won\'t work until a facebook account is linked again.';
 $string['no_twitter_name_advice'] = 'No Twitter name. </a>';
-$string['no_twitter_name_advice2'] = 'No Twitter name. Register using Twitter in <a href="{$a->url}"><img src="connector/twitter/pix/sign-in-with-twitter-gray.png" alt="Twitter login"/></a>';
+$string['no_twitter_name_advice2'] = 'No Twitter name. Register using Twitter in <a href="{$a->url}"><img src="{$a->pixurl}/sign-in-with-twitter-gray.png" alt="Twitter login"/></a>';
 
 
 // SETTINGS.

@@ -203,14 +203,27 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             if ($USER->id == $user->id) {
                 $urlprofile = new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
                         array('id' => $cm->id, 'action' => 'connect', 'type' => 'profile'));
+                $pixurl = new \moodle_url('/mod/msocial/connector/facebook/pix');
                 $usermessage = get_string('no_facebook_name_advice2', 'msocialconnector_facebook',
-                        ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false)]);
+                        ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false),
+                                        'pixurl' => $pixurl->out()]);
             } else {
+                $pixurl = new \moodle_url('/mod/msocial/connector/facebook/pix');
                 $usermessage = get_string('no_facebook_name_advice', 'msocialconnector_facebook',
-                        ['userid' => $user->id, 'courseid' => $course->id]);
+                        ['userid' => $user->id, 'courseid' => $course->id, 'pixurl' => $pixurl->out()]);
             }
         } else {
+            global $OUTPUT;
             $usermessage = $this->create_user_link($user);
+            $contextmodule = \context_module::instance($this->cm->id);
+            if ($USER->id == $user->id || has_capability('mod/msocial:manage', $contextmodule)) {
+                $icon = new \pix_icon('t/delete', 'delete');
+                $urlprofile = new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+                        array('id' => $this->cm->id, 'action' => 'disconnect', 'type' => 'profile', 'userid' => $user->id,
+                                        'socialid' => $socialids->socialid));
+                $link = \html_writer::link($urlprofile, $OUTPUT->render($icon));
+                $usermessage .= $link;
+            }
         }
         return $usermessage;
     }

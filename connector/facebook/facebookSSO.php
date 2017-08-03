@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -51,8 +52,11 @@ $appsecret = get_config("msocialconnector_facebook", "appsecret");
 $fb = new \Facebook\Facebook(
         ['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.9',
                         'default_access_token' => '{access-token}' // Optional...
-        ]);
+]);
 $record = $DB->get_record('msocial_facebook_tokens', array("msocial" => $cm->instance));
+$thispageurl = new moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+        array('id' => $id, 'action' => $action, 'type' => $type));
+
 if ($action == 'connect') {
     // GetToken.
     $helper = $fb->getRedirectLoginHelper();
@@ -89,7 +93,8 @@ if ($action == 'connect') {
             try {
                 $accesstoken = $oauth2client->getLongLivedAccessToken($accesstoken);
             } catch (Facebook\Exceptions\FacebookSDKException $e) {
-                echo "<p>Error getting long-lived access token: " . $helper->getMessage() . "</p>\n\n"; // TODO lang.
+                echo "<p>Error getting long-lived access token: " . $helper->getMessage() . "</p>\n\n"; // TODO
+                                                                                                        // lang.
                 exit();
             }
         }
@@ -119,8 +124,7 @@ if ($action == 'connect') {
         $message = get_string('module_not_connected_facebook', 'msocialconnector_facebook');
     }
     // Show headings and menus of page.
-    $url = new moodle_url('/mod/msocial/connector/facebook/facebookSSO.php', array('id' => $id));
-    $PAGE->set_url($url);
+    $PAGE->set_url($thispageurl);
     $PAGE->set_title(format_string($cm->name));
 
     $PAGE->set_heading($course->fullname);
@@ -129,19 +133,34 @@ if ($action == 'connect') {
     echo $OUTPUT->box($message);
     echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));
 } else if ($action == 'disconnect') {
-    $plugin->unset_connection_token();
-    // Show headings and menus of page.
-    $url = new moodle_url('/mod/msocial/connector/facebook/facebookSSO.php', array('id' => $id));
-    $PAGE->set_url($url);
-    $PAGE->set_title(format_string($cm->name));
-    $PAGE->set_heading($course->fullname);
-    // Print the page header.
-    echo $OUTPUT->header();
-    echo $OUTPUT->box(get_string('module_not_connected_facebook', 'msocialconnector_facebook'));
-    echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));
+    if ($type == 'profile') {
+        $userid = required_param('userid', PARAM_INT);
+        $socialid = required_param('socialid', PARAM_RAW_TRIMMED);
+        $user = (object) ['id' => $userid];
+        // Remove the mapping.
+        $plugin->unset_social_userid($user, $socialid);
+        // Show headings and menus of page.
+        $PAGE->set_url($thispageurl);
+        $PAGE->set_title(format_string($cm->name));
+        $PAGE->set_heading($course->fullname);
+        // Print the page header.
+        echo $OUTPUT->header();
+        echo $OUTPUT->box($plugin->render_user_linking($user));
+        echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));
+    } else {
+        require_capability('mod/msocial:manage', $context);
+        $plugin->unset_connection_token();
+        // Show headings and menus of page.
+        $PAGE->set_url($thispageurl);
+        $PAGE->set_title(format_string($cm->name));
+        $PAGE->set_heading($course->fullname);
+        // Print the page header.
+        echo $OUTPUT->header();
+        echo $OUTPUT->box(get_string('module_not_connected_facebook', 'msocialconnector_facebook'));
+        echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));
+    }
 } else if ($action == 'selectgroup') {
-    $url = new moodle_url('/mod/msocial/connector/facebook/facebookSSO.php', array('id' => $id, 'action' => 'selectgroup'));
-    $PAGE->set_url($url);
+    $PAGE->set_url($thispageurl);
     $PAGE->set_title(format_string($cm->name));
     $PAGE->set_heading($course->fullname);
     // Print the page header.

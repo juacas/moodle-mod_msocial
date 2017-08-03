@@ -118,9 +118,9 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         global $DB;
         // Clean previous maps.
         $DB->delete_records('msocial_mapusers',
-                ['msocial' => $this->msocial->id, 'type' => $this->get_subtype(), 'socialid' => $socialid]);
-        $DB->delete_records('msocial_mapusers',
                 ['msocial' => $this->msocial->id, 'type' => $this->get_subtype(), 'userid' => $user->id]);
+        $DB->delete_records('msocial_mapusers',
+                ['msocial' => $this->msocial->id, 'type' => $this->get_subtype(), 'socialid' => $socialid]);
 
         $record = new \stdClass();
         $record->msocial = $this->msocial->id;
@@ -130,9 +130,25 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $record->type = $this->get_subtype();
 
         $DB->insert_record('msocial_mapusers', $record);
+        $this->refresh_interaction_users($record);
         // Reset cache...
         $this->usertosocialmapping = null;
+        $pkis = $this->calculate_pkis([$user->id => $user]);
+        $this->store_pkis($pkis);
+    }
+
+    public function unset_social_userid($user, $socialid) {
+        global $DB;
+        $DB->delete_records('msocial_mapusers',
+                ['msocial' => $this->msocial->id, 'type' => $this->get_subtype(), 'userid' => $user->id, 'socialid' => $socialid]);
+        $record = new \stdClass();
+        $record->msocial = $this->msocial->id;
+        $record->userid = null; // Remove interaction resolutions.
+        $record->socialid = $socialid;
+        $record->type = $this->get_subtype();
         $this->refresh_interaction_users($record);
+        // Reset cache...
+        $this->usertosocialmapping = null;
         $pkis = $this->calculate_pkis([$user->id => $user]);
         $this->store_pkis($pkis);
     }

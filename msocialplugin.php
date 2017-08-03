@@ -273,10 +273,12 @@ abstract class msocial_plugin {
                 $aggregatedrecords = $DB->get_records_sql($sql, [$this->msocial->id]);
                 // Process users' pkis.
                 foreach ($aggregatedrecords as $aggr) {
-                    $pki = $pkis[$aggr->userid];
-                    $pki->{$pkiinfo->name} = $aggr->total;
-                    $stats['max_' . $pkiinfo->name] = max(
-                            [0, $aggr->total, isset($stats[$pkiinfo->name]) ? $stats[$pkiinfo->name] : 0]);
+                    if (isset($pkis[$aggr->userid])) {
+                        $pki = $pkis[$aggr->userid];
+                        $pki->{$pkiinfo->name} = $aggr->total;
+                        $stats['max_' . $pkiinfo->name] = max(
+                                [0, $aggr->total, isset($stats[$pkiinfo->name]) ? $stats[$pkiinfo->name] : 0]);
+                    }
                 }
             }
         }
@@ -594,7 +596,7 @@ abstract class msocial_plugin {
         global $OUTPUT;
         if (count($messages) > 0) {
             $icon = $this->get_icon();
-            $text =  join('<br/>', $messages);
+            $text = join('<br/>', $messages);
             $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
             if ($level === self::NOTIFY_NORMAL) {
                 echo $OUTPUT->box($icondecoration . $text);
