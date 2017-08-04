@@ -9,6 +9,7 @@ requirejs.config({
 		worker: baseurl+'/mod/msocial/view/graph/js/requirejs-web-workers/src/worker',
 		renderer: baseurl+'/mod/msocial/view/graph/js/graphviz-d3-renderer/dist/renderer',
 		'msocialview/graphviz': baseurl+'/mod/msocial/view/graph/js/viewgraphvizlib',
+		'svg-pan-zoom' : baseurl+'/mod/msocial/view/graph/js/svg-pan-zoom',
     },
     waitSeconds: 20
 });

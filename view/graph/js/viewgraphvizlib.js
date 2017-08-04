@@ -5,7 +5,7 @@
  * @author Juan Pablo de Castro <jpdecastro@tel.uva.es>
  * @license http:// www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
-define('msocialview/graphviz', [ 'renderer' ], function(renderer) {
+define('msocialview/graphviz', [ 'renderer','svg-pan-zoom' ], function(renderer,svgPanZoom) {
 
 	var init = {
 		initview : function(container, dotSourceDiv) {
@@ -20,6 +20,19 @@ define('msocialview/graphviz', [ 'renderer' ], function(renderer) {
 			var dotSource = $(dotSourceDiv).text();
 			// Update stage with new dot source.
 			renderer.render(dotSource);
+			setTimeout(function waitSVG() {
+				var svgContainer = $("#graph > svg");
+				if (svgContainer.length > 0) {
+					svgPanZoom("#graph > svg", {
+						zoomEnabled : true,
+						controlIconsEnabled : true,
+						fit : true,
+						center : true,
+					});
+				} else {
+					setTimeout(waitSVG, 1000);
+				}
+			}, 3000);
 		} // End of function init.
 	}; // End of init var.
 	return init;

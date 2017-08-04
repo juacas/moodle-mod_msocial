@@ -138,7 +138,7 @@ class SocialMatrix {
         // Invert graph.
         $transposer = new TransposeGraph($this->graph);
         $transposedgraph = $transposer->createGraph();
-        $bidirectionalgraph = (new BidirectionalGraph($this->graph))->createGraph();
+        $bidirectionalgraph = (new BidirectionalGraph($this->graph))->createGraph(false);
         $results = [];
         $analysisgraph = $bidirectionalgraph;
 //         $communityvertex = $analysisgraph->getVertex('Community');
