@@ -28,7 +28,7 @@
  * and open the template in the editor.
  */
 $string['pluginname'] = 'Facebook Connector';
-$string['fbgroup'] = 'Facebook Group';
+$string['fbgroup'] = 'Facebook Group to analyze';
 $string['connectgroupinpage'] = 'Select your group in the main page of the activity';
 $string['fbfieldid'] = 'Field that holds the facebook username';
 $string['fbfieldid_help'] = 'Field name of the user profile that holds the facebook username';
@@ -36,8 +36,8 @@ $string['fbsearch'] = 'Search string to search for in Facebook';
 $string['fbsearch_help'] = 'It can be any string as specified in Facebook search API. You can use this reference to find out how to compose your search string <a href="https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes">https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes</a>';
 $string['harvest'] = 'Search Facebook groups for student activity';
 
-$string['no_facebook_name_advice'] = 'No Facebook name.';
-$string['no_facebook_name_advice2'] = 'No Facebook name. Register using Facebook clicking in <a href="{$a->url}"><img src="{$a->pixurl}/loginwithfacebook.png" alt="Facebook login"/></a>';
+$string['no_facebook_name_advice'] = 'Unlinked to Facebook.';
+$string['no_facebook_name_advice2'] = '{$a->userfullname} is not linked to Facebook. Register using Facebook clicking in <a href="{$a->url}"><img src="{$a->pixurl}/loginwithfacebook.png" alt="Facebook login"/></a>';
 
 $string['module_connected_facebook'] = 'Module connected with Facebook as user "{$a}" ';
 $string['module_not_connected_facebook'] = 'Module disconnected from facebook. It won\'t work until a facebook account is linked again.';

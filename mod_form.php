@@ -85,7 +85,7 @@ class mod_msocial_mod_form extends moodleform_mod {
 
         $mform->addElement('static', 'list_of_variables', get_string('grade_variables', 'msocial'), $varliststr);
         $mform->addElement('text', 'grade_expr', $calculation);
-        $mform->setDefault('grade_expr', '=100*(favs+retweets+tweets)/(maxfavs+maxretweets+maxtweets)');
+        $mform->setDefault('grade_expr', '=100*(favs+retweets+tweets)/(max_favs+max_retweets+max_tweets)');
         $mform->addHelpButton('grade_expr', 'grade_expr', 'msocial');
         $mform->setType('grade_expr', PARAM_TEXT);
 

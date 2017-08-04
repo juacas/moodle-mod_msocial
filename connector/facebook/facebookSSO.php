@@ -136,6 +136,9 @@ if ($action == 'connect') {
     if ($type == 'profile') {
         $userid = required_param('userid', PARAM_INT);
         $socialid = required_param('socialid', PARAM_RAW_TRIMMED);
+        if ($userid !== $USER->id) {
+            require_capability('mod/msocial:manage', $context);
+        }
         $user = (object) ['id' => $userid];
         // Remove the mapping.
         $plugin->unset_social_userid($user, $socialid);
