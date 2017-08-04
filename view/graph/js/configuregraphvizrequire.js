@@ -8,7 +8,7 @@ requirejs.config({
 		"layout-worker": baseurl+'/mod/msocial/view/graph/js/graphviz-d3-renderer/dist/layout-worker',
 		worker: baseurl+'/mod/msocial/view/graph/js/requirejs-web-workers/src/worker',
 		renderer: baseurl+'/mod/msocial/view/graph/js/graphviz-d3-renderer/dist/renderer',
-		'msocialview/graphviz': baseurl+'/mod/msocial/view/graph/js/graphviz',
+		'msocialview/graphviz': baseurl+'/mod/msocial/view/graph/js/viewgraphvizlib',
     },
     waitSeconds: 20
 });

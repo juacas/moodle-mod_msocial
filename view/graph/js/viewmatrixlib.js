@@ -13,14 +13,14 @@
 // You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http:// www.gnu.org/licenses/>.
 /**
- * @module sequence diagram
- * @package mod_msocial/view/sequence
+ * @module interaction matrix diagram
+ * @package mod_msocial/view/matrix
  * @copyright 2017 Juan Pablo de Castro <jpdecastro@tel.uva.es>
  * @author Juan Pablo de Castro <jpdecastro@tel.uva.es>
  * @license http:// www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 
-function initview(Y,cmid) {
+function init_matrix_view(Y,cmid) {
 	var margin = {top: 160, right: 0, bottom: 10, left: 160},
     width = 320,
     height = 320;
@@ -36,7 +36,7 @@ var svg = d3.select("#diagram").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("view/graph/jsonized.php?id="+cmid, function(interactions) {
+d3.json("view/graph/jsonized.php?include_community=true&id="+cmid, function(interactions) {
   var matrix = [],
       nodes = interactions.nodes,
       n = nodes.length;

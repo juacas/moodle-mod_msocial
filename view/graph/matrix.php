@@ -46,5 +46,5 @@ text.active {
 <div id="diagram" class="diagram" style=""></div>
 <?php
 // Graph matrix view.
-$reqs->js('/mod/msocial/view/graph/js/viewlib.js');
-$reqs->js_init_call('initview', [$this->cm->id], false);
+$reqs->js('/mod/msocial/view/graph/js/viewmatrixlib.js');
+$reqs->js_init_call('init_matrix_view', [$this->cm->id], false);

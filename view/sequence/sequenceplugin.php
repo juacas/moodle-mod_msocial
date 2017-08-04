@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -123,10 +124,16 @@ class msocial_view_sequence extends msocial_view_plugin {
                 $arrow = '->';
             }
             $from = isset($userrecords[$interaction->fromid]) ? fullname($userrecords[$interaction->fromid]) : ($interaction->nativefromname ? $interaction->nativefromname : $interaction->nativefrom);
+            if ($from == null) {
+                $from = '[COMMUNITY]';
+            }
             if ($interaction->type == social_interaction::POST) {
                 $to = $from; // Represents as a self-message.
             } else {
                 $to = isset($userrecords[$interaction->toid]) ? fullname($userrecords[$interaction->toid]) : ($interaction->nativetoname ? $interaction->nativetoname : $interaction->nativeto);
+            }
+            if ($to == null) {
+                $to = '[COMMUNITY]';
             }
             $diagram .= $from . $arrow . $to . ":" . $interaction->source . ':' . $interaction->nativetype . "\r\n";
         }

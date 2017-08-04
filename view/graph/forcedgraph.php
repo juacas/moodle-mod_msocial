@@ -1,6 +1,6 @@
 <script src="view/graph/js/d3/d3.v4.min.js"></script>
 <script src="view/graph/js/d3/d3-selection-multi.v1.js"></script>
-<script type="text/javascript" src="view/graph/forcedgraph.js"></script>
+<script type="text/javascript" src="view/graph/js/viewforcedgraphlib.js"></script>
 <!--
 
 //-->
@@ -27,9 +27,9 @@ stroke-opacity: .6; stroke-width: 1px; }
 
 
 
-d3.json("view/graph/jsonized.php?id=<?php echo $this->cm->id ?>", function(error, graph) {
+d3.json("view/graph/jsonized.php?include_community=true&id=<?php echo $this->cm->id ?>", function(error, graph) {
   if (error) throw error;
-  createGraph(graph);
+  init_forced_graph_view(graph);
 });
 
 

@@ -168,11 +168,13 @@ class msocial_view_graph extends msocial_view_plugin {
     public function render_header() {
         global $OUTPUT;
         if ($this->is_enabled()) {
-
-            $headline = $this->get_name() . ' : ' . $OUTPUT->action_icon(
+            $context = \context_module::instance($this->cm->id);
+            if (has_capability('mod/msocial:manage', $context)) {
+                $headline = $this->get_name() . ' : ' . $OUTPUT->action_icon(
                     new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->get_cmid(),
                                     'subtype' => $this->get_subtype()]), new \pix_icon('a/refresh', ''));
                     $this->notify([$headline],self::NOTIFY_NORMAL);
+            }
         }
     }
 

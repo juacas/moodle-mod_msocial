@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -31,6 +32,7 @@ require_once ('../../socialinteraction.php');
 header('Content-Type: application/json; charset=utf-8');
 $id = required_param('id', PARAM_INT);
 $fromdate = optional_param('from', null, PARAM_ALPHANUMEXT);
+$community = optional_param('include_community', true, PARAM_BOOL);
 $todate = optional_param('from', null, PARAM_ALPHANUMEXT);
 $subtype = optional_param('subtype', null, PARAM_ALPHA);
 $cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);
@@ -55,6 +57,9 @@ foreach ($interactions as $interaction) {
         $subtype = $interaction->source;
         $plugin = $plugins[$subtype];
         if ($plugin->is_enabled() == false) {
+            continue;
+        }
+        if ($interaction->nativeto == null && $community == false) {
             continue;
         }
         $nodenamefrom = get_fullname($interaction->fromid, $userrecords, "[$interaction->nativefromname]");

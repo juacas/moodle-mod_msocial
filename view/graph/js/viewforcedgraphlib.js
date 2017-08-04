@@ -5,7 +5,7 @@
  * @author Juan Pablo de Castro <jpdecastro@tel.uva.es>
  * @license http:// www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
-function createGraph(graph) {
+function init_forced_graph_view(graph) {
 	
 	var svg = d3.select("#graph");
 		
