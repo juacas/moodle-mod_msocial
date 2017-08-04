@@ -562,7 +562,7 @@ abstract class msocial_plugin {
                     echo "<p>$message</p>";
                 }
             } else {
-                echo "<p>Plugin $type is not tracking. (Missing token, hashtag or disabled.)</p>";
+                echo "<p>Plugin $type is not tracking. (Disabled or some critical configuration missing.)</p>";
             }
         }
     }

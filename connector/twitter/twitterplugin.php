@@ -148,14 +148,19 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     if ($errorstatus) {
                         $this->notify(get_string('problemwithtwitteraccount', 'msocial', $errorstatus), self::NOTIFY_WARNING);
                     }
+                    if ($this->is_tracking()) {
+                        $harvestbutton = $OUTPUT->action_icon(
+                                new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
+                                new \pix_icon('a/refresh', get_string('harvest_tweets', 'msocialconnector_twitter')));
+                    } else {
+                        $harvestbutton = '';
+                    }
                     $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Change user") . '/' .
                              $OUTPUT->action_link(
                                     new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
-                                            array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $OUTPUT->action_icon(
-                                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
-                                    new \pix_icon('a/refresh', get_string('harvest_tweets', 'msocialconnector_twitter')));
+                                            array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $harvestbutton;
                 } else {
                     $notifications[] = get_string('module_not_connected_twitter', 'msocialconnector_twitter') . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
@@ -172,11 +177,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             // Check user's social credentials.
             $twitterusername = $this->get_social_userid($USER);
             if ($twitterusername === null) { // Offer to register.
-                $urlprofile = new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
-                        array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
-                $twitteradvice = get_string('no_twitter_name_advice2', 'msocialconnector_twitter',
-                        ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false)]);
-                $notifications[] = $twitteradvice;
+
+                $notifications[] = $this->render_user_linking($USER);
             }
             $this->notify($notifications, self::NOTIFY_WARNING);
             $this->notify($messages, self::NOTIFY_NORMAL);
@@ -196,17 +198,18 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         $twitterusername = $this->get_social_userid($user);
         $cm = get_coursemodule_from_instance('msocial', $this->msocial->id);
         if ($twitterusername === null) { // Offer to register.
+            $userfullname = fullname($user);
             if ($USER->id == $user->id) {
                 $urlprofile = new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
                         array('id' => $cm->id, 'action' => 'connect', 'type' => 'profile'));
                 $pixurl = new \moodle_url('/mod/msocial/connector/twitter/pix');
 
                 $usermessage = get_string('no_twitter_name_advice2', 'msocialconnector_twitter',
-                        ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false),
-                                        'pixurl' => $pixurl->out()]);
+                        ['userfullname' => $userfullname, 'userid' => $USER->id, 'courseid' => $course->id,
+                                        'url' => $urlprofile->out(false), 'pixurl' => $pixurl->out()]);
             } else {
                 $usermessage = get_string('no_twitter_name_advice', 'msocialconnector_twitter',
-                        ['userid' => $user->id, 'courseid' => $course->id]);
+                        ['userfullname' => $userfullname, 'userid' => $user->id, 'courseid' => $course->id]);
             }
         } else {
 
@@ -474,14 +477,15 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $interaction->nativefromname = $status->user->screen_name;
             $interaction->timestamp = new \DateTime($status->created_at);
             $interaction->toid = $this->get_userid($interaction->nativeto);
-            $interaction->nativeto = $status->in_reply_to_user_id;
-            $interaction->nativetoname = $status->in_reply_to_screen_name;
+
 
             $interaction->description = $status->text;
             if ($status->in_reply_to_user_id == null) {
                 $interaction->type = social_interaction::POST;
             } else {
                 $interaction->type = social_interaction::REPLY;
+                $interaction->nativeto = $status->in_reply_to_user_id;
+                $interaction->nativetoname = $status->in_reply_to_screen_name;
             }
             $interactions[] = $interaction;
             // Process mentions...
@@ -603,10 +607,10 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         }
         global $CFG;
         $settings = array('oauth_access_token' => $tokens->token, 'oauth_access_token_secret' => $tokens->token_secret,
-                        'consumer_key' => $CFG->mod_msocial_twitter_consumer_key,  // ...twitter
+                        'consumer_key' => get_config('msocialconnector_twitter', 'consumer_key'),  // ...twitter
                                                                                   // developer app
                                                                                   // key.
-                        'consumer_secret' => $CFG->mod_msocial_consumer_secret // ...twitter
+                        'consumer_secret' =>  get_config('msocialconnector_twitter', 'consumer_secret')// ...twitter
                                                                                    // developer app
                                                                                    // secret.
         );

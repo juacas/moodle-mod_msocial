@@ -56,7 +56,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /**
      * @return true if the plugin is making searches in the social network */
     public function is_tracking() {
-        return ($this->is_enabled() && $this->get_connection_token() != null);
+        return ($this->is_enabled() && $this->get_connection_token() != null && $this->get_config(self::CONFIG_FBGROUP) != null);
     }
 
     /** Get the instance settings for the plugin
@@ -138,14 +138,18 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                     if ($errorstatus) {
                         $notifications .= '<p>' . get_string('problemwithfacebookaccount', 'msocial', $errorstatus);
                     }
+                    if ($this->is_tracking()) {
+                        $harvestbutton = $OUTPUT->action_icon(
+                                new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
+                                new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_facebook')));
+                    } else {
+                        $harvestbutton = '';
+                    }
                     $messages[] = get_string('module_connected_facebook', 'msocialconnector_facebook', $username) . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                                    array('id' => $id, 'action' => 'connect')), "Change user") . '/' .
-                             $OUTPUT->action_link(
-                                    new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                                            array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $OUTPUT->action_icon(
-                                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
-                                    new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_facebook')));
+                                    array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
+                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+                                    array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $harvestbutton;
                     // Check facebook group...
                     $fbgroup = $this->get_config(self::CONFIG_FBGROUP);
                     if (trim($fbgroup) === "") {
@@ -176,11 +180,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             // Check user's social credentials.
             $socialuserids = $this->get_social_userid($USER);
             if (!$socialuserids) { // Offer to register.
-                $urlprofile = new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                        array('id' => $id, 'action' => 'connect', 'type' => 'profile'));
-                $facebookadvice = get_string('no_facebook_name_advice2', 'msocialconnector_facebook',
-                        ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false)]);
-                $notifications[] = $facebookadvice;
+                $notifications[] = $this->render_user_linking($USER);
             }
             $this->notify($notifications, self::NOTIFY_WARNING);
             $this->notify($messages, self::NOTIFY_NORMAL);
@@ -200,17 +200,18 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $socialids = $this->get_social_userid($user);
         $cm = get_coursemodule_from_instance('msocial', $this->msocial->id);
         if ($socialids == null) { // Offer to register.
+            $pixurl = new \moodle_url('/mod/msocial/connector/facebook/pix');
+            $userfullname = fullname($user);
             if ($USER->id == $user->id) {
                 $urlprofile = new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
                         array('id' => $cm->id, 'action' => 'connect', 'type' => 'profile'));
-                $pixurl = new \moodle_url('/mod/msocial/connector/facebook/pix');
                 $usermessage = get_string('no_facebook_name_advice2', 'msocialconnector_facebook',
-                        ['userid' => $USER->id, 'courseid' => $course->id, 'url' => $urlprofile->out(false),
-                                        'pixurl' => $pixurl->out()]);
+                        ['userfullname' => $userfullname, 'userid' => $USER->id, 'courseid' => $course->id,
+                                        'url' => $urlprofile->out(false), 'pixurl' => $pixurl->out(false)]);
             } else {
-                $pixurl = new \moodle_url('/mod/msocial/connector/facebook/pix');
                 $usermessage = get_string('no_facebook_name_advice', 'msocialconnector_facebook',
-                        ['userid' => $user->id, 'courseid' => $course->id, 'pixurl' => $pixurl->out()]);
+                        ['userfullname' => $userfullname, 'userid' => $user->id, 'courseid' => $course->id,
+                                        'pixurl' => $pixurl->out()]);
             }
         } else {
             global $OUTPUT;
@@ -549,10 +550,14 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * @param GraphNode $in
      * @return array(string,string) $name, $id */
     protected function userfacebookidfor($in) {
-        $in->getField('from');
         $author = $in->getField('from');
-        $name = $author->getField('name');
-        $id = $author->getField('id');
+        if ($author !== null) { // User unknown (lack of permissions probably).
+            $name = $author->getField('name');
+            $id = $author->getField('id');
+        } else {
+            $name = '';
+            $id = null;
+        }
         return [$name, $id];
     }
 
@@ -634,7 +639,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             $cm = $this->cm;
             $msocial = $this->msocial;
 
-            $errormessage = "For module msocial\social\facebook: $msocial->name (id=$cm->instance) in course (id=$msocial->course) " .
+            $errormessage = "For module msocial\\social\\facebook: $msocial->name (id=$cm->instance) in course (id=$msocial->course) " .
                      "searching group: $groupid  ERROR:" . $e->getMessage();
             $result->messages[] = $errormessage;
             $result->errors[] = (object) ['message' => $errormessage];

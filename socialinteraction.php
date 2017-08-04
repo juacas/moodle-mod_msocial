@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -23,163 +24,116 @@
  * *******************************************************************************
  */
 
-/**
- * library class for msocial social_interaction
+/** library class for msocial social_interaction
  *
  * @package msocialconnector_twitter
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 namespace mod_msocial\connector;
 
 defined('MOODLE_INTERNAL') || die();
 
 class social_interaction {
 
-    /**
-     * Message published initially, with to recipient.
+    /** Message published initially, with to recipient.
      *
-     * @var string
-     */
+     * @var string */
     const POST = 'post';
 
-    /**
-     * TODO: To be defined.
+    /** TODO: To be defined.
      *
-     * @var string
-     */
+     * @var string */
     const MESSAGE = 'message';
 
-    /**
-     * Message published in response to other.
+    /** Message published in response to other.
      *
-     * @var string
-     */
+     * @var string */
     const REPLY = 'reply';
 
-    /**
-     * Mention to an user inside a message.
+    /** Mention to an user inside a message.
      *
-     * @var string
-     */
+     * @var string */
     const MENTION = 'mention';
 
-    /**
-     * Mark on a message indicating attention.
+    /** Mark on a message indicating attention.
      *
-     * @var string
-     */
+     * @var string */
     const REACTION = 'reaction';
 
-    /**
-     * Interaction source.
-     * @var string
-     */
+    /** Interaction source.
+     * @var string */
     const DIRECTION_AUTHOR = 'fromid';
-
     const DIRECTION_RECIPIENT = 'toid';
 
-    /**
-     * Name of the subplugin that generated this
+    /** Name of the subplugin that generated this
      *
-     * @var string
-     */
+     * @var string */
     public $source;
-
     public $icon;
 
-    /**
-     * Unique identifier of this interaction.
+    /** Unique identifier of this interaction.
      *
-     * @var string
-     */
+     * @var string */
     public $uid;
 
-    /**
-     * moodle userid
+    /** moodle userid
      *
-     * @var string
-     */
+     * @var string */
     public $fromid;
 
-    /**
-     * Social network native userid.
+    /** Social network native userid.
      *
-     * @var string
-     */
+     * @var string */
     public $nativefrom;
 
-    /**
-     * Social network native username.
+    /** Social network native username.
      *
-     * @var string
-     */
+     * @var string */
     public $nativefromname;
 
     /**
-     *
-     * @var string moodle userid
-     */
+     * @var string moodle userid */
     public $toid;
 
     /**
-     *
-     * @var string social network userid
-     */
+     * @var string social network userid */
     public $nativeto;
 
-    /**
-     * Social network native username.
+    /** Social network native username.
      *
-     * @var string
-     */
+     * @var string */
     public $nativetoname;
 
-    /**
-     * social_interaction uid that originated this interaction.
+    /** social_interaction uid that originated this interaction.
      *
-     * @var social_interaction
-     */
+     * @var social_interaction */
     public $parentinteraction;
 
     /**
-     *
-     * @var \DateTime time of creation of the interaction
-     */
+     * @var \DateTime time of creation of the interaction */
     public $timestamp;
 
-    /**
-     * Type of interaction: post, reply, share, etc.
+    /** Type of interaction: post, reply, share, etc.
      *
-     * @var string
-     */
+     * @var string */
     public $type;
 
-    /**
-     * Type of the interacion as defined by the social service.
+    /** Type of the interacion as defined by the social service.
      *
-     * @var string
-     */
+     * @var string */
     public $nativetype;
-
     public $description;
-
     public $shortdescription;
-
     public $score;
 
-    /**
-     * native JSON representation of the item
+    /** native JSON representation of the item
      *
-     * @var string
-     */
+     * @var string */
     public $rawdata;
 
-    /**
-     * Construct an instance from a database record
+    /** Construct an instance from a database record
      *
-     * @param unknown $record
-     */
+     * @param unknown $record */
     static public function build($record) {
         $inter = new social_interaction();
         foreach ($record as $key => $value) {
@@ -195,19 +149,23 @@ class social_interaction {
                 $inter->$key = $value;
             }
         }
+        // POSTs are modelled as a self-interaction. TODO: Evaluate this.
+        if ($inter->type == self::POST) {
+            $inter->toid = $inter->fromid;
 
+            $inter->nativeto = $inter->nativefrom;
+            $inter->nativetoname = $inter->nativefromname;
+        }
         return $inter;
     }
 
     /**
-     *
      * @param unknown $msocialid
      * @param unknown $conditions
      * @param unknown $fromdate
      * @param unknown $todate
      * @param array(int) $users list of moodle identifiers
-     * @return \mod_msocial\connector\social_interaction[]
-     */
+     * @return \mod_msocial\connector\social_interaction[] */
     static public function load_interactions($msocialid, $conditions = null, $fromdate = null, $todate = null, $users = null) {
         global $DB;
         $interactions = [];
@@ -236,12 +194,10 @@ class social_interaction {
         return $interactions;
     }
 
-    /**
-     * Save the list of interactions in the database.
+    /** Save the list of interactions in the database.
      *
      * @param array $interactions
-     * @param int $msocialid
-     */
+     * @param int $msocialid */
     static public function store_interactions(array $interactions, $msocialid) {
         global $DB;
 

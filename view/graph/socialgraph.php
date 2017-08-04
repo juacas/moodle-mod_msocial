@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -31,6 +32,8 @@ use \Fhaculty\Graph\Graph as Graph;
 use mod_msocial\connector\social_interaction;
 use Graphp\Algorithms\Degree;
 use Graphp\Algorithms\TransposeGraph;
+use Graphp\Algorithms\BidirectionalGraph;
+use Fhaculty\Graph\Set\Vertices;
 
 class SocialMatrix {
     private $adjacencymatrix = [];
@@ -88,7 +91,9 @@ class SocialMatrix {
             $to = 'Community';
         }
         // if ($from != null && $to != null && $to != $from && $type != social_interaction::POST) {
-        if ($from != null && $to != null && $to != $from ) {
+//         if ($from != null && $to != null && $to != $from) {
+         if ($from != null && $to != null ) {
+
             if (!isset($this->adjacencymatrix[$to][$from])) {
                 $this->adjacencymatrix[$to][$from] = $weight;
             } else {
@@ -129,11 +134,24 @@ class SocialMatrix {
      * de esos caminos (proximidad).
      * @return \stdClass $results */
     public function calculate_centralities() {
+        require_once ('BidirectionalGraph.php');
         // Invert graph.
         $transposer = new TransposeGraph($this->graph);
         $transposedgraph = $transposer->createGraph();
+        $bidirectionalgraph = (new BidirectionalGraph($this->graph))->createGraph();
         $results = [];
-        $vertices = $transposedgraph->getVertices();
+        $analysisgraph = $bidirectionalgraph;
+//         $communityvertex = $analysisgraph->getVertex('Community');
+//         $vertices = $analysisgraph->getVertices()->getMap();
+//         unset($vertices['Community']);
+//         $vertices = new Vertices($vertices);
+//         $analysisgraph = $analysisgraph->createGraphCloneVertices($vertices);
+        $vertices = $analysisgraph->getVertices();
+        // For centralities all links are weighted 1.
+        $edges = $analysisgraph->getEdges();
+        foreach ($edges as $edge) {
+            $edge->setWeight(1);
+        }
         foreach ($vertices as $vertex) {
 
             // Obtiene el camino mas corto a cada uno de los vertex que esta conectado el miembro.
@@ -151,7 +169,7 @@ class SocialMatrix {
             $results[$vertex->getId()]->cercania = $indcercania;
 
             // Calculo de todos los "vertex" que están entre medias de los caminos mas cortos.
-            $intermediacionparcial = $this->centralidad_intermediacion($transposedgraph, $dmap, $sp, $id);
+            $intermediacionparcial = $this->centralidad_intermediacion($analysisgraph, $dmap, $sp, $id);
 
             foreach ($intermediacionparcial as $key => $value) {
                 if (!isset($results[$key])) {
@@ -235,7 +253,7 @@ class SocialMatrix {
         foreach ($dmap as $targetvertex => $distance) {
             // Elimino bucles en los que el miembro esta conectado a si mismo a través de otros
             // usuarios
-            if (strcmp($targetvertex, $id) != 0) {
+            if ($targetvertex != $id) {
                 // Aumento en 1 el numero de nodos accesibles desde el miembro.
                 $accesible += 1;
                 // Incremento la suma geodesica con el valor del camino más corto a cada miembro.
@@ -285,7 +303,7 @@ class SocialMatrix {
         // Por cada nodo al que el miembro en cuestión esta conectado.
         foreach ($dmap as $key => $value) {
             // Elimino bucles por si está conectado a él mismo mediante otros nodos.
-            if (strcmp($id, $key) != 0) {
+            if ($id !== $key) {
                 // Obtengo el nodo al que está conectado.
                 $vertex = $compactgraph->getVertex($key);
                 // Obtengo el camino para llegar a ese nodo.
