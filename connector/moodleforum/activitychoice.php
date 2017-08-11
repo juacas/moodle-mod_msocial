@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -47,42 +48,47 @@ if ($action == 'select') {
     $PAGE->set_heading($course->fullname);
     // Print the page header.
     echo $OUTPUT->header();
-    $instances = $DB->get_records('forum', ['course' => $course->id]);
+    $modinfo = course_modinfo::instance($course->id);
+    $instances = $modinfo->get_instances_of('forum');
     $activities = $plugin->get_config(msocial_connector_moodleforum::CONFIG_ACTIVITIES);
     if ($activities) {
         $activities = explode(',', $activities);
     } else {
         $activities = [];
     }
+    if (count($instances) > 0) {
+        $table = new \html_table();
+        $table->head = [reset($instances)->get_module_type_name(true), get_string('description')];
+        $data = [];
 
-    $table = new \html_table();
-    $table->head = ['Forum'];
-    $table->headspan = [2];
-    $data = [];
+        $out = '<form method="GET" action="' . $thispageurl->out_omit_querystring(true) . '" >';
+        $out .= '<input type="hidden" name="id" value="' . $id . '"/>';
+        $out .= '<input type="hidden" name="action" value="setactivities"/>';
 
-    $out = '<form method="GET" action="' . $thispageurl->out_omit_querystring(true) . '" >';
-    $out .= '<input type="hidden" name="id" value="' . $id . '"/>';
-    $out .= '<input type="hidden" name="action" value="setactivities"/>';
-
-    foreach ($instances as $forum) {
-        $row = new \html_table_row();
-        // Use instance id instead of cmid... get_coursemodule_from_instance('forum',
-        // $forum->id)->id;.
-        $activityid = $forum->id;
-        $forumurl = new moodle_url('/mod/forum/view.php', ['id' => $activityid]);
-        $info = $forum->name;
-        $linkinfo = \html_writer::link($forumurl, $info);
-        // If no instances selected, then all are used.
-        $selected = count($activities) > 0 ? (array_search($activityid, $activities)!==false) : true;
-        $checkbox = \html_writer::checkbox('activity[]', $activityid, $selected, $linkinfo);
-        $row->cells = [$checkbox, $forum->intro];
-        $table->data[] = $row;
+        foreach ($instances as $forum) {
+            if ($forum->deletioninprogress) {
+                continue;
+            }
+            $row = new \html_table_row();
+            // Use instance id instead of cmid... get_coursemodule_from_instance('forum',
+            // $forum->id)->id;.
+            $activityid = $forum->id;
+            $forumurl = $forum->url;
+            $info = \html_writer::img($forum->get_icon_url(), $forum->get_module_type_name()) . $forum->get_formatted_name();
+            $linkinfo = \html_writer::link($forumurl, $info);
+            // If no instances selected, then all are used.
+            $selected = count($activities) > 0 ? (array_search($activityid, $activities) !== false) : true;
+            $checkbox = \html_writer::checkbox('activity[]', $activityid, $selected, $linkinfo);
+            $forumrecord = $DB->get_record('forum', ['id' => $forum->instance]);
+            $row->cells = [$checkbox, format_module_intro('forum', $forumrecord, $forum->id)];
+            $table->data[] = $row;
+        }
+        $out .= \html_writer::table($table);
+        $out .= '<input type="hidden" name="totalactivities" value="' . count($instances) . '"/>';
+        $out .= '<input type="submit">';
+        $out .= '</form>';
+        echo $out;
     }
-    $out .= \html_writer::table($table);
-    $out .= '<input type="hidden" name="totalactivities" value="'.count($instances).'"/>';
-    $out .= '<input type="submit">';
-    $out .= '</form>';
-    echo $out;
 } else if ($action == 'setactivities') {
     $activities = required_param_array('activity', PARAM_INT);
     $totalactivities = required_param('totalactivities', PARAM_INT);
@@ -92,12 +98,16 @@ if ($action == 'select') {
     $PAGE->set_heading($course->fullname);
     // Print the page header.
     echo $OUTPUT->header();
-
     // Save the configuration.
-    if (count($activities)==$totalactivities){
-        $plugin->set_config(msocial_connector_moodleforum::CONFIG_ACTIVITIES, ''); // All forums.
+    if (count($activities) == $totalactivities) {
+        $plugin->set_linked_activities([]); // All forums.
     } else {
-        $plugin->set_config(msocial_connector_moodleforum::CONFIG_ACTIVITIES, join(',', $activities));
+        $cmodinfo = get_fast_modinfo($course);
+        $activitiesnames = [];
+        foreach ($activities as $actid) {
+            $activitiesnames[$actid] = $cmodinfo->cms[$actid]->name;
+        }
+        $plugin->set_linked_activities($activitiesnames);
     }
 
     echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));

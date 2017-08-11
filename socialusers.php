@@ -25,6 +25,8 @@
  */
 use mod_msocial\plugininfo\msocialview;
 use msocial\msocial_plugin;
+use mod_msocial\plugininfo\msocialbase;
+use mod_msocial\plugininfo\msocialconnector;
 
 require_once ("../../config.php");
 require_once ("locallib.php");
@@ -36,32 +38,48 @@ $id = required_param('id', PARAM_INT);
 $cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);
 require_login($cm->course, false, $cm);
 $course = get_course($cm->course);
+// Maybe the request include a mapping request.
+$action = optional_param('action', null, PARAM_ALPHA);
 
+// Show
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
 $user = $USER;
 // Capabilities.
 $contextmodule = context_module::instance($cm->id);
 require_capability('mod/msocial:view', $contextmodule);
-
+if ($action == 'setmap') {
+    $nativeid = required_param('nativeid', PARAM_ALPHANUMEXT);
+    $nativename = required_param('nativename', PARAM_RAW_TRIMMED);
+    $source = required_param('source', PARAM_ALPHA);
+    $userid = required_param('user', PARAM_INT);
+    require_capability('mod/msocial:manage', $contextmodule);
+    $user = $DB->get_record('user', ['id' => $userid]);
+    $plugin = msocialconnector::instance($msocial, 'connector', $source);
+    $plugin->set_social_userid($user, $nativeid, $nativename);
+} else if ($action == 'selectmapuser') {
+    $nativeid = required_param('nativeid', PARAM_ALPHANUMEXT);
+    $nativename = required_param('nativename', PARAM_RAW_TRIMMED);
+    $source = required_param('source', PARAM_ALPHA);
+}
+$mappingrequested = $action == 'selectmapuser';
 // Show headings and menus of page.
-$url = new moodle_url('/mod/msocial/socialusers.php', array('id' => $id));
-$PAGE->set_url($url);
+$thispageurl = new moodle_url('/mod/msocial/socialusers.php', array('id' => $id));
+$PAGE->set_url($thispageurl);
 
 $requ = $PAGE->requires;
 $requ->css('/mod/msocial/styles.css');
 
 // Print the page header.
-$PAGE->set_title(get_string('view_social_users','msocial'));
+$PAGE->set_title(get_string('view_social_users', 'msocial'));
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 // Print the main part of the page.
 echo $OUTPUT->spacer(array('height' => 20));
-echo $OUTPUT->heading(get_string('view_social_users','msocial'));
+echo $OUTPUT->heading(get_string('view_social_users', 'msocial'));
 // Print the information about the linking of the module with social plugins..
 $enabledsocialplugins = \mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
 
 $table = new html_table();
-
 list($studentids, $nonstudentids, $inactiveids, $users) = eduvalab_get_users_by_type($contextmodule);
 $table->head = [get_string('user')];
 foreach ($enabledsocialplugins as $plugin) {
@@ -72,17 +90,32 @@ foreach ($enabledsocialplugins as $plugin) {
 foreach ($users as $user) {
     $row = new html_table_row();
     $table->data[] = $row;
+    $checkbox = '';
+    if ($mappingrequested) {
+        $checkbox = '<input type="radio" name="user" value="' . $user->id . '">';
+    }
     // User name and pic.
     $pic = $OUTPUT->user_picture($user);
     $link = html_writer::link(new moodle_url('/user/view.php', ['id' => $user->id]), fullname($user));
-    $row->cells[] = new html_table_cell($pic . ' ' . $link);
+    $row->cells[] = new html_table_cell($checkbox . $pic . ' ' . $link);
     foreach ($enabledsocialplugins as $plugin) {
         if ($plugin->users_are_local() === false) {
             $row->cells[] = $plugin->create_user_link($user);
         }
     }
 }
-
+if ($mappingrequested) {
+    echo '<form method="GET" action="' . $thispageurl->out_omit_querystring(true) . '" >';
+    echo '<input type="hidden" name="id" value="' . $id . '"/>';
+    echo '<input type="hidden" name="action" value="setmap"/>';
+    echo '<input type="hidden" name="nativeid" value="' . $nativeid . '"/>';
+    echo '<input type="hidden" name="nativename" value="' . $nativename . '"/>';
+    echo '<input type="hidden" name="source" value="' . $source . '"/>';
+}
 echo html_writer::table($table);
+if ($mappingrequested) {
+    echo '<input type="submit">';
+    echo '</form>';
+}
 
 echo $OUTPUT->footer();

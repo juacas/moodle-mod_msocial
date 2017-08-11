@@ -97,7 +97,6 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         if (!$DB->delete_records('msocial_plugin_config', array('msocial' => $this->msocial->id, 'subtype' => $this->get_subtype()))) {
             $result = false;
         }
-        $this->drop_pki_fields();
         return $result;
     }
 
@@ -639,7 +638,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             $cm = $this->cm;
             $msocial = $this->msocial;
 
-            $errormessage = "For module msocial\\social\\facebook: $msocial->name (id=$cm->instance) in course (id=$msocial->course) " .
+            $errormessage = "For module msocial\\connection\\facebook: $msocial->name (id=$cm->instance) in course (id=$msocial->course) " .
                      "searching group: $groupid  ERROR:" . $e->getMessage();
             $result->messages[] = $errormessage;
             $result->errors[] = (object) ['message' => $errormessage];
@@ -660,7 +659,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $this->store_pkis($pkis, true);
         $this->set_config(\mod_msocial\connector\msocial_connector_plugin::LAST_HARVEST_TIME, time());
 
-        $logmessage = "For module msocial: \"" . $this->msocial->name . "\" (id=" . $this->msocial->id . ") in course (id=" .
+        $logmessage = "For module msocial\\connection\\facebook: \"" . $this->msocial->name . "\" (id=" . $this->msocial->id . ") in course (id=" .
                  $this->msocial->course . ")  Found " . count($this->lastinteractions) . " events. Students' events: " .
                  count($studentinteractions);
         $result->messages[] = $logmessage;

@@ -48,7 +48,6 @@ class restore_msocial_activity_structure_step extends restore_activity_structure
         global $DB;
 
         $data = (object) $data;
-        $oldid = $data->id;
         $data->msocial = $this->get_new_parentid('msocial');
         // Insert the config record.
         $newitemid = $DB->insert_record('msocial_plugin_config', $data);
@@ -72,5 +71,8 @@ class restore_msocial_activity_structure_step extends restore_activity_structure
     protected function after_execute() {
         // Add choice related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_msocial', 'intro', null);
+    }
+    public function after_restore() {
+        echo "after restore";
     }
 }

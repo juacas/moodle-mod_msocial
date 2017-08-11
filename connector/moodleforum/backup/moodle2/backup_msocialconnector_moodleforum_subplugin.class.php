@@ -25,7 +25,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-class backup_msocialconnector_twitter_subplugin extends backup_subplugin {
+class backup_msocialconnector_moodleforum_subplugin extends backup_subplugin {
 
     /** Returns the subplugin information to attach to msocial element
      *
@@ -36,26 +36,17 @@ class backup_msocialconnector_twitter_subplugin extends backup_subplugin {
         // Create XML elements.
         $subplugin = $this->get_subplugin_element();
         $subpluginwrapper = new backup_nested_element($this->get_recommended_name());
+// TODO: decidir si usar pluginsconfig general...
+//         $pluginconfigs = new backup_nested_element('moodleforum_configs');
 
-        $msocialstatuses = new backup_nested_element('tweets');
-        $msocialstatus = new backup_nested_element('status', array(),
-                array('userid', 'tweetid', 'twitterusername', 'hashtag', 'status', 'retweets', 'favs'));
-        // TODO: user's connection token must be backed-up? It may be a security issue.
-        $twittertoken = new backup_nested_element('twtoken', array(),
-                array('token', 'token_secret', 'username'));
         $subplugin->add_child($subpluginwrapper);
-        $subpluginwrapper->add_child($twittertoken);
-        $subpluginwrapper->add_child($msocialstatuses);
-        $msocialstatuses->add_child($msocialstatus);
+//         $subpluginwrapper->add_child($pluginconfigs);
+//         $plugingconfig = new backup_nested_element('moodleforum_config', array('name'), array('value'));
+//         $pluginconfigs->add_child($plugingconfig);
         // Map tables...
-        $twittertoken->set_source_table('msocial_twitter_tokens',
-                array('msocial' => backup::VAR_ACTIVITYID));
-        if ($userinfo) {
-            $msocialstatus->set_source_table('msocial_tweets',
-                    array('msocial' => backup::VAR_ACTIVITYID));
-        }
-        // Define id annotations.
-        $msocialstatus->annotate_ids('userid', 'userid');
+//         $plugingconfig->set_source_table('msocial_plugin_config',
+//                 array('msocial' => backup::VAR_ACTIVITYID, 'subtype' => ['sqlparam'=> 'moodleforum']));
+
         return $subplugin;
     }
 }

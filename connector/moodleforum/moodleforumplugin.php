@@ -32,6 +32,7 @@ use msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
+require_once ($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
 
 /** library class for social network moodleforum plugin extending social plugin base class
  *
@@ -41,6 +42,9 @@ global $CFG;
 class msocial_connector_moodleforum extends msocial_connector_plugin {
     private $lastinteractions = array();
     const CONFIG_ACTIVITIES = 'activities';
+    const CONFIG_ACTIVITY_NAMES = 'activitynames';
+
+    // To remap them after a restore.
 
     /** Get the name of the plugin
      *
@@ -60,22 +64,6 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
      * @param MoodleQuickForm $mform The form to add elements to
      * @return void */
     public function get_settings(\MoodleQuickForm $mform) {
-    }
-
-    /** The msocial has been deleted - cleanup subplugin
-     *
-     * @return bool */
-    public function delete_instance() {
-        global $DB;
-        $result = true;
-        if (!$DB->delete_records('msocial_interactions', array('msocial' => $this->msocial->id, 'source' => $this->get_subtype()))) {
-            $result = false;
-        }
-        if (!$DB->delete_records('msocial_plugin_config', array('msocial' => $this->msocial->id, 'subtype' => $this->get_subtype()))) {
-            $result = false;
-        }
-        $this->drop_pki_fields();
-        return $result;
     }
 
     public function get_subtype() {
@@ -99,6 +87,7 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
      * @global \moodle_database $DB */
     public function render_header() {
         global $OUTPUT, $USER;
+        $this->remap_linked_activities(); // debug
         if ($this->is_enabled()) {
             $icon = $this->get_icon();
             $messages = [];
@@ -298,7 +287,7 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
             }
         } catch (\Exception $e) {
             $msocial = $this->msocial;
-            $errormessage = "For module msocial\social\moodleforum: $msocial->name  in course (id=$msocial->course) " . "ERROR:" .
+            $errormessage = "For module msocial\\connector\\moodleforum: $msocial->name  in course (id=$msocial->course) " . "ERROR:" .
                      $e->getMessage();
             $result->messages[] = $errormessage;
             $result->errors[] = (object) ['message' => $errormessage];
@@ -318,11 +307,39 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
         $this->store_pkis($pkis, true);
         $this->set_config(\mod_msocial\connector\msocial_connector_plugin::LAST_HARVEST_TIME, time());
 
-        $logmessage = "For module msocial: \"" . $this->msocial->name . "\" (id=" . $this->msocial->id . ") in course (id=" .
-                 $this->msocial->course . ")  Found " . count($this->lastinteractions) . " events. Students' events: " .
-                 count($studentinteractions);
+        $logmessage = "For module msocial\\connector\\moodleforum: \"" . $this->msocial->name . "\" (id=" . $this->msocial->id .
+                 ") in course (id=" . $this->msocial->course . ")  Found " . count($this->lastinteractions) .
+                 " events. Students' events: " . count($studentinteractions);
         $result->messages[] = $logmessage;
         return $result;
+    }
+
+    public function set_linked_activities($activities) {
+        $this->set_config(self::CONFIG_ACTIVITIES, join(',', array_keys($activities)));
+        $this->set_config(self::CONFIG_ACTIVITY_NAMES, json_encode($activities));
+    }
+
+    /** Try to redetect forums by id or by name is the ids are not valid (i.e.
+     * after a isolated backup of the msocial module) */
+    public function remap_linked_activities() {
+        $actnames = json_decode($this->get_config(self::CONFIG_ACTIVITY_NAMES), true);
+        $cmodinfo = get_fast_modinfo($this->msocial->course);
+        $resolved = [];
+        if ($actnames) {
+            foreach ($actnames as $id => $name) {
+                if (isset($cmodinfo->cms[$id]) && $cmodinfo->cms[$id]->modname == 'forum') {
+                    $resolved[$id] = $name;
+                } else {
+                    // Search by name.
+                    foreach ($cmodinfo->cms as $id => $cminfo) {
+                        if ($cminfo->modname == 'forum' && $cminfo->name == $name) {
+                            $resolved[$id] = $name;
+                        }
+                    }
+                }
+            }
+        }
+        $this->set_linked_activities($resolved);
     }
 
     public function get_connection_token() {

@@ -262,6 +262,9 @@ abstract class msocial_plugin {
                 if ($pkiinfo->interaction_nativetype_query !== null && $pkiinfo->interaction_nativetype_query !== '*') {
                     $nativetypequery = "and nativetype = '$pkiinfo->interaction_nativetype_query' ";
                 }
+               // TODO: Check query:
+                // Did you remember to make the first column something unique in your call to get_records? Duplicate value '29' found in column 'userid'.
+
                 $sql = "SELECT fromid as userid, count(*) as total
                     from {msocial_interactions}
                     where msocial=?
@@ -536,7 +539,15 @@ abstract class msocial_plugin {
      *
      * @return bool */
     public function delete_instance() {
-        return true;
+        global $DB;
+        $result = true;
+        if (!$DB->delete_records('msocial_interactions', array('msocial' => $this->msocial->id, 'source' => $this->get_subtype()))) {
+            $result = false;
+        }
+        if (!$DB->delete_records('msocial_plugin_config', array('msocial' => $this->msocial->id, 'subtype' => $this->get_subtype()))) {
+            $result = false;
+        }
+        return $result;
     }
 
     /** Run cron for this plugin */

@@ -37,6 +37,7 @@
  * *******************************************************************************
  */
 use mod_msocial\plugininfo\msocialconnector;
+use mod_msocial\plugininfo\msocialbase;
 defined('MOODLE_INTERNAL') || die();
 require_once ($CFG->dirroot . "/config.php");
 require_once ($CFG->dirroot . '/grade/lib.php');
@@ -95,6 +96,7 @@ function msocial_supports($feature) {
  * @return int The id of the newly inserted msocial record */
 function msocial_add_instance($msocial) {
     global $DB;
+    xdebug_break();
     $msocial->timecreated = time();
     $msocial->timemodified = $msocial->timecreated;
 
@@ -121,6 +123,7 @@ function msocial_add_instance($msocial) {
  * @return boolean Success/Fail */
 function msocial_update_instance($msocial) {
     global $DB;
+    xdebug_break();
     $msocial->timemodified = time();
     $msocial->id = $msocial->instance;
     msocial_grade_item_update($msocial);
@@ -151,19 +154,28 @@ function msocial_update_instance($msocial) {
  * @return boolean Success/Failure */
 function msocial_delete_instance($id) {
     global $DB;
-
-    if (!$msocial = $DB->get_record('msocial', array('id' => $id))) {
-        return false;
-    }
+    $msocial = $DB->get_record('msocial', array('id' => $id));
 
     $result = true;
     // Delete any dependent records here.
-    if (!$DB->delete_records('msocial', array('id' => $msocial->id))) {
+    if (!$DB->delete_records('msocial', array('id' => $id))) {
         $result = false;
     }
-    $plugins = msocialconnector::get_installed_plugins($msocial);
+    // Delete any dependent records here.
+    if (!$DB->delete_records('msocial_interactions', array('id' => $id))) {
+        $result = false;
+    }
+    if (!$DB->delete_records('msocial_mapusers', array('id' => $id))) {
+        $result = false;
+    }
+    $plugins = msocialbase::get_installed_plugins($msocial);
     foreach ($plugins as $subtype => $plugin) {
-        $result = $result && $plugin->delete_instance();
+        if (method_exists($plugin, 'delete_instance')) {
+            $result = $result && $plugin->delete_instance();
+        }
+    }
+    if (!$DB->delete_records('msocial_pkis', array('id' => $id))) {
+        $result = false;
     }
     msocial_grade_item_update($msocial);
     return $result;
@@ -267,7 +279,9 @@ function msocial_has_config() {
 function msocial_grade_item_update($msocial, $grades = null) {
     global $CFG;
     require_once ($CFG->libdir . '/gradelib.php');
-
+    if (!$msocial) {
+        return GRADE_UPDATE_FAILED;
+    }
     if (!isset($msocial->courseid)) {
         $msocial->courseid = $msocial->course;
     }

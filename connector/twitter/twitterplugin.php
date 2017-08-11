@@ -107,8 +107,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         if (!$DB->delete_records('msocial_twitter_tokens', array('msocial' => $this->msocial->id))) {
             $result = false;
         }
-        $this->drop_pki_fields();
-
         return $result;
     }
 
@@ -378,7 +376,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $info = "No twitter token defined!!";
             }
             $errormessage = $result->errors[0]->message;
-            $errormessage = "For module msocial: $this->msocial->name (id=$cm->instance) in course (id=$this->msocial->course) " .
+            $errormessage = "For module msocial\connector\twitter: $this->msocial->name (id=$cm->instance) in course (id=$this->msocial->course) " .
                      "searching: $hashtag $info ERROR:" . $errormessage;
             $result->messages[] = $errormessage;
         } else if (isset($result->statuses)) {
@@ -396,7 +394,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $interactions = $this->build_interactions($studentstatuses);
             social_interaction::store_interactions($interactions, $this->msocial->id);
 
-            $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) searching: " .
+            $result->messages[] = "For module msocial\\connector\\twitter: $msocial->name (id=$msocial->id) in course (id=$msocial->course) searching: " .
                      $hashtag . "  Found " . count($statuses) . " tweets. Students' tweets: " . count($studentstatuses);
             $contextcourse = \context_course::instance($this->msocial->course);
             list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
@@ -411,7 +409,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         } else {
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
             $result->errors[0]->message = $errormessage;
-            $result->messages[] = "For module msocial: $this->msocial->name (id=$this->msocial->id) in course (id=$this->msocial->course) searching: $this->msocial->hashtag  " .
+            $result->messages[] = "For module msocial\\connector\\twitter: $this->msocial->name (id=$this->msocial->id) in course (id=$this->msocial->course) searching: $this->msocial->hashtag  " .
                      $errormessage;
         }
         if ($token) {

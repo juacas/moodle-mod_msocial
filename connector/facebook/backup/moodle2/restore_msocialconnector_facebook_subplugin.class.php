@@ -24,7 +24,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-class restore_msocialconnector_twitter_subplugin extends restore_subplugin {
+class restore_msocialconnector_facebook_subplugin extends restore_subplugin {
 
     /**
      * Returns array the paths to be handled by the subplugin at msocial level
@@ -34,47 +34,21 @@ class restore_msocialconnector_twitter_subplugin extends restore_subplugin {
     public function define_msocial_subplugin_structure() {
         $paths = array();
         $userinfo = $this->get_setting_value('userinfo');
-
-        $elename = $this->get_namefor('tweets');
-        // We used get_recommended_name() so this works.
-        $elepath = $this->get_pathfor('/tweets');
+        $elename = $this->get_namefor('fbtoken');
+        $elepath = $this->get_pathfor('/fbtoken');
         $paths[] = new restore_path_element($elename, $elepath);
-        $elename = $this->get_namefor('twtoken');
-        $elepath = $this->get_pathfor('/twtoken');
-        $paths[] = new restore_path_element($elename, $elepath);
-        if ($userinfo) {
-            $elename = $this->get_namefor('status');
-            $elepath = $this->get_pathfor('/tweets/status');
-            $paths[] = new restore_path_element($elename, $elepath);
-        }
         return $paths;
     }
 
-    public function process_msocialconnector_twitter_twtoken($data) {
+    public function process_msocialconnector_facebook_fbtoken($data) {
         global $DB;
 
         $data = (object) $data;
 
         $data->msocial = $this->get_new_parentid('msocial');
 
-        $newitemid = $DB->insert_record('msocial_twitter_tokens', $data);
+        $newitemid = $DB->insert_record('msocial_facebook_tokens', $data);
     }
 
-    public function process_msocialconnector_twitter_status($data) {
-        global $DB;
 
-        $data = (object) $data;
-
-        $data->msocial = $this->get_new_parentid('msocial');
-        $data->userid = isset($data->userid) ? $this->get_mappingid('user', $data->userid) : null;
-
-        $newitemid = $DB->insert_record('msocial_tweets', $data);
-        // No need to save this mapping as far as nothing depend on it
-        // (child paths, file areas nor links decoder).
-    }
-
-    public function process_msocialconnector_twitter_tweets($data) {
-        global $DB;
-        $data->msocial = $this->get_new_parentid('msocial');
-    }
 }

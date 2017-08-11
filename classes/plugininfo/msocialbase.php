@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -23,6 +24,7 @@
  * *******************************************************************************
  */
 namespace mod_msocial\plugininfo;
+
 defined('MOODLE_INTERNAL') || die();
 
 use core\plugininfo\base, core_plugin_manager, moodle_url;
@@ -36,21 +38,27 @@ class msocialbase extends base {
      *
      * @param \stdClass $msocial record of the instance for innitiallizing plugins
      * @param string $subtype name of the subplugins types. ie. 'connector','view'
-     * @return array(msocialconnectorplugin)|null of installed plugins $pluginname=>$plugin, null means
+     * @return array(msocialconnectorplugin)|null of installed plugins $pluginname=>$plugin, null
+     *         means
      *         unknown */
     public static function get_installed_plugins($msocial = null, $subtype = null) {
         global $DB;
-        $plugins = core_plugin_manager::instance()->get_installed_plugins($subtype);
-        if (!$plugins) {
-            return array();
-        }
         $installed = array();
-        foreach ($plugins as $pluginname => $version) {
-            $installed[] = $subtype . '_' . $pluginname;
-        }
+        $subtypes = array();
         $result = array();
-        foreach ($plugins as $pluginname => $version) {
-            $result[$pluginname] = \msocialbase::instance($msocial, $subtype, $pluginname);
+
+        if ($subtype == null) {
+            $subtypes = ['connector', 'view'];
+        } else {
+            $subtypes = [$subtype];
+        }
+
+        foreach ($subtypes as $subtype) {
+            $plugins = core_plugin_manager::instance()->get_installed_plugins('msocial'.$subtype);
+            foreach ($plugins as $pluginname => $version) {
+                $installed[] = $subtype . '_' . $pluginname;
+                $result[$pluginname] = self::instance($msocial, $subtype, $pluginname);
+            }
         }
         return $result;
     }
@@ -71,13 +79,12 @@ class msocialbase extends base {
         }
     }
 
-    /**
-     * Finds all enabled plugins, the result may include missing plugins.
+    /** Finds all enabled plugins, the result may include missing plugins.
      * First connectors, then views.
      * @param \stdClass $msocial record of the instance for innitiallizing plugins
      * @return array(msocial_plugin)|null of enabled plugins $pluginname=>$plugin, null means
      *         unknown */
-    public static function get_enabled_plugins_all_types($msocial=null) {
+    public static function get_enabled_plugins_all_types($msocial = null) {
         $connectors = self::get_enabled_plugins($msocial, 'connector');
         $views = self::get_enabled_plugins($msocial, 'view');
         return array_merge($connectors, $views);
@@ -87,7 +94,8 @@ class msocialbase extends base {
      *
      * @param \stdClass $msocial record of the instance for innitiallizing plugins
      * @param string $subtype 'connector' or 'view'
-     * @return array(msocialconnectorplugin)|null of enabled plugins $pluginname=>$plugin, null means
+     * @return array(msocialconnectorplugin)|null of enabled plugins $pluginname=>$plugin, null
+     *         means
      *         unknown */
     public static function get_enabled_plugins($msocial = null, $subtype = null) {
         global $DB;

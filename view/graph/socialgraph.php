@@ -34,6 +34,7 @@ use Graphp\Algorithms\Degree;
 use Graphp\Algorithms\TransposeGraph;
 use Graphp\Algorithms\BidirectionalGraph;
 use Fhaculty\Graph\Set\Vertices;
+use Fhaculty\Graph\Vertex;
 
 class SocialMatrix {
     private $adjacencymatrix = [];
@@ -79,7 +80,9 @@ class SocialMatrix {
     /**
      * @param social_interaction $interaction
      * @param unknown $edgeattrs Edge attrs array.
-     * @param unknown $date */
+     * @param unknown $date
+     * @return Vertex $from, Edge $edge, Vertex $to
+     */
     public function register_interaction(social_interaction $interaction, $edgeattrs = [], $fromattrs = [], $toattrs = [], $date = null) {
         $from = $interaction->fromid ? $interaction->fromid : $interaction->nativefrom;
         $to = $interaction->toid ? $interaction->toid : $interaction->nativeto;
@@ -127,6 +130,7 @@ class SocialMatrix {
             // Add score to recipient.
             $tovertex->setAttribute('score', $score + $tovertex->getAttribute('score', 0));
         }
+        return [$fromvertex,$edge,$tovertex];
     }
 
     /** Calcula la suma de pesos por el camino más corto de un miembro al resto de miembros

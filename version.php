@@ -33,6 +33,6 @@ defined ( 'MOODLE_INTERNAL' ) || die ();
 $plugin->version = 2017080100; // The current module version (Date: YYYYMMDDXX).
 $plugin->requires = 2013051407.00; // Requires this Moodle version.2013111801.11.
 $plugin->component = 'mod_msocial'; // Full name of the plugin (used for diagnostics).
-$plugin->cron = 10 * 60; // Period for cron to check this module (secs).
+$plugin->cron = 60 * 60; // Period for cron to check this module (secs).
 $plugin->maturity = MATURITY_BETA;
 $plugin->release = 'v0.1.0-beta';
