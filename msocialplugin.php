@@ -608,7 +608,7 @@ abstract class msocial_plugin {
         if (count($messages) > 0) {
             $icon = $this->get_icon();
             $text = join('<br/>', $messages);
-            $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
+            $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 29]) . ' ';
             if ($level === self::NOTIFY_NORMAL) {
                 echo $OUTPUT->box($icondecoration . $text);
             } else if ($level === self::NOTIFY_WARNING) {

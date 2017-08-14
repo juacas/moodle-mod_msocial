@@ -82,7 +82,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         if ($socialuserid) {
             $link = $this->get_social_user_url($socialuserid);
             $icon = $this->get_icon();
-            return "<a href=\"$link\"><img src=\"$icon\"/> $socialuserid->socialname </a>";
+            return "<a href=\"$link\"><img src=\"$icon\" height=\"29px\" /> $socialuserid->socialname </a>";
         } else {
             return '';
         }
