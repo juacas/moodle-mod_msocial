@@ -53,7 +53,6 @@ $fb = new \Facebook\Facebook(
         ['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.9',
                         'default_access_token' => '{access-token}' // Optional...
 ]);
-$record = $DB->get_record('msocial_facebook_tokens', array("msocial" => $cm->instance));
 $thispageurl = new moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
         array('id' => $id, 'action' => $action, 'type' => $type));
 
@@ -103,9 +102,7 @@ if ($action == 'connect') {
         $username = $graphuser->getName();
         // Save tokens for future use.
         if ($type === 'connect' && has_capability('mod/msocial:manage', $context)) {
-            if ($record) {
-                $DB->delete_records('msocial_facebook_tokens', array('id' => $record->id));
-            }
+
             $record = new stdClass();
             $record->token = $accesstoken->getValue();
             $record->username = $username;

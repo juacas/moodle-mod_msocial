@@ -249,7 +249,7 @@ function update_plugin_instance($plugin, stdClass $formdata) {
         $plugin->disable();
     }
     if (!$plugin->save_settings($formdata)) {
-        print_error($plugin->get_error());
+        print_error("false returned! " . $plugin->get_error());
         return false;
     }
     return true;

@@ -76,9 +76,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         if (isset($data->{$this->get_form_field_name(self::CONFIG_HASHTAG)})) {
             $this->set_config('hashtag', $data->{$this->get_form_field_name(self::CONFIG_HASHTAG)});
         }
-        if (isset($data->{$this->get_form_field_name(self::CONFIG_DISABLED)})) {
-            $this->set_config('enabled', $data->{$this->get_form_field_name(self::CONFIG_DISABLED)});
-        }
+
         return true;
     }
 

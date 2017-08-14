@@ -71,8 +71,9 @@ foreach ($interactions as $interaction) {
     $graphvizfromattr['graphviz.label'] = $from;
     $graphviztoattr['graphviz.label'] = $to;
     $type = $interaction->type;
-    list($fromvertex, $edge, $tovertex) = $socialgraph->register_interaction($interaction, ['graphviz.label' => $type],
-            $graphvizfromattr, $graphviztoattr);
+    $source = $interaction->source;
+    list($fromvertex, $edge, $tovertex) = $socialgraph->register_interaction($interaction, [
+                    'graphviz.label' => $source . ':' . $type], $graphvizfromattr, $graphviztoattr);
     $fromvertex->setGroup($fromgroup);
     $tovertex->setGroup($togroup);
     $edge->setFlow(1 / $edge->getWeight());
@@ -81,7 +82,7 @@ foreach ($interactions as $interaction) {
 $dot = new Dot();
 $graph = $socialgraph->get_graph();
 $graph->getAttributeBag()->setAttribute('graphviz.graph.rankdir', 'LR');
-$graph->getAttributeBag()->setAttribute('graphviz.graph.bgcolor', "#aaaaaa5f");
+// $graph->getAttributeBag()->setAttribute('graphviz.graph.bgcolor', "#aaaaaa5f");
 $graph->getAttributeBag()->setAttribute('graphviz.graph.size', "10,10");
 $dotsource = $dot->getOutput($graph);
 $dotsource = str_replace('label = 0', 'label = "Course users"', $dotsource);

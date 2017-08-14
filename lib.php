@@ -123,7 +123,6 @@ function msocial_add_instance($msocial) {
  * @return boolean Success/Fail */
 function msocial_update_instance($msocial) {
     global $DB;
-    xdebug_break();
     $msocial->timemodified = time();
     $msocial->id = $msocial->instance;
     msocial_grade_item_update($msocial);

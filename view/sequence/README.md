@@ -1,4 +1,4 @@
-# mod_socialview_timeglider
+# mod_socialview_sequence
 This sub-plugin adds to mod_social module the ability to show social events as a sequence diagram.
 Moodle module for integrating Social networks into classroom
 

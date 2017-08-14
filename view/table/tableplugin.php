@@ -145,7 +145,7 @@ class msocial_view_table extends msocial_view_plugin {
                     $pkiinfos[$type] = $pkilist;
                     $pkiindividual[$type] = array_filter($pkiinfos[$type],
                             function ($pki) {
-                                return $pki->individual === pki_info::PKI_INDIVIDUAL;
+                                return $pki->individual !== pki_info::PKI_AGREGATED;
                             });
                     $pkiinfosall = array_merge($pkiinfosall, $pkiindividual[$type]);
                 }

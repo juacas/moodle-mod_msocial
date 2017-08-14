@@ -135,7 +135,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                     $username = $token->username;
                     $errorstatus = $token->errorstatus;
                     if ($errorstatus) {
-                        $notifications .= '<p>' . get_string('problemwithfacebookaccount', 'msocial', $errorstatus);
+                        $notifications[] = '<p>' . get_string('problemwithfacebookaccount', 'msocial', $errorstatus);
                     }
                     if ($this->is_tracking()) {
                         $harvestbutton = $OUTPUT->action_icon(
@@ -484,7 +484,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 $reactioninteraction->parentinteraction = $parentinteraction->uid;
                 $reactioninteraction->nativeto = $parentinteraction->nativefrom;
                 $reactioninteraction->toid = $parentinteraction->fromid;
-                $reactioninteraction->nativetoname = $parentinteraction->nativetoname;
+                $reactioninteraction->nativetoname = $parentinteraction->nativefromname;
                 $reactioninteraction->type = $reaction->getField('type');
                 $reactioninteraction->rawdata = $reaction->asJson();
                 $reactioninteraction->timestamp = null;
