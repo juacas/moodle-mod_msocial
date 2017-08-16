@@ -105,7 +105,16 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
             }
 
             if ($activities) {
-                $messages[] = get_string('onlyasetofactivities', 'msocialconnector_moodleforum') . ' ' . $linktoselect;
+                $cminfo = get_fast_modinfo($this->cm->course);
+                $linkforum = [];
+                foreach (explode(',', $activities) as $actid) {
+                    $forum =  $cminfo->cms[$actid];
+                    $forumurl = $forum->url;
+                    $info = $forum->get_formatted_name();
+                    $linkforum[] = \html_writer::link($forumurl, $info);
+                }
+                $messages[] = get_string('onlyasetofactivities', 'msocialconnector_moodleforum') . ' ('. implode(', ', $linkforum) . ') ' .
+                         $linktoselect;
             } else {
                 $messages[] = get_string('allactivities', 'msocialconnector_moodleforum') . ' ' . $linktoselect;
             }

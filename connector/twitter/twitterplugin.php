@@ -75,7 +75,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @return bool */
     public function save_settings(\stdClass $data) {
         if (isset($data->{$this->get_form_field_name(self::CONFIG_HASHTAG)})) {
-            $this->set_config('hashtag', $data->{$this->get_form_field_name(self::CONFIG_HASHTAG)});
+            $this->set_config(self::CONFIG_HASHTAG, $data->{$this->get_form_field_name(self::CONFIG_HASHTAG)});
         }
 
         return true;
@@ -154,10 +154,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     }
                     $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
-                                    array('id' => $id, 'action' => 'connect')), "Change user") . '/' .
-                             $OUTPUT->action_link(
-                                    new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
-                                            array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $harvestbutton;
+                                    array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
+                            new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
+                                    array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $harvestbutton;
                 } else {
                     $notifications[] = get_string('module_not_connected_twitter', 'msocialconnector_twitter') . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
@@ -475,7 +474,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $interaction->timestamp = new \DateTime($status->created_at);
             $interaction->toid = $this->get_userid($interaction->nativeto);
 
-
             $interaction->description = $status->text;
             if ($status->in_reply_to_user_id == null) {
                 $interaction->type = social_interaction::POST;
@@ -605,11 +603,13 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         global $CFG;
         $settings = array('oauth_access_token' => $tokens->token, 'oauth_access_token_secret' => $tokens->token_secret,
                         'consumer_key' => get_config('msocialconnector_twitter', 'consumer_key'),  // ...twitter
-                                                                                  // developer app
-                                                                                  // key.
-                        'consumer_secret' =>  get_config('msocialconnector_twitter', 'consumer_secret')// ...twitter
-                                                                                   // developer app
-                                                                                   // secret.
+                                                                                                  // developer
+                                                                                                  // app
+                                                                                                  // key.
+                        'consumer_secret' => get_config('msocialconnector_twitter', 'consumer_secret') // ...twitter
+                                                                                                            // developer
+                                                                                                        // app
+                                                                                                            // secret.
         );
         // URL for REST request, see: https://dev.twitter.com/docs/api/1.1/
         // Perform the request and return the parsed response.
