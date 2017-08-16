@@ -45,7 +45,6 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     const CONFIG_FBGROUP = 'fbgroup';
     const CONFIG_FBGROUPNAME = 'fbgroupname';
     const CONFIG_MIN_WORDS = 'fbminwords';
-    private $lastinteractions = array();
 
     /** Get the name of the plugin
      *
@@ -228,21 +227,6 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         }
         return $usermessage;
     }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \mod_msocial\connector\msocial_connector_plugin::get_user_url() */
-    public function get_user_url($user) {
-        $userid = $this->get_social_userid($user);
-        if ($userid) {
-            $link = $this->get_social_user_url($userid);
-        } else {
-            $link = null;
-        }
-        return $link;
-    }
-
     public function get_social_user_url(social_user $userid) {
         return "https://www.facebook.com/app_scoped_user_id/$userid->socialid";
     }
@@ -428,17 +412,6 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $this->set_config(self::CONFIG_FBGROUP, '');
     }
 
-    protected function store_interactions(array $interactions) {
-        $msocialid = $this->msocial->id;
-        social_interaction::store_interactions($interactions, $msocialid);
-    }
-
-    /**
-     * @param social_interaction $interaction */
-    public function register_interaction(social_interaction $interaction) {
-        $interaction->source = $this->get_subtype();
-        $this->lastinteractions[] = $interaction;
-    }
 
     /** Obtiene el numero de reacciones recibidas en el Post, y actaliza el "score" de
      * la persona que escribio el Post

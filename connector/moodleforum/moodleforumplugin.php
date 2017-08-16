@@ -34,14 +34,14 @@ use mod_msocial\social_user;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once ($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
+require_once ('moodleactivityplugin.php');
 
 /** library class for social network moodleforum plugin extending social plugin base class
  *
  * @package msocialconnector_moodleforum
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
-class msocial_connector_moodleforum extends msocial_connector_plugin {
-    private $lastinteractions = array();
+class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
     const CONFIG_ACTIVITIES = 'activities';
     const CONFIG_ACTIVITY_NAMES = 'activitynames';
 
@@ -52,19 +52,6 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
      * @return string */
     public function get_name() {
         return get_string('pluginname', 'msocialconnector_moodleforum');
-    }
-
-    /**
-     * @return true if the plugin is making searches in the social network */
-    public function is_tracking() {
-        return $this->is_enabled();
-    }
-
-    /** Get the instance settings for the plugin
-     *
-     * @param MoodleQuickForm $mform The form to add elements to
-     * @return void */
-    public function get_settings(\MoodleQuickForm $mform) {
     }
 
     public function get_subtype() {
@@ -83,102 +70,8 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
         return new \moodle_url('/mod/msocial/connector/moodleforum/pix/moodleforum_icon.png');
     }
 
-    /**
-     * @global \core_renderer $OUTPUT
-     * @global \moodle_database $DB */
-    public function render_header() {
-        global $OUTPUT, $USER;
-        $this->remap_linked_activities(); // debug
-        if ($this->is_enabled()) {
-            $icon = $this->get_icon();
-            $messages = [];
-            $notifications = [];
-            $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
-            $context = \context_module::instance($this->cm->id);
-            $activities = $this->get_config(self::CONFIG_ACTIVITIES);
-            if (has_capability('mod/msocial:manage', $context)) {
-                $linktoselect = \html_writer::link(
-                        new \moodle_url('/mod/msocial/connector/moodleforum/activitychoice.php', ['id' => $this->cm->id]),
-                        'Select forums.');
-            } else {
-                $linktoselect = '';
-            }
-
-            if ($activities) {
-                $cminfo = get_fast_modinfo($this->cm->course);
-                $linkforum = [];
-                foreach (explode(',', $activities) as $actid) {
-                    $forum =  $cminfo->cms[$actid];
-                    $forumurl = $forum->url;
-                    $info = $forum->get_formatted_name();
-                    $linkforum[] = \html_writer::link($forumurl, $info);
-                }
-                $messages[] = get_string('onlyasetofactivities', 'msocialconnector_moodleforum') . ' ('. implode(', ', $linkforum) . ') ' .
-                         $linktoselect;
-            } else {
-                $messages[] = get_string('allactivities', 'msocialconnector_moodleforum') . ' ' . $linktoselect;
-            }
-            if (has_capability('mod/msocial:manage', $context)) {
-                $messages[] = get_string('harvest', 'msocialconnector_moodleforum') . $OUTPUT->action_icon(
-                        new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->cm->id, 'subtype' => $this->get_subtype()]),
-                        new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_moodleforum')));
-            }
-            $this->notify($notifications, self::NOTIFY_WARNING);
-            $this->notify($messages, self::NOTIFY_NORMAL);
-        }
-    }
-
-    /** Place social-network user information or a link to connect.
-     * Moodle internal users don't need to be detailed.
-     *
-     * @global object $USER
-     * @global object $COURSE
-     * @param object $user user record
-     * @return string message with the linking info of the user */
-    public function render_user_linking($user) {
-        return '';
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \mod_msocial\connector\msocial_connector_plugin::users_are_local() */
-    public function users_are_local() {
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see \mod_msocial\connector\msocial_connector_plugin::get_user_url() */
-    public function get_user_url($user) {
-        if (isset($user->id)) {
-            $userid = $user->id;
-        } else {
-            $userid = (int) $user;
-        }
-        if ($userid) {
-            $link = $this->get_social_user_url((object) ['userid' => $userid]);
-        } else {
-            $link = null;
-        }
-        return $link;
-    }
-
-    public function get_social_user_url(social_user $userid) {
-        return new \moodle_url("/user/view.php", ['id' => $userid->userid]) . out();
-    }
-
-    public function get_interaction_url(social_interaction $interaction) {
-        // /groups/1670848226578336/permalink/1670848496578309/?comment_id=1670848556578303
-        $parts = explode('_', $interaction->uid);
-        if (count($parts) == 2) { // TODO...
-            $url = new \moodle_url("/mod/forum/view.php", ['id' => $parts[0], 'post' => $parts[1]]);
-        } else {
-            $url = new \moodle_url("/mod/forum/view.php", ['id' => $parts[0]]);
-        }
-
-        return $url;
+    protected function get_mod_name() {
+        return 'forum';
     }
 
     public function get_pki_list() {
@@ -194,17 +87,7 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
         return $pkiobjs;
     }
 
-    protected function store_interactions(array $interactions) {
-        $msocialid = $this->msocial->id;
-        social_interaction::store_interactions($interactions, $msocialid);
-    }
 
-    /**
-     * @param social_interaction $interaction */
-    public function register_interaction(social_interaction $interaction) {
-        $interaction->source = $this->get_subtype();
-        $this->lastinteractions[] = $interaction;
-    }
 
     /** TODO
      * Obtiene el numero de respuestas y notas recibidas en el Post, y actaliza el "score" de
@@ -322,43 +205,5 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
                  " events. Students' events: " . count($studentinteractions);
         $result->messages[] = $logmessage;
         return $result;
-    }
-
-    public function set_linked_activities($activities) {
-        $this->set_config(self::CONFIG_ACTIVITIES, join(',', array_keys($activities)));
-        $this->set_config(self::CONFIG_ACTIVITY_NAMES, json_encode($activities));
-    }
-
-    /** Try to redetect forums by id or by name is the ids are not valid (i.e.
-     * after a isolated backup of the msocial module) */
-    public function remap_linked_activities() {
-        $actnames = json_decode($this->get_config(self::CONFIG_ACTIVITY_NAMES), true);
-        $cmodinfo = get_fast_modinfo($this->msocial->course);
-        $resolved = [];
-        if ($actnames) {
-            foreach ($actnames as $id => $name) {
-                if (isset($cmodinfo->cms[$id]) && $cmodinfo->cms[$id]->modname == 'forum') {
-                    $resolved[$id] = $name;
-                } else {
-                    // Search by name.
-                    foreach ($cmodinfo->cms as $id => $cminfo) {
-                        if ($cminfo->modname == 'forum' && $cminfo->name == $name) {
-                            $resolved[$id] = $name;
-                        }
-                    }
-                }
-            }
-        }
-        $this->set_linked_activities($resolved);
-    }
-
-    public function get_connection_token() {
-        return '';
-    }
-
-    public function set_connection_token($token) {
-    }
-
-    public function unset_connection_token() {
     }
 }

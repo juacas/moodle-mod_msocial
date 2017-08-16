@@ -72,6 +72,8 @@ foreach ($interactions as $interaction) {
             $userlinkfrom = (new moodle_url('/user/view.php', ['id' => $interaction->fromid]))->out();
         } else {
             $userlinkfrom = $plugin->get_social_user_url(new social_user($interaction->nativefrom, $interaction->nativefromname));
+            $userlinkfrom = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname";
+
         }
         if (!array_key_exists($nodenamefrom, $nodemap)) {
             $node = (object) ['id' => $index, 'name' => $nodenamefrom, 'group' => $interaction->fromid == null,
@@ -88,7 +90,8 @@ foreach ($interactions as $interaction) {
             if (isset($userrecords[$interaction->toid])) {
                 $userlinkto = (new moodle_url('/user/view.php', ['id' => $interaction->toid]))->out();
             } else {
-                $userlinkto = $plugin->get_social_user_url(new social_user($interaction->nativeto, $interaction->nativetoname));
+//                 $userlinkto = $plugin->get_social_user_url(new social_user($interaction->nativeto, $interaction->nativetoname));
+                $userlinkto = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&nativeid=$interaction->nativeto&nativename=$interaction->nativetoname";
             }
         }
         if ($nodenameto == null) {

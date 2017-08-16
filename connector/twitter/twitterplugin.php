@@ -229,16 +229,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         return "https://twitter.com/$userid->socialname";
     }
 
-    public function get_user_url($user) {
-        $userid = $this->get_social_userid($user);
-        if ($userid) {
-            $link = $this->get_social_user_url($userid);
-        } else {
-            $link = '';
-        }
-        return $link;
-    }
-
     public function get_interaction_url(social_interaction $interaction) {
         $userid = $interaction->nativefrom;
         $uid = $interaction->uid;

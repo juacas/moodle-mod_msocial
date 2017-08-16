@@ -29,6 +29,7 @@ define('msocialview/graphviz', [ 'renderer','svg-pan-zoom' ], function(renderer,
 						fit : true,
 						center : true,
 					});
+					svgContainer.width('100%');
 				} else {
 					setTimeout(waitSVG, 1000);
 				}

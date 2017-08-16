@@ -43,6 +43,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     const LAST_HARVEST_TIME = 'lastharvest';
     protected $usertosocialmapping = null;
     protected $socialtousermapping = null;
+    protected $lastinteractions = array();
 
     /** Constructor for the abstract plugin type class
      *
@@ -90,9 +91,24 @@ abstract class msocial_connector_plugin extends msocial_plugin {
             return '';
         }
     }
-
+    /**
+     *
+     * @param \stdClass $user user record
+     * @return string url of the user in the social network
+     */
+    public function get_user_url($user) {
+        $userid = $this->get_social_userid($user);
+        if ($userid) {
+            $link = $this->get_social_user_url($userid);
+        } else {
+            $link = null;
+        }
+        return $link;
+    }
     /** Construct a native link
-     * @param social_user $socialid */
+     * @param social_user $socialid
+     * @return string url of the user in the social network
+     */
     abstract public function get_social_user_url(social_user $socialid);
 
     /** URL to a page with the social interaction.
@@ -111,7 +127,16 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $conditions = "source = '$this->get_subtype()'";
         return social_interaction::load_interactions((int) $this->msocial->id, $conditions, $fromdate, $todate, $users);
     }
-
+    protected function store_interactions(array $interactions) {
+        $msocialid = $this->msocial->id;
+        social_interaction::store_interactions($interactions, $msocialid);
+    }
+    /**
+     * @param social_interaction $interaction */
+    public function register_interaction(social_interaction $interaction) {
+        $interaction->source = $this->get_subtype();
+        $this->lastinteractions[] = $interaction;
+    }
     /** Stores the $socialname in the profile information of the $user
      *
      * @param \stdClass|int $user user record or userid
