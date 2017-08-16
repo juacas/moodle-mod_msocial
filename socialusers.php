@@ -27,6 +27,8 @@ use mod_msocial\plugininfo\msocialview;
 use msocial\msocial_plugin;
 use mod_msocial\plugininfo\msocialbase;
 use mod_msocial\plugininfo\msocialconnector;
+use mod_msocial\SocialUser;
+use mod_msocial\social_user;
 
 require_once ("../../config.php");
 require_once ("locallib.php");
@@ -52,6 +54,7 @@ if ($action == 'setmap') {
     $nativename = required_param('nativename', PARAM_RAW_TRIMMED);
     $source = required_param('source', PARAM_ALPHA);
     $userid = required_param('user', PARAM_INT);
+    require_sesskey();
     require_capability('mod/msocial:manage', $contextmodule);
     $user = $DB->get_record('user', ['id' => $userid]);
     $plugin = msocialconnector::instance($msocial, 'connector', $source);
@@ -78,7 +81,16 @@ echo $OUTPUT->spacer(array('height' => 20));
 echo $OUTPUT->heading(get_string('view_social_users', 'msocial'));
 // Print the information about the linking of the module with social plugins..
 $enabledsocialplugins = \mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
-
+// Select user explaination...
+if ($mappingrequested) {
+    $plugin = $enabledsocialplugins[$source];
+    $socialuserid = new social_user($nativeid, $nativename);
+    $link = $plugin->get_social_user_url($socialuserid);
+    $icon = $plugin->get_icon();
+    $linksocial = "<a href=\"$link\"><img src=\"$icon\" height=\"29px\" /> $nativename </a>";
+    $a = (object) ['link' => $linksocial, 'socialname' => $nativename, 'source' => $plugin->get_name()];
+    echo $OUTPUT->box(get_string('mapunknownsocialusers', 'msocial', $a));
+}
 $table = new html_table();
 list($studentids, $nonstudentids, $inactiveids, $users) = eduvalab_get_users_by_type($contextmodule);
 $table->head = [get_string('user')];
@@ -111,6 +123,7 @@ if ($mappingrequested) {
     echo '<input type="hidden" name="nativeid" value="' . $nativeid . '"/>';
     echo '<input type="hidden" name="nativename" value="' . $nativename . '"/>';
     echo '<input type="hidden" name="source" value="' . $source . '"/>';
+    echo '<input type="hidden" name="sesskey" value="' . sesskey(). '"/>';
 }
 echo html_writer::table($table);
 if ($mappingrequested) {

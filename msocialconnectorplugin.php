@@ -33,6 +33,8 @@ namespace mod_msocial\connector;
 
 use mod_msocial\connector\social_interaction;
 use msocial\msocial_plugin;
+use mod_msocial\SocialUser;
+use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
 require_once ($CFG->dirroot . '/mod/msocial/msocialplugin.php');
@@ -76,7 +78,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     public abstract function render_user_linking($user);
 
     /** Gets an href fragment that links to the user's page in the social network.
-     * @param \stdClass $user user record */
+     * @param \stdClass $user user record
+     * @return string html with the link to social network user's profile.*/
     public function create_user_link($user) {
         $socialuserid = $this->get_social_userid($user);
         if ($socialuserid) {
@@ -89,8 +92,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     }
 
     /** Construct a native link
-     * @param unknown $socialid */
-    abstract public function get_social_user_url($socialid);
+     * @param social_user $socialid */
+    abstract public function get_social_user_url(social_user $socialid);
 
     /** URL to a page with the social interaction.
      *
@@ -182,7 +185,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     /** Maps a Moodle's $user to a user id in the social media.
      *
      * @param \stdClass|int $user user record or userid
-     * @return \stdClass socialid, socialname */
+     * @return social_user  */
     public function get_social_userid($user) {
         if ($user instanceof \stdClass) {
             $userid = $user->id;
@@ -202,8 +205,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
             $this->socialtousermapping = [];
             foreach ($records as $record) {
                 $this->socialtousermapping[$record->socialid] = $record->userid;
-                $this->usertosocialmapping[$record->userid] = (object) ['socialid' => $record->socialid,
-                                'socialname' => $record->socialname];
+                $this->usertosocialmapping[$record->userid] = new social_user($record->socialid, $record->socialname);
             }
         }
     }

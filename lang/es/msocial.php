@@ -50,8 +50,7 @@ $string['harvest_task'] = 'Planificador de recolección de interacciones sociale
 // MainPage.
 $string['mainpage'] = 'Portada del concurso Twitter';
 $string['mainpage_help'] = 'Portada del concurso Twitter. Puede comprobar aquí sus logros en el concurso Twitter';
-$string['module_connected_twitter'] = 'Modulo conectado con Twitter con el usuario "{$a}" ';
-$string['module_not_connected_twitter'] = 'Modulo no conectado con Twitter.';
+$string['mapunknownsocialusers'] = 'Seleccione un ussuario del curso para asociarlo a la cuenta "{$a->link}" del {$a->source}';
 
 // Permissions.
 $string['msocial:view'] = 'Ver información básica del módulo MSocial.';

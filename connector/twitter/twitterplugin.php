@@ -28,6 +28,7 @@ namespace mod_msocial\connector;
 use msocial\msocial_plugin;
 use mod_msocial\pki_info;
 use mod_msocial\pki;
+use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
 require_once ('TwitterAPIExchange.php');
@@ -225,7 +226,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         return $usermessage;
     }
 
-    public function get_social_user_url($userid) {
+    public function get_social_user_url(social_user $userid) {
         return "https://twitter.com/$userid->socialname";
     }
 

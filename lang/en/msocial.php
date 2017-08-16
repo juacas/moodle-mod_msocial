@@ -50,6 +50,7 @@ $string['grade_expr_help'] = 'The formula for converting stats into grades can c
 $string['harvest_task'] = 'Scheduled harvesting of social networks and calculation of pkis.';
 $string['pluginadministration'] = 'Social networks conquest';
 $string['view_social_users'] = 'Social users table';
+$string['mapunknownsocialusers'] = 'Select a course user to assign the "{$a->link}" user of the {$a->source}.';
 // MainPage.
 $string['mainpage'] = 'Social networks contest main page';
 $string['mainpage_help'] = 'Social networks contest main page. You can view your achievements in Social networks contest';

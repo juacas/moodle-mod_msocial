@@ -24,6 +24,7 @@
  * *******************************************************************************
  */
 use mod_msocial\connector\social_interaction;
+use mod_msocial\social_user;
 require_once ('../../../../config.php');
 require_once ('../../locallib.php');
 require_once ('../../msocialconnectorplugin.php');
@@ -70,8 +71,7 @@ foreach ($interactions as $interaction) {
         if (isset($userrecords[$interaction->fromid])) {
             $userlinkfrom = (new moodle_url('/user/view.php', ['id' => $interaction->fromid]))->out();
         } else {
-            $userlinkfrom = $plugin->get_social_user_url(
-                    (object) ['socialid' => $interaction->nativefrom, 'socialname' => $interaction->nativefromname]);
+            $userlinkfrom = $plugin->get_social_user_url(new social_user($interaction->nativefrom, $interaction->nativefromname));
         }
         if (!array_key_exists($nodenamefrom, $nodemap)) {
             $node = (object) ['id' => $index, 'name' => $nodenamefrom, 'group' => $interaction->fromid == null,
@@ -88,8 +88,7 @@ foreach ($interactions as $interaction) {
             if (isset($userrecords[$interaction->toid])) {
                 $userlinkto = (new moodle_url('/user/view.php', ['id' => $interaction->toid]))->out();
             } else {
-                $userlinkto = $plugin->get_social_user_url(
-                        (object) ['socialid' => $interaction->nativeto, 'socialname' => $interaction->nativetoname]);
+                $userlinkto = $plugin->get_social_user_url(new social_user($interaction->nativeto, $interaction->nativetoname));
             }
         }
         if ($nodenameto == null) {

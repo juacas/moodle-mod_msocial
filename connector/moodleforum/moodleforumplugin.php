@@ -29,6 +29,7 @@ use mod_msocial\pki_info;
 use moodleforum\GraphNodes\GraphEdge;
 use moodleforum\moodleforum as moodleforum;
 use msocial\msocial_plugin;
+use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -155,7 +156,7 @@ class msocial_connector_moodleforum extends msocial_connector_plugin {
         return $link;
     }
 
-    public function get_social_user_url($userid) {
+    public function get_social_user_url(social_user $userid) {
         return new \moodle_url("/user/view.php", ['id' => $userid->userid]) . out();
     }
 

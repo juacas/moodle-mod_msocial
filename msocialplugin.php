@@ -33,6 +33,7 @@ namespace msocial;
 
 defined('MOODLE_INTERNAL') || die();
 require_once ('classes/plugininfo/msocialbase.php');
+require_once ('socialuser.php');
 require_once ($CFG->dirroot . '/mod/msocial/pki.php');
 require_once ($CFG->dirroot . '/mod/msocial/socialinteraction.php');
 

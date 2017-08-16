@@ -30,6 +30,7 @@ use Facebook\GraphNodes\GraphEdge;
 use Facebook\GraphNodes\GraphNode;
 use mod_msocial\pki_info;
 use msocial\msocial_plugin;
+use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -242,7 +243,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         return $link;
     }
 
-    public function get_social_user_url($userid) {
+    public function get_social_user_url(social_user $userid) {
         return "https://www.facebook.com/app_scoped_user_id/$userid->socialid";
     }
 
