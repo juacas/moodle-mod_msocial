@@ -83,12 +83,15 @@ d3.json("view/graph/jsonized.php?include_community=true&id="+cmid, function(inte
   row.append("line")
       .attr("x2", width);
 
-  row.append("text")
+  row.append("a")
+  	  .attr('xlink:href', function(d, i) {return nodes[i].userlink;})
+  	  .append("text")
       .attr("x", -6)
       .attr("y", x.rangeBand() / 2)
       .attr("dy", ".32em")
       .attr("text-anchor", "end")
-      .text(function(d, i) { return nodes[i].name; });
+      .text(function(d, i) { return nodes[i].name; })
+      ;
 
   var column = svg.selectAll(".column")
       .data(matrix)
@@ -99,7 +102,9 @@ d3.json("view/graph/jsonized.php?include_community=true&id="+cmid, function(inte
   column.append("line")
       .attr("x1", -width);
 
-  column.append("text")
+  column.append("a")
+	  .attr('xlink:href', function(d, i) {return nodes[i].userlink;})
+	  .append("text")
       .attr("x", 6)
       .attr("y", x.rangeBand() / 2)
       .attr("dy", ".32em")
