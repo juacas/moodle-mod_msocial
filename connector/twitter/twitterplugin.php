@@ -166,7 +166,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             // Check hashtag search field.
             $hashtag = $this->get_config('hashtag');
             if (trim($hashtag) == "") {
-                $notifications[] = get_string('hashtag_missing', 'msocialconnector_twitter');
+                $notifications[] = get_string('hashtag_missing', 'msocialconnector_twitter', ['cmid' => $cm->id]);
             } else {
                 $messages[] = get_string('hashtag_reminder', 'msocialconnector_twitter', $hashtag);
             }
@@ -597,9 +597,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                                                                                                   // app
                                                                                                   // key.
                         'consumer_secret' => get_config('msocialconnector_twitter', 'consumer_secret') // ...twitter
-                                                                                                            // developer
-                                                                                                        // app
-                                                                                                            // secret.
+                                                                                                           // developer
+                                                                                                           // app
+                                                                                                           // secret.
         );
         // URL for REST request, see: https://dev.twitter.com/docs/api/1.1/
         // Perform the request and return the parsed response.

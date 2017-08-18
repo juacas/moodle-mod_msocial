@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/msocial/db" VERSION="20150602"
+<XMLDB PATH="mod/msocial/db" VERSION="20170818"
 	COMMENT="XMLDB file for Moodle mod/msocial" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
 	<TABLES>
@@ -88,6 +88,9 @@
 					SEQUENCE="false" />
 				<FIELD NAME="nativetype" TYPE="char" LENGTH="20" NOTNULL="true"
 					SEQUENCE="false" />
+				<FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="true"
+					SEQUENCE="false" DEFAULT="0"
+					COMMENT="Coded status of interaction: 0=accepted, 1=rejected by quality filter, 2=rejected manually, etc." />
 				<FIELD NAME="description" TYPE="text" NOTNULL="false"
 					SEQUENCE="false" />
 				<FIELD NAME="rawdata" TYPE="text" NOTNULL="false" SEQUENCE="false" />
@@ -103,21 +106,22 @@
 				<INDEX NAME="msocial" UNIQUE="false" FIELDS="msocial" />
 			</INDEXES>
 		</TABLE>
-		<TABLE NAME="msocial_mapusers"
-			COMMENT="Maps local users to social network's ids.">
+		<TABLE NAME="msocial_mapusers" COMMENT="Maps local users to social network's ids.">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="18" NOTNULL="true"
 					SEQUENCE="true" />
 				<FIELD NAME="msocial" TYPE="int" LENGTH="9" NOTNULL="false"
 					DEFAULT="0" SEQUENCE="false" />
 				<FIELD NAME="type" TYPE="char" LENGTH="10" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" COMMENT="name of the connector that generated the mapping."/>
+					DEFAULT="0" SEQUENCE="false"
+					COMMENT="name of the connector that generated the mapping." />
 				<FIELD NAME="userid" TYPE="int" LENGTH="9" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" COMMENT="Known local user id."/>
+					DEFAULT="0" SEQUENCE="false" COMMENT="Known local user id." />
 				<FIELD NAME="socialid" TYPE="char" LENGTH="30" NOTNULL="true"
-					DEFAULT="0" SEQUENCE="false" COMMENT="Unique id of the user in the social network."/>
+					DEFAULT="0" SEQUENCE="false" COMMENT="Unique id of the user in the social network." />
 				<FIELD NAME="socialname" TYPE="char" LENGTH="100" NOTNULL="false"
-					DEFAULT="0" SEQUENCE="false" COMMENT="Screen name of the user in the social network."/>
+					DEFAULT="0" SEQUENCE="false"
+					COMMENT="Screen name of the user in the social network." />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="id" TYPE="primary" FIELDS="id" />

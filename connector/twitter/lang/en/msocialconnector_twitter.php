@@ -21,7 +21,7 @@ $string['twfieldid_help'] = 'Field name of the user profile that holds the tweet
 
 $string['hashtag'] = 'Hashtag to search for in tweets';
 $string['hashtag_help'] = 'It can be any string as specified in Twitter API. You can use this tool to compose your search string <a href="https://twitter.com/search-advanced">https://twitter.com/search-advanced</a>';
-$string['hashtag_missing'] = 'Hashtag to search for in tweets in missing. Configure it in the activity config.';
+$string['hashtag_missing'] = 'Hashtag to search for in tweets in missing. Configure it in the activity <a href="../../course/modedit.php?update={$a->cmid}&return=1">settings</a>.';
 $string['hashtag_reminder'] = 'Twitter is searched by search string: {$a}.';
 
 $string['widget_id'] = 'Widget id to be embedded in the main page.';
