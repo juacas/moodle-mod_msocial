@@ -13,7 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/* ***************************
+/*
+ * **************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -22,17 +23,14 @@
  * @package msocial
  * *******************************************************************************
  */
-/**
- * Code fragment to define the version of msocial
+/** Code fragment to define the version of msocial
  * This fragment is called by moodle_needs_upgrading() and /admin/index.php
- * @package msocial
- *
- */
-defined ( 'MOODLE_INTERNAL' ) || die ();
+ * @package msocial */
+defined('MOODLE_INTERNAL') || die();
 
 $plugin->version = 2017081801; // The current module version (Date: YYYYMMDDXX).
 $plugin->requires = 2013051407.00; // Requires this Moodle version.2013111801.11.
 $plugin->component = 'mod_msocial'; // Full name of the plugin (used for diagnostics).
-$plugin->cron = 60 * 60; // Period for cron to check this module (secs).
+$plugin->cron = 12 * 60 * 60; // Period for cron to check this module (secs).
 $plugin->maturity = MATURITY_BETA;
 $plugin->release = 'v0.1.0-beta';
