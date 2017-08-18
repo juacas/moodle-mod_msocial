@@ -54,6 +54,9 @@ if ($action == 'setmap') {
     $nativename = required_param('nativename', PARAM_RAW_TRIMMED);
     $source = required_param('source', PARAM_ALPHA);
     $userid = required_param('user', PARAM_INT);
+    if (trim($nativeid) == '') {
+        throw new Exception('Social user id empty.');
+    }
     require_sesskey();
     require_capability('mod/msocial:manage', $contextmodule);
     $user = $DB->get_record('user', ['id' => $userid]);
@@ -64,7 +67,7 @@ if ($action == 'setmap') {
     $nativename = required_param('nativename', PARAM_RAW_TRIMMED);
     $source = required_param('source', PARAM_ALPHA);
 }
-$mappingrequested = $action == 'selectmapuser';
+$mappingrequested = $action == 'selectmapuser' && trim($nativeid) != '';
 // Show headings and menus of page.
 $thispageurl = new moodle_url('/mod/msocial/socialusers.php', array('id' => $id));
 $PAGE->set_url($thispageurl);
@@ -123,7 +126,7 @@ if ($mappingrequested) {
     echo '<input type="hidden" name="nativeid" value="' . $nativeid . '"/>';
     echo '<input type="hidden" name="nativename" value="' . $nativename . '"/>';
     echo '<input type="hidden" name="source" value="' . $source . '"/>';
-    echo '<input type="hidden" name="sesskey" value="' . sesskey(). '"/>';
+    echo '<input type="hidden" name="sesskey" value="' . sesskey() . '"/>';
 }
 echo html_writer::table($table);
 if ($mappingrequested) {
