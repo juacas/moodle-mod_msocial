@@ -72,12 +72,18 @@ foreach ($interactions as $interaction) {
     $graphviztoattr['graphviz.label'] = $to;
     $type = $interaction->type;
     $source = $interaction->source;
-    list($fromvertex, $edge, $tovertex) = $socialgraph->register_interaction($interaction, [
-                    'graphviz.label' => $source . ':' . $type], $graphvizfromattr, $graphviztoattr);
-    $fromvertex->setGroup($fromgroup);
-    $tovertex->setGroup($togroup);
-    $edge->setFlow(1 / $edge->getWeight());
-    $edge->setCapacity(1);
+    list($fromvertex, $edge, $tovertex) = $socialgraph->register_interaction($interaction,
+            ['graphviz.label' => $source . ':' . $type], $graphvizfromattr, $graphviztoattr);
+    if ($fromvertex) {
+        $fromvertex->setGroup($fromgroup);
+    }
+    if ($tovertex) {
+        $tovertex->setGroup($togroup);
+    }
+    if ($edge) {
+        $edge->setFlow(1 / $edge->getWeight());
+        $edge->setCapacity(1);
+    }
 }
 $dot = new Dot();
 $graph = $socialgraph->get_graph();

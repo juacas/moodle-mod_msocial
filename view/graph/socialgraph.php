@@ -125,10 +125,14 @@ class SocialMatrix {
         // Add score to author.
         if (isset($fromvertex)) {
             $fromvertex->setAttribute('score', $score + $fromvertex->getAttribute('score', 0));
+        } else {
+            $fromvertex = null;
         }
         if (isset($tovertex)) {
             // Add score to recipient.
             $tovertex->setAttribute('score', $score + $tovertex->getAttribute('score', 0));
+        } else {
+            $tovertex = null;
         }
         return [$fromvertex,$edge,$tovertex];
     }
