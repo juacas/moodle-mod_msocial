@@ -222,12 +222,17 @@ class social_interaction {
             if ($record->timestamp) {
                 $record->timestamp = $inter->timestamp->getTimeStamp();
             }
+            $record->description = self::clean_emojis($record->description);
             $record->msocial = $msocialid;
             $records[] = $record;
         }
-        foreach ($records as $record) {
-            $DB->insert_record('msocial_interactions', $record);
-        }
-        // $DB->insert_records('msocial_interactions', $records);
+        // foreach ($records as $record) {
+        // $DB->insert_record('msocial_interactions', $record);
+        // }
+        $DB->insert_records('msocial_interactions', $records);
+    }
+
+    static private function clean_emojis($text) {
+        return trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', mb_convert_encoding($text, "UTF-8")));
     }
 }
