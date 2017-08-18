@@ -135,7 +135,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                     $username = $token->username;
                     $errorstatus = $token->errorstatus;
                     if ($errorstatus) {
-                        $notifications[] = '<p>' . get_string('problemwithfacebookaccount', 'msocial', $errorstatus);
+                        $notifications[] = '<p>' . get_string('problemwithfacebookaccount', 'msocialconnector_facebook', $errorstatus);
                     }
                     if ($this->is_tracking()) {
                         $harvestbutton = $OUTPUT->action_icon(

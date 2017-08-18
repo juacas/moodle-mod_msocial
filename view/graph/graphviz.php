@@ -41,7 +41,7 @@ foreach ($interactions as $interaction) {
     }
     $graphviztoattr = [];
     $graphvizfromattr = [];
-    if ($interaction->fromid == null) {
+    if ($interaction->fromid == null || !isset($users[$interaction->fromid])) {
         $from = "[$interaction->nativefromname]";
         $fromgroup = 1;
         if ($shownativeids) {
@@ -52,7 +52,7 @@ foreach ($interactions as $interaction) {
         $graphvizfromattr['graphviz.URL'] = $CFG->wwwroot . "/user/view.php?id=$interaction->fromid";
         $fromgroup = 0;
     }
-    if ($interaction->toid == null) {
+    if ($interaction->toid == null || !isset($users[$interaction->toid])) {
         $to = "[$interaction->nativetoname]";
         if ($shownativeids) {
             $graphviztoattr['graphviz.URL'] = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&nativeid=$interaction->nativeto&nativename=$interaction->nativetoname";

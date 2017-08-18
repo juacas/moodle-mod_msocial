@@ -172,7 +172,7 @@ if ($action == 'connect') {
     $groupsedge = $grphfty->makeGraphEdge('GraphGroup');
     echo $plugin->view_group_list($groupsedge);
 } else if ($action == 'setgroup') {
-    $gid = required_param('gid', PARAM_INT);
+    $gid = required_param('gid', PARAM_ALPHANUM);
     $gname = required_param('gname', PARAM_RAW_TRIMMED);
     $url = new moodle_url('/mod/msocial/facebookSSO.php', array('id' => $id, 'gid' => $gid, 'gname' => $gname));
     $PAGE->set_url($url);

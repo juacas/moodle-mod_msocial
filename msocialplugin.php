@@ -263,18 +263,21 @@ abstract class msocial_plugin {
                 if ($pkiinfo->interaction_nativetype_query !== null && $pkiinfo->interaction_nativetype_query !== '*') {
                     $nativetypequery = "and nativetype = '$pkiinfo->interaction_nativetype_query' ";
                 }
-               // TODO: Check query:
-                // Did you remember to make the first column something unique in your call to get_records? Duplicate value '29' found in column 'userid'.
+                // TODO: Check query:
+                // Did you remember to make the first column something unique in your call to
+                // get_records? Duplicate value '29' found in column 'userid'.
 
-                $sql = "SELECT fromid as userid, count(*) as total
+                $interaction_source = $pkiinfo->interaction_source;
+                $sql = "SELECT $interaction_source as userid, count(*) as total
                     from {msocial_interactions}
                     where msocial=?
-                        and source='$subtype'
-                        and type='$pkiinfo->interaction_type'
+                        and source=?
+                        and type=?
+                        and $interaction_source IS NOT NULL
                         $nativetypequery
-                        and $pkiinfo->interaction_source IS NOT NULL
-                    group by $pkiinfo->interaction_source";
-                $aggregatedrecords = $DB->get_records_sql($sql, [$this->msocial->id]);
+                    group by $interaction_source";
+                $aggregatedrecords = $DB->get_records_sql($sql,
+                        [$this->msocial->id, $subtype, $pkiinfo->interaction_type]);
                 // Process users' pkis.
                 foreach ($aggregatedrecords as $aggr) {
                     if (isset($pkis[$aggr->userid])) {

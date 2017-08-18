@@ -33,7 +33,7 @@ define('msocialview/graphviz', [ 'renderer','svg-pan-zoom' ], function(renderer,
 				} else {
 					setTimeout(waitSVG, 1000);
 				}
-			}, 3000);
+			}, 5000);
 		} // End of function init.
 	}; // End of init var.
 	return init;
