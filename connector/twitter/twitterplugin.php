@@ -379,7 +379,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     });
             $this->store_status($studentstatuses);
 
-            $interactions = $this->build_interactions($studentstatuses);
+            $interactions = $this->build_interactions($processedstatuses);
             social_interaction::store_interactions($interactions, $this->msocial->id);
 
             $result->messages[] = "For module msocial\\connector\\twitter: $msocial->name (id=$msocial->id) in course (id=$msocial->course) searching: " .
