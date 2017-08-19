@@ -36,6 +36,7 @@ $fromdate = optional_param('from', null, PARAM_ALPHANUMEXT);
 $community = optional_param('include_community', true, PARAM_BOOL);
 $todate = optional_param('from', null, PARAM_ALPHANUMEXT);
 $subtype = optional_param('subtype', null, PARAM_ALPHA);
+$interactiontypes = optional_param('int_types', null, PARAM_RAW);
 $cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
 require_login($cm->course, false, $cm);
@@ -46,7 +47,17 @@ if ($subtype) {
 } else {
     $subtypefilter = '';
 }
-list($students, $nonstudents, $activeusers, $userrecords) = eduvalab_get_users_by_type($contextcourse);
+if ($interactiontypes) {
+    $types = explode(',', $interactiontypes);
+    $inttypessqlparts = [];
+    foreach ($types as $type) {
+        $inttypessqlparts[] = "type = '$type'";
+    }
+    $inttypesql = implode(' OR ', $inttypessqlparts);
+    $subtypefilter .= " ($inttypesql) ";
+}
+
+list($students, $nonstudents, $activeusers, $userrecords) = msocial_get_users_by_type($contextcourse);
 // Process interactions.
 $interactions = social_interaction::load_interactions((int) $msocial->id, $subtypefilter, $fromdate, $todate);
 $nodes = [];
@@ -73,7 +84,6 @@ foreach ($interactions as $interaction) {
         } else {
             $userlinkfrom = $plugin->get_social_user_url(new social_user($interaction->nativefrom, $interaction->nativefromname));
             $userlinkfrom = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname";
-
         }
         if (!array_key_exists($nodenamefrom, $nodemap)) {
             $node = (object) ['id' => $index, 'name' => $nodenamefrom, 'group' => $interaction->fromid == null,
@@ -90,7 +100,8 @@ foreach ($interactions as $interaction) {
             if (isset($userrecords[$interaction->toid])) {
                 $userlinkto = (new moodle_url('/user/view.php', ['id' => $interaction->toid]))->out();
             } else {
-//                 $userlinkto = $plugin->get_social_user_url(new social_user($interaction->nativeto, $interaction->nativetoname));
+                // $userlinkto = $plugin->get_social_user_url(new
+                // social_user($interaction->nativeto, $interaction->nativetoname));
                 $userlinkto = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&nativeid=$interaction->nativeto&nativename=$interaction->nativetoname";
             }
         }

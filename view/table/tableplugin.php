@@ -125,7 +125,7 @@ class msocial_view_table extends msocial_view_plugin {
 
         // Table view.
         if (has_capability('mod/msocial:viewothers', $contextmodule)) {
-            list($students, $nonstudents, $activeusers, $userrecords) = eduvalab_get_users_by_type($contextcourse);
+            list($students, $nonstudents, $activeusers, $userrecords) = msocial_get_users_by_type($contextcourse);
             $students = array_merge($students, $nonstudents);
         } else {
             $students = array($USER->id);

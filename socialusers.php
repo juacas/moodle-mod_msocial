@@ -95,7 +95,7 @@ if ($mappingrequested) {
     echo $OUTPUT->box(get_string('mapunknownsocialusers', 'msocial', $a));
 }
 $table = new html_table();
-list($studentids, $nonstudentids, $inactiveids, $users) = eduvalab_get_users_by_type($contextmodule);
+list($studentids, $nonstudentids, $inactiveids, $users) = msocial_get_users_by_type($contextmodule);
 $table->head = [get_string('user')];
 foreach ($enabledsocialplugins as $plugin) {
     if ($plugin->users_are_local() === false) {

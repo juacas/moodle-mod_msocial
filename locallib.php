@@ -34,7 +34,7 @@ require_once ($CFG->libdir . '/mathslib.php');
  * @param type $contextcourse
  * @return array(array($studentIds), array($non_studentIds), array($activeids),
  *         array($user_records)) */
-function eduvalab_get_users_by_type($contextcourse) {
+function msocial_get_users_by_type($contextcourse) {
     // Get users with gradable roles.
     global $CFG;
     $gradableroles = $CFG->gradebookroles;
@@ -71,7 +71,7 @@ function eduvalab_get_users_by_type($contextcourse) {
  * @param int|null $fromdate
  * @param int|null $todate
  * @return bool */
-function eduvalab_time_is_between($date, $fromdate, $todate) {
+function msocial_time_is_between($date, $fromdate, $todate) {
     if ($fromdate == "0") {
         $fromdate = null;
     }
@@ -79,35 +79,6 @@ function eduvalab_time_is_between($date, $fromdate, $todate) {
         $todate = null;
     }
     return ((!isset($fromdate) || $date > $fromdate) && (!isset($todate) || $date < $todate));
-}
-
-/** Curl wrapper for OAuth */
-class OAuthCurl {
-
-    public function __construct() {
-    }
-
-    public static function fetch_data($url) {
-        $options = [
-                        CURLOPT_RETURNTRANSFER => true, // ...return web page.
-                        CURLOPT_HEADER => false, // ...don't return headers.
-                        CURLOPT_FOLLOWLOCATION => true, // ...follow redirects.
-                        CURLOPT_SSL_VERIFYPEER => false
-                    ];
-
-        $ch = curl_init($url);
-        curl_setopt_array($ch, $options);
-
-        $content = curl_exec($ch);
-        $err = curl_errno($ch);
-        $errmsg = curl_error($ch);
-        $header = curl_getinfo($ch);
-        curl_close($ch);
-        $header['errno'] = $err;
-        $header['errmsg'] = $errmsg;
-        $header['content'] = $content;
-        return $header;
-    }
 }
 
 /**
@@ -169,7 +140,7 @@ function msocial_calculate_user_grades($msocial, $userid = 0) {
     $cm = get_coursemodule_from_instance('msocial', $msocial->id, 0, false, MUST_EXIST);
     if ($userid == 0) {
         $context = context_module::instance($cm->id);
-        list($sudents) = eduvalab_get_users_by_type($context);
+        list($sudents) = msocial_get_users_by_type($context);
     } else if (is_array($userid)) {
         $students = $userid;
     } else {

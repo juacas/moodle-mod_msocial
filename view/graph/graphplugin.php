@@ -149,7 +149,7 @@ class msocial_view_graph extends msocial_view_plugin {
     public function harvest() {
         $result = (object) ['messages' => []];
         $contextcourse = \context_course::instance($this->msocial->course);
-        list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
+        list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
         $pkis = $this->calculate_pkis($users);
         $this->store_pkis($pkis, true);
         $this->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());

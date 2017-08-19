@@ -151,7 +151,7 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
 
         $this->lastinteractions = [];
         $contextcourse = \context_course::instance($this->msocial->course);
-        list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
+        list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
 
         try {
             // Query moodleforum...

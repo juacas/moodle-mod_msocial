@@ -385,7 +385,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $result->messages[] = "For module msocial\\connector\\twitter: $msocial->name (id=$msocial->id) in course (id=$msocial->course) searching: " .
                      $hashtag . "  Found " . count($statuses) . " tweets. Students' tweets: " . count($studentstatuses);
             $contextcourse = \context_course::instance($this->msocial->course);
-            list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
+            list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
 
             // TODO: implements grading with plugins.
             // msocial_update_grades($this->msocial, $students);
@@ -419,7 +419,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @return mixed object report of activity. $result->statuses $result->messages[]string
      *         $result->errors[]->message */
     protected function get_statuses() {
-        if (eduvalab_time_is_between(time(), $this->msocial->startdate, $this->msocial->enddate)) {
+        if (msocial_time_is_between(time(), $this->msocial->startdate, $this->msocial->enddate)) {
             global $DB;
             $tokens = $DB->get_record('msocial_twitter_tokens', array('msocial' => $this->msocial->id));
             return $this->search_twitter($tokens, strtolower($this->get_config('hashtag'))); // Twitter
@@ -504,7 +504,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @return array[] student statuses meeting criteria. */
     protected function process_statuses($statuses) {
         $context = \context_course::instance($this->msocial->course);
-        list($students, $nonstudent, $active, $userrecords) = eduvalab_get_users_by_type($context);
+        list($students, $nonstudent, $active, $userrecords) = msocial_get_users_by_type($context);
 
         $twitters = array();
         foreach ($userrecords as $userid => $user) { // Include all users (including teachers).
@@ -530,7 +530,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                                                     // Ignore it.
                 $status->retweet_count = 0;
             }
-            if (eduvalab_time_is_between($createddate, $this->msocial->startdate, $this->msocial->enddate)) {
+            if (msocial_time_is_between($createddate, $this->msocial->startdate, $this->msocial->enddate)) {
                 $status->userauthor = $userauthor;
                 $studentsstatuses[] = $status;
             }

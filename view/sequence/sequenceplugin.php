@@ -114,7 +114,7 @@ class msocial_view_sequence extends msocial_view_plugin {
         $contextcourse = \context_course::instance($this->cm->course);
 
         $diagram = '';
-        list($students, $nonstudents, $activeids, $userrecords) = eduvalab_get_users_by_type($contextcourse);
+        list($students, $nonstudents, $activeids, $userrecords) = msocial_get_users_by_type($contextcourse);
         $interactions = social_interaction::load_interactions((int) $this->msocial->id, "", null, null, null);
         /** @var social_interaction $interaction */
         foreach ($interactions as $interaction) {

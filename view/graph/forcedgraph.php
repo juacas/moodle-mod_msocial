@@ -27,7 +27,7 @@ stroke-opacity: .6; stroke-width: 1px; }
 
 
 
-d3.json("view/graph/jsonized.php?include_community=true&id=<?php echo $this->cm->id ?>", function(error, graph) {
+d3.json("view/graph/jsonized.php?include_community=true&int_types=post,reply&id=<?php echo $this->cm->id ?>", function(error, graph) {
   if (error) throw error;
   init_forced_graph_view(graph);
 });

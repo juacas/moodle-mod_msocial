@@ -15,6 +15,36 @@
 // along with MSocial for Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_msocial\connector;
 defined('MOODLE_INTERNAL') || die();
+
+/** Curl wrapper for OAuth */
+class OAuthCurl {
+
+    public function __construct() {
+    }
+
+    public static function fetch_data($url) {
+        $options = [
+                        CURLOPT_RETURNTRANSFER => true, // ...return web page.
+                        CURLOPT_HEADER => false, // ...don't return headers.
+                        CURLOPT_FOLLOWLOCATION => true, // ...follow redirects.
+                        CURLOPT_SSL_VERIFYPEER => false
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, $options);
+
+        $content = curl_exec($ch);
+        $err = curl_errno($ch);
+        $errmsg = curl_error($ch);
+        $header = curl_getinfo($ch);
+        curl_close($ch);
+        $header['errno'] = $err;
+        $header['errmsg'] = $errmsg;
+        $header['content'] = $content;
+        return $header;
+    }
+}
+
 /**
  * Twitter-API-PHP : Simple PHP wrapper for the v1.1 API
  *

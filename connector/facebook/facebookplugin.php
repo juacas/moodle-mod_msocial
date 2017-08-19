@@ -628,7 +628,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         // worth to be registered or only student's.
         $this->store_interactions($processedinteractions);
         $contextcourse = \context_course::instance($this->msocial->course);
-        list($students, $nonstudents, $active, $users) = eduvalab_get_users_by_type($contextcourse);
+        list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
         $pkis = $this->calculate_pkis($users);
         $this->store_pkis($pkis, true);
         $this->set_config(\mod_msocial\connector\msocial_connector_plugin::LAST_HARVEST_TIME, time());
