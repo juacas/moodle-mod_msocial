@@ -96,7 +96,6 @@ function msocial_supports($feature) {
  * @return int The id of the newly inserted msocial record */
 function msocial_add_instance($msocial) {
     global $DB;
-    xdebug_break();
     $msocial->timecreated = time();
     $msocial->timemodified = $msocial->timecreated;
 

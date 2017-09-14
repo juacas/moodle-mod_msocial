@@ -68,7 +68,6 @@ class restore_msocialconnector_moodleforum_subplugin extends restore_subplugin {
     public function after_execute_msocial() {
         global $DB, $CFG;
         // Get the subpluginid.
-        xdebug_break();
         $id = $this->get_new_parentid('msocial');
         $msocial = $DB->get_record('msocial', ['id' => $id]);
         require_once ($CFG->dirroot . '/mod/msocial/connector/moodleforum/moodleforumplugin.php');

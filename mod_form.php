@@ -1,6 +1,4 @@
 <?php
-use msocial\msocial_plugin;
-
 // This file is part of MSocial activity for Moodle http://moodle.org/
 //
 // MSocial for Moodle is free software: you can redistribute it and/or modify
@@ -24,6 +22,7 @@ use msocial\msocial_plugin;
  * @package msocial
  * *******************************************************************************
  */
+use msocial\msocial_plugin;
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
 require_once ($CFG->dirroot . '/course/moodleform_mod.php');
