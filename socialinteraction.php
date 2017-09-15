@@ -26,7 +26,7 @@
 
 /** library class for msocial social_interaction
  *
- * @package msocialconnector_twitter
+ * @package msocialconnector
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 namespace mod_msocial\connector;
@@ -226,9 +226,7 @@ class social_interaction {
             $record->msocial = $msocialid;
             $records[] = $record;
         }
-        // foreach ($records as $record) {
-        // $DB->insert_record('msocial_interactions', $record);
-        // }
+
         $DB->insert_records('msocial_interactions', $records);
     }
 

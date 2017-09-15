@@ -25,10 +25,10 @@
 use mod_msocial\plugininfo\msocialview;
 use msocial\msocial_plugin;
 
-require_once ("../../config.php");
-require_once ("locallib.php");
-require_once ("msocialconnectorplugin.php");
-require_once ("msocialviewplugin.php");
+require_once("../../config.php");
+require_once("locallib.php");
+require_once("msocialconnectorplugin.php");
+require_once("msocialviewplugin.php");
 /* @var $OUTPUT \core_renderer */
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);

@@ -39,9 +39,9 @@
 use mod_msocial\plugininfo\msocialconnector;
 use mod_msocial\plugininfo\msocialbase;
 defined('MOODLE_INTERNAL') || die();
-require_once ($CFG->dirroot . "/config.php");
-require_once ($CFG->dirroot . '/grade/lib.php');
-require_once ($CFG->dirroot . '/grade/querylib.php');
+require_once($CFG->dirroot . "/config.php");
+require_once($CFG->dirroot . '/grade/lib.php');
+require_once($CFG->dirroot . '/grade/querylib.php');
 
 /** Indicates API features that the twitter module supports.
  *
@@ -276,7 +276,7 @@ function msocial_has_config() {
  * @return int 0 if ok, error code otherwise */
 function msocial_grade_item_update($msocial, $grades = null) {
     global $CFG;
-    require_once ($CFG->libdir . '/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
     if (!$msocial) {
         return GRADE_UPDATE_FAILED;
     }
@@ -308,7 +308,7 @@ function msocial_grade_item_update($msocial, $grades = null) {
 function msocial_get_user_grades($msocial, $userid = 0) {
     global $CFG;
 
-    require_once ($CFG->dirroot . '/mod/msocial/locallib.php');
+    require_once($CFG->dirroot . '/mod/msocial/locallib.php');
 
     $grades = msocial_calculate_user_grades($msocial, $userid);
     return $grades;
@@ -321,7 +321,7 @@ function msocial_get_user_grades($msocial, $userid = 0) {
  * @param bool $nullifnone - not used */
 function msocial_update_grades($msocial, $userid = 0, $nullifnone = true) {
     global $CFG;
-    require_once ($CFG->libdir . '/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
     if ($grades = msocial_get_user_grades($msocial, $userid)) {
         foreach ($grades as $k => $v) {
             if ($v->rawgrade == -1) {

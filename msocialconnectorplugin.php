@@ -37,8 +37,8 @@ use mod_msocial\SocialUser;
 use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
-require_once ($CFG->dirroot . '/mod/msocial/msocialplugin.php');
-
+require_once($CFG->dirroot . '/mod/msocial/msocialplugin.php');
+require_once('harvestintervals.php');
 abstract class msocial_connector_plugin extends msocial_plugin {
     const LAST_HARVEST_TIME = 'lastharvest';
     protected $usertosocialmapping = null;
@@ -71,6 +71,10 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      *
      * @return string messages generated */
     public abstract function harvest();
+    /**
+     * @return harvest_intervals object with intervals and rates info.
+     */
+    public abstract function preferred_harvest_intervals();
 
     /** Gets formatted text for social-network user information or a link to connect.
      *
@@ -135,7 +139,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      * @param social_interaction $interaction */
     public function register_interaction(social_interaction $interaction) {
         $interaction->source = $this->get_subtype();
-        $this->lastinteractions[] = $interaction;
+        // Array is indexed by uid to ensure that there is unicity in the uid.
+        $this->lastinteractions[$interaction->uid] = $interaction;
     }
     /** Stores the $socialname in the profile information of the $user
      *

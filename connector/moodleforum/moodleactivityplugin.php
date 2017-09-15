@@ -33,7 +33,7 @@ use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once ($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
 
 /** library class for social network moodleactivity plugin extending social plugin base class
  *
@@ -49,7 +49,9 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
     public function is_tracking() {
         return $this->is_enabled();
     }
-
+    public function preferred_harvest_intervals() {
+        return new harvest_intervals (10 * 60, 0, 0, 0);
+    }
     /** Get the instance settings for the plugin
      *
      * @param MoodleQuickForm $mform The form to add elements to

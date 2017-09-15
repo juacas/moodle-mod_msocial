@@ -31,7 +31,7 @@ use mod_msocial\plugininfo\msocialbase;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once ($CFG->dirroot . '/mod/msocial/msocialviewplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/msocialviewplugin.php');
 
 /** library class for view the network activity as a table extending view plugin base class
  *

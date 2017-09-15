@@ -28,4 +28,4 @@ defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 //
 // @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
 // @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-require_once ('vendor/Facebook/autoload.php');
+require_once('vendor/Facebook/autoload.php');

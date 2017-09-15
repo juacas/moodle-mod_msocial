@@ -21,8 +21,8 @@ namespace mod_msocial\task;
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
 global $CFG;
-require_once ($CFG->dirroot . '/mod/msocial/lib.php');
-require_once ($CFG->dirroot . '/mod/msocial/locallib.php');
+require_once($CFG->dirroot . '/mod/msocial/lib.php');
+require_once($CFG->dirroot . '/mod/msocial/locallib.php');
 
 class harvest_task extends \core\task\scheduled_task {
 

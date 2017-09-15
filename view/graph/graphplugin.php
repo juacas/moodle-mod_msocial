@@ -32,8 +32,8 @@ use mod_msocial\connector\msocial_connector_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once ($CFG->dirroot . '/mod/msocial/msocialviewplugin.php');
-require_once ($CFG->dirroot . '/mod/msocial/pki.php');
+require_once($CFG->dirroot . '/mod/msocial/msocialviewplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/pki.php');
 
 /** library class for view the network activity as a sequence diagram extending view plugin base
  * class
@@ -97,7 +97,7 @@ class msocial_view_graph extends msocial_view_plugin {
      *
      * @see \mod_msocial\view\msocial_view_plugin::calculate_pkis() */
     public function calculate_pkis($users, $pkis = []) {
-        require_once ('socialgraph.php');
+        require_once('socialgraph.php');
         $pkiinfos = $this->get_pki_list();
         foreach ($users as $user) {
             if (!isset($pkis[$user->id])) {

@@ -70,7 +70,7 @@ class restore_msocialconnector_moodleforum_subplugin extends restore_subplugin {
         // Get the subpluginid.
         $id = $this->get_new_parentid('msocial');
         $msocial = $DB->get_record('msocial', ['id' => $id]);
-        require_once ($CFG->dirroot . '/mod/msocial/connector/moodleforum/moodleforumplugin.php');
+        require_once($CFG->dirroot . '/mod/msocial/connector/moodleforum/moodleforumplugin.php');
         $plugin = new msocial_connector_moodleforum($msocial);
         $plugin->remap_linked_activities();
     }

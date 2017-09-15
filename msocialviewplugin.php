@@ -35,8 +35,8 @@ namespace mod_msocial\view;
 use msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die();
-require_once ($CFG->dirroot . '/mod/msocial/msocialplugin.php');
-require_once ($CFG->dirroot . '/mod/msocial/socialinteraction.php');
+require_once($CFG->dirroot . '/mod/msocial/msocialplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/socialinteraction.php');
 
 
 abstract class msocial_view_plugin extends msocial_plugin {

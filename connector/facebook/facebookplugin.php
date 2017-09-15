@@ -246,7 +246,6 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /**
      * @param GraphEdge $groups */
     public function view_group_list(GraphEdge $groups) {
-        /** @var Iterator */
         $table = new \html_table();
         $table->head = ['group'];
         $table->headspan = [2, 1];
@@ -291,13 +290,16 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $reactions = [];
         $subtype = $this->get_type();
         // Calculate posts.
-        $sql = "SELECT fromid as userid, count(*) as total from {msocial_interactions} where msocial=? and source='$subtype' and type='post' and fromid IS NOT NULL group by fromid";
+        $sql = "SELECT fromid as userid, count(*) as total from {msocial_interactions} " .
+                "where msocial=? and source='$subtype' and type='post' and fromid IS NOT NULL group by fromid";
         $postsrecords = $DB->get_records_sql($sql, [$this->msocial->id]);
         $this->append_stats('posts', $postsrecords, $users, $userstats, $posts);
-        $sql = "SELECT toid as userid, count(*) as total from {msocial_interactions} where msocial=? and source='$subtype' and type='reply' and toid IS NOT NULL group by toid";
+        $sql = "SELECT toid as userid, count(*) as total from {msocial_interactions} " .
+                "where msocial=? and source='$subtype' and type='reply' and toid IS NOT NULL group by toid";
         $replyrecords = $DB->get_records_sql($sql, [$this->msocial->id]);
         $this->append_stats('replies', $replyrecords, $users, $userstats, $replies);
-        $sql = "SELECT fromid as userid, count(*) as total from {msocial_interactions} where msocial=? and source='$subtype' and type='reaction' and toid IS NOT NULL group by toid";
+        $sql = "SELECT fromid as userid, count(*) as total from {msocial_interactions} " .
+                "where msocial=? and source='$subtype' and type='reaction' and toid IS NOT NULL group by toid";
         $reactionrecords = $DB->get_records_sql($sql, [$this->msocial->id]);
         $this->append_stats('likes', $reactionrecords, $users, $userstats, $reactions);
         $stat = new \stdClass();
@@ -533,7 +535,9 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         }
         return [$name, $id];
     }
-
+    public function preferred_harvest_intervals () {
+        return new harvest_intervals(24 * 3600, 0, 0, 0);
+    }
     /**
      * @todo
      *
@@ -541,7 +545,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
     public function harvest() {
         global $DB;
-        require_once ('vendor/Facebook/autoload.php');
+        require_once('vendor/Facebook/autoload.php');
 
         $errormessage = null;
         $result = new \stdClass();
@@ -552,8 +556,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $appid = $this->get_appid();
         $appsecret = $this->get_appsecret();
         $this->lastinteractions = [];
-        // TODO: Check time configuration in some plattforms workaround:
-        // date_default_timezone_set('Europe/Madrid');!
+        // TODO: Check time configuration in some plattforms workaround: date_default_timezone_set('Europe/Madrid');!
         try {
             /* @var Facebook\Facebook $fb api entry point */
             $fb = new Facebook(['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.7']);
@@ -567,7 +570,8 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             }
             $response = $fb->get(
                     $groupid .
-                             '?fields=feed{message,name,permalink_url,from,created_time,reactions,comments{message,from,created_time,likes,comments{message,from,created_time,likes}}},members' .
+                             '?fields=feed{message,name,permalink_url,from,created_time,reactions,' .
+                             'comments{message,from,created_time,likes,comments{message,from,created_time,likes}}},members' .
                              $since);
             // Mark the token as OK...
             $DB->set_field('msocial_facebook_tokens', 'errorstatus', null, array('id' => $token->id));

@@ -27,8 +27,8 @@ use mod_msocial\plugininfo\msocialbase;
 use msocial\msocial_plugin;
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
-require_once ($CFG->libdir . '/gradelib.php');
-require_once ($CFG->libdir . '/mathslib.php');
+require_once($CFG->libdir . '/gradelib.php');
+require_once($CFG->libdir . '/mathslib.php');
 
 /** Find the list of users and get a list with the ids of students and a list of non-students
  * @param type $contextcourse
@@ -100,7 +100,7 @@ function msocial_user_inactive($userid, $stat) {
  * @see msocial_calculate_stats
  * @return \stdClass grade struct with grade->rawgrade = -1 if no calculation is possible */
 function msocial_calculate_grades($msocial) {
-    require_once ('pki.php');
+    require_once('pki.php');
     $grades = array();
     $pkis = msocial_plugin::get_pkis($msocial);
     /** @var \mod_msocial\pki $pki */
@@ -154,14 +154,14 @@ function msocial_calculate_user_grades($msocial, $userid = 0) {
 function msocial_set_user_field_value($user, $fieldid, $value) {
     global $CFG;
     if (msocial_is_custom_field_name($fieldid)) {
-        require_once ($CFG->dirroot . '/user/profile/lib.php');
+        require_once($CFG->dirroot . '/user/profile/lib.php');
         $usernew = new stdClass();
         $usernew->id = $user->id;
         $usernew->{'profile_field_' . $fieldid} = $value;
         profile_save_data($usernew);
     } else {
         $user->$fieldid = $value;
-        require_once ($CFG->dirroot . "/user/lib.php");
+        require_once($CFG->dirroot . "/user/lib.php");
         user_update_user($user);
     }
 }
@@ -171,7 +171,7 @@ function msocial_get_user_field_value($user, $fieldid) {
         return null;
     } else if (msocial_is_custom_field_name($fieldid)) {
         global $CFG;
-        require_once ($CFG->dirroot . '/user/profile/lib.php');
+        require_once($CFG->dirroot . '/user/profile/lib.php');
         $profile = profile_user_record($user->id);
         return $profile->$fieldid;
     } else {

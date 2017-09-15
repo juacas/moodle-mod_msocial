@@ -44,7 +44,7 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_msocialview_graph_upgrade($oldversion = 0) {
     global $CFG, $DB;
     if ($oldversion < 2017072801) {
-        require_once ($CFG->dirroot . '/mod/msocial/view/graph/graphplugin.php');
+        require_once($CFG->dirroot . '/mod/msocial/view/graph/graphplugin.php');
         $plugin = new mod_msocial\view\msocial_view_graph(null);
         mtrace("Updating pki table for graph plugin...");
         $plugin->create_pki_fields();

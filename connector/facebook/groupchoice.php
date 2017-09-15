@@ -26,11 +26,11 @@
 use mod_msocial\connector\msocial_connector_facebook;
 use DirkGroenen\facebook\facebook;
 
-require_once ("../../../../config.php");
-require_once ('../../locallib.php');
-require_once ('../../msocialconnectorplugin.php');
-require_once ('facebookplugin.php');
-require_once ('vendor/autoload.php');
+require_once("../../../../config.php");
+require_once('../../locallib.php');
+require_once('../../msocialconnectorplugin.php');
+require_once('facebookplugin.php');
+require_once('vendor/autoload.php');
 global $CFG;
 $id = required_param('id', PARAM_INT); // MSocial module instance.
 $action = optional_param('action', 'select', PARAM_ALPHA);

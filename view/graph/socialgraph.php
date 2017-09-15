@@ -25,8 +25,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-require_once ('vendor/autoload.php');
-require_once ('JPDijkstra.php');
+require_once('vendor/autoload.php');
+require_once('JPDijkstra.php');
 
 use \Fhaculty\Graph\Graph as Graph;
 use mod_msocial\connector\social_interaction;
@@ -142,7 +142,7 @@ class SocialMatrix {
      * de esos caminos (proximidad).
      * @return \stdClass $results */
     public function calculate_centralities() {
-        require_once ('BidirectionalGraph.php');
+        require_once('BidirectionalGraph.php');
         // Invert graph.
         $transposer = new TransposeGraph($this->graph);
         $transposedgraph = $transposer->createGraph();

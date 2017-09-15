@@ -31,7 +31,7 @@ use mod_msocial\pki;
 use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
-require_once ('TwitterAPIExchange.php');
+require_once('TwitterAPIExchange.php');
 
 /** library class for social network twitter plugin extending social plugin base class
  *
@@ -347,7 +347,13 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         global $DB;
         $DB->delete_records('msocial_twitter_tokens', array('msocial' => $this->msocial->id));
     }
-
+    /**
+     * {@inheritDoc}
+     * @see \mod_msocial\connector\msocial_connector_plugin::preferred_harvest_intervals()
+     */
+    public function preferred_harvest_intervals() {
+        return new harvest_intervals (24 * 3600, 5000, 7 * 24 * 3600, 0);
+    }
     /**
      * @global moodle_database $DB
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */

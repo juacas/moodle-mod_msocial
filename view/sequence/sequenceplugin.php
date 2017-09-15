@@ -30,7 +30,7 @@ use msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once ($CFG->dirroot . '/mod/msocial/msocialviewplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/msocialviewplugin.php');
 
 /** library class for view the network activity as a sequence diagram extending view plugin base
  * class

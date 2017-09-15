@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use core\plugininfo\base, core_plugin_manager, moodle_url;
 
-require_once ($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
 
 class msocialbase extends base {
     private static $plugins = [];
@@ -72,7 +72,7 @@ class msocialbase extends base {
         $path = \core_component::get_plugin_directory('msocial' . $subtype, $pluginname);
         $classfile = $pluginname . 'plugin.php';
         if (file_exists($path . '/' . $classfile)) {
-            require_once ($path . '/' . $classfile);
+            require_once($path . '/' . $classfile);
             $pluginclass = '\mod_msocial\\' . $subtype . '\\msocial_' . $subtype . '_' . $pluginname;
             $plugin = new $pluginclass($msocial);
             return $plugin;

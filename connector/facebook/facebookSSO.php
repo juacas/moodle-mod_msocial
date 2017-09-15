@@ -28,13 +28,13 @@ use Facebook\Facebook;
 use Facebook\GraphNodes\GraphNodeFactory;
 use mod_msocial\connector\msocial_connector_facebook;
 
-require_once ('vendor/Facebook/autoload.php');
-require_once ("../../../../config.php");
-require_once ($CFG->dirroot . '/mod/lti/OAuth.php');
-require_once ('../../locallib.php');
-require_once ('../../msocialconnectorplugin.php');
-require_once ('facebookplugin.php');
-require_once ('locallib.php');
+require_once('vendor/Facebook/autoload.php');
+require_once("../../../../config.php");
+require_once($CFG->dirroot . '/mod/lti/OAuth.php');
+require_once('../../locallib.php');
+require_once('../../msocialconnectorplugin.php');
+require_once('facebookplugin.php');
+require_once('locallib.php');
 global $CFG;
 $id = required_param('id', PARAM_INT); // MSocial module instance.
 $action = optional_param('action', false, PARAM_ALPHA);
