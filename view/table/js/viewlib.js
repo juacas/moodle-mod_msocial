@@ -35,7 +35,7 @@ define('msocialview/table',
 			$(document).ready(function() {
 				$(containerid).DataTable({
 					scrollY : '600px',
-					scrollX : false,
+					scrollX : true,
 					colReorder : true,
 					fixedHeader : false,
 //					fixedFooter : true,
