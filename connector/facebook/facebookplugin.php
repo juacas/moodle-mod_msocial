@@ -149,32 +149,32 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                                     array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
                                     array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $harvestbutton;
-                    // Check facebook group...
-                    $fbgroup = $this->get_config(self::CONFIG_FBGROUP);
-                    if (trim($fbgroup) === "") {
-                        $action = '';
-                        if (has_capability('mod/msocial:manage', $context)) {
-                            $action = $OUTPUT->action_link(
-                                    new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                                            array('id' => $id, 'action' => 'selectgroup')), "Select group");
-                        }
-                        $notifications[] = get_string('fbgroup', 'msocialconnector_facebook') . " : " . $action;
-                    } else {
-                        $groupinfo = '<a target="blank" href="https://www.facebook.com/groups/' .
-                                 $this->get_config(self::CONFIG_FBGROUP) . '">' . $this->get_config(self::CONFIG_FBGROUPNAME) . "</a>";
-                        $action = '';
-                        if (has_capability('mod/msocial:manage', $context)) {
-                            $action = $OUTPUT->action_link(
-                                    new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                                            array('id' => $id, 'action' => 'selectgroup')), "Change group");
-                        }
-                        $messages[] = get_string('fbgroup', 'msocialconnector_facebook') . ' : "' . $groupinfo . '" ' . $action;
-                    }
                 } else {
                     $notifications[] = get_string('module_not_connected_facebook', 'msocialconnector_facebook') . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Connect");
                 }
+            }
+            // Check facebook group...
+            $fbgroup = $this->get_config(self::CONFIG_FBGROUP);
+            if (trim($fbgroup) === "") {
+                $action = '';
+                if (has_capability('mod/msocial:manage', $context)) {
+                    $action = $OUTPUT->action_link(
+                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+                                    array('id' => $id, 'action' => 'selectgroup')), "Select group");
+                }
+                $notifications[] = get_string('fbgroup', 'msocialconnector_facebook') . " : " . $action;
+            } else {
+                $groupinfo = '<a target="blank" href="https://www.facebook.com/groups/' .
+                         $this->get_config(self::CONFIG_FBGROUP) . '">' . $this->get_config(self::CONFIG_FBGROUPNAME) . "</a>";
+                $action = '';
+                if (has_capability('mod/msocial:manage', $context)) {
+                    $action = $OUTPUT->action_link(
+                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+                                    array('id' => $id, 'action' => 'selectgroup')), "Change group");
+                }
+                $messages[] = get_string('fbgroup', 'msocialconnector_facebook') . ' : "' . $groupinfo . '" ' . $action;
             }
             // Check user's social credentials.
             $socialuserids = $this->get_social_userid($USER);

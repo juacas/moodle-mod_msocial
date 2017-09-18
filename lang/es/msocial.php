@@ -49,8 +49,11 @@ $string['pluginadministration'] = 'Redes sociales';
 $string['harvest_task'] = 'Planificador de recolección de interacciones sociales y análisis y cálculo de indicadores.';
 // MainPage.
 $string['mainpage'] = 'Portada del concurso Twitter';
-$string['mainpage_help'] = 'Portada del concurso Twitter. Puede comprobar aquí sus logros en el concurso Twitter';
-$string['mapunknownsocialusers'] = 'Seleccione un ussuario del curso para asociarlo a la cuenta "{$a->link}" del {$a->source}';
+$string['mainpage_help'] = 'Portada de redes sociales. Esta actividad registra periódicamente la actividad de todos en las redes sociales. ' .
+        'Para poder leer los mensajes de Facebook, Twitter, Pinterest, Instagram, es necesario que sepamos qué usuario usa cada estudiante en esas redes. Para ello hay que pulsar en los enlaces y botones que aparecen en la cabecera.' .
+        'Confidencialidad: No se guarda ninguna credencial personal, sólo el identificador del usuario. En la actividad recopilamos los mensajes públicos que se generan en las redes sociales de acuerdo a las instrucciones del profesor. Esos mensajes sólo se usan para hacer estadísticas y generar los análisis que se muestran en esta página.' .
+        'Cada red social marca de una manera las publicaciones para que podamos identificarlas. En la cabecera aparecen qué hashtag, tablones, o grupos deben tener los mensajes de la actividad en cada red social.';
+$string['mapunknownsocialusers'] = 'Seleccione un usuario del curso para asociarlo a la cuenta "{$a->link}" del {$a->source}';
 
 // Permissions.
 $string['msocial:view'] = 'Ver información básica del módulo MSocial.';
