@@ -11,17 +11,17 @@ Timeline_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/v
 Timeline_ajax_url = document.URL.substr(0, document.URL.lastIndexOf('/')) + "/view/timeline/js/simile-ajax/simile-ajax-api.js"
 SimileAjax_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/view/timeline/js/simile-ajax/';
 Timeline_parameters='bundle=false&timeline-use-local-resources=true';
-function init_timeline(Y, msocialid, user) {
+function init_timeline(Y, msocialid, user, startdate, enddate) {
     if (typeof Timeline != 'undefined'
     	&& typeof Timeline.DefaultEventSource != 'undefined'
     	&& typeof Timeline.GregorianDateLabeller.monthNames != 'undefined'
     	&& Object.keys(Timeline.GregorianDateLabeller.monthNames).length >0 ) {
-        deferred_init_timeline(Y, msocialid, user);
+        deferred_init_timeline(Y, msocialid, user, startdate, enddate);
     } else {
-        setTimeout(init_timeline, 100, Y, msocialid, user);
+        setTimeout(init_timeline, 100, Y, msocialid, user, startdate, enddate);
     }
 }
-function deferred_init_timeline(Y, msocialid, user) {
+function deferred_init_timeline(Y, msocialid, user, startdate, enddate) {
     var eventSource = new Timeline.DefaultEventSource();
     SimileAjax.History.enabled = false;
     var theme1 = Timeline.ClassicTheme.create();
@@ -80,17 +80,18 @@ function deferred_init_timeline(Y, msocialid, user) {
     bandInfos[0].highlight = true;
 
     tl = Timeline.create(document.getElementById("my-timeline"), bandInfos, Timeline.HORIZONTAL);
-    tl.loadJSON("view/timeline/jsonized.php?id=" + msocialid + "&user=" + user, function (json, url) {
-        eventSource.loadJSON(json, url);
-        tl.getBand(1).setMaxVisibleDate(eventSource.getLatestDate());
-        tl.getBand(1).setMinVisibleDate(eventSource.getEarliestDate());
-// Calculate the minimum size required to display all activities in band 0
-        var tracksNeeded = tl.getBand(1)._eventTracksNeeded;
-        var trackIncrement = tl.getBand(1)._eventTrackIncrement;
-        var widgetHeight = Math.max((tracksNeeded * trackIncrement) / 1.80, 300);
-// Resize widget's containing DIV using jQuery
-        $("#my-timeline").height(widgetHeight);
-        tl.layout();
-        tl.finishedEventLoading(); // Automatically set new size of the div
-    });
+    tl.loadJSON("view/timeline/jsonized.php?id=" + msocialid + "&user=" + user + "&startdate=" + startdate + "&enddate=" + enddate,
+	    function (json, url) {
+	        eventSource.loadJSON(json, url);
+	        tl.getBand(1).setMaxVisibleDate(eventSource.getLatestDate());
+	        tl.getBand(1).setMinVisibleDate(eventSource.getEarliestDate());
+	// Calculate the minimum size required to display all activities in band 0.
+	        var tracksNeeded = tl.getBand(1)._eventTracksNeeded;
+	        var trackIncrement = tl.getBand(1)._eventTrackIncrement;
+	        var widgetHeight = Math.max((tracksNeeded * trackIncrement) / 1.80, 300);
+	// Resize widget's containing DIV using jQuery.
+	        $("#my-timeline").height(widgetHeight);
+	        tl.layout();
+	        tl.finishedEventLoading(); // Automatically set new size of the div.
+	    });
 }

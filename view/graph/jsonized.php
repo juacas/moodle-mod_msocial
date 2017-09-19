@@ -32,9 +32,9 @@ require_once('../../socialinteraction.php');
 
 header('Content-Type: application/json; charset=utf-8');
 $id = required_param('id', PARAM_INT);
-$fromdate = optional_param('from', null, PARAM_ALPHANUMEXT);
+$fromdate = optional_param('startdate', null, PARAM_ALPHANUMEXT);
 $community = optional_param('include_community', true, PARAM_BOOL);
-$todate = optional_param('from', null, PARAM_ALPHANUMEXT);
+$todate = optional_param('enddate', null, PARAM_ALPHANUMEXT);
 $subtype = optional_param('subtype', null, PARAM_ALPHA);
 $interactiontypes = optional_param('int_types', null, PARAM_RAW);
 $cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);

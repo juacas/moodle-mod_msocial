@@ -24,7 +24,11 @@ path.chord {
 <script src="view/graph/js/viewchordlib.js"></script>
 <div id="chord"></div>
 <script>
-var jsonurl = "view/graph/jsonized.php?include_community=false&id=<?php echo $this->cm->id ?>";
+var jsonurl = "view/graph/jsonized.php?include_community=false&<?php
+$cmid = $this->cm->id;
+$msocial = $this->msocial;
+echo "id=$cmid&startdate=$msocial->startdate&enddate=$msocial->enddate";
+?>";
 init_chord_view(jsonurl);
 
 </script>

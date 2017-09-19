@@ -109,8 +109,10 @@ class msocial_view_graph extends msocial_view_plugin {
                 }
             }
         }
-        // get Interactions of all users, both known and anonymous.
-        $interactions = social_interaction::load_interactions($this->msocial->id, null, null, null, null);
+        // Get Interactions of all users, both known and anonymous.
+        $interactions = social_interaction::load_interactions($this->msocial->id, null,
+                                                                $this->msocial->startdate,
+                                                                $this->msocial->enddate, null);
         // Socialmatrix analyzer.
         $social = new \SocialMatrix();
         foreach ($interactions as $interaction) {
@@ -201,7 +203,11 @@ class msocial_view_graph extends msocial_view_plugin {
         echo $OUTPUT->tabtree($rows, $subview);
 
         $file = $this->viewfiles($subview);
-        include ($this->viewfiles()[$subview]);
+        // Render actual view. Following vars are supposed to be available.
+        $startdate = $this->msocial->startdate;
+        $enddate = $this->msocial->enddate;
+
+        include($this->viewfiles()[$subview]);
     }
 
     protected function viewfiles() {

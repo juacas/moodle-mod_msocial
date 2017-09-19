@@ -157,7 +157,7 @@ class msocial_view_timeline extends msocial_view_plugin {
     public function render_view($renderer, $reqs) {
         echo '<div id="my-timeline" style="overflow-y: visible; height: 250px; border: 1px solid #aaa"></div>';
         echo $renderer->spacer(array('height' => 20));
-        $reqs->js_init_call("init_timeline", [$this->cm->id, null], false);
+        $reqs->js_init_call("init_timeline", [$this->cm->id, null, $this->msocial->startdate, $this->msocial->enddate], false);
     }
 
     /**

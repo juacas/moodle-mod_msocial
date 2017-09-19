@@ -27,7 +27,7 @@ use mod_msocial\connector\social_interaction;
 use Graphp\GraphViz\Dot;
 require_once('socialgraph.php');
 require_once('vendor/autoload.php');
-$interactions = social_interaction::load_interactions($this->msocial->id, " (type = 'post' OR type = 'reply')" );
+$interactions = social_interaction::load_interactions($this->msocial->id, " (type = 'post' OR type = 'reply')", $startdate, $enddate);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($this->msocial);
 $socialgraph = new SocialMatrix();
 $context = context_module::instance($this->cm->id);

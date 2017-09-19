@@ -174,12 +174,12 @@ class social_interaction {
         if ($conditions != '') {
             $select .= " AND " . $conditions;
         }
-        if ($fromdate) {
-            $select .= " AND timestamp >= ? "; // TODO: Format date
+        if ($fromdate && $fromdate != 0) {
+            $select .= " AND timestamp >= ? "; // TODO: Format date.
             $params[] = $fromdate;
         }
-        if ($fromdate) {
-            $select .= " AND timestamp <= ? "; // TODO: Format date
+        if ($todate && $todate != 0) {
+            $select .= " AND timestamp <= ? "; // TODO: Format date.
             $params[] = $todate;
         }
         if ($users) {
