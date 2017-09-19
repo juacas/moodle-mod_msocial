@@ -356,9 +356,13 @@ abstract class msocial_plugin {
                     }
                 }
             }
-            // Copy new values;
+            // Copy new values.
             foreach ($pki as $propname => $value) {
-                $record->{$propname} = $value;
+                if (property_exists($record, $propname)) {
+                    $record->{$propname} = $value;
+                } else {
+                    print_error("Code error. Prop \"$propname\" in Pki is not declared by plugins. Contact administrators.");
+                }
             }
             $record->user = $pki->user;
             $record->msocial = $this->msocial->id;

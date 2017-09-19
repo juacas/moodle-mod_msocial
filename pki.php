@@ -30,9 +30,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 namespace mod_msocial;
 
-use msocial\msocial_plugin;
-use core_calendar\local\event\proxies\std_proxy;
-
 defined('MOODLE_INTERNAL') || die();
 
 class pki {
@@ -49,24 +46,6 @@ class pki {
         $this->user = $userid;
         $this->msocial = $msocialid;
         $this->timestamp = time();
-    }
-
-    /**
-     * @param unknown $user
-     * @param unknown $stat
-     * @param msocial_plugin $msocialplugin
-     * @param pki $pki existent pki. For chaining calls. Assumes user and msocialid are coherent.
-     * @return \mod_msocial\connector\pki_info[] */
-    public static function from_stat($user, $stat, $stataggregated, $msocialplugin, $pki = null) {
-        $pki = $pki == null ? new pki($user, $msocialplugin->msocial->id) : $pki;
-        foreach ($stat as $propname => $value) {
-            $pki->{$propname} = $value;
-        }
-        foreach ($stataggregated as $propname => $value) {
-            $pki->{$propname} = $value;
-        }
-
-        return $pki;
     }
 
     /**
@@ -148,16 +127,16 @@ class pki_info {
      * @param string $name
      * @param string $description
      * @param string $individual
-     * @param string $interaction_type
-     * @param string $interaction_nativetype_query
-     * @param string $interaction_source */
-    public function __construct($name, $description = null, $individual = self::PKI_INDIVIDUAL, $interaction_type = null, $interaction_nativetype_query = '*',
-            $interaction_source = 'fromid') {
+     * @param string $interactiontype
+     * @param string $interactionnativetypequery
+     * @param string $interactionsource */
+    public function __construct($name, $description = null, $individual = self::PKI_INDIVIDUAL,
+                                $interactiontype = null, $interactionnativetypequery = '*', $interactionsource = 'fromid') {
         $this->name = $name;
         $this->value = $description;
         $this->individual = $individual;
-        $this->interaction_type = $interaction_type;
-        $this->interaction_source = $interaction_source;
-        $this->interaction_nativetype_query = $interaction_nativetype_query;
+        $this->interaction_type = $interactiontype;
+        $this->interaction_source = $interactionsource;
+        $this->interaction_nativetype_query = $interactionnativetypequery;
     }
 }

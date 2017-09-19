@@ -252,9 +252,26 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         // Convert stats to PKI.
         foreach ($stats->users as $userid => $stat) {
             $pki = isset($pkis[$userid]) ? $pkis[$userid] : null;
-            $pkis[$userid] = pki::from_stat($userid, $stat, $stataggregated, $this, $pki);
+            $pkis[$userid] = $this->pki_from_stat($userid, $stat, $stataggregated, $this, $pki);
         }
         return $pkis;
+    }
+    /**
+     * @param unknown $user
+     * @param unknown $stat
+     * @param msocial_plugin $msocialplugin
+     * @param pki $pki existent pki. For chaining calls. Assumes user and msocialid are coherent.
+     * @return \mod_msocial\connector\pki_info[] */
+    private function pki_from_stat($user, $stat, $stataggregated, $msocialplugin, $pki = null) {
+        $pki = $pki == null ? new pki($user, $msocialplugin->msocial->id) : $pki;
+        foreach ($stat as $propname => $value) {
+            $pki->{$propname} = $value;
+        }
+        foreach ($stataggregated as $propname => $value) {
+            $pki->{$propname} = $value;
+        }
+
+        return $pki;
     }
 
     /** Statistics for grading
@@ -359,9 +376,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
     public function harvest() {
         global $DB;
-        $result = $this->get_statuses($this->msocial);
         $token = $this->get_connection_token();
         $hashtag = $this->get_config('hashtag');
+        $result = $this->get_statuses($token, $hashtag);
 
         if (isset($result->errors)) {
             if ($token) {
@@ -370,8 +387,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $info = "No twitter token defined!!";
             }
             $errormessage = $result->errors[0]->message;
-            $errormessage = "For module msocial\connector\twitter: $this->msocial->name (id=$cm->instance) in course (id=$this->msocial->course) " .
-                     "searching: $hashtag $info ERROR:" . $errormessage;
+            $errormessage = "For module msocial\connector\twitter: $this->msocial->name (id=$cm->instance) " .
+                            " in course (id=$this->msocial->course) searching: $hashtag $info ERROR:" . $errormessage;
             $result->messages[] = $errormessage;
         } else if (isset($result->statuses)) {
             $DB->set_field('msocial_twitter_tokens', 'errorstatus', null, array('id' => $token->id));
@@ -388,13 +405,13 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $interactions = $this->build_interactions($processedstatuses);
             social_interaction::store_interactions($interactions, $this->msocial->id);
 
-            $result->messages[] = "For module msocial\\connector\\twitter: $msocial->name (id=$msocial->id) in course (id=$msocial->course) searching: " .
-                     $hashtag . "  Found " . count($statuses) . " tweets. Students' tweets: " . count($studentstatuses);
+            $result->messages[] = "For module msocial\\connector\\twitter: $msocial->name (id=$msocial->id) " .
+                                  "in course (id=$msocial->course) searching: " . $hashtag .
+                                  "  Found " . count($statuses) . " tweets. Students' tweets: " . count($studentstatuses);
             $contextcourse = \context_course::instance($this->msocial->course);
             list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
 
-            // TODO: implements grading with plugins.
-            // msocial_update_grades($this->msocial, $students);
+            // TODO: implements grading with plugins: msocial_update_grades($this->msocial, $students);.
             $errormessage = null;
 
             $pkis = $this->calculate_pkis($users);
@@ -403,8 +420,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         } else {
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
             $result->errors[0]->message = $errormessage;
-            $result->messages[] = "For module msocial\\connector\\twitter: $this->msocial->name (id=$this->msocial->id) in course (id=$this->msocial->course) searching: $this->msocial->hashtag  " .
-                     $errormessage;
+            $result->messages[] = "For module msocial\\connector\\twitter: $this->msocial->name (id=$this->msocial->id) " .
+                                  "in course (id=$this->msocial->course) searching: $this->msocial->hashtag  " . $errormessage;
         }
         if ($token) {
             $token->errorstatus = $errormessage;
@@ -424,19 +441,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @param type $this->msocial
      * @return mixed object report of activity. $result->statuses $result->messages[]string
      *         $result->errors[]->message */
-    protected function get_statuses() {
-        if (msocial_time_is_between(time(), $this->msocial->startdate, $this->msocial->enddate)) {
-            global $DB;
-            $tokens = $DB->get_record('msocial_twitter_tokens', array('msocial' => $this->msocial->id));
-            return $this->search_twitter($tokens, strtolower($this->get_config('hashtag'))); // Twitter
-                                                                                                 // API
-                                                                                                 // depends
-                                                                                                 // on
-                                                                                                 // letter
-                                                                                                 // cases.
-        } else {
-            return array();
-        }
+    protected function get_statuses($tokens, $hashtag) {
+            return $this->search_twitter($tokens, $hashtag); // Twitter API depends on letter cases.
     }
 
     /**
@@ -463,13 +469,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $interaction->rawdata = json_encode($status);
             $interaction->icon = $icon;
             $interaction->source = $this->get_subtype();
-            $interaction->fromid = $this->get_userid($interaction->nativefrom);
             $interaction->nativetype = 'tweet';
-            $interaction->nativefrom = $status->user->id;
             $interaction->nativefromname = $status->user->screen_name;
             $interaction->timestamp = new \DateTime($status->created_at);
-            $interaction->toid = $this->get_userid($interaction->nativeto);
-
             $interaction->description = $status->text;
             if ($status->in_reply_to_user_id == null) {
                 $interaction->type = social_interaction::POST;
@@ -478,6 +480,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $interaction->nativeto = $status->in_reply_to_user_id;
                 $interaction->nativetoname = $status->in_reply_to_screen_name;
             }
+            $interaction->nativefrom = $status->user->id;
+            $interaction->fromid = $this->get_userid($interaction->nativefrom);
+            $interaction->toid = $this->get_userid($interaction->nativeto);
             $interactions[] = $interaction;
             // Process mentions...
             foreach ($status->entities->user_mentions as $mention) {
@@ -564,7 +569,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     protected function store_status($statuses) {
         global $DB;
         foreach ($statuses as $status) {
-            $userrecord = isset($status->userrecord) ? $status->userrecord : null;
+            $userrecord = isset($status->userauthor) ? $status->userauthor : null;
             $tweetid = $status->id_str;
             $statusrecord = $DB->get_record('msocial_tweets', array('tweetid' => $tweetid));
             if (!$statusrecord) {
