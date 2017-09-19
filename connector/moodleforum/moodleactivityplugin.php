@@ -68,12 +68,13 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
      * @global \moodle_database $DB */
     public function render_header() {
         global $OUTPUT, $USER;
+        $messages = [];
+        $notifications = [];
         $this->remap_linked_activities(); // debug
         if ($this->is_enabled()) {
             $subtype = $this->get_subtype();
             $icon = $this->get_icon();
-            $messages = [];
-            $notifications = [];
+            $messages[] = get_string('harvest', "msocialconnector_$subtype");
             $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
             $context = \context_module::instance($this->cm->id);
             $activities = $this->get_config(self::CONFIG_ACTIVITIES);
@@ -99,16 +100,22 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
             } else {
                 $messages[] = get_string('allactivities', "msocialconnector_$subtype") . ' ' . $linktoselect;
             }
-            if (has_capability('mod/msocial:manage', $context)) {
-                $messages[] = get_string('harvest', "msocialconnector_$subtype") . $OUTPUT->action_icon(
-                        new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->cm->id, 'subtype' => $subtype]),
-                        new \pix_icon('a/refresh', get_string('harvest', "msocialconnector_$subtype")));
-            }
-            $this->notify($notifications, self::NOTIFY_WARNING);
-            $this->notify($messages, self::NOTIFY_NORMAL);
-        }
-    }
 
+        }
+        return [$messages, $notifications];
+    }
+    public function render_harvest_link() {
+        global $OUTPUT;
+        $harvestbutton = '';
+        $subtype = $this->get_subtype();
+        $context = \context_module::instance($this->cm->id);
+        if (has_capability('mod/msocial:manage', $context)) {
+            $harvestbutton=  $OUTPUT->action_icon(
+                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->cm->id, 'subtype' => $subtype]),
+                    new \pix_icon('a/refresh', get_string('harvest', "msocialconnector_$subtype")));
+        }
+        return $harvestbutton;
+    }
     /** Place social-network user information or a link to connect.
      * Moodle internal users don't need to be detailed.
      *

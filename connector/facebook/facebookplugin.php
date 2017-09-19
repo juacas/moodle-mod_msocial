@@ -118,12 +118,13 @@ class msocial_connector_facebook extends msocial_connector_plugin {
 
     /**
      * @global \core_renderer $OUTPUT
-     * @global \moodle_database $DB */
+     * @global \moodle_database $DB
+     */
     public function render_header() {
         global $OUTPUT, $DB, $USER;
+        $notifications = [];
+        $messages = [];
         if ($this->is_enabled()) {
-            $notifications = [];
-            $messages = [];
             $context = \context_module::instance($this->cm->id);
             list($course, $cm) = get_course_and_cm_from_instance($this->msocial->id, 'msocial');
             $id = $cm->id;
@@ -137,18 +138,12 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                     if ($errorstatus) {
                         $notifications[] = '<p>' . get_string('problemwithfacebookaccount', 'msocialconnector_facebook', $errorstatus);
                     }
-                    if ($this->is_tracking()) {
-                        $harvestbutton = $OUTPUT->action_icon(
-                                new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
-                                new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_facebook')));
-                    } else {
-                        $harvestbutton = '';
-                    }
+
                     $messages[] = get_string('module_connected_facebook', 'msocialconnector_facebook', $username) . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                                    array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $harvestbutton;
+                                    array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ';
                 } else {
                     $notifications[] = get_string('module_not_connected_facebook', 'msocialconnector_facebook') . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
@@ -181,11 +176,20 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             if (!$socialuserids) { // Offer to register.
                 $notifications[] = $this->render_user_linking($USER);
             }
-            $this->notify($notifications, self::NOTIFY_WARNING);
-            $this->notify($messages, self::NOTIFY_NORMAL);
         }
+        return [$messages, $notifications];
     }
-
+    public function render_harvest_link() {
+        global $OUTPUT;
+        $harvestbutton = '';
+        $context = \context_module::instance($this->cm->id);
+        if (has_capability('mod/msocial:manage', $context) && $this->is_tracking()) {
+            $harvestbutton = $OUTPUT->action_icon(
+                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->cm->id, 'subtype' => $this->get_subtype()]),
+                    new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_facebook')));
+        }
+        return $harvestbutton;
+    }
     /** Place social-network user information or a link to connect.
      *
      * @global object $USER

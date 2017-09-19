@@ -328,3 +328,34 @@ function msocial_js_call_subplugin_amd($fullmodule, $func, $params = array(), $r
 
     $req->js_amd_inline($js);
 }
+/**
+ *  Make a pretty date difference from the current time
+ * Author: Luca Zorzi (@LucaTNT)
+ * License: BSD
+ * @author Juan Pablo de Castro
+ * @param int $timestamp
+ * @return string
+ */
+function msocial_pretty_date_difference($timestamp) {
+    // Current timestamp.
+    $now = time();
+    // Difference from given timestamp.
+    $difference = $now - $timestamp;
+    // If less than one hour (59 minutes and 30 seconds, to be precise), we count minutes.
+    if ($difference < (3600)) {
+        $output = round($difference / 60) . ' ' . get_string('minutes');
+    } else if ($difference < (24 * 3600)) {
+        // If less than 23 hours 59 minutes and 30 seconds, we count hours.
+        $output = round($difference / 3600) . ' ' . get_string('hours');
+    } else if ($difference < (31 * 24 * 3600 )) {
+        // If less than 6 days 23 hours 59 minutes and 30 seconds, we count days.
+        $output = round($difference / 86400) . ' ' . get_string('days');
+    } else if ($difference < (365 * 24 * 3600)) {
+        // If less than 364 days 23 hours 59 minutes and 30 seconds, we count months.
+        $output = round($difference / (30 * 24 * 3600)) . ' ' . get_string('months');
+    } else {
+        // Else we count years.
+        $output = round($difference / 31536000) . ' ' . get_string('years');
+    }
+    return $output;
+}

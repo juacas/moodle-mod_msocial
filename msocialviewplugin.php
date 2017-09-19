@@ -86,6 +86,13 @@ abstract class msocial_view_plugin extends msocial_plugin {
     public function calculate_pkis($users, $pkis = []) {
         return [];
     }
+    /**
+     * {@inheritDoc}
+     * @see \mod_msocial\connector\msocial_plugin::preferred_harvest_intervals()
+     */
+    public function preferred_harvest_intervals() {
+        return new harvest_intervals(15 * 60, 5000, 1 * 3600, 0);
+    }
     public function is_tracking() {
         return $this->is_enabled();
     }

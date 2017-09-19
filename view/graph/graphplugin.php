@@ -29,6 +29,7 @@ use msocial\msocial_plugin;
 use mod_msocial\pki_info;
 use mod_msocial\pki;
 use mod_msocial\connector\msocial_connector_plugin;
+use mod_msocial\connector\harvest_intervals;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -159,6 +160,13 @@ class msocial_view_graph extends msocial_view_plugin {
         $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) processing network topology.";
         return $result;
     }
+    /**
+     * {@inheritDoc}
+     * @see \mod_msocial\connector\msocial_plugin::preferred_harvest_intervals()
+     */
+    public function preferred_harvest_intervals() {
+        return new harvest_intervals(15 * 60, 5000, 1 * 3600, 0);
+    }
 
     public function render_header_requirements($reqs, $viewparam) {
     }
@@ -169,17 +177,22 @@ class msocial_view_graph extends msocial_view_plugin {
      * @see \msocial\msocial_plugin::view_header() */
     public function render_header() {
         global $OUTPUT;
+        $messages = [$this->get_name()];
+        return [$messages, [] ];
+    }
+    public function render_harvest_link() {
+        global $OUTPUT;
+        $harvestbutton = '';
         if ($this->is_enabled()) {
             $context = \context_module::instance($this->cm->id);
             if (has_capability('mod/msocial:manage', $context)) {
-                $headline = $this->get_name() . ' : ' . $OUTPUT->action_icon(
-                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->get_cmid(),
-                                    'subtype' => $this->get_subtype()]), new \pix_icon('a/refresh', ''));
-                    $this->notify([$headline],self::NOTIFY_NORMAL);
+                $harvestbutton= $OUTPUT->action_icon(
+                        new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->get_cmid(),
+                                        'subtype' => $this->get_subtype()]), new \pix_icon('a/refresh', ''));
             }
         }
+        return $harvestbutton;
     }
-
     /**
      * {@inheritdoc}
      *

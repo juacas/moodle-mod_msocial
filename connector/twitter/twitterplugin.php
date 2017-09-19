@@ -127,12 +127,12 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @param core_renderer $output */
     public function render_header() {
         global $OUTPUT, $DB, $USER;
+        $messages = [];
+        $notifications = [];
         if ($this->is_enabled()) {
             list($course, $cm) = get_course_and_cm_from_instance($this->msocial->id, 'msocial');
             $id = $cm->id;
             $icon = $this->get_icon();
-            $messages = [];
-            $notifications = [];
             $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 16]) . ' ';
             $contextmodule = \context_module::instance($cm->id);
             if (has_capability('mod/msocial:manage', $contextmodule)) {
@@ -145,18 +145,12 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     if ($errorstatus) {
                         $this->notify(get_string('problemwithtwitteraccount', 'msocial', $errorstatus), self::NOTIFY_WARNING);
                     }
-                    if ($this->is_tracking()) {
-                        $harvestbutton = $OUTPUT->action_icon(
-                                new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
-                                new \pix_icon('a/refresh', get_string('harvest_tweets', 'msocialconnector_twitter')));
-                    } else {
-                        $harvestbutton = '';
-                    }
+
                     $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
-                                    array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ' . $harvestbutton;
+                                    array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ';
                 } else {
                     $notifications[] = get_string('module_not_connected_twitter', 'msocialconnector_twitter') . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
@@ -176,11 +170,23 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
                 $notifications[] = $this->render_user_linking($USER);
             }
-            $this->notify($notifications, self::NOTIFY_WARNING);
-            $this->notify($messages, self::NOTIFY_NORMAL);
         }
+        return [$messages, $notifications];
     }
-
+    public function render_harvest_link() {
+        global $OUTPUT;
+        $harvestbutton = '';
+        $id = $this->cm->id;
+        $context = \context_module::instance($id);
+        if (has_capability('mod/msocial:manage', $context) && $this->is_tracking()) {
+            $harvestbutton = $OUTPUT->action_icon(
+                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
+                    new \pix_icon('a/refresh', get_string('harvest_tweets', 'msocialconnector_twitter')));
+        } else {
+            $harvestbutton = '';
+        }
+        return $harvestbutton;
+    }
     /** Place social-network user information or a link to connect.
      *
      * @global object $USER

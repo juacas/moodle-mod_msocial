@@ -51,6 +51,8 @@ abstract class msocial_plugin {
     const CAT_RESULTS = 'Results';
     const NOTIFY_WARNING = 'WARN';
     const NOTIFY_NORMAL = 'NORMAL';
+    const LAST_HARVEST_TIME = 'lastharvest';
+
     /**
      * @var msocial $msocial the msocial record that contains the global
      *      settings for this instance */
@@ -305,7 +307,19 @@ abstract class msocial_plugin {
      *
      * @return array[string]pki list of PKI names indexed by name */
     public abstract function get_pki_list();
-
+    /**
+     * Reports the date/time this plugin was evaluated: harvest or recalculted.
+     * @return \DateTime
+     */
+    public function get_updated_date() {
+        $date = null;
+        $harvesttimestamp = $this->get_config(self::LAST_HARVEST_TIME);
+        if ($harvesttimestamp != null ) {
+            $date = new \DateTime();
+            $date->setTimestamp($harvesttimestamp);
+        }
+        return $date;
+    }
     /** Get the installed version of this plugin
      *
      * @return string */
@@ -449,6 +463,11 @@ abstract class msocial_plugin {
         }
         return $this->enabledcache;
     }
+    /**
+     * @return boolean true if the plugin is making searches in the social network or computing pkis
+     * (@see msocial_plugin->harvest())
+     */
+    public abstract function is_tracking();
 
     /** Get the numerical sort order for this plugin
      *
@@ -469,6 +488,15 @@ abstract class msocial_plugin {
         // return $this->visiblecache;
         return true;
     }
+    /**
+     * Collect information and calculate fresh PKIs if supported.
+     * @return string[] messages generated
+     */
+    public abstract function harvest();
+    /**
+     * @return harvest_intervals object with intervals and rates info.
+     */
+    public abstract function preferred_harvest_intervals();
 
     /** Has this plugin got a custom settings.php file?
      *
@@ -606,21 +634,32 @@ abstract class msocial_plugin {
     /** This allows a plugin to render an introductory section which is displayed
      * right below the activity's "intro" section on the main msocial page.
      *
-     * @return string */
+     * @return array[string[], string[]] messages, notifications
+     */
     public function render_header() {
+        return [ [], [] ];
+    }
+    public function render_harvest_link() {
         return '';
     }
-
+    /**
+     * @global
+     * @param string[] $messages
+     * @param unknown $level
+     */
     public function notify(array $messages, $level = self::NOTIFY_NORMAL) {
         global $OUTPUT;
         if (count($messages) > 0) {
             $icon = $this->get_icon();
-            $text = join('<br/>', $messages);
+
             $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 29]) . ' ';
             if ($level === self::NOTIFY_NORMAL) {
-                echo $OUTPUT->box($icondecoration . $text);
+                $tablemsgs = join('</br>', $messages);
+                $table = '<table><tr><td valign="top">'. $icondecoration . '</td><td>' . $tablemsgs. '</td></tr></table>';
+                echo $OUTPUT->notification($table , 'info');
             } else if ($level === self::NOTIFY_WARNING) {
-                echo $OUTPUT->notification($icondecoration . $text);
+                $text = join('<br/>', $messages);
+                echo $OUTPUT->notification($icondecoration . $text, 'error');
             }
         }
     }

@@ -40,7 +40,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/msocial/msocialplugin.php');
 require_once('harvestintervals.php');
 abstract class msocial_connector_plugin extends msocial_plugin {
-    const LAST_HARVEST_TIME = 'lastharvest';
     protected $usertosocialmapping = null;
     protected $socialtousermapping = null;
     protected $lastinteractions = array();
@@ -62,19 +61,6 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     /**
      * @return moodle_url url of the icon for this service */
     public abstract function get_icon();
-
-    /**
-     * @return boolean true if the plugin is making searches in the social network */
-    public abstract function is_tracking();
-
-    /** Connect to the social network and collect the activity.
-     *
-     * @return string messages generated */
-    public abstract function harvest();
-    /**
-     * @return harvest_intervals object with intervals and rates info.
-     */
-    public abstract function preferred_harvest_intervals();
 
     /** Gets formatted text for social-network user information or a link to connect.
      *

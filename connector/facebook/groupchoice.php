@@ -42,7 +42,7 @@ $context = context_module::instance($id);
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
 $plugin = new msocial_connector_facebook($msocial);
 require_capability('mod/msocial:manage', $context);
-
+// TODO: Allow multiple groups.
 if ($action == 'selectgroup') {
     $thispageurl = new moodle_url('/mod/msocial/connector/facebook/groupchoice.php', array('id' => $id, 'action' => 'select'));
     $PAGE->set_url($thispageurl);

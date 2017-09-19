@@ -67,10 +67,27 @@ echo $OUTPUT->heading(format_string($msocial->name) . $OUTPUT->help_icon('mainpa
 // Print the information about the linking of the module with social plugins..
 $enabledsocialplugins = \mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
 $enabledplugins = array_merge($enabledviewplugins, $enabledsocialplugins);
+$totalnotification = '';
 /** @var msocial_plugin $enabledplugin */
 foreach ($enabledplugins as $name => $enabledplugin) {
-    echo $enabledplugin->render_header();
+    list($messages, $notifications) = $enabledplugin->render_header();
+    $updated = $enabledplugin->get_updated_date();
+    if ($updated) {
+        $messages[] = 'Updated ' . msocial_pretty_date_difference($updated->getTimestamp()) .
+                        ' ago.' . $enabledplugin->render_harvest_link();
+    }
+    // Group messages.
+    if (count($messages) > 0) {
+        $icon = $enabledplugin->get_icon();
+        $icondecoration = \html_writer::img($icon->out(), $enabledplugin->get_name() . ' icon.', ['height' => 29]) . ' ';
+        $tablemsgs = join('</br>', $messages);
+        $totalnotification .= '<table><tr><td valign="top">'. $icondecoration . '</td><td>' . $tablemsgs. '</td></tr></table>';
+    }
+    // For saving vertical space all messages are rendered together  $enabledplugin->notify($messages,
+    // msocial_plugin::NOTIFY_NORMAL).
+    $enabledplugin->notify($notifications, msocial_plugin::NOTIFY_WARNING);
 }
+echo $OUTPUT->box($totalnotification, 'block');
 
 // Description text.
 echo $OUTPUT->box_start('generalbox boxaligncenter', 'intro');
@@ -79,7 +96,6 @@ echo $OUTPUT->box_end();
 // Reporting area...
 
 // Tabs...
-
 echo msocial_tabbed_reports($msocial, $view, $cm, $contextmodule, false);
 
 if (isset($enabledviewplugins[$view]) && $enabledviewplugins[$view]->is_enabled()) {
