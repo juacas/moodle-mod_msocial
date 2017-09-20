@@ -43,7 +43,7 @@ text.active {
         <option value="count">by Frequency</option>
         <option value="group">student or external user</option>
     </select>
-<div id="diagram" class="diagram" style=""></div>
+<div id="diagram" class="diagram" style="align-text: center"></div>
 <?php
 // Graph matrix view.
 $reqs->js('/mod/msocial/view/graph/js/viewmatrixlib.js');

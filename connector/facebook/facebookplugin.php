@@ -152,23 +152,16 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             }
             // Check facebook group...
             $fbgroup = $this->get_config(self::CONFIG_FBGROUP);
+            $action = '';
+            if (has_capability('mod/msocial:manage', $context)) {
+                $action = $OUTPUT->action_link(
+                        new \moodle_url('/mod/msocial/connector/facebook/groupchoice.php',
+                                array('id' => $id, 'action' => 'selectgroup')), "Select group");
+            }
             if (trim($fbgroup) === "") {
-                $action = '';
-                if (has_capability('mod/msocial:manage', $context)) {
-                    $action = $OUTPUT->action_link(
-                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                                    array('id' => $id, 'action' => 'selectgroup')), "Select group");
-                }
                 $notifications[] = get_string('fbgroup', 'msocialconnector_facebook') . " : " . $action;
             } else {
-                $groupinfo = '<a target="blank" href="https://www.facebook.com/groups/' .
-                         $this->get_config(self::CONFIG_FBGROUP) . '">' . $this->get_config(self::CONFIG_FBGROUPNAME) . "</a>";
-                $action = '';
-                if (has_capability('mod/msocial:manage', $context)) {
-                    $action = $OUTPUT->action_link(
-                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                                    array('id' => $id, 'action' => 'selectgroup')), "Change group");
-                }
+                $groupinfo = implode(', ', $this->render_groups_links());
                 $messages[] = get_string('fbgroup', 'msocialconnector_facebook') . ' : "' . $groupinfo . '" ' . $action;
             }
             // Check user's social credentials.
@@ -189,6 +182,17 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                     new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_facebook')));
         }
         return $harvestbutton;
+    }
+    public function render_groups_links() {
+        $groupstruct = $this->get_config(self::CONFIG_FBGROUPNAME);
+        $groups = json_decode($groupstruct);
+        $linkinfo = [];
+        foreach ($groups as $groupid => $group) {
+            $groupname = $group->name;
+            $groupurl = 'https://www.facebook.com/groups/' . $groupid;
+            $linkinfo[] = \html_writer::link($groupurl, $groupname);
+        }
+        return $linkinfo;
     }
     /** Place social-network user information or a link to connect.
      *
@@ -245,37 +249,6 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         }
 
         return $url;
-    }
-
-    /**
-     * @param GraphEdge $groups */
-    public function view_group_list(GraphEdge $groups) {
-        $table = new \html_table();
-        $table->head = ['group'];
-        $table->headspan = [2, 1];
-        $data = [];
-        $iter = $groups->getIterator();
-        $out = '<ul>';
-        while ($iter->valid()) {
-
-            /** @var GraphGroup $group*/
-            $group = $iter->current();
-            $row = new \html_table_row();
-            if ($group->getCover()) {
-                $cover = '<img src="' . $group->getCover()->getSource() . '" width="100"/>';
-            } else {
-                $cover = \html_writer::img($this->get_icon(), $this->get_name());
-            }
-            $info = '<a target="blank" href="https://www.facebook.com/groups/' . $group->getId() . '">' . $group->getName() . "</a> " .
-                     $group->getDescription();
-            $url = new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
-                    ['id' => $this->cm->id, 'gid' => $group->getId(), 'action' => 'setgroup', 'gname' => $group->getName()]);
-            $action = \html_writer::link($url, get_string('selectthisgroup', 'msocialconnector_facebook'));
-            $row->cells = [$cover, $info, $action];
-            $table->data[] = $row;
-            $iter->next();
-        }
-        return \html_writer::table($table);
     }
 
     /** Statistics for grading
@@ -556,74 +529,76 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $result->messages = [];
         $result->errors = [];
         // Initialize GraphAPI.
-        $groupid = $this->get_config(self::CONFIG_FBGROUP);
+        $groups = explode(',', $this->get_config(self::CONFIG_FBGROUP));
         $appid = $this->get_appid();
         $appsecret = $this->get_appsecret();
         $this->lastinteractions = [];
-        // TODO: Check time configuration in some plattforms workaround: date_default_timezone_set('Europe/Madrid');!
-        try {
-            /* @var Facebook\Facebook $fb api entry point */
-            $fb = new Facebook(['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.7']);
-            $token = $this->get_connection_token();
-            $fb->setDefaultAccessToken($token->token);
-            // Query Facebook...
-            $since = '';
-            $lastharvest = $this->get_config(self::LAST_HARVEST_TIME);
-            if ($lastharvest) {
-                $since = "&since=$lastharvest";
-            }
-            $response = $fb->get(
-                    $groupid .
-                             '?fields=feed{message,name,permalink_url,from,created_time,reactions,' .
-                             'comments{message,from,created_time,likes,comments{message,from,created_time,likes}}},members' .
-                             $since);
-            // Mark the token as OK...
-            $DB->set_field('msocial_facebook_tokens', 'errorstatus', null, array('id' => $token->id));
-            /* @var Facebook\GraphNodes\GraphNode $globalnode*/
-            $globalnode = $response->getGraphNode();
-            // Get group members...
-            /* @var Facebook\GraphNodes\GraphEdge $membersnode*/
-            $membersnode = $globalnode->getField('members');
-            /* @var Facebook\GraphNodes\Collection $members */
-            $members = $membersnode->asArray();
-            /* @var Facebook\GraphNodes\GraphEdge $feednode*/
-            // Get the feed.
-            $feednode = $globalnode->getField('feed');
-            /* @var ArrayIterator $posts*/
-            // Iterate the posts.
-            $posts = $feednode->getIterator();
-            while ($posts->valid()) {
+        foreach ($groups as $groupid) {
+            // TODO: Check time configuration in some plattforms workaround: date_default_timezone_set('Europe/Madrid');!
+            try {
+                /* @var Facebook\Facebook $fb api entry point */
+                $fb = new Facebook(['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.7']);
+                $token = $this->get_connection_token();
+                $fb->setDefaultAccessToken($token->token);
+                // Query Facebook...
+                $since = '';
+                $lastharvest = $this->get_config(self::LAST_HARVEST_TIME);
+                if ($lastharvest) {
+                    $since = "&since=$lastharvest";
+                }
+                $response = $fb->get(
+                        $groupid .
+                                 '?fields=feed{message,name,permalink_url,from,created_time,reactions,' .
+                                 'comments{message,from,created_time,likes,comments{message,from,created_time,likes}}},members' .
+                                 $since);
+                // Mark the token as OK...
+                $DB->set_field('msocial_facebook_tokens', 'errorstatus', null, array('id' => $token->id));
+                /* @var Facebook\GraphNodes\GraphNode $globalnode*/
+                $globalnode = $response->getGraphNode();
+                // Get group members...
+                /* @var Facebook\GraphNodes\GraphEdge $membersnode*/
+                $membersnode = $globalnode->getField('members');
+                /* @var Facebook\GraphNodes\Collection $members */
+                $members = $membersnode->asArray();
+                /* @var Facebook\GraphNodes\GraphEdge $feednode*/
+                // Get the feed.
+                $feednode = $globalnode->getField('feed');
+                /* @var ArrayIterator $posts*/
+                // Iterate the posts.
+                $posts = $feednode->getIterator();
+                while ($posts->valid()) {
 
-                /* @var Facebook\GraphNodes\GraphNode $post Post in the group. */
-                $post = $posts->current();
-                $postinteraction = $this->process_post($post);
+                    /* @var Facebook\GraphNodes\GraphNode $post Post in the group. */
+                    $post = $posts->current();
+                    $postinteraction = $this->process_post($post);
 
-                /* @var Facebook\GraphNodes\GraphEdge $comments Comments to this post. */
-                $comments = $post->getField('comments');
-                // Process comments...
-                if ($comments) {
-                    foreach ($comments as $comment) {
-                        $commentinteraction = $this->process_comment($comment, $postinteraction);
-                        /* @var $subcomment Facebook\GraphNodes\GraphEdge */
-                        $subcomments = $comment->getField('comments');
-                        if ($subcomments) {
-                            foreach ($subcomments as $subcomment) {
-                                $this->process_comment($subcomment, $commentinteraction);
+                    /* @var Facebook\GraphNodes\GraphEdge $comments Comments to this post. */
+                    $comments = $post->getField('comments');
+                    // Process comments...
+                    if ($comments) {
+                        foreach ($comments as $comment) {
+                            $commentinteraction = $this->process_comment($comment, $postinteraction);
+                            /* @var $subcomment Facebook\GraphNodes\GraphEdge */
+                            $subcomments = $comment->getField('comments');
+                            if ($subcomments) {
+                                foreach ($subcomments as $subcomment) {
+                                    $this->process_comment($subcomment, $commentinteraction);
+                                }
                             }
                         }
                     }
+                    // Get next post.
+                    $posts->next();
                 }
-                // Get next post.
-                $posts->next();
-            }
-        } catch (\Exception $e) {
-            $cm = $this->cm;
-            $msocial = $this->msocial;
+            } catch (\Exception $e) {
+                $cm = $this->cm;
+                $msocial = $this->msocial;
 
-            $errormessage = "For module msocial\\connection\\facebook: $msocial->name (id=$cm->instance) in course (id=$msocial->course) " .
-                     "searching group: $groupid  ERROR:" . $e->getMessage();
-            $result->messages[] = $errormessage;
-            $result->errors[] = (object) ['message' => $errormessage];
+                $errormessage = "For module msocial\\connection\\facebook: $msocial->name (id=$cm->instance) in course (id=$msocial->course) " .
+                         "searching group: $groupid  ERROR:" . $e->getMessage();
+                $result->messages[] = $errormessage;
+                $result->errors[] = (object) ['message' => $errormessage];
+            }
         }
         // TODO: define if processsing is needed or not.
         $processedinteractions = $this->lastinteractions; // $this->process_interactions($this->lastinteractions);
@@ -641,7 +616,8 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $this->store_pkis($pkis, true);
         $this->set_config(\mod_msocial\connector\msocial_connector_plugin::LAST_HARVEST_TIME, time());
 
-        $logmessage = "For module msocial\\connection\\facebook: \"" . $this->msocial->name . "\" (id=" . $this->msocial->id . ") in course (id=" .
+        $logmessage = "For module msocial\\connection\\facebook: \"" . $this->msocial->name .
+                 "\" (id=" . $this->msocial->id . ") in course (id=" .
                  $this->msocial->course . ")  Found " . count($this->lastinteractions) . " events. Students' events: " .
                  count($studentinteractions);
         $result->messages[] = $logmessage;

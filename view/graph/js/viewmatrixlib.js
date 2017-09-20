@@ -27,10 +27,10 @@ function init_matrix_view(Y, cmid, startdate, enddate) {
 				var matrix = [], nodes = interactions.nodes, n = nodes.length;
 				// Configure SVG canvas.
 				var margin = {
-					top : 160,
+					top : 200,
 					right : 0,
 					bottom : 10,
-					left : 160
+					left : 200
 				}, width = Math.min(1000, 32 * n), height = Math.min(1000,32 * n);
 
 				var x = d3.scale.ordinal().rangeBands([ 0, width ]), z = d3.scale
@@ -43,8 +43,8 @@ function init_matrix_view(Y, cmid, startdate, enddate) {
 						// .style("margin-left", 100 + "px")
 						.append("g").attr(
 								"transform",
-								"translate(" + margin.left + ","
-										+ margin.top + ")");
+								"translate(" + margin.left +
+								","	+ margin.top + ")");
 
 				// Compute index per node.
 				nodes.forEach(function(node, i) {
@@ -111,8 +111,7 @@ function init_matrix_view(Y, cmid, startdate, enddate) {
 						.attr(
 								"transform",
 								function(d, i) {
-									return "translate(" + x(i)
-											+ ")rotate(-90)";
+									return "translate(" + x(i) + ")rotate(-90)";
 								});
 
 				column.append("line").attr("x1", -width);
@@ -148,8 +147,7 @@ function init_matrix_view(Y, cmid, startdate, enddate) {
 									function(d) {
 										return nodes[d.x].group == nodes[d.y].group ? c(nodes[d.x].group)
 												: null;
-									}).on("mouseover", mouseover).on(
-									"mouseout", mouseout);
+									}).on("mouseover", mouseover).on("mouseout", mouseout);
 				}
 
 				function mouseover(p) {

@@ -6,11 +6,11 @@
  * @license http:// www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 function init_chord_view(jsonurl){
-var width = 600,
-    height = 400,
-    margin = 100,
+var width = 800,
+    height = 600,
+    margin = 60,
     outerRadius = Math.min(width, height) / 2 - margin,
-    innerRadius = outerRadius - 30;
+    innerRadius = outerRadius - 50;
 
 var formatPercent = d3.format(".1%");
 

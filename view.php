@@ -64,6 +64,11 @@ echo $OUTPUT->header();
 // Print the main part of the page.
 echo $OUTPUT->spacer(array('height' => 20));
 echo $OUTPUT->heading(format_string($msocial->name) . $OUTPUT->help_icon('mainpage', 'msocial'));
+// Description text.
+echo $OUTPUT->box_start('generalbox boxaligncenter', 'intro');
+echo format_module_intro('msocial', $msocial, $cm->id);
+echo $OUTPUT->box_end();
+
 // Print the information about the linking of the module with social plugins..
 $enabledsocialplugins = \mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
 $enabledplugins = array_merge($enabledviewplugins, $enabledsocialplugins);
@@ -77,11 +82,17 @@ foreach ($enabledplugins as $name => $enabledplugin) {
                         ' ago.' . $enabledplugin->render_harvest_link();
     }
     // Group messages.
+    $compactheader = true;
     if (count($messages) > 0) {
         $icon = $enabledplugin->get_icon();
         $icondecoration = \html_writer::img($icon->out(), $enabledplugin->get_name() . ' icon.', ['height' => 29]) . ' ';
-        $tablemsgs = join('</br>', $messages);
-        $totalnotification .= '<table><tr><td valign="top">'. $icondecoration . '</td><td>' . $tablemsgs. '</td></tr></table>';
+        if ($compactheader) {
+            $tablemsgs = join(' / ', $messages);
+            $totalnotification .= ''. $icondecoration . ' ' . $tablemsgs. '<br/>';
+        } else {
+            $tablemsgs = join('</br>', $messages);
+            $totalnotification .= '<table><tr><td valign="top">'. $icondecoration . '</td><td>' . $tablemsgs. '</td></tr></table>';
+        }
     }
     // For saving vertical space all messages are rendered together  $enabledplugin->notify($messages,
     // msocial_plugin::NOTIFY_NORMAL).
@@ -89,10 +100,7 @@ foreach ($enabledplugins as $name => $enabledplugin) {
 }
 echo $OUTPUT->box($totalnotification, 'block');
 
-// Description text.
-echo $OUTPUT->box_start('generalbox boxaligncenter', 'intro');
-echo format_module_intro('msocial', $msocial, $cm->id);
-echo $OUTPUT->box_end();
+
 // Reporting area...
 
 // Tabs...

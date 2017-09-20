@@ -25,12 +25,13 @@
  */
 use mod_msocial\connector\msocial_connector_facebook;
 use DirkGroenen\facebook\facebook;
+use Facebook\GraphNodes\GraphNodeFactory;
 
 require_once("../../../../config.php");
 require_once('../../locallib.php');
 require_once('../../msocialconnectorplugin.php');
 require_once('facebookplugin.php');
-require_once('vendor/autoload.php');
+require_once('vendor/Facebook/autoload.php');
 global $CFG;
 $id = required_param('id', PARAM_INT); // MSocial module instance.
 $action = optional_param('action', 'select', PARAM_ALPHA);
@@ -51,51 +52,61 @@ if ($action == 'selectgroup') {
     // Print the page header.
     echo $OUTPUT->header();
     $modinfo = course_modinfo::instance($course->id);
-    $clientid = get_config("msocialconnector_facebook", "appid");
-    $clientsecret = get_config("msocialconnector_facebook", "appsecret");
-    $pr = new facebook($clientid, $clientsecret);
+    $appid = get_config("msocialconnector_facebook", "appid");
+    $appsecret = get_config("msocialconnector_facebook", "appsecret");
+    /**@var \Facebook\Facebook $fb */
+    $fb = new \Facebook\Facebook(
+            ['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.9',
+                            'default_access_token' => '{access-token}' // Optional...
+            ]);
     $token = $plugin->get_connection_token();
-    $pr->auth->setOAuthToken($token->token);
-    /** @var \DirkGroenen\facebook\Models\Collection $groups */
-    $groups = $pr->users->getMegroups(['fields' => 'id,name,url,image,description,created_at,counts,reason']);
+    $token = $plugin->get_connection_token();
+    $fb->setDefaultAccessToken($token->token);
+    $groups = $fb->get('/me/groups?fields=administrator,name,cover,icon,link,description');
+    $grphfty = new GraphNodeFactory($groups);
+    $groupsedge = $grphfty->makeGraphEdge('GraphGroup');
 
-    $selectedgroups = $plugin->get_config(msocial_connector_facebook::CONFIG_PRgroup);
+    $selectedgroups = $plugin->get_config(msocial_connector_facebook::CONFIG_FBGROUP);
     if ($selectedgroups) {
-        $selectedgroups = explode(',', $groups);
+        $selectedgroups = explode(',', $selectedgroups);
     } else {
         $selectedgroups = [];
     }
-    $allgroups = $groups->all();
-    if (count($allgroups) > 0) {
-        $table = new \html_table();
-        $table->head = ['groups', get_string('description')];
-        $data = [];
 
-        $out = '<form method="GET" action="' . $thispageurl->out_omit_querystring(true) . '" >';
-        $out .= '<input type="hidden" name="id" value="' . $id . '"/>';
-        $out .= '<input type="hidden" name="action" value="setgroups"/>';
-        /** @var \DirkGroenen\facebook\Models\group $group */
-        foreach ($allgroups as $group) {
-
-            $row = new \html_table_row();
-            // Use instance id instead of cmid... get_coursemodule_from_instance('forum',
-            // $group->id)->id;.
-            $groupid = json_encode(['id' => $group->id, 'name' => $group->name, 'url' => $group->url]);
-            $groupurl = $group->url;
-            $groupimg = $group->image['60x60'];
-            $info = \html_writer::img($groupimg['url'], $group->name) . $group->name;
-            $linkinfo = \html_writer::link($groupurl, $info);
-            $selected = array_search($groupid, $selectedgroups) !== false;
-            $checkbox = \html_writer::checkbox('group[]', $groupid, $selected, $linkinfo);
-            $row->cells = [$checkbox, $group->description];
-            $table->data[] = $row;
+    $out = '<form method="GET" action="' . $thispageurl->out_omit_querystring(true) . '" >';
+    $out .= '<input type="hidden" name="id" value="' . $id . '"/>';
+    $out .= '<input type="hidden" name="action" value="setgroups"/>';
+    // Render list of groups.
+    $table = new \html_table();
+    $table->head = ['Groups', get_string('description')];
+    $data = [];
+    $iter = $groupsedge->getIterator();
+    $numgroups = 0;
+    while ($iter->valid()) {
+        /** @var GraphGroup $group*/
+        $group = $iter->current();
+        $row = new \html_table_row();
+        if ($group->getCover()) {
+            $info = \html_writer::img($group->getCover()->getSource(), $group->getName(), ['height' => 50 ]);
+        } else {
+            $info = \html_writer::img($this->get_icon(), $this->get_name(), ['height' => 50 ]);
         }
-        $out .= \html_writer::table($table);
-        $out .= '<input type="hidden" name="totalgroups" value="' . count($allgroups) . '"/>';
-        $out .= '<input type="submit">';
-        $out .= '</form>';
-        echo $out;
+        $groupurl = 'https://www.facebook.com/groups/' . $group->getId();
+        $groupstructform = json_encode(['id' => $group->getId(), 'name' => $group->getName(), 'url' => $groupurl]);
+        $linkinfo = \html_writer::link($groupurl, $info);
+        $selected = array_search($group->getId(), $selectedgroups) !== false;
+        $checkbox = \html_writer::checkbox('group[]', $groupstructform, $selected, $linkinfo);
+        $row->cells = [$checkbox, $group->getDescription()];
+
+        $table->data[] = $row;
+        $iter->next();
+        $numgroups++;
     }
+    $out .= \html_writer::table($table);
+    $out .= '<input type="hidden" name="totalgroups" value="' . $numgroups . '"/>';
+    $out .= '<input type="submit">';
+    $out .= '</form>';
+    echo $out;
 } else if ($action == 'setgroups') {
     $groups = required_param_array('group', PARAM_RAW);
     $totalgroups = required_param('totalgroups', PARAM_INT);
@@ -108,15 +119,19 @@ if ($action == 'selectgroup') {
     // Save the configuration.
     $groupids = [];
     $groupnames = [];
+    $groupstructrecord = [];
     foreach ($groups as $groupstruct) {
         $parts = json_decode($groupstruct);
-        $groupid = $parts->id;
-        $groupids[] = $groupid;
+        $groupstructform = $parts->id;
+        $groupnames[] = $parts->name;
+        $groupids[] = $groupstructform;
         unset($parts->id);
-        $groupnames[$groupid] = $parts;
+        $groupstructrecord[$groupstructform] = $parts;
     }
-    $plugin->set_config(msocial_connector_facebook::CONFIG_PRgroup, implode(',', $groupids));
-    $plugin->set_config(msocial_connector_facebook::CONFIG_PRgroupNAME, json_encode($groupnames));
+    $plugin->set_config(msocial_connector_facebook::CONFIG_FBGROUP, implode(',', $groupids));
+    $plugin->set_config(msocial_connector_facebook::CONFIG_FBGROUPNAME, json_encode($groupstructrecord));
+    $grouplinks = $plugin->render_groups_links();
+    echo get_string('fbgroup', 'msocialconnector_facebook') . ' : "' . implode(', ', $grouplinks);
     echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));
 } else {
     print_error("Bad action code");
