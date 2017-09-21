@@ -82,7 +82,11 @@ abstract class msocial_view_plugin extends msocial_plugin {
      * @param string $viewparam
      */
     public abstract function render_header_requirements($reqs, $viewparam);
-
+    /**
+     *
+     * {@inheritDoc}
+     * @see \msocial\msocial_plugin::calculate_pkis()
+     */
     public function calculate_pkis($users, $pkis = []) {
         return [];
     }
@@ -93,11 +97,29 @@ abstract class msocial_view_plugin extends msocial_plugin {
     public function preferred_harvest_intervals() {
         return new harvest_intervals(15 * 60, 5000, 1 * 3600, 0);
     }
+    /**
+     *
+     * {@inheritDoc}
+     * @see \msocial\msocial_plugin::is_tracking()
+     */
     public function is_tracking() {
         return $this->is_enabled();
     }
+    /**
+     *
+     * {@inheritDoc}
+     * @see \msocial\msocial_plugin::get_pki_list()
+     */
     public function get_pki_list() {
         $pkis = [];
         return $pkis;
+    }
+    /**
+     *
+     * {@inheritDoc}
+     * @see \msocial\msocial_plugin::get_sort_order()
+     */
+    public function get_sort_order() {
+        return 10;
     }
 }

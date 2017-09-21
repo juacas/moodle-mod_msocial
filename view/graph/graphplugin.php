@@ -145,7 +145,14 @@ class msocial_view_graph extends msocial_view_plugin {
         $pkiobjs['max_betweenness'] = new pki_info('max_betweenness', null, pki_info::PKI_AGREGATED);
         return $pkiobjs;
     }
-
+    /**
+     *
+     * {@inheritDoc}
+     * @see \mod_msocial\view\msocial_view_plugin::get_sort_order()
+     */
+    public function get_sort_order() {
+        return 3;
+    }
     /**
      * @global moodle_database $DB
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
@@ -205,9 +212,8 @@ class msocial_view_graph extends msocial_view_plugin {
         $contextcourse = \context_course::instance($this->cm->course);
         $subview = optional_param('subview', 'matrix', PARAM_ALPHA);
         $rows = [];
-        foreach ($this->viewfiles() as $name => $path) {
-            // $icondecoration =html_writer::img($icon->out_as_local_url(), $plugin->get_name().'
-            // icon.',['height'=>32]);
+        $subsubplugins = $this->viewfiles();
+        foreach ($subsubplugins as $name => $path) {
             $url = new \moodle_url('/mod/msocial/view.php',
                     ['id' => $this->cm->id, 'view' => $this->get_subtype(), 'subview' => $name]);
             $plugintab = new \tabobject($name, $url, $name);
@@ -225,11 +231,12 @@ class msocial_view_graph extends msocial_view_plugin {
 
     protected function viewfiles() {
         global $CFG;
-        $files = ['matrix' => $CFG->dirroot . '/mod/msocial/view/graph/matrix.php',
+        $files = [
+                        'matrix' => $CFG->dirroot . '/mod/msocial/view/graph/matrix.php',
                         'forcedgraph' => $CFG->dirroot . '/mod/msocial/view/graph/forcedgraph.php',
                         'chord' => $CFG->dirroot . '/mod/msocial/view/graph/chord.php',
-                        'graphviz' => $CFG->dirroot . '/mod/msocial/view/graph/graphviz.php'];
-
+                        'graphviz' => $CFG->dirroot . '/mod/msocial/view/graph/graphviz.php'
+        ];
         return $files;
     }
 }

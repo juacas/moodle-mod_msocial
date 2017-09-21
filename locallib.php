@@ -265,6 +265,10 @@ function merge_stats($statsa, $statsb) {
 function msocial_tabbed_reports($msocial, $view, $cm, $contextmodule, $categorized = false) {
     global $OUTPUT;
     $plugins = msocialview::get_enabled_view_plugins($msocial);
+    usort($plugins, function($a, $b){
+                            return ($a->get_sort_order() > $b->get_sort_order());
+    }
+        );
     $rows = [];
     /** @var msocial_view_plugin*/
     foreach ($plugins as $name => $plugin) {

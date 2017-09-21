@@ -9,7 +9,7 @@ function init_forced_graph_view(graph) {
 	
 	var svg = d3.select("#graph");
 		
-    var width = +svg.attr("width"),
+    var width = +svg.attr("width");
     var height = +svg.attr("height");
     svg=svg.append("g")
 	  .attr("xmlns","http://www.w3.org/2000/svg")

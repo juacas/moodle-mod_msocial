@@ -472,7 +472,7 @@ abstract class msocial_plugin {
     /** Get the numerical sort order for this plugin
      *
      * @return int */
-    public final function get_sort_order() {
+    public function get_sort_order() {
         $order = get_config($this->get_subtype() . '_' . $this->get_type(), 'sortorder');
         return $order ? $order : 0;
     }

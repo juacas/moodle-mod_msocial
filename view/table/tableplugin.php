@@ -74,11 +74,27 @@ class msocial_view_table extends msocial_view_plugin {
         $result = true;
         return $result;
     }
-
+    /**
+     *
+     * {@inheritDoc}
+     * @see \msocial\msocial_plugin::get_sort_order()
+     */
+    public final function get_sort_order() {
+        return 1;
+    }
+    /**
+     *
+     * {@inheritDoc}
+     * @see \msocial\msocial_plugin::get_subtype()
+     */
     public function get_subtype() {
         return 'table';
     }
-
+    /**
+     *
+     * {@inheritDoc}
+     * @see \msocial\msocial_plugin::get_category()
+     */
     public function get_category() {
         return msocial_plugin::CAT_ANALYSIS;
     }
