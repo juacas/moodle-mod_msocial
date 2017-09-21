@@ -40,9 +40,9 @@ $string['widget_id'] = 'Widget id to be embedded in the main page.';
 $string['widget_id_help'] = 'weeter API forces to create mannually a search widget in yout twitter account to be embedded in any page. Create one and copy and paste the WidgetId created. You can create the widgets at <a href="https://twitter.com/settings/widgets">Create and manage yout Twitter Widgets</a>';
 
 $string['startdate'] = 'Moment of the conquest starting.';
-$string['startdate_help'] = 'Tweets before this moment are not included in the statistics.';
+$string['startdate_help'] = 'ACtivity before this moment are not included in the statistics.';
 $string['enddate'] = 'Moment of the conquest ending.';
-$string['enddate_help'] = 'Tweets after this moment are not included in the statistics.';
+$string['enddate_help'] = 'Activity after this moment are not included in the statistics.';
 $string['grade_variables'] = 'Social variables';
 $string['grade_variables_help'] = 'Variables generated from the social network activities. They can be used in the grading formula';
 $string['grade_expr'] = 'Formula for converting stats into grades.';

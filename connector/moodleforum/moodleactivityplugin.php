@@ -123,7 +123,7 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
      * @global object $COURSE
      * @param object $user user record
      * @return string message with the linking info of the user */
-    public function render_user_linking($user) {
+    public function render_user_linking($user, $brief = false, $connectlink = false, $disconnectlink = false) {
         return '';
     }
 

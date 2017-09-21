@@ -145,7 +145,7 @@ if ($action == 'connect') {
         $PAGE->set_heading($course->fullname);
         // Print the page header.
         echo $OUTPUT->header();
-        echo $OUTPUT->box($plugin->render_user_linking($user));
+        echo $OUTPUT->box($plugin->render_user_linking($user, false));
         echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));
     } else {
         require_capability('mod/msocial:manage', $context);

@@ -41,7 +41,7 @@ $string['pluginname'] = 'Social activity count module';
 
 $string['startdate'] = 'Momento en que se empiezan a contar las interacciones.';
 $string['startdate_help'] = 'Las interacciones previas a la fecha de inicio no se incluirán en las estadísticas.';
-$string['enddate'] = 'Momento en que terminan el consurso.';
+$string['enddate'] = 'Momento en que se empiezan a contabilizar interacciones en las redes sociales.';
 $string['enddate_help'] = 'Las interacciones posteriores a la fecha de inicio no se incluirán en las estadísticas.';
 $string['grade_expr'] = 'Formula para convertir las estadísticas en calificaciones.';
 $string['grade_expr_help'] = 'La fórmula puede contener diversas variables que se calculan para cada usuario y una variedad de funciones como max, min, sum, average, etc. El punto decimal es \'.\' y el separador de variables es \',\' Ejemplo: \'=max(favs,retweets,1.15)\' Las variables cuyo nombre empieza por max contienen los valores máximos alcanzados entre todos los usuarios del concurso.';

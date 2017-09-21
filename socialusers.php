@@ -115,7 +115,7 @@ foreach ($users as $user) {
     $row->cells[] = new html_table_cell($checkbox . $pic . ' ' . $link);
     foreach ($enabledsocialplugins as $plugin) {
         if ($plugin->users_are_local() === false) {
-            $row->cells[] = $plugin->create_user_link($user);
+            $row->cells[] = $plugin->render_user_link($user, false);
         }
     }
 }

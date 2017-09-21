@@ -191,14 +191,21 @@ class msocial_view_table extends msocial_view_plugin {
                 $profilelink = '';
             }
             $usersociallink = '';
+            $briefformat = true;
             foreach ($enabledsocialplugins as $type => $plugin) {
                 if ($plugin->is_enabled()) {
-                    $usersociallink .= '<p fontsize="8" >' . $plugin->render_user_linking($user) . '</p>';
+                    $disconnectaction = ($USER->id == $user->id || has_capability('mod/msocial:manage', $contextmodule));
+                    $sociallinking = $plugin->render_user_linking($user, $briefformat, false, $disconnectaction);
+                    if ($briefformat) {
+                        $usersociallink .=  '<div style="display: inline-block">' . $sociallinking . '</div>' ;
+                    } else {
+                        $usersociallink .= '<p fontsize="8" >' . $sociallinking . '</p>';
+                    }
                 }
             }
 
             $usercard = $userpic . $profilelink;
-            $socialids = '<p>' . $usersociallink . '</p>';
+            $socialids = $usersociallink;
             $row->cells[] = new \html_table_cell($usercard);
             $row->cells[] = new \html_table_cell($socialids);
             // Get the PKIs.

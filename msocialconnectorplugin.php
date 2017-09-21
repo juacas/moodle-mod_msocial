@@ -62,23 +62,74 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      * @return moodle_url url of the icon for this service */
     public abstract function get_icon();
 
-    /** Gets formatted text for social-network user information or a link to connect.
+    /** Place social-network user information or a link to connect.
+     *  Uses i18n strings get_string("no_{$subtype}_name_advice2", "msocialconnector_{$subtype}")
+     *  if $connectaction == true renders a link to connect the account.
      *
+     * @global object $USER
+     * @global object $COURSE
      * @param object $user user record
      * @return string message with the linking info of the user */
-    public abstract function render_user_linking($user);
+    public function render_user_linking($user, $brief = false, $connectaction = false, $disconnectaction = false) {
+        global $USER, $COURSE;
+        $course = $COURSE;
+        $usermessage = '';
+        $socialids = $this->get_social_userid($user);
+        $subtype = $this->get_subtype();
+        $cm = get_coursemodule_from_instance('msocial', $this->msocial->id);
+        if ($socialids == null) { // Offer to register.
+            $pixurl = new \moodle_url("/mod/msocial/connector/{$subtype}/pix"); // For i18n strings.
+            $userfullname = fullname($user);
+            if ($connectaction) {
+                $urlprofile = new \moodle_url('/mod/msocial/connector/$subtype/{$subtype}SSO.php',
+                        array('id' => $cm->id, 'action' => 'connect', 'type' => 'profile'));
+                $usermessage = get_string("no_{$subtype}_name_advice2", "msocialconnector_{$subtype}",
+                        ['userfullname' => $userfullname, 'userid' => $USER->id, 'courseid' => $course->id,
+                                        'url' => $urlprofile->out(false), 'pixurl' => $pixurl->out(false)]);
+            } else {
+                if ($brief) {
+                    $usermessage = $this->render_user_link($user, $brief);
+                } else {
+                    $usermessage = get_string("no_{$subtype}_name_advice", "msocialconnector_{$subtype}",
+                            ['userfullname' => $userfullname, 'userid' => $user->id, 'courseid' => $course->id,
+                                            'pixurl' => $pixurl->out()]);
+                }
+            }
+        } else {
+            global $OUTPUT;
+            $usermessage = $this->render_user_link($user, $brief);
+            if ($disconnectaction) {
+                $iconurl = new \moodle_url('/mod/msocial/pix/icon_unlink.png');
+                $iconhtml = \html_writer::img($iconurl->out(), 'unlink', [ 'title' => 'unlink', 'width' => 15, ]);
+                $urlprofile = new \moodle_url("/mod/msocial/connector/{$subtype}/{$subtype}SSO.php",
+                        array('id' => $this->cm->id, 'action' => 'disconnect', 'type' => 'profile', 'userid' => $user->id,
+                                        'socialid' => $socialids->socialid));
+                $link = \html_writer::link($urlprofile, $iconhtml);
+                $usermessage = '<div style="position:relative; display:inline-block"><div style="">' . $usermessage .
+                                '</div><div style="position:absolute; top:-5px; left:-5px">' . $link . '</div></div>';
+            }
+        }
+        return $usermessage;
+    }
 
     /** Gets an href fragment that links to the user's page in the social network.
      * @param \stdClass $user user record
      * @return string html with the link to social network user's profile.*/
-    public function create_user_link($user) {
+    public function render_user_link($user, $brief = false) {
         $socialuserid = $this->get_social_userid($user);
         if ($socialuserid) {
             $link = $this->get_social_user_url($socialuserid);
             $icon = $this->get_icon();
-            return "<a href=\"$link\"><img src=\"$icon\" height=\"29px\" /> $socialuserid->socialname </a>";
+            $link = "<a href=\"$link\"><img src=\"$icon\" height=\"29px\" title=\"$socialuserid->socialname\" " .
+                    "alt=\"$socialuserid->socialname\"/>";
+            if (!$brief) {
+                $link .= $socialuserid->socialname;
+            }
+            $link .= "</a>";
+            return $link;
         } else {
-            return '';
+                $icon = $this->get_icon();
+                return "<img src=\"$icon\" height=\"29px\" style=\"-webkit-filter: blur(3px); filter: blur(3px);\"/>";
         }
     }
     /**
