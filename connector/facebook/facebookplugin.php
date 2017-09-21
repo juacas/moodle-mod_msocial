@@ -130,7 +130,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             $id = $cm->id;
             if (has_capability('mod/msocial:manage', $context)) {
                 $token = $DB->get_record('msocial_facebook_tokens', array('msocial' => $this->msocial->id));
-                $urlconnect = new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+                $urlconnect = new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
                         array('id' => $id, 'action' => 'connect'));
                 if ($token) {
                     $username = $token->username;
@@ -140,13 +140,13 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                     }
 
                     $messages[] = get_string('module_connected_facebook', 'msocialconnector_facebook', $username) . $OUTPUT->action_link(
-                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+                            new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
-                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+                            new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
                                     array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ';
                 } else {
                     $notifications[] = get_string('module_not_connected_facebook', 'msocialconnector_facebook') . $OUTPUT->action_link(
-                            new \moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+                            new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Connect");
                 }
             }

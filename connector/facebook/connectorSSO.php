@@ -53,7 +53,7 @@ $fb = new \Facebook\Facebook(
         ['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.9',
                         'default_access_token' => '{access-token}' // Optional...
 ]);
-$thispageurl = new moodle_url('/mod/msocial/connector/facebook/facebookSSO.php',
+$thispageurl = new moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
         array('id' => $id, 'action' => $action, 'type' => $type));
 
 if ($action == 'connect') {
@@ -61,7 +61,7 @@ if ($action == 'connect') {
     $helper = $fb->getRedirectLoginHelper();
     $permissions = ['posts', 'user_likes', 'pages_show_list', 'user_posts', 'user_about_me'];
     $permissions = ['user_managed_groups'];
-    $thispageurl = new moodle_url("/mod/msocial/connector/facebook/facebookSSO.php",
+    $thispageurl = new moodle_url("/mod/msocial/connector/facebook/connectorSSO.php",
             array('id' => $id, 'action' => 'callback', 'type' => $type));
     $callbackurl = $thispageurl->out($escaped = false);
     $loginurl = $helper->getLoginUrl($callbackurl, $permissions);
@@ -133,7 +133,7 @@ if ($action == 'connect') {
     if ($type == 'profile') {
         $userid = required_param('userid', PARAM_INT);
         $socialid = required_param('socialid', PARAM_RAW_TRIMMED);
-        if ($userid !== $USER->id) {
+        if ($userid != $USER->id) {
             require_capability('mod/msocial:manage', $context);
         }
         $user = (object) ['id' => $userid];
@@ -174,7 +174,7 @@ if ($action == 'connect') {
 } else if ($action == 'setgroup') {
     $gid = required_param('gid', PARAM_ALPHANUM);
     $gname = required_param('gname', PARAM_RAW_TRIMMED);
-    $url = new moodle_url('/mod/msocial/facebookSSO.php', array('id' => $id, 'gid' => $gid, 'gname' => $gname));
+    $url = new moodle_url('/mod/msocial/connectorSSO.php', array('id' => $id, 'gid' => $gid, 'gname' => $gname));
     $PAGE->set_url($url);
     $PAGE->set_title(get_string('selectthisgroup', 'msocialconnector_facebook') . ':' . $gname);
     $PAGE->set_heading($course->fullname);

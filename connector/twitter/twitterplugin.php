@@ -137,7 +137,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $contextmodule = \context_module::instance($cm->id);
             if (has_capability('mod/msocial:manage', $contextmodule)) {
                 $token = $DB->get_record('msocial_twitter_tokens', array('msocial' => $this->msocial->id));
-                $urlconnect = new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
+                $urlconnect = new \moodle_url('/mod/msocial/connector/twitter/connectorSSO.php',
                         array('id' => $id, 'action' => 'connect'));
                 if ($token) {
                     $username = $token->username;
@@ -147,13 +147,13 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     }
 
                     $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
-                            new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
+                            new \moodle_url('/mod/msocial/connector/twitter/connectorSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
-                            new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
+                            new \moodle_url('/mod/msocial/connector/twitter/connectorSSO.php',
                                     array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ';
                 } else {
                     $notifications[] = get_string('module_not_connected_twitter', 'msocialconnector_twitter') . $OUTPUT->action_link(
-                            new \moodle_url('/mod/msocial/connector/twitter/twitterSSO.php',
+                            new \moodle_url('/mod/msocial/connector/twitter/connectorSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Connect");
                 }
             }

@@ -81,7 +81,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
             $pixurl = new \moodle_url("/mod/msocial/connector/{$subtype}/pix"); // For i18n strings.
             $userfullname = fullname($user);
             if ($connectaction) {
-                $urlprofile = new \moodle_url('/mod/msocial/connector/$subtype/{$subtype}SSO.php',
+                $urlprofile = new \moodle_url("/mod/msocial/connector/$subtype/connectorSSO.php",
                         array('id' => $cm->id, 'action' => 'connect', 'type' => 'profile'));
                 $usermessage = get_string("no_{$subtype}_name_advice2", "msocialconnector_{$subtype}",
                         ['userfullname' => $userfullname, 'userid' => $USER->id, 'courseid' => $course->id,
@@ -101,7 +101,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
             if ($disconnectaction) {
                 $iconurl = new \moodle_url('/mod/msocial/pix/icon_unlink.png');
                 $iconhtml = \html_writer::img($iconurl->out(), 'unlink', [ 'title' => 'unlink', 'width' => 15, ]);
-                $urlprofile = new \moodle_url("/mod/msocial/connector/{$subtype}/{$subtype}SSO.php",
+                $urlprofile = new \moodle_url("/mod/msocial/connector/{$subtype}/connectorSSO.php",
                         array('id' => $this->cm->id, 'action' => 'disconnect', 'type' => 'profile', 'userid' => $user->id,
                                         'socialid' => $socialids->socialid));
                 $link = \html_writer::link($urlprofile, $iconhtml);

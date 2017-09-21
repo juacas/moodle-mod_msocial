@@ -48,7 +48,7 @@ $oauthrequesttoken = "https://twitter.com/oauth/request_token";
 $oauthauthorize = "https://twitter.com/oauth/authorize";
 $oauthaccesstoken = "https://twitter.com/oauth/access_token";
 
-$thispageurl = new moodle_url("/mod/msocial/connector/twitter/twitterSSO.php",
+$thispageurl = new moodle_url("/mod/msocial/connector/twitter/connectorSSO.php",
         array('id' => $cm->id, 'action' => 'callback', 'type' => $type));
 $callbackurl = $thispageurl->out($escaped = false);
 $context = context_module::instance($id);
@@ -136,6 +136,9 @@ if ($action == 'callback') { // Twitter callback.
     if ($type == 'profile') {
         $userid = required_param('userid', PARAM_INT);
         $socialid = required_param('socialid', PARAM_RAW_TRIMMED);
+        if ($userid != $USER->id) {
+            require_capability('mod/msocial:manage', $context);
+        }
         $user = (object) ['id' => $userid];
         // Remove the mapping.
         $plugin->unset_social_userid($user, $socialid);
