@@ -89,7 +89,7 @@ if ($action == 'selectgroup') {
         if ($group->getCover()) {
             $info = \html_writer::img($group->getCover()->getSource(), $group->getName(), ['height' => 50 ]);
         } else {
-            $info = \html_writer::img($this->get_icon(), $this->get_name(), ['height' => 50 ]);
+            $info = \html_writer::img($plugin->get_icon(), $plugin->get_name(), ['height' => 50 ]);
         }
         $groupurl = 'https://www.facebook.com/groups/' . $group->getId();
         $groupstructform = json_encode(['id' => $group->getId(), 'name' => $group->getName(), 'url' => $groupurl]);

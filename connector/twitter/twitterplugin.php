@@ -146,7 +146,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                         $this->notify(get_string('problemwithtwitteraccount', 'msocial', $errorstatus), self::NOTIFY_WARNING);
                     }
 
-                    $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
+                  $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/connectorSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/connectorSSO.php',
@@ -162,7 +162,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             if (trim($hashtag) == "") {
                 $notifications[] = get_string('hashtag_missing', 'msocialconnector_twitter', ['cmid' => $cm->id]);
             } else {
-                $messages[] = get_string('hashtag_reminder', 'msocialconnector_twitter', $hashtag);
+                $messages[] = get_string('hashtag_reminder', 'msocialconnector_twitter', ['hashtag' => $hashtag, 'hashtagscaped' => urlencode($hashtag)]);
             }
             // Check user's social credentials.
             $twitterusername = $this->get_social_userid($USER);
@@ -341,7 +341,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         $token = $this->get_connection_token();
         $hashtag = $this->get_config('hashtag');
         $result = $this->get_statuses($token, $hashtag);
-
         if (isset($result->errors)) {
             if ($token) {
                 $info = "UserToken for:$token->username ";
@@ -362,7 +361,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     function ($status) {
                         return isset($status->userauthor);
                     });
-            $this->store_status($studentstatuses);
+            $this->store_status($processedstatuses);
 
             $this->lastinteractions = $this->build_interactions($processedstatuses);
             $errormessage = null;
@@ -430,7 +429,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $interaction->nativeto = $status->in_reply_to_user_id;
                 $interaction->nativetoname = $status->in_reply_to_screen_name;
             }
-            $interaction->nativefrom = $status->user->id;
+            $interaction->nativefrom = $status->user->id_str;
             $interaction->fromid = $this->get_userid($interaction->nativefrom);
             $interaction->toid = $this->get_userid($interaction->nativeto);
             $interactions[] = $interaction;

@@ -187,10 +187,12 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $groupstruct = $this->get_config(self::CONFIG_FBGROUPNAME);
         $groups = json_decode($groupstruct);
         $linkinfo = [];
-        foreach ($groups as $groupid => $group) {
-            $groupname = $group->name;
-            $groupurl = 'https://www.facebook.com/groups/' . $groupid;
-            $linkinfo[] = \html_writer::link($groupurl, $groupname);
+        if ($groups) {
+            foreach ($groups as $groupid => $group) {
+                $groupname = $group->name;
+                $groupurl = 'https://www.facebook.com/groups/' . $groupid;
+                $linkinfo[] = \html_writer::link($groupurl, $groupname);
+            }
         }
         return $linkinfo;
     }
