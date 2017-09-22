@@ -27,7 +27,7 @@ use mod_msocial\connector\social_interaction;
 use Graphp\GraphViz\Dot;
 require_once('socialgraph.php');
 require_once('vendor/autoload.php');
-$interactions = social_interaction::load_interactions($this->msocial->id, " (type = 'post' OR type = 'reply')", $startdate, $enddate);
+$interactions = social_interaction::load_interactions($this->msocial->id, " source='facebook' AND (type = 'post' OR type = 'reply')", $startdate, $enddate);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($this->msocial);
 $socialgraph = new SocialMatrix();
 $context = context_module::instance($this->cm->id);
@@ -35,17 +35,20 @@ list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($cont
 global $CFG;
 $cm = $this->cm;
 $shownativeids = has_capability('mod/msocial:manage', $context);
+$loopedges = [];
 foreach ($interactions as $interaction) {
     if (!isset($plugins[$interaction->source]) || $plugins[$interaction->source]->is_enabled() == false) {
         continue;
     }
+    /** @var Edge $edge */
     $graphviztoattr = [];
     $graphvizfromattr = [];
     if ($interaction->fromid == null || !isset($users[$interaction->fromid])) {
         $from = "[$interaction->nativefromname]";
         $fromgroup = 1;
         if ($shownativeids) {
-            $graphvizfromattr['graphviz.URL'] = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname";
+            $graphvizfromattr['graphviz.URL'] = "socialusers.php?action=selectmapuser&source=$interaction->source&" .
+                                     "id=$cm->id&nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname";
         }
     } else {
         $from = fullname($users[$interaction->fromid]);
@@ -55,7 +58,8 @@ foreach ($interactions as $interaction) {
     if ($interaction->toid == null || !isset($users[$interaction->toid])) {
         $to = "[$interaction->nativetoname]";
         if ($shownativeids) {
-            $graphviztoattr['graphviz.URL'] = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&nativeid=$interaction->nativeto&nativename=$interaction->nativetoname";
+            $graphviztoattr['graphviz.URL'] = "socialusers.php?action=selectmapuser&source=$interaction->source&" .
+                                        "id=$cm->id&nativeid=$interaction->nativeto&nativename=$interaction->nativetoname";
         }
         $togroup = 1;
     } else {
@@ -72,8 +76,21 @@ foreach ($interactions as $interaction) {
     $graphviztoattr['graphviz.label'] = $to;
     $type = $interaction->type;
     $source = $interaction->source;
-    list($fromvertex, $edge, $tovertex) = $socialgraph->register_interaction($interaction,
-            ['graphviz.label' => $source . ':' . $type], $graphvizfromattr, $graphviztoattr);
+    if ($interaction->nativefrom == $interaction->nativeto && isset($loopedges[$interaction->nativefrom])) {
+        $edge = $loopedges[$interaction->nativefrom];
+        $edge->setCapacity($edge->getCapacity() + 1);
+        $fromvertex = $edge->getVertexStart();
+        $tovertex = $edge->getVertexEnd();
+    } else {
+        list($fromvertex, $edge, $tovertex) = $socialgraph->register_interaction($interaction,
+                                                ['graphviz.label' => $source . ':' . $type], $graphvizfromattr, $graphviztoattr);
+        if ($edge) {
+            $edge->setCapacity(1);
+        }
+    }
+    if ($interaction->nativefrom == $interaction->nativeto && $edge) {
+        $loopedges[$interaction->nativefrom] = $edge;
+    }
     if ($fromvertex) {
         $fromvertex->setGroup($fromgroup);
     }
@@ -82,7 +99,6 @@ foreach ($interactions as $interaction) {
     }
     if ($edge) {
         $edge->setFlow(1 / $edge->getWeight());
-        $edge->setCapacity(1);
     }
 }
 $dot = new Dot();
@@ -93,12 +109,13 @@ $graph->getAttributeBag()->setAttribute('graphviz.graph.size', "10,10");
 $dotsource = $dot->getOutput($graph);
 $dotsource = str_replace('label = 0', 'label = "Course users"', $dotsource);
 $dotsource = str_replace('label = 1', 'label = "External users"', $dotsource);
+/* @var $OUTPUT \core_renderer */
+echo '<div id="graph" width="100%"></div>';
+echo "\n";
+echo $OUTPUT->container($dotsource, 'hidden', 'dot_src');
+
 /** @var page_requirements_manager $reqs */
 $reqs->js('/mod/msocial/view/graph/js/configuregraphvizrequire.js', false);
 global $CFG;
 $reqs->js_call_amd('msocialview/graphviz', 'initview', ['#graph', '#dot_src']);
-/* @var $OUTPUT \core_renderer */
-echo $OUTPUT->container('', '', 'graph');
-echo $OUTPUT->container($dotsource, 'hidden', 'dot_src');
-
 

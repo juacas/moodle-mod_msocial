@@ -49,7 +49,7 @@ class SocialMatrix {
     }
 
     /** Devuelve el grafico
-     * @return Graph */
+     * @return \Fhaculty\Graph\Graph */
     public function get_graph() {
         return $this->graph;
     }
