@@ -34,7 +34,7 @@ use mod_msocial\social_user;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
-require_once('moodleactivityplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/moodleactivityplugin.php');
 
 /** library class for social network moodleforum plugin extending social plugin base class
  *
@@ -75,24 +75,21 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
     }
 
     public function get_pki_list() {
-        $pkiobjs['mfposts'] = new pki_info('mfposts', null, pki_info::PKI_INDIVIDUAL, social_interaction::POST, 'POST',
+        $pkiobjs['mfposts'] = new pki_info('mfposts', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::POST, 'POST',
                 social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['mfreplies'] = new pki_info('mfreplies', null, pki_info::PKI_INDIVIDUAL, social_interaction::REPLY, '*',
+        $pkiobjs['mfreplies'] = new pki_info('mfreplies', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REPLY, '*',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['mfgrades'] = new pki_info('mfgrades', null, pki_info::PKI_INDIVIDUAL, social_interaction::REACTION, '*',
+        $pkiobjs['mfgrades'] = new pki_info('mfgrades', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, '*',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['max_mfposts'] = new pki_info('max_mfposts', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_mfreplies'] = new pki_info('max_mfreplies', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_mfgrades'] = new pki_info('max_mfgrades', null, pki_info::PKI_AGREGATED);
+        $pkiobjs['max_mfposts'] = new pki_info('max_mfposts', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
+        $pkiobjs['max_mfreplies'] = new pki_info('max_mfreplies', null, pki_info::PKI_AGREGATED,  pki_info::PKI_CALCULATED);
+        $pkiobjs['max_mfgrades'] = new pki_info('max_mfgrades', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
         return $pkiobjs;
     }
 
 
 
     /** TODO
-     * Obtiene el numero de respuestas y notas recibidas en el Post, y actaliza el "score" de
-     * la persona que escribio el Post
-     *
      * @param \stdClass $post moodleforum post.
      * @param array(\stdClass) $posts other posts for lookup. */
     protected function process_post($post, $posts, $users) {
@@ -165,8 +162,8 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
             $params = [$this->msocial->course];
             if ($activities) {
                 list($insql, $inparams) = $DB->get_in_or_equal($activities);
-                $sql = 'select p.* from {forum_posts} p left join {forum_discussions} d on d.id = p.discussion where d.course = ? and d.forum ' .
-                         $insql;
+                $sql = 'select p.* from {forum_posts} p left join {forum_discussions} d on d.id = p.discussion ' .
+                        'where d.course = ? and d.forum ' . $insql;
                 $params = array_merge($params, $inparams);
             } else {
                 $sql = 'select p.* from {forum_posts} p left join {forum_discussions} d on d.id = p.discussion where d.course = ?';
@@ -175,7 +172,6 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
 
             // Iterate the posts.
             foreach ($posts as $post) {
-
                 $postinteraction = $this->process_post($post, $posts, $users);
             }
         } catch (\Exception $e) {
@@ -185,25 +181,6 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
             $result->messages[] = $errormessage;
             $result->errors[] = (object) ['message' => $errormessage];
         }
-        // TODO: define if processsing is needed or not.
-        $processedinteractions = $this->lastinteractions; // $this->process_interactions($this->lastinteractions);
-
-        $studentinteractions = array_filter($processedinteractions,
-                function ($interaction) {
-                    return isset($interaction->fromid);
-                });
-        // TODO: define if all interactions are
-        // worth to be registered or only student's.
-        $this->store_interactions($processedinteractions);
-
-        $pkis = $this->calculate_pkis($users);
-        $this->store_pkis($pkis, true);
-        $this->set_config(\mod_msocial\connector\msocial_connector_plugin::LAST_HARVEST_TIME, time());
-
-        $logmessage = "For module msocial\\connector\\moodleforum: \"" . $this->msocial->name . "\" (id=" . $this->msocial->id .
-                 ") in course (id=" . $this->msocial->course . ")  Found " . count($this->lastinteractions) .
-                 " events. Students' events: " . count($studentinteractions);
-        $result->messages[] = $logmessage;
-        return $result;
+        return $this->post_harvest($result);
     }
 }

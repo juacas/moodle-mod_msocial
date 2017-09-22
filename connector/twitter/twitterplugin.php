@@ -283,10 +283,10 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     }
 
     public function get_pki_list() {
-        $pkiobjs['tweets'] = new pki_info('tweets', null, pki_info::PKI_INDIVIDUAL, social_interaction::POST, 'tweet',
+        $pkiobjs['tweets'] = new pki_info('tweets', null, pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, social_interaction::POST, 'tweet',
                 social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['retweets'] = new pki_info('retweets', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['favs'] = new pki_info('favs', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
+        $pkiobjs['retweets'] = new pki_info('retweets', null, pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, pki_info::PKI_CUSTOM);
+        $pkiobjs['favs'] = new pki_info('favs', null, pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, pki_info::PKI_CUSTOM);
         $pkiobjs['max_tweets'] = new pki_info('max_tweets', null, pki_info::PKI_AGREGATED);
         $pkiobjs['max_retweets'] = new pki_info('max_retweets', null, pki_info::PKI_AGREGATED);
         $pkiobjs['max_favs'] = new pki_info('max_favs', null, pki_info::PKI_AGREGATED);
@@ -364,21 +364,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     });
             $this->store_status($studentstatuses);
 
-            $interactions = $this->build_interactions($processedstatuses);
-            social_interaction::store_interactions($interactions, $this->msocial->id);
-
-            $result->messages[] = "For module msocial\\connector\\twitter: $msocial->name (id=$msocial->id) " .
-                                  "in course (id=$msocial->course) searching: " . $hashtag .
-                                  "  Found " . count($statuses) . " tweets. Students' tweets: " . count($studentstatuses);
-            $contextcourse = \context_course::instance($this->msocial->course);
-            list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
-
-            // TODO: implements grading with plugins: msocial_update_grades($this->msocial, $students);.
+            $this->lastinteractions = $this->build_interactions($processedstatuses);
             $errormessage = null;
-
-            $pkis = $this->calculate_pkis($users);
-            $this->store_pkis($pkis, true);
-            $this->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
+            $result = $this->post_harvest($result);
         } else {
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
             $result->errors[0]->message = $errormessage;
@@ -389,7 +377,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $token->errorstatus = $errormessage;
             $DB->update_record('msocial_twitter_tokens', $token);
             if ($errormessage) { // Marks this tokens as erroneous to warn the teacher.
-                $message = "Uptatind token with id = $token->id with $errormessage";
+                $message = "Updating token with id = $token->id with $errormessage";
                 $result->errors[] = (object) ['message' => $message];
                 $result->messages[] = $message;
             }

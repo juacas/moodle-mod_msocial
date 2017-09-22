@@ -179,6 +179,43 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         // Array is indexed by uid to ensure that there is unicity in the uid.
         $this->lastinteractions[$interaction->uid] = $interaction;
     }
+    /**
+     * Common tasks after harvesting.
+     * Generate PKIs, store PKIs, mark harvest time, report harvest messages.
+     * @param string[] $result
+     * @return string[] $result
+     */
+    protected function post_harvest($result) {
+        // TODO: define if processsing is needed or not.
+        $processedinteractions = $this->lastinteractions; // $this->process_interactions($this->lastinteractions);
+
+        // TODO: define if all interactions are
+        // worth to be registered or only student's.
+        $this->store_interactions($processedinteractions);
+        $contextcourse = \context_course::instance($this->msocial->course);
+        list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
+        $pkis = $this->calculate_pkis($users);
+        $this->store_pkis($pkis, true);
+        $this->set_config(self::LAST_HARVEST_TIME, time());
+
+        $studentinteractions = array_filter($processedinteractions,
+                function (social_interaction $interaction) {
+                    return isset($interaction->fromid) &&
+                    msocial_time_is_between($interaction->timestamp, $this->msocial->startdate, $this->msocial->enddate);
+                });
+        $intimeinteractions = array_filter($processedinteractions,
+                function (social_interaction $interaction) {
+                    return msocial_time_is_between($interaction->timestamp, $this->msocial->startdate, $this->msocial->enddate);
+                });
+        $subtype = $this->get_subtype();
+        $logmessage = "For module msocial\\connector\\$subtype: \"" . $this->msocial->name .
+        "\" (id=" . $this->msocial->id . ") in course (id=" .
+        $this->msocial->course . ")  Found " . count($this->lastinteractions) .
+        " events. In time period: " . count($intimeinteractions) . ". Students' events: " . count($studentinteractions);
+        $result->messages[] = $logmessage;
+
+        return $result;
+    }
     /** Stores the $socialname in the profile information of the $user
      *
      * @param \stdClass|int $user user record or userid

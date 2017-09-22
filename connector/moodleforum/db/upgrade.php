@@ -47,7 +47,7 @@ function xmldb_msocialconnector_moodleforum_upgrade($oldversion = 0) {
 
     if ($oldversion < 2017071001) {
         require_once($CFG->dirroot . '/mod/msocial/connector/moodleforum/moodleforumplugin.php');
-        $plugininfo = new mod_msocial\connector\msocial_connector_moodleforum(null);
+        $plugininfo = new mod_msocial\connector\msocial_connector_questournament(null);
         $plugininfo->create_pki_fields();
         // moodleforum savepoint reached.
         upgrade_plugin_savepoint(true, 2017071001, 'msocialconnector', 'moodleforum');

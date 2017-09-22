@@ -70,7 +70,7 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
         global $OUTPUT, $USER;
         $messages = [];
         $notifications = [];
-        $this->remap_linked_activities(); // debug
+        $this->remap_linked_activities();
         if ($this->is_enabled()) {
             $subtype = $this->get_subtype();
             $icon = $this->get_icon();
@@ -81,7 +81,7 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
             if (has_capability('mod/msocial:manage', $context)) {
                 $linktoselect = \html_writer::link(
                         new \moodle_url("/mod/msocial/connector/$subtype/activitychoice.php", ['id' => $this->cm->id]),
-                        'Select forums.');
+                        get_string('select', "msocialconnector_$subtype"));
             } else {
                 $linktoselect = '';
             }

@@ -67,18 +67,18 @@ function msocial_get_users_by_type($contextcourse) {
 }
 
 /**
- * @param int $date
+ * @param int $timestamp
  * @param int|null $fromdate
  * @param int|null $todate
  * @return bool */
-function msocial_time_is_between($date, $fromdate, $todate) {
+function msocial_time_is_between($timestamp, $fromdate, $todate) {
     if ($fromdate == "0") {
         $fromdate = null;
     }
     if ($todate == "0") {
         $todate = null;
     }
-    return ((!isset($fromdate) || $date > $fromdate) && (!isset($todate) || $date < $todate));
+    return ((!isset($fromdate) || $timestamp >= $fromdate) && (!isset($todate) || $timestamp <= $todate));
 }
 
 /**

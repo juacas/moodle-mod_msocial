@@ -244,22 +244,12 @@ abstract class msocial_plugin {
         global $DB;
         $pkiinfos = $this->get_pki_list();
         $subtype = $this->get_subtype();
-        // Initialize for requested users.
-        foreach ($users as $user) {
-            if (!isset($pkis[$user->id])) {
-                $pkis[$user->id] = new pki($user->id, $this->msocial->id);
-                // Reset to 0 to avoid nulls.
-                foreach ($pkiinfos as $pkiinfo) {
-                    $pki = $pkis[$user->id];
-                    $pki->{$pkiinfo->name} = 0;
-                }
-            }
-        }
+
         // Calculate totals.
         $stats = [];
         /** @var pki_info $pkiinfo description of pki.*/
         foreach ($pkiinfos as $pkiinfo) {
-            if ($pkiinfo->individual == pki_info::PKI_INDIVIDUAL && $pkiinfo->interaction_type !== pki_info::PKI_CUSTOM) {
+            if ($pkiinfo->individual == pki_info::PKI_INDIVIDUAL && $pkiinfo->generated == pki_info::PKI_CALCULATED) {
                 // Calculate posts.
                 $nativetypequery = '';
                 if ($pkiinfo->interaction_nativetype_query !== null && $pkiinfo->interaction_nativetype_query !== '*') {
@@ -269,32 +259,38 @@ abstract class msocial_plugin {
                 // Did you remember to make the first column something unique in your call to
                 // get_records? Duplicate value '29' found in column 'userid'.
 
-                $interaction_source = $pkiinfo->interaction_source;
-                $sql = "SELECT $interaction_source as userid, count(*) as total
+                $interactionsource = $pkiinfo->interaction_source;
+                $sql = "SELECT $interactionsource as userid, count(*) as total
                     from {msocial_interactions}
                     where msocial=?
                         and source=?
                         and type=?
-                        and $interaction_source IS NOT NULL
+                        and $interactionsource IS NOT NULL
+                        and timestamp > ?
+                        and timestamp < ?
                         $nativetypequery
-                    group by $interaction_source";
+                    group by $interactionsource";
                 $aggregatedrecords = $DB->get_records_sql($sql,
-                        [$this->msocial->id, $subtype, $pkiinfo->interaction_type]);
+                        [$this->msocial->id, $subtype, $pkiinfo->interaction_type,
+                                        $this->msocial->startdate,
+                                        $this->msocial->enddate == 0 ? PHP_INT_MAX : $this->msocial->enddate]);
                 // Process users' pkis.
                 foreach ($aggregatedrecords as $aggr) {
-                    if (isset($pkis[$aggr->userid])) {
-                        $pki = $pkis[$aggr->userid];
-                        $pki->{$pkiinfo->name} = $aggr->total;
-                        $stats['max_' . $pkiinfo->name] = max(
-                                [0, $aggr->total, isset($stats[$pkiinfo->name]) ? $stats[$pkiinfo->name] : 0]);
+                    if (!isset($pkis[$aggr->userid])) {
+                        $pkis[$aggr->userid] = new pki($aggr->userid, $this->msocial->id, $pkiinfos);
                     }
+                    $pki = $pkis[$aggr->userid];
+                    $pki->{$pkiinfo->name} = $aggr->total;
+                    $stats['max_' . $pkiinfo->name] = max([ 0,
+                                                            $aggr->total,
+                                    isset( $stats['max_' . $pkiinfo->name]) ?  $stats['max_' . $pkiinfo->name]: 0]);
                 }
             }
         }
         foreach ($pkiinfos as $pkiinfo) {
             if ($pkiinfo->individual == pki_info::PKI_AGREGATED && isset($stats[$pkiinfo->name])) {
-                foreach ($users as $user) {
-                    $pki = $pkis[$user->id];
+                foreach ($pkis as $userid => $pki) {
+                    $pki = $pkis[$userid];
                     $pki->{$pkiinfo->name} = $stats[$pkiinfo->name];
                 }
             }

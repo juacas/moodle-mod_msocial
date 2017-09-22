@@ -280,17 +280,18 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      *
      * @see \msocial\msocial_plugin::get_pki_list() */
     public function get_pki_list() {
-        $pkiobjs['posts'] = new pki_info('posts', null, pki_info::PKI_INDIVIDUAL, social_interaction::POST, 'POST',
+        $pkiobjs['posts'] = new pki_info('posts', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::POST, 'POST',
                 social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['replies'] = new pki_info('replies', null, pki_info::PKI_INDIVIDUAL, social_interaction::REPLY, '*',
+        $pkiobjs['replies'] = new pki_info('replies', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REPLY, '*',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['likes'] = new pki_info('likes', null, pki_info::PKI_INDIVIDUAL, social_interaction::REACTION, 'nativetype = "LIKE"',
+        $pkiobjs['likes'] = new pki_info('likes', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, 'LIKE',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['reactions'] = new pki_info('likes', null, pki_info::PKI_INDIVIDUAL, social_interaction::REACTION, '*',
+        $pkiobjs['reactions'] = new pki_info('reactions', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, '*',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['max_posts'] = new pki_info('max_posts', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_replies'] = new pki_info('max_replies', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_likes'] = new pki_info('max_likes', null, pki_info::PKI_AGREGATED);
+        $pkiobjs['max_posts'] = new pki_info('max_posts', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
+        $pkiobjs['max_replies'] = new pki_info('max_replies', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
+        $pkiobjs['max_likes'] = new pki_info('max_likes', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
+        $pkiobjs['max_reactions'] = new pki_info('max_reactions', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
         return $pkiobjs;
     }
 
@@ -400,7 +401,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 $reactioninteraction->nativetoname = $parentinteraction->nativefromname;
                 $reactioninteraction->type = $reaction->getField('type');
                 $reactioninteraction->rawdata = $reaction->asJson();
-                $reactioninteraction->timestamp = null;
+                $reactioninteraction->timestamp = $parentinteraction->timestamp; // Reactions has no time. Aproximate it.
                 $reactioninteraction->type = social_interaction::REACTION;
                 $reactioninteraction->nativetype = $nativetype;
                 $this->register_interaction($reactioninteraction);
@@ -417,35 +418,41 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * @param social_interaction $post */
     protected function process_comment($comment, $postinteraction) {
         list($commentname, $commentid) = $this->userfacebookidfor($comment);
+        $message = $comment->getField('message');
+        $tooshort = $this->is_short_comment($message);
 
-        $tooshort = $this->is_short_comment($comment->getField('message'));
 
+        // TODO: manage auto-messaging activity.
+        $commentinteraction = new social_interaction();
+        $commentinteraction->uid = $comment->getField('id');
+        $commentinteraction->fromid = $this->get_userid($commentid);
+        $commentinteraction->nativefromname = $commentname;
+        $commentinteraction->nativefrom = $commentid;
+        $commentinteraction->toid = $postinteraction->fromid;
+        $commentinteraction->nativeto = $postinteraction->nativefrom;
+        $commentinteraction->nativetoname = $postinteraction->nativefromname;
+        $commentinteraction->parentinteraction = $postinteraction->uid;
+        $commentinteraction->rawdata = $comment->asJson();
+        $commentinteraction->timestamp = $comment->getField('created_time', null);
+        $commentinteraction->description = $comment->getField('message');
+        $this->register_interaction($commentinteraction);
         // Si el comentario es mayor de dos palabras...
         if (!$tooshort) {
-            // TODO: manage auto-messaging activity.
-            $commentinteraction = new social_interaction();
-            $commentinteraction->uid = $comment->getField('id');
-            $commentinteraction->fromid = $this->get_userid($commentid);
-            $commentinteraction->nativefromname = $commentname;
-            $commentinteraction->nativefrom = $commentid;
-            $commentinteraction->toid = $postinteraction->fromid;
-            $commentinteraction->nativeto = $postinteraction->nativefrom;
-            $commentinteraction->nativetoname = $postinteraction->nativefromname;
-            $commentinteraction->parentinteraction = $postinteraction->uid;
-            $commentinteraction->rawdata = $comment->asJson();
-            $commentinteraction->timestamp = $comment->getField('created_time', null);
             $commentinteraction->type = social_interaction::REPLY;
             $commentinteraction->nativetype = "comment";
-            $commentinteraction->description = $comment->getField('message');
-            $this->register_interaction($commentinteraction);
 
-            // $matrix->addScore($commentname, 1 + (sizeof($comment_reactions) * 0.1));
             $commentreactions = $comment->getField('likes');
             $this->process_reactions($commentreactions, $commentinteraction);
             $commentreactions = $comment->getField('reactions');
             $this->process_reactions($commentreactions, $commentinteraction);
-            return $commentinteraction;
+        } else {
+            $commentinteraction->type = social_interaction::REACTION;
+            $commentinteraction->nativetype = "short-comment";
+
+            mtrace( ' * Message too short: "' . $message . '".');
         }
+        return $commentinteraction;
+
     }
 
     /** Classify the text as too short to be relevant
@@ -513,17 +520,17 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                                  $since);
                 // Mark the token as OK...
                 $DB->set_field('msocial_facebook_tokens', 'errorstatus', null, array('id' => $token->id));
-                /* @var Facebook\GraphNodes\GraphNode $globalnode*/
+                /** @var Facebook\GraphNodes\GraphNode $globalnode*/
                 $globalnode = $response->getGraphNode();
                 // Get group members...
-                /* @var Facebook\GraphNodes\GraphEdge $membersnode*/
+                /** @var Facebook\GraphNodes\GraphEdge $membersnode*/
                 $membersnode = $globalnode->getField('members');
-                /* @var Facebook\GraphNodes\Collection $members */
+                /** @var Facebook\GraphNodes\Collection $members */
                 $members = $membersnode->asArray();
-                /* @var Facebook\GraphNodes\GraphEdge $feednode*/
+                /** @var Facebook\GraphNodes\GraphEdge $feednode*/
                 // Get the feed.
                 $feednode = $globalnode->getField('feed');
-                /* @var ArrayIterator $posts*/
+                /** @var ArrayIterator $posts*/
                 // Iterate the posts.
                 $posts = $feednode->getIterator();
                 while ($posts->valid()) {
@@ -540,7 +547,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                             $commentinteraction = $this->process_comment($comment, $postinteraction);
                             /* @var $subcomment Facebook\GraphNodes\GraphEdge */
                             $subcomments = $comment->getField('comments');
-                            if ($subcomments) {
+                            if ($commentinteraction != null && $subcomments) {
                                 foreach ($subcomments as $subcomment) {
                                     $this->process_comment($subcomment, $commentinteraction);
                                 }
@@ -560,28 +567,6 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 $result->errors[] = (object) ['message' => $errormessage];
             }
         }
-        // TODO: define if processsing is needed or not.
-        $processedinteractions = $this->lastinteractions; // $this->process_interactions($this->lastinteractions);
-
-        $studentinteractions = array_filter($processedinteractions,
-                function ($interaction) {
-                    return isset($interaction->fromid);
-                });
-        // TODO: define if all interactions are
-        // worth to be registered or only student's.
-        $this->store_interactions($processedinteractions);
-        $contextcourse = \context_course::instance($this->msocial->course);
-        list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
-        $pkis = $this->calculate_pkis($users);
-        $this->store_pkis($pkis, true);
-        $this->set_config(\mod_msocial\connector\msocial_connector_plugin::LAST_HARVEST_TIME, time());
-
-        $logmessage = "For module msocial\\connection\\facebook: \"" . $this->msocial->name .
-                "\" (id=" . $this->msocial->id . ") in course (id=" .
-                 $this->msocial->course . ")  Found " . count($this->lastinteractions) . " events. Students' events: " .
-                 count($studentinteractions);
-        $result->messages[] = $logmessage;
-
         if ($token) {
             $token->errorstatus = $errormessage;
             $this->set_connection_token($token);
@@ -591,6 +576,8 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 $result->messages[] = $message;
             }
         }
+        $result = $this->post_harvest($result);
         return $result;
     }
+
 }

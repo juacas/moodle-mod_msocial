@@ -23,3 +23,4 @@ $string['allactivities'] = 'Searching in all forums in course.';
 $string['harvest'] = 'Search Moodle forums groups for student activity';
 $string['onlyasetofactivities'] = 'Searching only a set of the forums in course.';
 $string['selectactivity'] = 'Selection of forums to be analysed';
+$string['select'] = 'Select forums';

@@ -42,10 +42,14 @@ class pki {
     public $timestamp;
     protected static $_base_fields = ['id', 'name', 'timestamp', 'historical','msocial','user'];
 
-    public function __construct($userid, $msocialid) {
+    public function __construct($userid, $msocialid, array $pkiinfos = []) {
         $this->user = $userid;
         $this->msocial = $msocialid;
         $this->timestamp = time();
+        // Reset to 0 to avoid nulls.
+        foreach ($pkiinfos as $pkiinforeset) {
+            $this->{$pkiinforeset->name} = 0;
+        }
     }
 
     /**
@@ -94,6 +98,7 @@ class pki_info {
     /** This pki is calculated by dedicated code of a plugin, not from recorded interactions.
      * @var string */
     const PKI_CUSTOM = 'custom_pki';
+    const PKI_CALCULATED = 'stats_pki';
     /** Measures a person indicator or not.
      *
      * @var boolean */
@@ -130,11 +135,12 @@ class pki_info {
      * @param string $interactiontype
      * @param string $interactionnativetypequery
      * @param string $interactionsource */
-    public function __construct($name, $description = null, $individual = self::PKI_INDIVIDUAL,
+    public function __construct($name, $description = null, $individual = self::PKI_INDIVIDUAL, $generated = self::PKI_CALCULATED,
                                 $interactiontype = null, $interactionnativetypequery = '*', $interactionsource = 'fromid') {
         $this->name = $name;
         $this->value = $description;
         $this->individual = $individual;
+        $this->generated = $generated;
         $this->interaction_type = $interactiontype;
         $this->interaction_source = $interactionsource;
         $this->interaction_nativetype_query = $interactionnativetypequery;

@@ -23,3 +23,5 @@ $string['allactivities'] = 'Buscando en todos los foros del curso';
 $string['harvest'] = 'Analiza la actividad en los foros del curso';
 $string['onlyasetofactivities'] = 'Solo se busca en algunos foros';
 $string['selectactivity'] = 'Selecciona los foros en los que buscar';
+$string['select'] = 'Selecciona foros';
+
