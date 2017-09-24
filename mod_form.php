@@ -180,7 +180,7 @@ class mod_msocial_mod_form extends moodleform_mod {
      *
      * @param array $defaultvalues */
     public function plugin_data_preprocessing(&$defaultvalues) {
-        foreach (mod_msocial\plugininfo\msocialbase::get_enabled_plugins_all_types($defaultvalues) as $pluginname => $plugin) {
+        foreach (mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins_all_types($defaultvalues) as $pluginname => $plugin) {
             if ($plugin->is_visible()) {
                 $plugin->data_preprocessing($defaultvalues);
             }

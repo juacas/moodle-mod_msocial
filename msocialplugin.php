@@ -540,7 +540,7 @@ abstract class msocial_plugin {
         global $DB;
 
         if ($setting) {
-            if (!$this->msocial) {
+            if (!isset($this->msocial->id)) {
                 return false;
             }
             $msocial = $this->msocial;
