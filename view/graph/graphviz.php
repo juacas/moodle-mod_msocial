@@ -78,14 +78,14 @@ foreach ($interactions as $interaction) {
     $source = $interaction->source;
     if ($interaction->nativefrom == $interaction->nativeto && isset($loopedges[$interaction->nativefrom])) {
         $edge = $loopedges[$interaction->nativefrom];
-        $edge->setCapacity($edge->getCapacity() + 1);
+        $edge->setFlow($edge->getFlow() + 1);
         $fromvertex = $edge->getVertexStart();
         $tovertex = $edge->getVertexEnd();
     } else {
         list($fromvertex, $edge, $tovertex) = $socialgraph->register_interaction($interaction,
                                                 ['graphviz.label' => $source . ':' . $type], $graphvizfromattr, $graphviztoattr);
         if ($edge) {
-            $edge->setCapacity(1);
+            $edge->setFlow(1);
         }
     }
     if ($interaction->nativefrom == $interaction->nativeto && $edge) {
@@ -96,9 +96,6 @@ foreach ($interactions as $interaction) {
     }
     if ($tovertex) {
         $tovertex->setGroup($togroup);
-    }
-    if ($edge) {
-        $edge->setFlow(1 / $edge->getWeight());
     }
 }
 $dot = new Dot();

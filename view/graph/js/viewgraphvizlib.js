@@ -23,11 +23,14 @@ define('msocialview/graphviz', [ 'renderer','svg-pan-zoom' ], function(renderer,
 				var dotSource = $(dotSourceDiv).text();
 				renderer.renderHandler(function () {
 					setTimeout(function () {
+						var svgContainer = $("#graph > svg");
+						svgContainer.width('100%');
+
 						svgPanZoom("#graph > svg", {
 							zoomEnabled : true,
 							controlIconsEnabled : true,
 							fit : false,
-							center : true,
+							center : false,
 						});
 					}, 3000);
 				});

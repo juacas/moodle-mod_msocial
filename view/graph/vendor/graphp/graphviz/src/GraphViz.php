@@ -402,25 +402,29 @@ class GraphViz
 
         $flow = $edge->getFlow();
         $capacity = $edge->getCapacity();
+        if (true) { // JPC: customize labelling.
+            if ($flow !== NULL) {
+                $label = $flow;
+            }
+        } else {
         // flow is set
-        if ($flow !== NULL) {
-            // NULL capacity = infinite capacity
-            $label = $flow . '/' . ($capacity === NULL ? '∞' : $capacity);
-            // capacity set, but not flow (assume zero flow)
-        } elseif ($capacity !== NULL) {
-            $label = '0/' . $capacity;
-        }
-
-        $weight = $edge->getWeight();
-        // weight is set
-        if ($weight !== NULL) {
-            if ($label === NULL) {
-                $label = $weight;
-            } else {
-                $label .= '/' . $weight;
+            if ($flow !== NULL) {
+                // NULL capacity = infinite capacity
+                $label = $flow . '/' . ($capacity === NULL ? '∞' : $capacity);
+                // capacity set, but not flow (assume zero flow)
+            } elseif ($capacity !== NULL) {
+                $label = '0/' . $capacity;
+            }
+            $weight = $edge->getWeight();
+            // weight is set
+            if ($weight !== NULL) {
+                if ($label === NULL) {
+                    $label = $weight;
+                } else {
+                    $label .= '/' . $weight;
+                }
             }
         }
-
         if ($label !== NULL) {
             if (isset($layout['label'])) {
                 $layout['label'] .= ' ' . $label;
