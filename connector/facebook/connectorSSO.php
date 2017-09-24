@@ -174,8 +174,8 @@ if ($action == 'connect') {
 } else if ($action == 'setgroup') {
     $gid = required_param('gid', PARAM_ALPHANUM);
     $gname = required_param('gname', PARAM_RAW_TRIMMED);
-    $url = new moodle_url('/mod/msocial/connectorSSO.php', array('id' => $id, 'gid' => $gid, 'gname' => $gname));
-    $PAGE->set_url($url);
+    $thispageurl = new moodle_url('/mod/msocial/connectorSSO.php', array('id' => $id, 'gid' => $gid, 'gname' => $gname));
+    $PAGE->set_url($thispageurl);
     $PAGE->set_title(get_string('selectthisgroup', 'msocialconnector_facebook') . ':' . $gname);
     $PAGE->set_heading($course->fullname);
     // Print the page header.

@@ -27,8 +27,10 @@ use msocial\msocial_plugin;
 
 require_once("../../config.php");
 require_once("locallib.php");
-require_once("msocialconnectorplugin.php");
-require_once("msocialviewplugin.php");
+require_once('classes/plugininfo/msocialbase.php');
+require_once("msocialplugin.php");
+// require_once("msocialconnectorplugin.php");
+// require_once("msocialviewplugin.php");
 /* @var $OUTPUT \core_renderer */
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);
@@ -46,8 +48,9 @@ $contextmodule = context_module::instance($cm->id);
 require_capability('mod/msocial:view', $contextmodule);
 
 // Show headings and menus of page.
-$url = new moodle_url('/mod/msocial/view.php', array('id' => $id));
-$PAGE->set_url($url);
+
+$thispageurl = new moodle_url('/mod/msocial/view.php', array('id' => $id, 'view' => $view, 'cattab' => $cattab));
+$PAGE->set_url($thispageurl);
 
 $requ = $PAGE->requires;
 $requ->css('/mod/msocial/styles.css');

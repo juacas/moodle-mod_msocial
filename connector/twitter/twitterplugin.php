@@ -336,7 +336,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     /**
      * @global moodle_database $DB
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
-    public function harvest() {
+    public function harvest_hashtags() {
         global $DB;
         $token = $this->get_connection_token();
         $hashtag = $this->get_config('hashtag');
@@ -353,6 +353,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $result->messages[] = $errormessage;
         } else if (isset($result->statuses)) {
             $DB->set_field('msocial_twitter_tokens', 'errorstatus', null, array('id' => $token->id));
+
             $statuses = count($result->statuses) == 0 ? array() : $result->statuses;
             $msocial = $this->msocial;
 
@@ -383,6 +384,62 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         }
         return $result;
     }
+    /**
+     * @global moodle_database $DB
+     * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
+    public function harvest() {
+        global $DB;
+        $token = $this->get_connection_token();
+        $hashtag = $this->get_config('hashtag');
+        // Mapped users.
+        $mappedusers = $DB->get_records('msocial_mapusers', ['msocial' => $this->msocial->id, 'type' => $this->get_subtype()]);
+        $result = $this->get_users_statuses($token, $mappedusers, $hashtag);
+        $errormessage = null;
+
+        if (isset($result->errors)) {
+            // TODO: generate best error message.
+            if ($token) {
+                $info = "UserToken for:$token->username ";
+            } else {
+                $info = "No twitter token defined!!";
+            }
+            $errormessage = implode('. ', $result->errors);
+            $msocial = $this->msocial;
+            $errormessage = "For module msocial\connector\twitter: $msocial->name (id=$cm->instance) " .
+            " in course (id=$msocial->course) searching: $hashtag $info ERROR:" . $errormessage;
+            $result->messages[] = $errormessage;
+        }
+        if (isset($result->statuses)) {
+            $statuses = count($result->statuses) == 0 ? array() : $result->statuses;
+            $msocial = $this->msocial;
+
+            $processedstatuses = $this->process_statuses($statuses, $this->msocial);
+            $studentstatuses = array_filter($processedstatuses,
+                    function ($status) {
+                        return isset($status->userauthor);
+                    });
+            $this->store_status($processedstatuses);
+
+            $this->lastinteractions = $this->build_interactions($processedstatuses);
+            $errormessage = null;
+            $result = $this->post_harvest($result);
+        } else {
+            $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
+            $result->errors[0]->message = $errormessage;
+            $result->messages[] = "For module msocial\\connector\\twitter: $this->msocial->name (id=$this->msocial->id) " .
+            "in course (id=$this->msocial->course) searching: $this->msocial->hashtag  " . $errormessage;
+        }
+        if ($token) {
+            $token->errorstatus = $errormessage;
+            $DB->update_record('msocial_twitter_tokens', $token);
+            if ($errormessage) { // Marks this tokens as erroneous to warn the teacher.
+                $message = "Updating token with id = $token->id with $errormessage";
+                $result->errors[] = (object) ['message' => $message];
+                $result->messages[] = $message;
+            }
+        }
+        return $result;
+    }
 
     /** Execute a Twitter API query with auth tokens and the hashtag configured in the module
      *
@@ -393,7 +450,89 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     protected function get_statuses($tokens, $hashtag) {
             return $this->search_twitter($tokens, $hashtag); // Twitter API depends on letter cases.
     }
+    /**
+     *
+     * @param unknown $tokens
+     * @param \stdClass[] $users records from mdl_msocial_mapusers
+     * @param unknown $hashtag
+     * @throws \ErrorException
+     * @return array|mixed
+     */
+    protected function get_users_statuses($tokens, $users, $hashtag) {
 
+        if (!$tokens) {
+            $result = (object) ['statuses' => [],
+                            'errors' => ['message' => "No connection tokens provided!!! Impossible to connect to twitter."]];
+            return array();
+        }
+        $hashtaglist = explode(' AND ', $hashtag);
+        $hashtaglist = array_map(function ($hashtag) {
+                            $h = substr(trim($hashtag), 1);
+                            return $h;
+        }, $hashtaglist);
+
+        global $CFG;
+        $settings = array('oauth_access_token' => $tokens->token, 'oauth_access_token_secret' => $tokens->token_secret,
+                        'consumer_key' => get_config('msocialconnector_twitter', 'consumer_key'),
+                        'consumer_secret' => get_config('msocialconnector_twitter', 'consumer_secret')
+        );
+        $totalresults = new \stdClass();
+        foreach ($users as $socialuser) {
+            // URL for REST request, see: https://dev.twitter.com/docs/api/1.1/
+            // Perform the request and return the parsed response.
+            $url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';
+            $getfield = "screen_name=$socialuser->socialname&count=50";
+            $requestmethod = "GET";
+            $twitter = new TwitterAPIExchange($settings);
+            $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
+            $result = json_decode($json);
+            if ($result == null) {
+                $totalresults->errors[] = "Error querying last tweets from user $socialuser->socialname. Response was $json.";
+            } else {
+
+                if (isset($result->errors)) {
+                    $result->errors->message .= $socialuser->socialname;
+                    $totalresults->errors[] = $result->errors;
+                } else {
+                // Filter hashtags.
+                    $statuses = [];
+                    foreach ($result as $status) {
+                        if (count($status->entities->hashtags) > 1) {
+                            if ($this->check_hashtaglist($status, $hashtaglist)) {
+                                $statuses[] = $status;
+                            }
+                        }
+                    }
+                    $totalresults->statuses = array_merge(isset($totalresults->statuses) ? $totalresults->statuses : [],
+                                                        $statuses);
+                }
+
+            }
+        }
+        return $totalresults;
+    }
+    /**
+     * Check filter condition. Only a list of AND tags
+     * TODO: implement more conditions.
+     * @param unknown $status
+     * @param unknown $hashtaglist
+     */
+    protected function check_hashtaglist($status, $hashtaglist) {
+        foreach ($hashtaglist as $hashtag) {
+            if (!$this->tweet_has_hashtag($status, $hashtag)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    protected function tweet_has_hashtag($status, $searchhashtag) {
+        foreach ($status->entities->hashtags as $hashtag) {
+            if ($hashtag->text == $searchhashtag) {
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * @todo Get a list of interactions between the users
      * @global moodle_database $DB
@@ -414,7 +553,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         $icon = $this->get_icon();
         foreach ($statuses as $status) {
             $interaction = new social_interaction();
-            $interaction->uid = $status->id;
+            $interaction->uid = $status->id_str;
             $interaction->rawdata = json_encode($status);
             $interaction->icon = $icon;
             $interaction->source = $this->get_subtype();
@@ -432,7 +571,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $interaction->nativefrom = $status->user->id_str;
             $interaction->fromid = $this->get_userid($interaction->nativefrom);
             $interaction->toid = $this->get_userid($interaction->nativeto);
-            $interactions[] = $interaction;
+            $interactions[$interaction->uid] = $interaction;
             // Process mentions...
             foreach ($status->entities->user_mentions as $mention) {
                 $mentioninteraction = new social_interaction();
@@ -451,7 +590,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $mentioninteraction->description = '@' . $mention->id . " ($mention->name)";
                 $mentioninteraction->uid = $interaction->uid . '-' . $mention->id;
                 $mentioninteraction->parentinteraction = $interaction->uid;
-                $interactions[] = $mentioninteraction;
+                $interactions[$interaction->uid] = $mentioninteraction;
             }
         }
         return $interactions;
@@ -478,7 +617,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         // Compile statuses of the users.
         $studentsstatuses = array();
         foreach ($statuses as $status) {
-            $twittername = strtolower($status->user->screen_name);
+            $twittername = $status->user->screen_name;
             // TODO : process entities->user_mentions[] here...
             if (isset($twitters[$twittername])) { // Tweet is from a student.
                 $userauthor = $userrecords[$twitters[$twittername]];

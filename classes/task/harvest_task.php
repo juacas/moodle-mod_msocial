@@ -43,7 +43,7 @@ class harvest_task extends \core\task\scheduled_task {
         mtrace("=======================");
         // Get instances.
         $msocials = $DB->get_records('msocial');
-        $enabledplugins = \mod_msocial\plugininfo\msocialconnector::get_enabled_plugins_all_types();
+        $enabledplugins = \mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins_all_types();
         $msocials = array_filter($msocials,
                 function ($msocial) {
                     $cminfo = get_coursemodule_from_instance('msocial', $msocial->id);

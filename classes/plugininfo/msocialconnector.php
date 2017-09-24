@@ -24,6 +24,8 @@
  */
 namespace mod_msocial\plugininfo;
 
+use mod_msocial\connector\msocial_connector_plugin;
+
 require_once('msocialbase.php');
 require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
 defined('MOODLE_INTERNAL') || die();
@@ -38,16 +40,28 @@ class msocialconnector extends msocialbase {
         return parent::get_installed_plugins($msocial, 'connector');
     }
 
-    public static function get_enabled_plugins($msocial = null, $subtype = null) {
-        return self::get_enabled_connector_plugins($msocial);
+    public static function get_system_enabled_plugins($msocial = null, $subtype = null) {
+        return self::get_system_enabled_connector_plugins($msocial);
     }
-
-    /** Finds all enabled plugins, the result may include missing plugins.
+    /**
+     * Finds instance-wide enabled plugins
+     * @param unknown $msocial
+     * @param unknown $subtype
+     * @return array
+     */
+    public static function get_enabled_connector_plugins($msocial = null, $subtype = null) {
+        $systemenabled = self::get_system_enabled_connector_plugins($msocial);
+        $enabled = array_filter($systemenabled, function(msocial_connector_plugin $plugin) {
+            return $plugin->is_enabled();
+        });
+        return $enabled;
+    }
+    /** Finds all system-wide enabled plugins, the result may include missing plugins.
      *
      * @return array(msocialconnectorplugin)|null of enabled plugins $pluginname=>$plugin, null means
      *         unknown */
-    public static function get_enabled_connector_plugins($msocial = null) {
-        return parent::get_enabled_plugins($msocial, 'connector');
+    public static function get_system_enabled_connector_plugins($msocial = null) {
+        return parent::get_system_enabled_plugins($msocial, 'connector');
     }
 
     public function is_uninstall_allowed() {

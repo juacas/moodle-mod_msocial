@@ -40,8 +40,8 @@ $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EX
 // Capabilities.
 $contextmodule = context_module::instance($cm->id);
 require_capability('mod/msocial:manage', $contextmodule);
-$url = new moodle_url('/mod/msocial/harvest.php', array('id' => $id));
-$PAGE->set_url($url);
+$thispageurl = new moodle_url('/mod/msocial/harvest.php', array('id' => $id));
+$PAGE->set_url($thispageurl);
 $PAGE->set_title('Harvest activity');
 $PAGE->set_heading($course->fullname);
 // Print the page header.

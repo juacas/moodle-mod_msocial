@@ -37,6 +37,8 @@ $community = optional_param('include_community', true, PARAM_BOOL);
 $todate = optional_param('enddate', null, PARAM_ALPHANUMEXT);
 $subtype = optional_param('subtype', null, PARAM_ALPHA);
 $interactiontypes = optional_param('int_types', null, PARAM_RAW);
+$redirecturl = optional_param('redirect', null, PARAM_ALPHANUM);
+
 $cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
 require_login($cm->course, false, $cm);
@@ -67,6 +69,9 @@ $index = 0;
 foreach ($interactions as $interaction) {
     if ($interaction->nativefrom !== null) {
         $subtype = $interaction->source;
+        if (!isset($plugins[$subtype])) {
+            continue;
+        }
         $plugin = $plugins[$subtype];
         if ($plugin->is_enabled() == false) {
             continue;
@@ -84,7 +89,7 @@ foreach ($interactions as $interaction) {
         } else {
             $userlinkfrom = $plugin->get_social_user_url(new social_user($interaction->nativefrom, $interaction->nativefromname));
             $userlinkfrom = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
-                            "nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname";
+                            "nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname&redirect=$redirecturl";
         }
         if (!array_key_exists($nodenamefrom, $nodemap)) {
             $node = (object) ['id' => $index, 'name' => $nodenamefrom, 'group' => $interaction->fromid == null,
@@ -102,7 +107,7 @@ foreach ($interactions as $interaction) {
                 $userlinkto = (new moodle_url('/user/view.php', ['id' => $interaction->toid]))->out();
             } else {
                 $userlinkto = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
-                            "nativeid=$interaction->nativeto&nativename=$interaction->nativetoname";
+                "nativeid=$interaction->nativeto&nativename=$interaction->nativetoname&redirect=$redirecturl";
             }
         }
         if ($nodenameto == null) {
@@ -131,11 +136,11 @@ foreach ($interactions as $interaction) {
                 $typevalue = 5;
                 break;
         }
-        $url = $plugin->get_interaction_url($interaction);
+        $thispageurl = $plugin->get_interaction_url($interaction);
 
         $edge = (object) ['source' => $nodemap[$nodenamefrom], 'target' => $nodemap[$nodenameto], 'value' => $typevalue,
                         'interactiontype' => $interaction->type, 'subtype' => $subtype, 'description' => $interaction->description,
-                        'icon' => $plugin->get_icon()->out(), 'link' => $url];
+                        'icon' => $plugin->get_icon()->out(), 'link' => $thispageurl];
         $edges[] = $edge;
     }
 }

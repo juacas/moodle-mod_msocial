@@ -154,6 +154,7 @@ class msocial_view_table extends msocial_view_plugin {
 
         $pkis = msocial_plugin::get_pkis($this->msocial, $students, null);
         $pkiinfosall = [];
+        $pkiindividual = [];
         foreach ($enabledplugins as $type => $plugin) {
             // Get PKIs.
             if ($plugin->is_enabled()) {

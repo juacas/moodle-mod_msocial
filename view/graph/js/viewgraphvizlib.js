@@ -26,10 +26,10 @@ define('msocialview/graphviz', [ 'renderer','svg-pan-zoom' ], function(renderer,
 						svgPanZoom("#graph > svg", {
 							zoomEnabled : true,
 							controlIconsEnabled : true,
-							fit : true,
+							fit : false,
 							center : true,
 						});
-					}, 500);
+					}, 3000);
 				});
 				renderer.render(dotSource);
 		} // End of function init.

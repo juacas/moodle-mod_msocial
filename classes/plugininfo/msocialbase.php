@@ -28,8 +28,9 @@ namespace mod_msocial\plugininfo;
 defined('MOODLE_INTERNAL') || die();
 
 use core\plugininfo\base, core_plugin_manager, moodle_url;
+use msocial\msocial_plugin;
 
-require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
+// require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
 
 class msocialbase extends base {
     private static $plugins = [];
@@ -79,7 +80,17 @@ class msocialbase extends base {
         }
     }
 
-    /** Finds all enabled plugins, the result may include missing plugins.
+    /** Finds all system-wide enabled plugins, the result may include missing plugins.
+     * First connectors, then views.
+     * @param \stdClass $msocial record of the instance for innitiallizing plugins
+     * @return array(msocial_plugin)|null of enabled plugins $pluginname=>$plugin, null means
+     *         unknown */
+    public static function get_system_enabled_plugins_all_types($msocial = null) {
+        $connectors = self::get_system_enabled_plugins($msocial, 'connector');
+        $views = self::get_system_enabled_plugins($msocial, 'view');
+        return array_merge($connectors, $views);
+    }
+    /** Finds all activity-wide enabled plugins, the result may include missing plugins.
      * First connectors, then views.
      * @param \stdClass $msocial record of the instance for innitiallizing plugins
      * @return array(msocial_plugin)|null of enabled plugins $pluginname=>$plugin, null means
@@ -90,14 +101,14 @@ class msocialbase extends base {
         return array_merge($connectors, $views);
     }
 
-    /** Finds all enabled plugins, the result may include missing plugins.
+    /** Finds all system-wide enabled plugins, the result may include missing plugins.
      *
-     * @param \stdClass $msocial record of the instance for innitiallizing plugins
+     * @param \stdClass $msocial record of the instance for initiallizing plugins
      * @param string $subtype 'connector' or 'view'
      * @return array(msocialconnectorplugin)|null of enabled plugins $pluginname=>$plugin, null
      *         means
      *         unknown */
-    public static function get_enabled_plugins($msocial = null, $subtype = null) {
+    public static function get_system_enabled_plugins($msocial = null, $subtype = null) {
         global $DB;
         if (!isset(self::$plugins[$subtype])) {
             $plugins = core_plugin_manager::instance()->get_installed_plugins('msocial' . $subtype);
@@ -128,7 +139,19 @@ class msocialbase extends base {
         }
         return $enabled;
     }
-
+    /**
+     * Gets all instance-wide enabled plugins.
+     * @param unknown $msocial
+     * @param unknown $subtype
+     * @return array
+     */
+    public static function get_enabled_plugins($msocial = null, $subtype = null) {
+        $systemenabled = self::get_system_enabled_plugins($msocial, $subtype);
+        $enabled = array_filter($systemenabled, function(msocial_plugin $plugin) {
+            return $plugin->is_enabled();
+        });
+            return $enabled;
+    }
     public function is_uninstall_allowed() {
         return true;
     }

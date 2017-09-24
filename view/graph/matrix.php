@@ -47,4 +47,4 @@ text.active {
 <?php
 // Graph matrix view.
 $reqs->js('/mod/msocial/view/graph/js/viewmatrixlib.js');
-$reqs->js_init_call('init_matrix_view', [$this->cm->id, $this->msocial->startdate, $this->msocial->enddate ], false);
+$reqs->js_init_call('init_matrix_view', [$this->cm->id, $this->msocial->startdate, $this->msocial->enddate , $redirect], false);

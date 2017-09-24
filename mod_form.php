@@ -134,12 +134,12 @@ class mod_msocial_mod_form extends moodleform_mod {
     public function add_all_plugin_settings(MoodleQuickForm $mform) {
         $mform->addElement('header', 'socialtypes', get_string('socialconnectors', 'msocial'));
 
-        foreach (mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins(null) as $pluginname => $plugin) {
+        foreach (mod_msocial\plugininfo\msocialconnector::get_system_enabled_connector_plugins(null) as $pluginname => $plugin) {
             $this->add_plugin_settings($plugin, $mform);
         }
         $mform->addElement('header', 'viewtypes', get_string('socialviews', 'msocial'));
 
-        foreach (mod_msocial\plugininfo\msocialview::get_enabled_view_plugins(null) as $pluginname => $plugin) {
+        foreach (mod_msocial\plugininfo\msocialview::get_system_enabled_view_plugins(null) as $pluginname => $plugin) {
             $this->add_plugin_settings($plugin, $mform);
         }
         $mform->setExpanded('socialtypes');

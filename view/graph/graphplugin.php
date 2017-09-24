@@ -213,7 +213,11 @@ class msocial_view_graph extends msocial_view_plugin {
 
         $contextmodule = \context_module::instance($this->cm->id);
         $contextcourse = \context_course::instance($this->cm->course);
+        global $PAGE;
         $subview = optional_param('subview', 'matrix', PARAM_ALPHA);
+        $url = $PAGE->url;
+        $url->param('subview', $subview);
+        $PAGE->set_url($url);
         $rows = [];
         $subsubplugins = $this->viewfiles();
         foreach ($subsubplugins as $name => $path) {
@@ -228,6 +232,7 @@ class msocial_view_graph extends msocial_view_plugin {
         // Render actual view. Following vars are supposed to be available.
         $startdate = $this->msocial->startdate;
         $enddate = $this->msocial->enddate;
+        $redirect = base64_encode($PAGE->url->out());
 
         include($this->viewfiles()[$subview]);
     }
@@ -235,10 +240,10 @@ class msocial_view_graph extends msocial_view_plugin {
     protected function viewfiles() {
         global $CFG;
         $files = [
-                        'matrix' => $CFG->dirroot . '/mod/msocial/view/graph/matrix.php',
-                        'forcedgraph' => $CFG->dirroot . '/mod/msocial/view/graph/forcedgraph.php',
-                        'chord' => $CFG->dirroot . '/mod/msocial/view/graph/chord.php',
-                        'graphviz' => $CFG->dirroot . '/mod/msocial/view/graph/graphviz.php'
+                    'matrix' => $CFG->dirroot . '/mod/msocial/view/graph/matrix.php',
+                    'forcedgraph' => $CFG->dirroot . '/mod/msocial/view/graph/forcedgraph.php',
+                    'chord' => $CFG->dirroot . '/mod/msocial/view/graph/chord.php',
+                    'graphviz' => $CFG->dirroot . '/mod/msocial/view/graph/graphviz.php'
         ];
         return $files;
     }

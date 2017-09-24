@@ -26,11 +26,14 @@
 namespace mod_msocial\view;
 
 use mod_msocial\connector\social_interaction;
+use mod_msocial\connector\msocial_connector_plugin;
 use msocial\msocial_plugin;
+use mod_msocial\plugininfo\msocialconnector;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/msocial/msocialviewplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
 
 /** library class for view the network activity as a sequence diagram extending view plugin base
  * class
@@ -114,11 +117,17 @@ class msocial_view_sequence extends msocial_view_plugin {
         $contextcourse = \context_course::instance($this->cm->course);
 
         $diagram = '';
+        $plugins = msocialconnector::get_enabled_connector_plugins($this->msocial);
 
         list($students, $nonstudents, $activeids, $userrecords) = msocial_get_users_by_type($contextcourse);
-        $interactions = social_interaction::load_interactions((int) $this->msocial->id, "", $this->msocial->startdate, $this->msocial->enddate, null);
+        $interactions = social_interaction::load_interactions((int) $this->msocial->id, "", $this->msocial->startdate,
+                                                                $this->msocial->enddate, null);
         /** @var social_interaction $interaction */
         foreach ($interactions as $interaction) {
+            $subtype = $interaction->source;
+            if (!isset($plugins[$subtype])) {
+                continue;
+            }
             if ($interaction->type == social_interaction::MENTION || $interaction->type == social_interaction::REACTION) {
                 $arrow = '-->';
             } else {

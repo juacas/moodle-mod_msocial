@@ -27,7 +27,7 @@ use mod_msocial\connector\social_interaction;
 use Graphp\GraphViz\Dot;
 require_once('socialgraph.php');
 require_once('vendor/autoload.php');
-$interactions = social_interaction::load_interactions($this->msocial->id, " source='facebook' AND (type = 'post' OR type = 'reply')", $startdate, $enddate);
+$interactions = social_interaction::load_interactions($this->msocial->id, "(type = 'post' OR type = 'reply')", $startdate, $enddate);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($this->msocial);
 $socialgraph = new SocialMatrix();
 $context = context_module::instance($this->cm->id);
@@ -48,7 +48,7 @@ foreach ($interactions as $interaction) {
         $fromgroup = 1;
         if ($shownativeids) {
             $graphvizfromattr['graphviz.URL'] = "socialusers.php?action=selectmapuser&source=$interaction->source&" .
-                                     "id=$cm->id&nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname";
+            "id=$cm->id&nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname&redirect=$redirect";
         }
     } else {
         $from = fullname($users[$interaction->fromid]);
@@ -59,7 +59,7 @@ foreach ($interactions as $interaction) {
         $to = "[$interaction->nativetoname]";
         if ($shownativeids) {
             $graphviztoattr['graphviz.URL'] = "socialusers.php?action=selectmapuser&source=$interaction->source&" .
-                                        "id=$cm->id&nativeid=$interaction->nativeto&nativename=$interaction->nativetoname";
+            "id=$cm->id&nativeid=$interaction->nativeto&nativename=$interaction->nativetoname&redirect=$redirect";
         }
         $togroup = 1;
     } else {
@@ -110,7 +110,7 @@ $dotsource = $dot->getOutput($graph);
 $dotsource = str_replace('label = 0', 'label = "Course users"', $dotsource);
 $dotsource = str_replace('label = 1', 'label = "External users"', $dotsource);
 /* @var $OUTPUT \core_renderer */
-echo '<div id="graph" width="100%"></div>';
+echo '<div id="graph" width="100%" height="1000"></div>';
 echo "\n";
 echo $OUTPUT->container($dotsource, 'hidden', 'dot_src');
 

@@ -31,10 +31,15 @@ class msocialview extends msocialbase {
     /** Finds all enabled plugins, the result may include missing plugins.
      * @return array[string]\msocial_view_plugin |null of enabled plugins $pluginname=>$pluginname,
      *         null means unknown */
-    public static function get_enabled_view_plugins($msocial = null) {
-        return parent::get_enabled_plugins($msocial, 'view');
+    public static function get_system_enabled_view_plugins($msocial = null) {
+        return parent::get_system_enabled_plugins($msocial, 'view');
     }
-
+    public static function get_enabled_view_plugins($msocial = null) {
+        return parent::get_system_enabled_plugins($msocial, 'view');
+    }
+    public static function get_system_enabled_plugins($msocial = null, $subtype = null) {
+        return self::get_system_enabled_view_plugins($msocial);
+    }
     public static function get_enabled_plugins($msocial = null, $subtype = null) {
         return self::get_enabled_view_plugins($msocial);
     }

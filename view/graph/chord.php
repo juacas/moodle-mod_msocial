@@ -27,7 +27,8 @@ path.chord {
 var jsonurl = "view/graph/jsonized.php?include_community=false&<?php
 $cmid = $this->cm->id;
 $msocial = $this->msocial;
-echo "id=$cmid&startdate=$msocial->startdate&enddate=$msocial->enddate";
+
+echo "id=$cmid&startdate=$msocial->startdate&enddate=$msocial->enddate&redirect=$redirect";
 ?>";
 init_chord_view(jsonurl);
 

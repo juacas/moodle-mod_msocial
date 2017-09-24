@@ -48,6 +48,10 @@ if ($subtype) {
 $interactions = social_interaction::load_interactions((int) $msocial->id, $subtypefilter, $fromdate, $todate);
 $events = [];
 foreach ($interactions as $interaction) {
+    $subtype = $interaction->source;
+    if (!isset($plugins[$subtype])) {
+        continue;
+    }
     if ($interaction->timestamp == null) {
         continue;
     }
@@ -58,9 +62,9 @@ foreach ($interactions as $interaction) {
     if (!$userinfo) {
         $userinfo = (object) ['socialname' => $interaction->nativefromname];
     }
-    $url = $plugin->get_interaction_url($interaction);
+    $thispageurl = $plugin->get_interaction_url($interaction);
     $event = ['start' => $date, 'title' => $userinfo->socialname,
-                    'description' => "<a target=\"_blank\" href=\"$url\">$interaction->description</a>",
+                    'description' => "<a target=\"_blank\" href=\"$thispageurl\">$interaction->description</a>",
                     'icon' => $plugin->get_icon()->out()];
     $events[] = $event;
 }

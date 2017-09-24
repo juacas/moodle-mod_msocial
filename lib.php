@@ -104,7 +104,7 @@ function msocial_add_instance($msocial) {
     msocial_grade_item_update($msocial);
     // Call save_settings hook for submission plugins.
     /** @var msocial_plugin $plugin */
-    foreach (mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial) as $type => $plugin) {
+    foreach (mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins($msocial) as $type => $plugin) {
         $plugin->enable(); // Default value is enabled...
         if (!update_plugin_instance($plugin, $msocial)) {
             print_error($plugin->get_error());
@@ -127,18 +127,18 @@ function msocial_update_instance($msocial) {
     msocial_grade_item_update($msocial);
 
     // Call save_settings hook for subplugins.
-    foreach (mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial) as $type => $plugin) {
+    foreach (mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins($msocial) as $type => $plugin) {
         if (!update_plugin_instance($plugin, $msocial)) {
             print_error($plugin->get_error());
             return false;
         }
     }
-    foreach (mod_msocial\plugininfo\msocialview::get_enabled_view_plugins($msocial) as $type => $plugin) {
-        if (!update_plugin_instance($plugin, $msocial)) {
-            print_error($plugin->get_error());
-            return false;
-        }
-    }
+//     foreach (mod_msocial\plugininfo\msocialview::get_system_enabled_view_plugins($msocial) as $type => $plugin) {
+//         if (!update_plugin_instance($plugin, $msocial)) {
+//             print_error($plugin->get_error());
+//             return false;
+//         }
+//     }
     return $DB->update_record("msocial", $msocial);
 }
 

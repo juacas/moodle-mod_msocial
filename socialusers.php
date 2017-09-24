@@ -42,8 +42,9 @@ require_login($cm->course, false, $cm);
 $course = get_course($cm->course);
 // Maybe the request include a mapping request.
 $action = optional_param('action', null, PARAM_ALPHA);
+$redirecturl = optional_param('redirect', null, PARAM_ALPHANUM);
 
-// Show
+// Show.
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
 $user = $USER;
 // Capabilities.
@@ -62,6 +63,7 @@ if ($action == 'setmap') {
     $user = $DB->get_record('user', ['id' => $userid]);
     $plugin = msocialconnector::instance($msocial, 'connector', $source);
     $plugin->set_social_userid($user, $nativeid, $nativename);
+
 } else if ($action == 'selectmapuser') {
     $nativeid = required_param('nativeid', PARAM_ALPHANUMEXT);
     $nativename = required_param('nativename', PARAM_RAW_TRIMMED);
@@ -102,6 +104,10 @@ foreach ($enabledsocialplugins as $plugin) {
         $table->head[] = $plugin->get_name();
     }
 }
+// Show info about modified user and redirect.
+if ($action == 'setmap') {
+    $users = [$user];
+}
 foreach ($users as $user) {
     $row = new html_table_row();
     $table->data[] = $row;
@@ -127,8 +133,15 @@ if ($mappingrequested) {
     echo '<input type="hidden" name="nativename" value="' . $nativename . '"/>';
     echo '<input type="hidden" name="source" value="' . $source . '"/>';
     echo '<input type="hidden" name="sesskey" value="' . sesskey() . '"/>';
+    echo '<input type="hidden" name="redirect" value="' . urlencode($redirecturl) . '"/>';
 }
 echo html_writer::table($table);
+// Redirect.
+if ($action == 'setmap') {
+    echo $OUTPUT->continue_button(base64_decode($redirecturl));
+    echo $OUTPUT->footer();
+    die;
+}
 if ($mappingrequested) {
     echo '<input type="submit">';
     echo '</form>';

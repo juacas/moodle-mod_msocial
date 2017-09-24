@@ -30,7 +30,7 @@ stroke-opacity: .6; stroke-width: 1px; }
 d3.json("view/graph/jsonized.php?include_community=true&int_types=post,reply&<?php
 $cmid = $this->cm->id;
 $msocial = $this->msocial;
-echo "id=$cmid&startdate=$msocial->startdate&enddate=$msocial->enddate";
+echo "id=$cmid&startdate=$msocial->startdate&enddate=$msocial->enddate&redirect=$redirect";
 ?>", function(error, graph) {
   if (error) throw error;
   init_forced_graph_view(graph);
