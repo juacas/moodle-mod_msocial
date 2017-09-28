@@ -219,16 +219,16 @@ class SocialMatrix {
     /** Calculate IN/OUT Interactions number done by a member
      * Calcula el numero de interacciones hechas "de salida" o recibidas "de entrada"
      * para cada miembro del grupo
-     * @param array $membersarray
+     * @param int[] $membersarray usersid to calculate for
      * @return array */
     public function degree_centrality($membersarray) {
         $degreealg = new Degree($this->graph);
         $indegree = [];
         $outdegree = [];
-        foreach ($membersarray as $vertexid => $key) {
+        foreach ($membersarray as $vertexid) {
             $outdegree[$vertexid] = $indegree[$vertexid] = 0;
         }
-        foreach ($membersarray as $userid => $val) {
+        foreach ($membersarray as $userid) {
             if ($this->graph->hasVertex($userid)) {
                 $vertex = $this->graph->getVertex($userid);
                 $indegree[$vertex->getId()] = $degreealg->getDegreeInVertex($vertex);
