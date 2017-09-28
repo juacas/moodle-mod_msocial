@@ -33,7 +33,7 @@ class filter_interactions {
     const PARAM_INTERACTION_REPLY = 'interaction_reply';
     const PARAM_INTERACTION_REACTION = 'interaction_reaction';
     const PARAM_INTERACTION_MENTION = 'interaction_mention';
-    const PARAM_HIDE_TEACHERS = 'hideteachers';
+    const PARAM_RECEIVED_BY_TEACHERS = 'hideteachers';
     const PARAM_UNKNOWN_USERS = 'unknownusers';
     const PARAM_INTERACTIONS = 'interactions';
     const PARAM_DATERANGE = 'daterange';
@@ -43,7 +43,7 @@ class filter_interactions {
     const PARAM_ENDDATE = 'enddate';
 
     public $msocial;
-    public $users_struct = [];
+    public $users_struct = null;
     protected $sources = [];
     protected $interactions = [];
     protected $extraparams = [];
@@ -68,7 +68,7 @@ class filter_interactions {
                 $this->interactions[] = social_interaction::REACTION;
             } else if ($name == self::PARAM_INTERACTION_MENTION) {
                 $this->interactions[] = social_interaction::MENTION;
-            } else if ($name == self::PARAM_HIDE_TEACHERS) {
+            } else if ($name == self::PARAM_RECEIVED_BY_TEACHERS) {
                 $this->receivedbyteachers = ($param == 'true' || $param == 'on' || $param == '1' || $param === true);
             } else if ($name == self::PARAM_UNKNOWN_USERS) {
                 $this->unknownusers = ($param == 'true' || $param == 'on' || $param == '1' || $param === true);
@@ -147,7 +147,7 @@ class filter_interactions {
         // Students only.
         $checked = $this->get_checked_usersonly() ? 'checked' : '';
         $out .= "<b>Interactions to show: </b>";
-        $out .= "<input type=\"checkbox\" name=\"". self::PARAM_HIDE_TEACHERS . "\" $checked value=\"true\">" .
+        $out .= "<input type=\"checkbox\" name=\"". self::PARAM_RECEIVED_BY_TEACHERS . "\" $checked value=\"true\">" .
                 get_string("receivedbyteacher", "msocial") . "</input> ";
         $checked = $this->unknownusers ? 'checked="checked"' : '';
         $out .= "<input type=\"checkbox\" name=\"" . self::PARAM_UNKNOWN_USERS ."\" $checked value=\"true\">" .
@@ -253,7 +253,7 @@ SCRIPT;
     public function get_filter_params() {
         $params = [
                         self::PARAM_INTERACTIONS => $this->interactions,
-                        self::PARAM_HIDE_TEACHERS => $this->receivedbyteachers,
+                        self::PARAM_RECEIVED_BY_TEACHERS => $this->receivedbyteachers,
                         self::PARAM_UNKNOWN_USERS => $this->unknownusers,
                         self::PARAM_SOURCES => $this->sources,
                         self::PARAM_STARTDATE => $this->startdate,
@@ -292,6 +292,10 @@ SCRIPT;
         $andedqueries[] = $select;
         $userquery = [];
         if (!$this->receivedbyteachers) {
+            if ($this->users_struct == null) {
+                $contextcourse = \context_course::instance($this->msocial->course);
+                $this->users_struct = msocial_get_users_by_type($contextcourse);
+            }
             $filterusers = $this->users_struct['student_ids'];
         } else {
             $filterusers = null;

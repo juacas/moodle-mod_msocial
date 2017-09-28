@@ -27,6 +27,7 @@ $string['socialviews'] = 'Social visualizations.';
 $string['settings'] = 'MSocial settings';
 $string['disable_social_subplugin'] = 'Disable {$a->name} connector.';
 $string['disable_view_subplugin'] = 'Disable {$a->name} view plugin.';
+$string['harvestedtimeago'] = 'Updated {$a->interval} ago';
 $string['modulename'] = 'Social activity count contest';
 $string['modulenameplural'] = 'Social activity count contests';
 $string['modulename_help'] = 'The msocial activity enables a teacher to define a search string for the twitter timeline and facebook posts and tell the students to publish messages using certain hashtags or terms.

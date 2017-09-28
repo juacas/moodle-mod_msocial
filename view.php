@@ -88,8 +88,9 @@ foreach ($enabledplugins as $name => $enabledplugin) {
     list($messages, $notifications) = $enabledplugin->render_header();
     $updated = $enabledplugin->get_updated_date();
     if ($updated) {
-        $messages[] = 'Updated ' . msocial_pretty_date_difference($updated->getTimestamp()) .
-                        ' ago.' . $enabledplugin->render_harvest_link();
+        $messages[] = get_string('harvestedtimeago', 'msocial',
+                                [ 'interval' => msocial_pretty_date_difference($updated->getTimestamp())] ) .
+                                ' ' . $enabledplugin->render_harvest_link();
     }
     // Group messages.
     $compactheader = true;

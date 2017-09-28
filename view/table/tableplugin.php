@@ -137,7 +137,7 @@ class msocial_view_table extends msocial_view_plugin {
 
         $contextmodule = \context_module::instance($this->cm->id);
         $contextcourse = \context_course::instance($this->cm->course);
-        $showinactive = optional_param('showinactive', true, PARAM_BOOL);
+        $showinactive = optional_param('showinactive', false, PARAM_BOOL);
         // Table view.
         $viewothers = has_capability('mod/msocial:viewothers', $contextmodule);
 
@@ -188,10 +188,10 @@ class msocial_view_table extends msocial_view_plugin {
         $table->id = 'pkitable';
         $table->head = array_merge(array('Student', 'Identity'), array_keys($pkiinfosall));
         foreach ($pkis as $userid => $pki) {
-            if (!isset($userrecords[$userid]) || ($showinactive == false
-                    && $userid != $USER->id
-                    && $viewothers == false
-                    && $pki->seems_inactive())) {
+            if (!isset($userrecords[$userid]) ||
+                    ($showinactive == false
+                        && $userid != $USER->id
+                        && $pki->seems_inactive() ) ) {
                 continue;
             }
 

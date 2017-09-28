@@ -40,7 +40,7 @@ class pki {
     public $msocial;
     public $historical = false;
     public $timestamp;
-    protected static $_base_fields = ['id', 'name', 'timestamp', 'historical','msocial','user'];
+    protected static $basefields = ['id', 'name', 'timestamp', 'historical','msocial','user'];
 
     public function __construct($userid, $msocialid, array $pkiinfos = []) {
         $this->user = $userid;
@@ -57,7 +57,11 @@ class pki {
      *         'historical' and starting with max_ are ignored. */
     public function seems_inactive() {
         foreach ($this as $prop => $value) {
-            if ($value !== 0 && array_search($prop, self::$_base_fields) !== false && strpos($prop, 'max_') !== 0) {
+            $isbasefield = array_search($prop, self::$basefields) !== false;
+            $ismaxfield = strpos($prop, 'max_') === 0;
+            if (!$isbasefield &&
+                !$ismaxfield &&
+                $value ) {
                 return false;
             }
         }
@@ -70,7 +74,7 @@ class pki {
     public function as_array() {
         $result = [];
         foreach ($this as $prop => $value) {
-            if (array_search($prop, self::$_base_fields) === false) {
+            if (array_search($prop, self::$basefields) === false) {
                 $result[$prop] = $value;
             }
         }
@@ -84,7 +88,7 @@ class pki {
     public static function from_record($record) {
         $pki = new pki($record->user, $record->msocial);
         foreach ($record as $prop => $value) {
-            if (array_search($prop, self::$_base_fields) === false) {
+            if (array_search($prop, self::$basefields) === false) {
                 $pki->{$prop} = $value;
             }
         }

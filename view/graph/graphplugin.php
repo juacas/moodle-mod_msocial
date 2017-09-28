@@ -111,9 +111,10 @@ class msocial_view_graph extends msocial_view_plugin {
             }
         }
         // Get Interactions of all users, both known and anonymous.
-        $filter = new \filter_interactions(['startdate' => $this->msocial->startdate,
-                                            'enddate' => $this->msocial->enddate,
-                                            'unknownusers' => true
+        $filter = new \filter_interactions([\filter_interactions::PARAM_STARTDATE => $this->msocial->startdate,
+                                            \filter_interactions::PARAM_ENDDATE => $this->msocial->enddate,
+                                            \filter_interactions::PARAM_UNKNOWN_USERS => true,
+                                            \filter_interactions::PARAM_RECEIVED_BY_TEACHERS => true
         ],
                                             $this->msocial);
         $interactions = social_interaction::load_interactions_filter($filter);

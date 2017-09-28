@@ -37,8 +37,8 @@ eventos recibidos por cada estudiante.
 El módulo calcula una calificación mediante una fórmula definida por el profesor que combina estas estadísticas.
 INSTRUCCIONES:
 El profesor necesita tener una cuenta de cada red social que va a usar y conectar la actividad con su usuario de esa red social.';
-$string['pluginname'] = 'Social activity count module';
-
+$string['pluginname'] = 'Actividad en redes sociales';
+$string['harvestedtimeago'] = 'Refrescado hace {$a->interval}';
 $string['startdate'] = 'Momento en que se empiezan a contar las interacciones.';
 $string['startdate_help'] = 'Las interacciones previas a la fecha de inicio no se incluirán en las estadísticas.';
 $string['enddate'] = 'Momento en que se empiezan a contabilizar interacciones en las redes sociales.';

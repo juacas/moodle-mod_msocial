@@ -168,26 +168,26 @@ class SocialMatrix {
             }
             $username = fullname($users[$id]);
             // Obtiene el camino mas corto a cada uno de los vertex que esta conectado el miembro.
-            $timestamp = microtime();
+            $timestamp = microtime(true);
             $sp = new JPDijkstra($vertex);
-            mtrace('<li>Calculating shortest paths for ' . $username . ' in ' . microtime_diff(microtime(), $timestamp) );
+            mtrace('<li>Calculating shortest paths for ' . $username . ' in ' . round(microtime(true) - $timestamp, 4) . ' secs.' );
 
             // Array que contiene como clave los "ids" y como valor el "peso" total (por el camino
             // mas corto)
             // a cada uno de los "Vertex" que está conectado.
             $dmap = $sp->getDistanceMap();
             // Calculo de la suma de todos los caminos a todos los vertices que está conectado.
-            $timestamp = microtime();
+            $timestamp = microtime(true);
             $indcercania = $this->centralidad_cercania($dmap, $id);
-            mtrace('<li>Calculating nearness for ' . ' in ' .  microtime_diff(microtime(), $timestamp));
+            mtrace('<li>Calculating nearness for ' . ' in ' .   round(microtime(true) - $timestamp, 4) . ' secs.' );
             if (!isset($results[$id])) {
                 $results[$id] = new stdClass();
             }
             $results[$id]->cercania = $indcercania;
             // Calculo de todos los "vertex" que están entre medias de los caminos mas cortos.
-            $timestamp = microtime();
+            $timestamp = microtime(true);
             $intermediacionparcial = $this->centralidad_intermediacion($analysisgraph, $dmap, $sp, $id);
-            mtrace('<li>Calculating betweeness for ' . fullname($users[$id]) . ' in ' .  microtime_diff(microtime(), $timestamp));
+            mtrace('<li>Calculating betweeness for ' . fullname($users[$id]) . ' in ' .  round(microtime(true) - $timestamp, 4) . ' secs.' );
 
             foreach ($intermediacionparcial as $key => $value) {
                 if (!isset($results[$key])) {
