@@ -345,25 +345,21 @@ abstract class msocial_plugin {
         $recordindex = [];
         foreach ($records as $record) {
             $recordindex[$record->user] = $record;
+            unset($record->id);
         }
         // Create record templates from pki.
-        $newrecords = [];
         $columnsinfo = $DB->get_columns('msocial_pkis');
 
         foreach ($pkis as $pki) {
-            $record = new \stdClass();
-            // Create template fields.
-            foreach (array_keys($columnsinfo) as $field) {
-                if ($field !== 'id') {
-                    $record->{$field} = null;
-                }
-            }
-            // Copy previous values.
+
             if (isset($recordindex[$pki->user])) {
-                $prevrecord = $recordindex[$pki->user];
-                foreach ($prevrecord as $propname => $value) {
-                    if ($propname !== 'id') {
-                        $record->{$propname} = $value;
+                $record = $recordindex[$pki->user];
+            } else {
+                $record = new \stdClass();
+                // Create template fields.
+                foreach (array_keys($columnsinfo) as $field) {
+                    if ($field !== 'id') {
+                        $record->{$field} = null;
                     }
                 }
             }
@@ -379,13 +375,13 @@ abstract class msocial_plugin {
             $record->msocial = $this->msocial->id;
             $record->historical = 0;
             $record->timestamp = time();
-            $newrecords[$pki->user] = $record;
+            $recordindex[$pki->user] = $record;
         }
         $transaction = $DB->start_delegated_transaction();
         // Remove old pkis.
         $DB->delete_records_list('msocial_pkis', 'id', array_keys($records));
         // Insert new records.
-        $DB->insert_records('msocial_pkis', $newrecords);
+        $DB->insert_records('msocial_pkis', $recordindex);
         $DB->commit_delegated_transaction($transaction);
     }
 
