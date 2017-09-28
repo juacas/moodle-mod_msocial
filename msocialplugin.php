@@ -36,6 +36,7 @@ require_once('classes/plugininfo/msocialbase.php');
 require_once('socialuser.php');
 require_once($CFG->dirroot . '/mod/msocial/pki.php');
 require_once($CFG->dirroot . '/mod/msocial/socialinteraction.php');
+require_once('filterinteractions.php');
 
 use mod_msocial\pki;
 use mod_msocial\pki_info;

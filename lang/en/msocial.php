@@ -55,6 +55,23 @@ $string['mapunknownsocialusers'] = 'Select a course user to assign the "{$a->lin
 $string['mainpage'] = 'Social networks contest main page';
 $string['mainpage_help'] = 'Social networks contest main page. You can view your achievements in Social networks contest';
 
+// Filter form.
+$string['datesrange'] = 'Dates range';
+$string['yesterday'] = 'Yesterday';
+$string['last7days'] = 'Last 7 days';
+$string['lastweekmosu'] = 'Last week';
+$string['monthtodate'] = 'This month';
+$string['prevmonth'] = 'Last month';
+$string['yeartodate'] = 'This year';
+$string['fromactivitystart'] = 'During this activity';
+
+$string['receivedbyteacher'] = 'Received by teachers';
+$string['pureexternal'] = 'Pure external';
+$string['posts'] = 'Posts';
+$string['replies'] = 'Replies';
+$string['reactions'] = 'Reactions';
+$string['mentions'] = 'Mentions';
+
 // SETTINGS.
 // Permissions.
 $string['msocial:view'] = 'View basic information of MSocial module.';

@@ -111,7 +111,11 @@ class msocialbase extends base {
     public static function get_system_enabled_plugins($msocial = null, $subtype = null) {
         global $DB;
         if (!isset(self::$plugins[$subtype])) {
-            $plugins = core_plugin_manager::instance()->get_installed_plugins('msocial' . $subtype);
+            if ($subtype == null) {
+                return self::get_system_enabled_plugins_all_types($msocial);
+            } else {
+                $plugins = core_plugin_manager::instance()->get_installed_plugins('msocial' . $subtype);
+            }
             if (!$plugins) {
                 return array();
             }

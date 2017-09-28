@@ -27,15 +27,20 @@ use mod_msocial\connector\social_interaction;
 use Graphp\GraphViz\Dot;
 require_once('socialgraph.php');
 require_once('vendor/autoload.php');
-$interactions = social_interaction::load_interactions($this->msocial->id, "(type = 'post' OR type = 'reply')", $startdate, $enddate);
-$plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($this->msocial);
-$socialgraph = new SocialMatrix();
+
+
+$onlystudents = false;
 $context = context_module::instance($this->cm->id);
-list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
+$usersstruct = msocial_get_users_by_type($contextcourse);
+list($students, $nonstudents, $active, $users) = array_values($usersstruct);
 global $CFG;
 $cm = $this->cm;
 $shownativeids = has_capability('mod/msocial:manage', $context);
-$loopedges = [];
+$duplicatededges = [];
+$filter->set_users($usersstruct);
+$interactions = social_interaction::load_interactions_filter($filter);
+$plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($this->msocial);
+$socialgraph = new SocialMatrix();
 foreach ($interactions as $interaction) {
     if (!isset($plugins[$interaction->source]) || $plugins[$interaction->source]->is_enabled() == false) {
         continue;
@@ -76,20 +81,21 @@ foreach ($interactions as $interaction) {
     $graphviztoattr['graphviz.label'] = $to;
     $type = $interaction->type;
     $source = $interaction->source;
-    if ($interaction->nativefrom == $interaction->nativeto && isset($loopedges[$interaction->nativefrom])) {
-        $edge = $loopedges[$interaction->nativefrom];
+    if (isset($duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto])) {
+        $edge = $duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto];
         $edge->setFlow($edge->getFlow() + 1);
         $fromvertex = $edge->getVertexStart();
         $tovertex = $edge->getVertexEnd();
     } else {
         list($fromvertex, $edge, $tovertex) = $socialgraph->register_interaction($interaction,
-                                                ['graphviz.label' => $source . ':' . $type], $graphvizfromattr, $graphviztoattr);
+                                              ['graphviz.label' => $source . ':' . $type], $graphvizfromattr, $graphviztoattr);
         if ($edge) {
+            $duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto] = $edge;
             $edge->setFlow(1);
         }
     }
     if ($interaction->nativefrom == $interaction->nativeto && $edge) {
-        $loopedges[$interaction->nativefrom] = $edge;
+        $duplicatededges[$interaction->nativefrom] = $edge;
     }
     if ($fromvertex) {
         $fromvertex->setGroup($fromgroup);

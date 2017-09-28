@@ -165,8 +165,9 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      * @return array[]mod_msocial\connector\social_interaction of interactions. @see
      *         mod_msocial\connector\social_interaction */
     public function get_interactions($fromdate = null, $todate = null, $users = null) {
-        $conditions = "source = '$this->get_subtype()'";
-        return social_interaction::load_interactions((int) $this->msocial->id, $conditions, $fromdate, $todate, $users);
+        $filter = new \filter_interactions(['sources' => $this->get_subtype()], $msocial);
+        $filter->set_users($users);
+        return social_interaction::load_interactions_filter($filter);
     }
     protected function store_interactions(array $interactions) {
         $msocialid = $this->msocial->id;
@@ -193,7 +194,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         // worth to be registered or only student's.
         $this->store_interactions($processedinteractions);
         $contextcourse = \context_course::instance($this->msocial->course);
-        list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
+        list($students, $nonstudents, $active, $users) = array_values(msocial_get_users_by_type($contextcourse));
         $pkis = $this->calculate_pkis($users);
         $this->store_pkis($pkis, true);
         $this->set_config(self::LAST_HARVEST_TIME, time());

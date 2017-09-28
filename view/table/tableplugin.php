@@ -132,7 +132,7 @@ class msocial_view_table extends msocial_view_plugin {
      *
      * @global \stdClass $USER
      * @see msocial_view_plugin::render_view() */
-    public function render_view($renderer, $reqs) {
+    public function render_view($renderer, $reqs, $filter) {
         global $USER;
 
         $contextmodule = \context_module::instance($this->cm->id);
@@ -142,7 +142,7 @@ class msocial_view_table extends msocial_view_plugin {
         $viewothers = has_capability('mod/msocial:viewothers', $contextmodule);
 
         if ($viewothers) {
-            list($students, $nonstudents, $activeusers, $userrecords) = msocial_get_users_by_type($contextcourse);
+            list($students, $nonstudents, $activeusers, $userrecords) = array_values(msocial_get_users_by_type($contextcourse));
             $students = array_merge($students, $nonstudents);
         } else {
             $students = array($USER->id);

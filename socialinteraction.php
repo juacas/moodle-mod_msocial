@@ -158,7 +158,17 @@ class social_interaction {
         }
         return $inter;
     }
+    static public function load_interactions_filter(\filter_interactions $filter) {
+        global $DB;
+        $interactions = [];
 
+        list($select, $params) = $filter->get_sqlquery();
+        $records = $DB->get_records_select('msocial_interactions', $select, $params, 'timestamp');
+        foreach ($records as $record) {
+            $interactions[] = self::build($record);
+        }
+        return $interactions;
+    }
     /**
      * @param unknown $msocialid
      * @param unknown $conditions
@@ -166,32 +176,10 @@ class social_interaction {
      * @param unknown $todate
      * @param array(int) $users list of moodle identifiers
      * @return \mod_msocial\connector\social_interaction[] */
-    static public function load_interactions($msocialid, $conditions = null, $fromdate = null, $todate = null, $users = null) {
-        global $DB;
-        $interactions = [];
-        $select = "msocial=?";
-        $params[] = $msocialid;
-        if ($conditions != '') {
-            $select .= " AND " . $conditions;
-        }
-        if ($fromdate && $fromdate != 0) {
-            $select .= " AND timestamp >= ? "; // TODO: Format date.
-            $params[] = $fromdate;
-        }
-        if ($todate && $todate != 0) {
-            $select .= " AND timestamp <= ? "; // TODO: Format date.
-            $params[] = $todate;
-        }
-        if ($users) {
-            list($inwhere, $paramsin) = $DB->get_in_or_equal($users);
-            $select .= " AND ( fromid $inwhere OR toid $inwhere) ";
-            $params = array_merge($params, $paramsin, $paramsin);
-        }
-        $records = $DB->get_records_select('msocial_interactions', $select, $params, 'timestamp');
-        foreach ($records as $record) {
-            $interactions[] = self::build($record);
-        }
-        return $interactions;
+    static public function load_interactions($msocial, $conditions = null, $fromdate = null, $todate = null, $users = null) {
+        $filter = new \filter_interactions(['fromdate' => $fromdate, 'todate' => $todate ], $msocial);
+        $filter->set_users($users);
+        return self::load_interactions_filter($filter);
     }
 
     /** Save the list of interactions in the database.

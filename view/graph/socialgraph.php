@@ -140,8 +140,9 @@ class SocialMatrix {
     /** Calcula la suma de pesos por el camino más corto de un miembro al resto de miembros
      * a los que esté conectado (cercania), y cuantas veces van apareciendo los "vertex" en el medio
      * de esos caminos (proximidad).
+     * @param \stdClass[] $users records of the users that will be calculated
      * @return \stdClass $results */
-    public function calculate_centralities() {
+    public function calculate_centralities($users) {
         require_once('BidirectionalGraph.php');
         // Invert graph.
         $transposer = new TransposeGraph($this->graph);
@@ -161,23 +162,32 @@ class SocialMatrix {
             $edge->setWeight(1);
         }
         foreach ($vertices as $vertex) {
-
+            $id = $vertex->getId();
+            if (!isset($users[$id])) {
+                continue;
+            }
+            $username = fullname($users[$id]);
             // Obtiene el camino mas corto a cada uno de los vertex que esta conectado el miembro.
+            $timestamp = microtime();
             $sp = new JPDijkstra($vertex);
+            mtrace('<li>Calculating shortest paths for ' . $username . ' in ' . microtime_diff(microtime(), $timestamp) );
+
             // Array que contiene como clave los "ids" y como valor el "peso" total (por el camino
             // mas corto)
             // a cada uno de los "Vertex" que está conectado.
             $dmap = $sp->getDistanceMap();
             // Calculo de la suma de todos los caminos a todos los vertices que está conectado.
-            $id = $vertex->getId();
+            $timestamp = microtime();
             $indcercania = $this->centralidad_cercania($dmap, $id);
-            if (!isset($results[$vertex->getId()])) {
-                $results[$vertex->getId()] = new stdClass();
+            mtrace('<li>Calculating nearness for ' . ' in ' .  microtime_diff(microtime(), $timestamp));
+            if (!isset($results[$id])) {
+                $results[$id] = new stdClass();
             }
-            $results[$vertex->getId()]->cercania = $indcercania;
-
+            $results[$id]->cercania = $indcercania;
             // Calculo de todos los "vertex" que están entre medias de los caminos mas cortos.
+            $timestamp = microtime();
             $intermediacionparcial = $this->centralidad_intermediacion($analysisgraph, $dmap, $sp, $id);
+            mtrace('<li>Calculating betweeness for ' . fullname($users[$id]) . ' in ' .  microtime_diff(microtime(), $timestamp));
 
             foreach ($intermediacionparcial as $key => $value) {
                 if (!isset($results[$key])) {
@@ -189,6 +199,7 @@ class SocialMatrix {
                     $results[$key]->intermediacion += $value;
                 }
             }
+            unset($sp);
         }
         return $results;
     }

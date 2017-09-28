@@ -23,7 +23,6 @@
  * *******************************************************************************
  */
 use mod_msocial\plugininfo\msocialview;
-use mod_msocial\plugininfo\msocialbase;
 use msocial\msocial_plugin;
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
@@ -63,7 +62,10 @@ function msocial_get_users_by_type($contextcourse) {
             $activeids[] = $record->userid;
         }
     }
-    return array($students, $nonstudents, $activeids, $userrecords);
+    return array('student_ids' => $students,
+                 'nonstudent_ids' => $nonstudents,
+                 'active:ids' => $activeids,
+                 'user_records' => $userrecords);
 }
 
 /**
@@ -140,7 +142,7 @@ function msocial_calculate_user_grades($msocial, $userid = 0) {
     $cm = get_coursemodule_from_instance('msocial', $msocial->id, 0, false, MUST_EXIST);
     if ($userid == 0) {
         $context = context_module::instance($cm->id);
-        list($sudents) = msocial_get_users_by_type($context);
+        list($sudents) = array_values(msocial_get_users_by_type($context));
     } else if (is_array($userid)) {
         $students = $userid;
     } else {
@@ -262,7 +264,7 @@ function merge_stats($statsa, $statsb) {
  * @param course_modinfo $cm
  * @param context $contextmodule
  * @return ta */
-function msocial_tabbed_reports($msocial, $view, $cm, $contextmodule, $categorized = false) {
+function msocial_tabbed_reports($msocial, $view, moodle_url $thispageurl, $contextmodule, $categorized = false) {
     global $OUTPUT;
     $plugins = msocialview::get_enabled_view_plugins($msocial);
     usort($plugins, function($a, $b){
@@ -277,7 +279,8 @@ function msocial_tabbed_reports($msocial, $view, $cm, $contextmodule, $categoriz
         }
         $icon = $plugin->get_icon();
         $icondecoration = html_writer::img($icon->out(), $plugin->get_name() . ' icon.', ['height' => 32]);
-        $url = new moodle_url('/mod/msocial/view.php', ['id' => $cm->id, 'view' => $plugin->get_subtype()]);
+        $url = new moodle_url($thispageurl);
+        $url->param('view', $plugin->get_subtype());
         $plugintab = new tabobject($plugin->get_subtype(), $url, $icondecoration . $plugin->get_name());
         if ($categorized) {
             $category = $plugin->get_category();

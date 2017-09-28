@@ -54,6 +54,21 @@ $string['mainpage_help'] = 'Portada de redes sociales. Esta actividad registra p
         'Confidencialidad: No se guarda ninguna credencial personal, sólo el identificador del usuario. En la actividad recopilamos los mensajes públicos que se generan en las redes sociales de acuerdo a las instrucciones del profesor. Esos mensajes sólo se usan para hacer estadísticas y generar los análisis que se muestran en esta página.' .
         'Cada red social marca de una manera las publicaciones para que podamos identificarlas. En la cabecera aparecen qué hashtag, tablones, o grupos deben tener los mensajes de la actividad en cada red social.';
 $string['mapunknownsocialusers'] = 'Seleccione un usuario del curso para asociarlo a la cuenta "{$a->link}" del {$a->source}';
+// Filter form.
+$string['datesrange'] = 'Rango de fechas';
+$string['yesterday'] = 'Ayer';
+$string['last7days'] = '7 últimos días';
+$string['lastweekmosu'] = 'La semana pasada';
+$string['monthtodate'] = 'Durante este mes';
+$string['prevmonth'] = 'El mes pasado';
+$string['yeartodate'] = 'Este año';
+$string['fromactivitystart'] = 'Durante esta actividad';
+$string['receivedbyteacher'] = 'Recibidas por profesores';
+$string['pureexternal'] = 'Sólo entre externos';
+$string['posts'] = 'Posts';
+$string['replies'] = 'Replies';
+$string['reactions'] = 'Reacciones';
+$string['mentions'] = 'Menciones';
 
 // Permissions.
 $string['msocial:view'] = 'Ver información básica del módulo MSocial.';

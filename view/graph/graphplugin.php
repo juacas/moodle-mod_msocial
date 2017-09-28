@@ -104,22 +104,25 @@ class msocial_view_graph extends msocial_view_plugin {
             if (!isset($pkis[$user->id])) {
                 $pkis[$user->id] = new pki($user->id, $this->msocial->id);
                 // Reset to 0 to avoid nulls.
+                $pki = $pkis[$user->id];
                 foreach ($pkiinfos as $pkiinfo) {
-                    $pki = $pkis[$user->id];
                     $pki->{$pkiinfo->name} = 0;
                 }
             }
         }
         // Get Interactions of all users, both known and anonymous.
-        $interactions = social_interaction::load_interactions($this->msocial->id, null,
-                                                                $this->msocial->startdate,
-                                                                $this->msocial->enddate, null);
+        $filter = new \filter_interactions(['startdate' => $this->msocial->startdate,
+                                            'enddate' => $this->msocial->enddate,
+                                            'unknownusers' => true
+        ],
+                                            $this->msocial);
+        $interactions = social_interaction::load_interactions_filter($filter);
         // Socialmatrix analyzer.
         $social = new \SocialMatrix();
         foreach ($interactions as $interaction) {
             $social->register_interaction($interaction);
         }
-        $results = $social->calculate_centralities();
+        $results = $social->calculate_centralities($users);
         list($degreein, $degreeout) = $social->degree_centrality(array_keys($pkis));
 
         foreach ($results as $userid => $result) {
@@ -162,7 +165,7 @@ class msocial_view_graph extends msocial_view_plugin {
     public function harvest() {
         $result = (object) ['messages' => []];
         $contextcourse = \context_course::instance($this->msocial->course);
-        list($students, $nonstudents, $active, $users) = msocial_get_users_by_type($contextcourse);
+        list($students, $nonstudents, $active, $users) = array_values(msocial_get_users_by_type($contextcourse));
         $pkis = $this->calculate_pkis($users);
         $this->store_pkis($pkis, true);
         $this->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
@@ -208,21 +211,20 @@ class msocial_view_graph extends msocial_view_plugin {
      *
      * @global \stdClass $USER
      * @see msocial_view_plugin::render_view() */
-    public function render_view($renderer, $reqs) {
+    public function render_view($renderer, $reqs, $filter) {
         global $USER, $OUTPUT;
-
         $contextmodule = \context_module::instance($this->cm->id);
         $contextcourse = \context_course::instance($this->cm->course);
         global $PAGE;
         $subview = optional_param('subview', 'matrix', PARAM_ALPHA);
-        $url = $PAGE->url;
-        $url->param('subview', $subview);
-        $PAGE->set_url($url);
+        $thispageurl = $PAGE->url;
+        $thispageurl->param('subview', $subview);
+        $PAGE->set_url($thispageurl);
         $rows = [];
         $subsubplugins = $this->viewfiles();
         foreach ($subsubplugins as $name => $path) {
-            $url = new \moodle_url('/mod/msocial/view.php',
-                    ['id' => $this->cm->id, 'view' => $this->get_subtype(), 'subview' => $name]);
+            $url = new \moodle_url($thispageurl);
+            $url->param('subview', $name);
             $plugintab = new \tabobject($name, $url, $name);
             $rows[] = $plugintab;
         }
@@ -230,10 +232,8 @@ class msocial_view_graph extends msocial_view_plugin {
 
         $file = $this->viewfiles($subview);
         // Render actual view. Following vars are supposed to be available.
-        $startdate = $this->msocial->startdate;
-        $enddate = $this->msocial->enddate;
         $redirect = base64_encode($PAGE->url->out());
-
+        echo $filter->render_form($thispageurl);
         include($this->viewfiles()[$subview]);
     }
 

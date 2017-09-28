@@ -11,17 +11,17 @@ Timeline_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/v
 Timeline_ajax_url = document.URL.substr(0, document.URL.lastIndexOf('/')) + "/view/timeline/js/simile-ajax/simile-ajax-api.js"
 SimileAjax_urlPrefix = document.URL.substr(0, document.URL.lastIndexOf('/')) + '/view/timeline/js/simile-ajax/';
 Timeline_parameters='bundle=false&timeline-use-local-resources=true';
-function init_timeline(Y, msocialid, user, startdate, enddate) {
+function init_timeline(Y, msocialid, user, params) {
     if (typeof Timeline != 'undefined'
     	&& typeof Timeline.DefaultEventSource != 'undefined'
     	&& typeof Timeline.GregorianDateLabeller.monthNames != 'undefined'
     	&& Object.keys(Timeline.GregorianDateLabeller.monthNames).length >0 ) {
-        deferred_init_timeline(Y, msocialid, user, startdate, enddate);
+        deferred_init_timeline(Y, msocialid, user, params);
     } else {
-        setTimeout(init_timeline, 100, Y, msocialid, user, startdate, enddate);
+        setTimeout(init_timeline, 100, Y, msocialid, user);
     }
 }
-function deferred_init_timeline(Y, msocialid, user, startdate, enddate) {
+function deferred_init_timeline(Y, msocialid, user, params) {
     var eventSource = new Timeline.DefaultEventSource();
     SimileAjax.History.enabled = false;
     var theme1 = Timeline.ClassicTheme.create();
@@ -78,9 +78,9 @@ function deferred_init_timeline(Y, msocialid, user, startdate, enddate) {
     ];
     bandInfos[0].syncWith = 1;
     bandInfos[0].highlight = true;
-
+	var params = $.param(params);
     tl = Timeline.create(document.getElementById("my-timeline"), bandInfos, Timeline.HORIZONTAL);
-    tl.loadJSON("view/timeline/jsonized.php?id=" + msocialid + "&user=" + user + "&startdate=" + startdate + "&enddate=" + enddate,
+    tl.loadJSON("view/timeline/jsonized.php?id=" + msocialid + "&user=" + user + "&" + params,
 	    function (json, url) {
 	        eventSource.loadJSON(json, url);
 	        tl.getBand(1).setMaxVisibleDate(eventSource.getLatestDate());

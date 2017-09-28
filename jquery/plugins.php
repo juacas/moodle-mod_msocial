@@ -22,45 +22,10 @@
  * @package msocial
  * *******************************************************************************
  */
-defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
-
-$out = <<< HTML
-<style>
-@import url(view/graph/chord.css);
-
-#circle circle {
-	fill: none;
-	pointer-events: all;
-}
-
-.group path {
-	fill-opacity: .5;
-}
-
-path.chord {
-	stroke: #000;
-	stroke-width: .25px;
-}
-
-#circle:hover path.fade {
-	display: none;
-}
-</style>
-<script src="view/graph/js/d3/d3.v3.min.js" charset="utf-8"></script>
-<script src="view/graph/js/queue.v1.min.js"></script>
-<script src="view/graph/js/viewchordlib.js"></script>
-<div id="chord" style = "text-align: center" width = "100%"></div>
-<script>
-HTML;
-
-$cmid = $this->cm->id;
-$msocial = $this->msocial;
-$params = $filter->get_filter_params_url();
-$params['include_community'] = false;
-$params['id'] = $cmid;
-$params['redirect'] = $redirect;
-$jsonized = (new moodle_url('/mod/msocial/view/graph/jsonized.php', $params))->out(false);
-echo $out;
-echo "var jsonurl=\"$jsonized\";";
-echo "init_chord_view(jsonurl);";
-echo "</script>";
+$plugins = array(
+                'datepair'  => array('files' => array('jquery.datepair.js')),
+                'timepicker' => array('files' => array('jquery.timepicker.js', 'jquery.timepicker.css')),
+                'daterangepicker' => array('files' => array('jquery.comiseo.daterangepicker.js',
+                                                            'jquery.comiseo.daterangepicker.css')),
+                'datepicker_es' => array('files' => array('datepicker-es.js'))
+);

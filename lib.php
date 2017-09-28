@@ -127,7 +127,8 @@ function msocial_update_instance($msocial) {
     msocial_grade_item_update($msocial);
 
     // Call save_settings hook for subplugins.
-    foreach (mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins($msocial) as $type => $plugin) {
+    $systemenabledplugins = mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins($msocial);
+    foreach ($systemenabledplugins as $type => $plugin) {
         if (!update_plugin_instance($plugin, $msocial)) {
             print_error($plugin->get_error());
             return false;

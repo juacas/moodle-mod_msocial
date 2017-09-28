@@ -1,12 +1,12 @@
 <?php
-// This file is part of MSocial activity for Moodle http://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
-// MSocial for Moodle is free software: you can redistribute it and/or modify
+// Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// MSocial for Moodle is distributed in the hope that it will be useful,
+// Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
@@ -22,30 +22,25 @@
  * @package msocial
  * *******************************************************************************
  */
-?>
-<script src="view/graph/js/d3/d3.v3.min.js" charset="utf-8"></script>
-<style>
-.background {
-    fill: #eee;
-}
 
-line {
-    stroke: #fff;
-}
+/**
+ * Post-install code for the msocialconnector_questournament module.
+ *
+ * @package msocialconnector_questournament
+ * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+defined('MOODLE_INTERNAL') || die();
 
-text.active {
-    fill: red;
+/**
+ * Code run after the msocialconnector_questournament module database tables have been created.
+ * @global moodle_database $DB
+ * @return bool
+ */
+function xmldb_msocialconnector_questournament_install() {
+    global $CFG;
+    require_once($CFG->dirroot . '/mod/msocial/connector/questournament/questournamentplugin.php');
+    $plugin = new mod_msocial\connector\msocial_connector_questournament(null);
+    $plugin->create_pki_fields();
+    return true;
 }
-</style>
-<p>
-    Order: <select id="order">
-        <option value="name">by Name</option>
-        <option value="count">by Frequency</option>
-        <option value="group">student or external user</option>
-    </select>
-<div id="diagram" class="diagram" style="align-text: center"></div>
-<?php
-// Graph matrix view.
-$reqs->js('/mod/msocial/view/graph/js/viewmatrixlib.js');
-$reqs->js_init_call('init_matrix_view',
-        [$this->cm->id, $filter->get_filter_params_url(), $redirect], false);

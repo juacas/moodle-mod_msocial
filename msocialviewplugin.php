@@ -72,8 +72,9 @@ abstract class msocial_view_plugin extends msocial_plugin {
      *
      * @param page_requirements_manager $reqs
      * @param core_renderer $renderer
+     * @param \filter_interactions $filter
      */
-    public abstract function render_view($renderer, $reqs);
+    public abstract function render_view($renderer, $reqs, $filter);
 
     /**
      * Sets the page requirements: javascript, css, etc.

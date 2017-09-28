@@ -20,10 +20,9 @@
  * @license http:// www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
  */
 
-function init_matrix_view(Y, cmid, startdate, enddate, redirect) {
-
-	d3.json("view/graph/jsonized.php?include_community=true&id=" + cmid +
-			"&startdate=" + startdate + "&enddate=" + enddate + "&redirect=" + redirect,
+function init_matrix_view(Y, cmid, params, redirect) {
+	var params = $.param(params);
+	d3.json("view/graph/jsonized.php?include_community=true&id=" + cmid + "&" + params + "&redirect=" + redirect,
 			function(interactions) {
 				var matrix = [], nodes = interactions.nodes, n = nodes.length;
 				// Configure SVG canvas.

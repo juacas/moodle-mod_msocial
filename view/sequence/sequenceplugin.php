@@ -110,18 +110,19 @@ class msocial_view_sequence extends msocial_view_plugin {
      *
      * @global \stdClass $USER
      * @see msocial_view_plugin::render_view() */
-    public function render_view($renderer, $reqs) {
-        global $USER;
+    public function render_view($renderer, $reqs, $filter) {
+        global $USER, $PAGE;
 
         $contextmodule = \context_module::instance($this->cm->id);
         $contextcourse = \context_course::instance($this->cm->course);
 
         $diagram = '';
         $plugins = msocialconnector::get_enabled_connector_plugins($this->msocial);
-
-        list($students, $nonstudents, $activeids, $userrecords) = msocial_get_users_by_type($contextcourse);
-        $interactions = social_interaction::load_interactions((int) $this->msocial->id, "", $this->msocial->startdate,
-                                                                $this->msocial->enddate, null);
+        echo $filter->render_form($PAGE->url, $plugins);
+        $usersstruct = msocial_get_users_by_type($contextcourse);
+        list($students, $nonstudents, $activeids, $userrecords) = array_values($usersstruct);
+        $filter->set_users($usersstruct);
+        $interactions = social_interaction::load_interactions_filter($filter);
         /** @var social_interaction $interaction */
         foreach ($interactions as $interaction) {
             $subtype = $interaction->source;
@@ -133,14 +134,18 @@ class msocial_view_sequence extends msocial_view_plugin {
             } else {
                 $arrow = '->';
             }
-            $from = isset($userrecords[$interaction->fromid]) ? fullname($userrecords[$interaction->fromid]) : ($interaction->nativefromname ? $interaction->nativefromname : $interaction->nativefrom);
+            $from = isset($userrecords[$interaction->fromid]) ?
+                                fullname($userrecords[$interaction->fromid]) :
+                                '[' . ($interaction->nativefromname ? $interaction->nativefromname : $interaction->nativefrom) . ']';
             if ($from == null) {
                 $from = '[COMMUNITY]';
             }
             if ($interaction->type == social_interaction::POST) {
                 $to = $from; // Represents as a self-message.
             } else {
-                $to = isset($userrecords[$interaction->toid]) ? fullname($userrecords[$interaction->toid]) : ($interaction->nativetoname ? $interaction->nativetoname : $interaction->nativeto);
+                $to = isset($userrecords[$interaction->toid]) ?
+                        fullname($userrecords[$interaction->toid]) :
+                        '[' . ($interaction->nativetoname ? $interaction->nativetoname : $interaction->nativeto) . ']';
             }
             if ($to == null) {
                 $to = '[COMMUNITY]';

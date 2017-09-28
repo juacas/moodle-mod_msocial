@@ -24,6 +24,7 @@
  */
 use mod_msocial\plugininfo\msocialview;
 use msocial\msocial_plugin;
+use mod_msocial\connector\social_interaction;
 
 require_once("../../config.php");
 require_once("locallib.php");
@@ -48,13 +49,19 @@ $contextmodule = context_module::instance($cm->id);
 require_capability('mod/msocial:view', $contextmodule);
 
 // Show headings and menus of page.
-
-$thispageurl = new moodle_url('/mod/msocial/view.php', array('id' => $id, 'view' => $view, 'cattab' => $cattab));
+$thispageurl = new moodle_url('/mod/msocial/view.php', $_GET);
 $PAGE->set_url($thispageurl);
 
 $requ = $PAGE->requires;
 $requ->css('/mod/msocial/styles.css');
+$requ->js(new moodle_url('/mod/msocial/js/moment.js'), true);
 $requ->jquery();
+// $requ->jquery_plugin('timepicker', 'msocial');
+$requ->jquery_plugin('ui');
+$requ->jquery_plugin('ui-css');
+$requ->jquery_plugin('daterangepicker', 'msocial');
+$requ->jquery_plugin('datepicker_es', 'msocial'); // TODO support rest of languages.
+
 // Configure header for plugins.
 $enabledviewplugins = msocialview::get_enabled_view_plugins($msocial);
 foreach ($enabledviewplugins as $name => $plugin) {
@@ -103,14 +110,16 @@ foreach ($enabledplugins as $name => $enabledplugin) {
 }
 echo $OUTPUT->box($totalnotification, 'block');
 
+// Filters section.
+require_once('filterinteractions.php');
+$filter = new filter_interactions($_GET, $msocial);
 
 // Reporting area...
-
 // Tabs...
-echo msocial_tabbed_reports($msocial, $view, $cm, $contextmodule, false);
+echo msocial_tabbed_reports($msocial, $view, $thispageurl, $contextmodule, false);
 
 if (isset($enabledviewplugins[$view]) && $enabledviewplugins[$view]->is_enabled()) {
-    $enabledviewplugins[$view]->render_view($OUTPUT, $requ);
+    $enabledviewplugins[$view]->render_view($OUTPUT, $requ, $filter);
 }
 
 // Insert widget view.

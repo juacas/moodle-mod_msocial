@@ -603,7 +603,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @return array[] student statuses meeting criteria. */
     protected function process_statuses($statuses) {
         $context = \context_course::instance($this->msocial->course);
-        list($students, $nonstudent, $active, $userrecords) = msocial_get_users_by_type($context);
+        list($students, $nonstudent, $active, $userrecords) = array_values(msocial_get_users_by_type($context));
 
         $twitters = array();
         foreach ($userrecords as $userid => $user) { // Include all users (including teachers).
