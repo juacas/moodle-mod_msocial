@@ -59,7 +59,7 @@ graph.links.forEach(function(link) {
 });
 for (i=0;i<graph.nodes.length;i++){
 	for(j=0;j<graph.nodes.length;j++){
-		matrix[i][j]=Math.max(0.0001,matrix[i][j]/links.length);
+		matrix[i][j]=Math.max(0.000,matrix[i][j]/links.length);
 	}
 }
   // Compute the chord layout.
