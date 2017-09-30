@@ -143,10 +143,11 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     $username = $token->username;
                     $errorstatus = $token->errorstatus;
                     if ($errorstatus) {
-                        $this->notify(get_string('problemwithtwitteraccount', 'msocial', $errorstatus), self::NOTIFY_WARNING);
+                        $notifications[] = get_string('problemwithtwitteraccount', 'msocialconnector_twitter', $errorstatus);
                     }
 
-                  $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) . $OUTPUT->action_link(
+                  $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) .
+                            $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/connectorSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/connectorSSO.php',
@@ -426,8 +427,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         } else {
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
             $result->errors[0]->message = $errormessage;
-            $result->messages[] = "For module msocial\\connector\\twitter: $this->msocial->name (id=$this->msocial->id) " .
-            "in course (id=$this->msocial->course) searching: $this->msocial->hashtag  " . $errormessage;
+            $msocial = $this->msocial;
+            $result->messages[] = "For module msocial\\connector\\twitter: $msocial->name (id=$msocial->id) " .
+            "in course (id=$msocial->course) searching: $msocial->hashtag  " . $errormessage;
         }
         if ($token) {
             $token->errorstatus = $errormessage;
