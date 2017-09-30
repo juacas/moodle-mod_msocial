@@ -462,10 +462,15 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      */
     protected function get_users_statuses($tokens, $users, $hashtag) {
 
+        $totalresults = new \stdClass();
         if (!$tokens) {
             $result = (object) ['statuses' => [],
                             'errors' => ['message' => "No connection tokens provided!!! Impossible to connect to twitter."]];
             return array();
+        }
+        if (count($users) == 0) {
+            $totalresults->statuses = [];
+            return $totalresults;
         }
         $hashtaglist = explode(' AND ', $hashtag);
         $hashtaglist = array_map(function ($hashtag) {
@@ -478,7 +483,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                         'consumer_key' => get_config('msocialconnector_twitter', 'consumer_key'),
                         'consumer_secret' => get_config('msocialconnector_twitter', 'consumer_secret')
         );
-        $totalresults = new \stdClass();
         foreach ($users as $socialuser) {
             // URL for REST request, see: https://dev.twitter.com/docs/api/1.1/
             // Perform the request and return the parsed response.
