@@ -81,8 +81,8 @@ foreach ($interactions as $interaction) {
     $graphviztoattr['graphviz.label'] = $to;
     $type = $interaction->type;
     $source = $interaction->source;
-    if (isset($duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto])) {
-        $edge = $duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto];
+    if (isset($duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto . $interaction->source . $interaction->type])) {
+        $edge = $duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto . $interaction->source . $interaction->type];
         $edge->setFlow($edge->getFlow() + 1);
         $fromvertex = $edge->getVertexStart();
         $tovertex = $edge->getVertexEnd();
@@ -90,13 +90,13 @@ foreach ($interactions as $interaction) {
         list($fromvertex, $edge, $tovertex) = $socialgraph->register_interaction($interaction,
                                               ['graphviz.label' => $source . ':' . $type], $graphvizfromattr, $graphviztoattr);
         if ($edge) {
-            $duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto] = $edge;
+            $duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto . $interaction->source . $interaction->type] = $edge;
             $edge->setFlow(1);
         }
     }
-    if ($interaction->nativefrom == $interaction->nativeto && $edge) {
-        $duplicatededges[$interaction->nativefrom] = $edge;
-    }
+//     if ($interaction->nativefrom == $interaction->nativeto && $edge) {
+//         $duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto . $interaction->source . $interaction->type] = $edge;
+//     }
     if ($fromvertex) {
         $fromvertex->setGroup($fromgroup);
     }
