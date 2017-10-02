@@ -72,6 +72,8 @@ $string['posts'] = 'Posts';
 $string['replies'] = 'Replies';
 $string['reactions'] = 'Reactions';
 $string['mentions'] = 'Mentions';
+$string['interactionstoshow'] = 'Show interactions:';
+$string['socialnetworktoshow'] = 'Show social networks:';
 
 // SETTINGS.
 // Permissions.

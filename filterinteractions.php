@@ -146,7 +146,7 @@ class filter_interactions {
         }
         // Students only.
         $checked = $this->get_checked_usersonly() ? 'checked' : '';
-        $out .= "<b>Interactions to show: </b>";
+        $out .= "<b>" . get_string('interactionstoshow', 'msocial') . "</b>";
         $out .= "<input type=\"checkbox\" name=\"". self::PARAM_RECEIVED_BY_TEACHERS . "\" $checked value=\"true\">" .
                 get_string("receivedbyteacher", "msocial") . "</input> ";
         $checked = $this->unknownusers ? 'checked="checked"' : '';
@@ -164,7 +164,7 @@ class filter_interactions {
         $checked = $this->get_checked_interaction(social_interaction::MENTION) ? 'checked="checked"' : '';
         $out .= "<input type=\"checkbox\" name=\"" . self::PARAM_INTERACTION_MENTION . "\" $checked value=\"true\">" .
                 get_string('mentions', 'msocial') . "</input> ";
-        $out .= " <br/> <b>Social network to show: </b>";
+        $out .= " <br/> <b>". get_string('socialnetworktoshow', 'msocial') . "</b>";
         foreach ($plugins as $plugin) {
             $sourcename = $plugin->get_subtype();
             $checked = $this->get_checked_source($sourcename) ? 'checked="checked"' : '';

@@ -64,11 +64,13 @@ $string['prevmonth'] = 'El mes pasado';
 $string['yeartodate'] = 'Este año';
 $string['fromactivitystart'] = 'Durante esta actividad';
 $string['receivedbyteacher'] = 'Recibidas por profesores';
-$string['pureexternal'] = 'Entre desconocidos';
+$string['pureexternal'] = 'Inter. desconocidos';
 $string['posts'] = 'Posts';
 $string['replies'] = 'Replies';
 $string['reactions'] = 'Reacciones';
 $string['mentions'] = 'Menciones';
+$string['interactionstoshow'] = 'Mostrar interacciones:';
+$string['socialnetworktoshow'] = 'Mostrar las redes sociales:';
 
 // Permissions.
 $string['msocial:view'] = 'Ver información básica del módulo MSocial.';
