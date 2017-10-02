@@ -29,6 +29,7 @@ use msocial\msocial_plugin;
 use mod_msocial\pki_info;
 use mod_msocial\pki;
 use mod_msocial\social_user;
+use core_calendar\local\event\proxies\std_proxy;
 
 defined('MOODLE_INTERNAL') || die();
 require_once('TwitterAPIExchange.php');
@@ -337,7 +338,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     /**
      * @global moodle_database $DB
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
-    public function harvest_hashtags() {
+    protected function harvest_hashtags() {
         global $DB;
         $token = $this->get_connection_token();
         $hashtag = $this->get_config('hashtag');
@@ -349,7 +350,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $info = "No twitter token defined!!";
             }
             $errormessage = $result->errors[0]->message;
-            $errormessage = "For module msocial\connector\twitter: $this->msocial->name (id=$cm->instance) " .
+            $errormessage = "For module msocial\connector\twitter by hashtag: $this->msocial->name (id=$cm->instance) " .
                             " in course (id=$this->msocial->course) searching: $hashtag $info ERROR:" . $errormessage;
             $result->messages[] = $errormessage;
         } else if (isset($result->statuses)) {
@@ -367,12 +368,14 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
             $this->lastinteractions = $this->build_interactions($processedstatuses);
             $errormessage = null;
+            $result->errors = [];
             $result = $this->post_harvest($result);
         } else {
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
             $result->errors[0]->message = $errormessage;
-            $result->messages[] = "For module msocial\\connector\\twitter: $this->msocial->name (id=$this->msocial->id) " .
+            $result->messages[] = "For module msocial\\connector\\twitter by hashtags: $this->msocial->name (id=$this->msocial->id) " .
                                   "in course (id=$this->msocial->course) searching: $this->msocial->hashtag  " . $errormessage;
+            $result->statuses = [];
         }
         if ($token) {
             $token->errorstatus = $errormessage;
@@ -389,7 +392,16 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @global moodle_database $DB
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
     public function harvest() {
-        global $DB;
+        $resultusers = $this->harvest_users();
+        $resulttags = $this->harvest_hashtags();
+        $result = new \stdClass();
+        $result->statuses = array_merge($resultusers->statuses, $resulttags->statuses);
+        $result->errors = array_merge($resultusers->errors, $resulttags->errors);
+        $result->messages = array_merge($resultusers->messages, $resulttags->messages);
+        return $result;
+    }
+    protected function harvest_users() {
+            global $DB;
         $token = $this->get_connection_token();
         $hashtag = $this->get_config('hashtag');
         // Mapped users.
@@ -399,6 +411,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
         if (isset($result->errors)) {
             // TODO: generate best error message.
+
             if ($token) {
                 $info = "UserToken for:$token->username ";
             } else {
@@ -409,6 +422,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $errormessage = "For module msocial\connector\twitter: $msocial->name (id=$cm->instance) " .
             " in course (id=$msocial->course) searching: $hashtag $info ERROR:" . $errormessage;
             $result->messages[] = $errormessage;
+        } else {
+            $result->errors = [];
         }
         if (isset($result->statuses)) {
             $statuses = count($result->statuses) == 0 ? array() : $result->statuses;
@@ -428,8 +443,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
             $result->errors[0]->message = $errormessage;
             $msocial = $this->msocial;
-            $result->messages[] = "For module msocial\\connector\\twitter: $msocial->name (id=$msocial->id) " .
+            $result->messages[] = "For module msocial\\connector\\twitter by users: $msocial->name (id=$msocial->id) " .
             "in course (id=$msocial->course) searching: $msocial->hashtag  " . $errormessage;
+            $result->statuses = [];
         }
         if ($token) {
             $token->errorstatus = $errormessage;
