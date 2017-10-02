@@ -87,10 +87,17 @@ $totalnotification = '';
 foreach ($enabledplugins as $name => $enabledplugin) {
     list($messages, $notifications) = $enabledplugin->render_header();
     $updated = $enabledplugin->get_updated_date();
+    $updatemessage = '';
     if ($updated) {
-        $messages[] = get_string('harvestedtimeago', 'msocial',
+        $updatemessage = get_string('harvestedtimeago', 'msocial',
                                 [ 'interval' => msocial_pretty_date_difference($updated->getTimestamp())] ) .
-                                ' ' . $enabledplugin->render_harvest_link();
+                                ' ';
+    }
+    if (has_capability('mod/msocial:manage', $contextmodule)) {
+        $updatemessage .= $enabledplugin->render_harvest_link();
+    }
+    if ($updatemessage != '') {
+        $messages[] = $updatemessage;
     }
     // Group messages.
     $compactheader = true;
