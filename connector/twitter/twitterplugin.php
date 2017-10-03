@@ -516,7 +516,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     $result->errors->message .= $socialuser->socialname;
                     $totalresults->errors[] = $result->errors;
                 } else {
-                // Filter hashtags.
+                    // Filter hashtags.
                     $statuses = [];
                     foreach ($result as $status) {
                         if (count($status->entities->hashtags) > 1) {
@@ -587,7 +587,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $interaction->type = social_interaction::POST;
             } else {
                 $interaction->type = social_interaction::REPLY;
-                $interaction->nativeto = $status->in_reply_to_user_id;
+                $interaction->nativeto = $status->in_reply_to_user_id_str;
                 $interaction->nativetoname = $status->in_reply_to_screen_name;
             }
             $interaction->nativefrom = $status->user->id_str;
@@ -595,22 +595,22 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $interaction->toid = $this->get_userid($interaction->nativeto);
             $interactions[$interaction->uid] = $interaction;
             // Process mentions...
-            foreach ($status->entities->user_mentions as $mention) {
+            foreach ($status->entities->user_mentions as $mentionstatus) {
                 $mentioninteraction = new social_interaction();
-                $mentioninteraction->rawdata = json_encode($mention);
+                $mentioninteraction->rawdata = json_encode($mentionstatus);
                 $mentioninteraction->icon = $icon;
                 $mentioninteraction->source = $this->get_subtype();
                 $mentioninteraction->nativetype = 'mention';
-                $mentioninteraction->toid = $this->get_userid($mention->id);
-                $mentioninteraction->nativeto = $mention->id;
-                $mentioninteraction->nativetoname = $mention->screen_name;
+                $mentioninteraction->toid = $this->get_userid($mentionstatus->id_str);
+                $mentioninteraction->nativeto = $mentionstatus->id_str;
+                $mentioninteraction->nativetoname = $mentionstatus->screen_name;
                 $mentioninteraction->timestamp = new \DateTime($status->created_at);
                 $mentioninteraction->type = social_interaction::MENTION;
                 $mentioninteraction->nativefrom = $interaction->nativefrom;
                 $mentioninteraction->fromid = $interaction->fromid;
                 $mentioninteraction->nativefromname = $interaction->nativefromname;
-                $mentioninteraction->description = '@' . $mention->id . " ($mention->name)";
-                $mentioninteraction->uid = $interaction->uid . '-' . $mention->id;
+                $mentioninteraction->description = '@' . $mentionstatus->id_str . " ($mentionstatus->name)";
+                $mentioninteraction->uid = $interaction->uid . '-' . $mentionstatus->id_str;
                 $mentioninteraction->parentinteraction = $interaction->uid;
                 $interactions[$interaction->uid] = $mentioninteraction;
             }
@@ -698,7 +698,16 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $DB->insert_record('msocial_tweets', $statusrecord);
         }
     }
-
+    protected function refresh_interaction_users($socialuser) {
+        parent::refresh_interaction_users($socialuser);
+        global $DB;
+        // Unset previous user map.
+        $DB->set_field('msocial_tweets', 'userid', null ,
+                ['userid' => $socialuser->userid, 'msocial' => $this->msocial->id]);
+        // Set user map.
+        $DB->set_field('msocial_tweets', 'userid', $socialuser->userid,
+                ['twitterusername' => $socialuser->socialname, 'msocial' => $this->msocial->id]);
+    }
     /** Connect to twitter API at https://api.twitter.com/1.1/search/tweets.json
      *
      * @global type $CFG

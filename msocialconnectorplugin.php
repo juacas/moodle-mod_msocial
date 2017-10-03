@@ -188,7 +188,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      */
     protected function post_harvest($result) {
         // TODO: define if processsing is needed or not.
-        $processedinteractions = $this->lastinteractions; // $this->process_interactions($this->lastinteractions);
+        $processedinteractions = $this->lastinteractions;
 
         // TODO: define if all interactions are
         // worth to be registered or only student's.
@@ -267,10 +267,16 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      * @param \stdClass $socialuser struct with userid, socialid, socialname, type fields. */
     protected function refresh_interaction_users($socialuser) {
         global $DB;
+        // Unset previous map.
+        $DB->set_field('msocial_interactions', 'fromid', null,
+                ['fromid' => $socialuser->userid, 'source' => $socialuser->type, 'msocial' => $this->msocial->id]);
+        $DB->set_field('msocial_interactions', 'toid', null,
+                ['toid' => $socialuser->userid, 'source' => $socialuser->type, 'msocial' => $this->msocial->id]);
+        // Set new user map.
         $DB->set_field('msocial_interactions', 'fromid', $socialuser->userid,
-                ['nativefrom' => $socialuser->socialid, 'source' => $socialuser->type]);
+                ['nativefrom' => $socialuser->socialid, 'source' => $socialuser->type, 'msocial' => $this->msocial->id]);
         $DB->set_field('msocial_interactions', 'toid', $socialuser->userid,
-                ['nativeto' => $socialuser->socialid, 'source' => $socialuser->type]);
+                ['nativeto' => $socialuser->socialid, 'source' => $socialuser->type, 'msocial' => $this->msocial->id]);
     }
 
     /** Maps social ids to moodle's user ids
