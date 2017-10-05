@@ -49,7 +49,8 @@ class harvest_task extends \core\task\scheduled_task {
                     $cminfo = get_coursemodule_from_instance('msocial', $msocial->id);
                     return !$cminfo->deletioninprogress;
                 });
-        mtrace("Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances.");
+        mtrace("<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances.");
+        mtrace("==========================================================================");
         foreach ($msocials as $msocial) {
 
             foreach (\mod_msocial\plugininfo\msocialconnector::get_enabled_plugins_all_types($msocial) as $type => $plugin) {
@@ -60,10 +61,11 @@ class harvest_task extends \core\task\scheduled_task {
                             \mtrace($message);
                         }
                     } else {
-                        mtrace("Plugin $type is not tracking. (Missing token, hashtag or disabled.)");
+                        mtrace("<li>Plugin $type is not tracking. (Missing token, hashtag or disabled.)");
                     }
                 } catch (\Exception $e) {
-                    mtrace("Error processing msocial: $msocial->name. Skipping. " . $e->error . '\n' . $e->getTraceAsString());
+                    mtrace("<li>Error processing msocial: $msocial->name. Skipping. " . $e->getMessage() .
+                            '\n' . $e->getTraceAsString());
                 }
             }
         }

@@ -34,7 +34,7 @@ use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-
+require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
 /** library class for social network facebook plugin extending social plugin base class
  *
  * @package msocialconnector_facebook
@@ -85,7 +85,8 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     public function delete_instance() {
         global $DB;
         $result = true;
-        if (!$DB->delete_records('msocial_interactions', array('msocial' => $this->msocial->id, 'source' => $this->get_subtype()))) {
+        if (!$DB->delete_records('msocial_interactions', array('msocial' => $this->msocial->id,
+                                'source' => $this->get_subtype()))) {
             $result = false;
         }
         if (!$DB->delete_records('msocial_facebook_tokens', array('msocial' => $this->msocial->id))) {
@@ -94,7 +95,8 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         if (!$DB->delete_records('msocial_mapusers', array('msocial' => $this->msocial->id, 'type' => $this->get_subtype()))) {
             $result = false;
         }
-        if (!$DB->delete_records('msocial_plugin_config', array('msocial' => $this->msocial->id, 'subtype' => $this->get_subtype()))) {
+        if (!$DB->delete_records('msocial_plugin_config', array('msocial' => $this->msocial->id,
+                                'subtype' => $this->get_subtype()))) {
             $result = false;
         }
         return $result;
@@ -451,7 +453,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             $commentinteraction->type = social_interaction::REACTION;
             $commentinteraction->nativetype = "short-comment";
 
-            mtrace( ' * Message too short: "' . $message . '".');
+            mtrace( '<li> Message too short: "' . $message . '".');
         }
         return $commentinteraction;
 
@@ -577,6 +579,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 $result->errors[] = (object) ['message' => $message];
                 $result->messages[] = $message;
             }
+            // TODO: Move this to postharvest. Send message to teachers.
         }
         $result = $this->post_harvest($result);
         return $result;
