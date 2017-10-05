@@ -10,6 +10,8 @@ requirejs.config({
 		renderer: baseurl+'/mod/msocial/view/graph/js/graphviz-d3-renderer/dist/renderer',
 		'msocialview/graphviz': baseurl+'/mod/msocial/view/graph/js/viewgraphvizlib',
 		'svg-pan-zoom' : baseurl+'/mod/msocial/view/graph/js/svg-pan-zoom',
+		'hammer' : baseurl+'/mod/msocial/view/graph/js/hammer',
+		'saveSvgAsPng' : baseurl+'/mod/msocial/view/graph/js/saveSvgAsPng',
     },
     waitSeconds: 20
 });

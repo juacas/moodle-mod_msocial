@@ -118,6 +118,7 @@ echo "\n";
 echo $OUTPUT->container($dotsource, 'hidden', 'dot_src');
 
 /** @var page_requirements_manager $reqs */
+$reqs->js('/mod/msocial/view/graph/js/hammer.js', false);
 $reqs->js('/mod/msocial/view/graph/js/configuregraphvizrequire.js', false);
 global $CFG;
 $reqs->js_call_amd('msocialview/graphviz', 'initview', ['#graph', '#dot_src']);
