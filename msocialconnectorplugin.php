@@ -100,7 +100,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
             $usermessage = $this->render_user_link($user, $brief);
             if ($disconnectaction) {
                 $iconurl = new \moodle_url('/mod/msocial/pix/icon_unlink.png');
-                $iconhtml = \html_writer::img($iconurl->out(), 'unlink', [ 'title' => 'unlink', 'width' => 15, ]);
+                $unlinktext = get_string('unlinksocialaccount','msocial');
+                $iconhtml = \html_writer::img($iconurl->out(), $unlinktext,[ 'title' => $unlinktext, 'width' => 15, ]);
                 $urlprofile = new \moodle_url("/mod/msocial/connector/{$subtype}/connectorSSO.php",
                         array('id' => $this->cm->id, 'action' => 'disconnect', 'type' => 'profile', 'userid' => $user->id,
                                         'socialid' => $socialids->socialid));
