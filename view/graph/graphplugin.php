@@ -244,7 +244,8 @@ class msocial_view_graph extends msocial_view_plugin {
                     'matrix' => $CFG->dirroot . '/mod/msocial/view/graph/matrix.php',
                     'forcedgraph' => $CFG->dirroot . '/mod/msocial/view/graph/forcedgraph.php',
                     'chord' => $CFG->dirroot . '/mod/msocial/view/graph/chord.php',
-                    'graphviz' => $CFG->dirroot . '/mod/msocial/view/graph/graphviz.php'
+                    'graphviz' => $CFG->dirroot . '/mod/msocial/view/graph/graphviz.php',
+                    'graphvis' => $CFG->dirroot . '/mod/msocial/view/graph/graphvis.php',
         ];
         return $files;
     }
