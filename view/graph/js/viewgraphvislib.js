@@ -17,26 +17,37 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 			var nodes = [];
 			var edges = [];
 			jsondata.nodes.forEach(function(jsonnode){
+				var shape;
 				var node = { id: jsonnode.id ,
-							label: jsonnode.name,
-							title: jsonnode.name,
-							shadow: true,
-							shape: 'circularImage',
-							image: jsonnode.usericon == '' ? 'missing.png' : jsonnode.usericon,
-							brokenImage: 'https://pbs.twimg.com/profile_images/824716853989744640/8Fcd0bji_400x400.jpg',
-							borderWidth:4,
-					          size:30,
+						title: '<a href="fdsfds">' + jsonnode.name + '</a>',
+						label: jsonnode.name,
+						shape: shape,
+						userlink: jsonnode.userlink,
+						group: jsonnode.group,
 				};
-				nodes.push(node);
+				if (jsonnode.group == 1) {
+					node.shape = 'dot';
+				} else {
+					node.shape = 'circularImage';
+					node.shadow = true;
+					node.image = jsonnode.usericon == '' ? 'missing.png' : jsonnode.usericon;
+					node.brokenImage = 'https://pbs.twimg.com/profile_images/824716853989744640/8Fcd0bji_400x400.jpg';
+					node.borderWidth = 4;
+					node.size = 30;
+				}
+				nodes[node.id] = node;
 			});
 			jsondata.links.forEach(function(jsonedge){
-				var edge = { from: jsonedge.source ,
+				var edge = { 
+							id: jsonedge.id,
+							from: jsonedge.source ,
 							to: jsonedge.target,
 							label: jsonedge.subtype + ':' + jsonedge.interactiontype,
 							font: {align: 'middle'},
 							arrows: 'to',
-							shadow: true,
+							shadow: false,
 							color: 'black',
+							link: jsonedge.link,
 				};
 				edges.push(edge);
 			});
@@ -63,7 +74,15 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 		                }
 		            };		
 			var network = new vis.Network(document.getElementById(container), data, options);		
-			
+			network.on("doubleClick", function (params) {
+			        params.event = "[original event]";
+			        if (params.nodes.length > 0) {
+			        	window.open(this.body.data.nodes.get(params.nodes[0]).userlink, '_blank');
+			        }
+			        if (params.edges.length > 0) {
+			        	window.open(this.body.data.edges.get(params.edges[0]).link, '_blank');
+			        }
+			    });
 		});
 		
 		
