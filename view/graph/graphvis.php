@@ -39,6 +39,7 @@ $filter->set_users($usersstruct);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($this->msocial);
 
 /* @var $OUTPUT \core_renderer */
+echo '<div id="optionsContainer"></div>';
 echo '<div id="graph" style="width:100%;height:1000px; border: 1px solid lightgray;"></div>';
 echo "\n";
 

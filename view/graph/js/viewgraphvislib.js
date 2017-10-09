@@ -10,12 +10,53 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 		function($, vis, svgPanZoom, Hammer, saveSvgAsPng) {
 
 	var init = {
-		initview : function(container, cmid, params, redirect) {
+		initview : function(container, cmid, params, redirect, collapse = 'loops') {
 		var params = $.param(params);
 		$.getJSON("view/graph/jsonized.php?include_community=true&id=" + cmid + "&" + params + "&redirect=" + redirect,
 		function(jsondata){
 			var nodes = [];
 			var edges = [];
+			var collapsededges = [];
+			var loopradio = [];
+			// Collapse semantically equivalent edges.
+			jsondata.links.forEach(function(jsonedge){
+				var key;
+				// Key is used to collapse edges. Generate duplicates to collapse them.
+				if (collapse == 'all' || (collapse == 'loops' && jsonedge.source == jsonedge.target)) {
+					key = jsonedge.subtype + '-' + jsonedge.interactiontype + '-' + jsonedge.source +
+					'-' + jsonedge.target;				
+				} else {
+					key = jsonedge.id;
+				}
+				var edge;
+				if (key in collapsededges) {
+					edge = collapsededges[key];
+					edge.count = edge.count + 1;
+					edge.label = jsonedge.subtype + ':' + jsonedge.interactiontype + '(' + edge.count + ')';
+					edge.link = '';
+				} else {
+					edge = {
+							id: jsonedge.id,
+							from: jsonedge.source ,
+							to: jsonedge.target,
+							label: jsonedge.subtype + ':' + jsonedge.interactiontype,
+							font: {align: 'middle'},
+							arrows: 'to',
+							shadow: false,
+							color: 'black',
+							link: jsonedge.link,
+							count: 1,
+					};
+					if (edge.from == edge.to) {
+						if (!(edge.from in loopradio)) {
+							loopradio[edge.from] = 10;
+						}
+						edge.selfReferenceSize = loopradio[edge.from] + 20;
+						loopradio[edge.from] = edge.selfReferenceSize;
+					}
+					collapsededges[key] = edge;
+				}
+			});
 			jsondata.nodes.forEach(function(jsonnode){
 				var shape;
 				var node = { id: jsonnode.id ,
@@ -37,20 +78,9 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 				}
 				nodes[node.id] = node;
 			});
-			jsondata.links.forEach(function(jsonedge){
-				var edge = { 
-							id: jsonedge.id,
-							from: jsonedge.source ,
-							to: jsonedge.target,
-							label: jsonedge.subtype + ':' + jsonedge.interactiontype,
-							font: {align: 'middle'},
-							arrows: 'to',
-							shadow: false,
-							color: 'black',
-							link: jsonedge.link,
-				};
-				edges.push(edge);
-			});
+			for (var edge in collapsededges) {
+				edges.push(collapsededges[edge]);
+			}
 			var data = { 
 					nodes: nodes,
 					edges: edges
@@ -71,8 +101,8 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 		                    solver: 'forceAtlas2Based',
 		                    timestep: 0.35,
 		                    stabilization: {iterations: 150}
-		                }
-		            };		
+		                },
+            };		
 			var network = new vis.Network(document.getElementById(container), data, options);		
 			network.on("doubleClick", function (params) {
 			        params.event = "[original event]";
@@ -80,7 +110,10 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 			        	window.open(this.body.data.nodes.get(params.nodes[0]).userlink, '_blank');
 			        }
 			        if (params.edges.length > 0) {
-			        	window.open(this.body.data.edges.get(params.edges[0]).link, '_blank');
+			        	var edge = this.body.data.edges.get(params.edges[0]);
+			        	if (edge.link != '') {
+			        		window.open(edge.link, '_blank');
+			        	}
 			        }
 			    });
 		});
