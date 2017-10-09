@@ -79,8 +79,15 @@ foreach ($interactions as $interaction) {
                             "nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname&redirect=$redirecturl";
         }
         if (!array_key_exists($nodenamefrom, $nodemap)) {
-            $node = (object) ['id' => $index, 'name' => $nodenamefrom, 'group' => $interaction->fromid == null,
+            global $OUTPUT, $PAGE;
+            $node = (object) ['id' => $index, 'name' => $nodenamefrom, 'group' => $interaction->fromid == null ? 1 : 0,
                             'userlink' => $userlinkfrom];
+            if (isset($userrecords[$interaction->fromid])) {
+                $userpicture = new user_picture(($userrecords[$interaction->fromid]));
+                $node->usericon = $userpicture->get_url($PAGE)->out();
+            } else {
+                $node->usericon = '';
+            }
             $nodes[] = $node;
             $nodemap[$node->name] = $index++;
         }
@@ -101,8 +108,14 @@ foreach ($interactions as $interaction) {
             continue;
         }
         if (!array_key_exists($nodenameto, $nodemap)) {
-            $node = (object) ['id' => $index, 'name' => $nodenameto, 'group' => $interaction->toid == null,
+            $node = (object) ['id' => $index, 'name' => $nodenameto, 'group' => $interaction->toid == null ? 1 : 0,
                             'userlink' => $userlinkto];
+            if (isset($userrecords[$interaction->toid])) {
+                $userpicture = new user_picture(($userrecords[$interaction->toid]));
+                $node->usericon = $userpicture->get_url($PAGE)->out();
+            } else {
+                $node->usericon = '';
+            }
             $nodes[] = $node;
             $nodemap[$node->name] = $index++;
         }
@@ -125,8 +138,9 @@ foreach ($interactions as $interaction) {
         }
         $thispageurl = $plugin->get_interaction_url($interaction);
 
-        $edge = (object) ['source' => $nodemap[$nodenamefrom], 'target' => $nodemap[$nodenameto], 'value' => $typevalue,
-                        'interactiontype' => $interaction->type, 'subtype' => $subtype, 'description' => $interaction->description,
+        $edge = (object) ['id' => $interaction->uid, 'source' => $nodemap[$nodenamefrom], 'target' => $nodemap[$nodenameto],
+                        'value' => $typevalue, 'interactiontype' => $interaction->type, 'subtype' => $subtype,
+                        'description' => $interaction->description,
                         'icon' => $plugin->get_icon()->out(), 'link' => $thispageurl];
         $edges[] = $edge;
     }
