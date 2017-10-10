@@ -147,7 +147,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                         $notifications[] = get_string('problemwithtwitteraccount', 'msocialconnector_twitter', $errorstatus);
                     }
 
-                  $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) .
+                    $messages[] = get_string('module_connected_twitter', 'msocialconnector_twitter', $username) .
                             $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/twitter/connectorSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
@@ -350,8 +350,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $info = "No twitter token defined!!";
             }
             $errormessage = $result->errors[0]->message;
-            $errormessage = "For module msocial\connector\twitter by hashtag: $this->msocial->name (id=$cm->instance) " .
-                            " in course (id=$this->msocial->course) searching: $hashtag $info ERROR:" . $errormessage;
+            $msocial = $this->msocial;
+            $errormessage = "Searching: $hashtag. For module msocial\connector\twitter by hashtag: $msocial->name (id=$cm->instance) " .
+                            " in course (id=$msocial->course) $info ERROR:" . $errormessage;
             $result->messages[] = $errormessage;
         } else if (isset($result->statuses)) {
             $DB->set_field('msocial_twitter_tokens', 'errorstatus', null, array('id' => $token->id));
@@ -369,12 +370,16 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $this->lastinteractions = $this->build_interactions($processedstatuses);
             $errormessage = null;
             $result->errors = [];
+            $result->messages[] = "Searching by hashtag: $hashtag. For module msocial\\connector\\twitter by hashtags: $msocial->name (id=$msocial->id) " .
+            "in course (id=$msocial->course) ";
+
             $result = $this->post_harvest($result);
         } else {
+            $msocial = $this->msocial;
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
             $result->errors[0]->message = $errormessage;
-            $result->messages[] = "For module msocial\\connector\\twitter by hashtags: $this->msocial->name (id=$this->msocial->id) " .
-                                  "in course (id=$this->msocial->course) searching: $this->msocial->hashtag  " . $errormessage;
+            $result->messages[] = "Searching: $hashtag. For module msocial\\connector\\twitter by hashtags: $msocial->name (id=$msocial->id) " .
+                                  "in course (id=$msocial->course) " . $errormessage;
             $result->statuses = [];
         }
         if ($token) {
@@ -419,7 +424,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             }
             $errormessage = implode('. ', $result->errors);
             $msocial = $this->msocial;
-            $errormessage = "For module msocial\connector\twitter: $msocial->name (id=$cm->instance) " .
+            $errormessage = "Searching by users. For module msocial\connector\twitter: $msocial->name (id=$cm->instance) " .
             " in course (id=$msocial->course) searching: $hashtag $info ERROR:" . $errormessage;
             $result->messages[] = $errormessage;
         } else {
@@ -438,13 +443,15 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
             $this->lastinteractions = $this->build_interactions($processedstatuses);
             $errormessage = null;
+            $result->messages[] = "Searching by users. For module msocial\\connector\\twitter by users: $msocial->name (id=$msocial->id) " .
+                                    "in course (id=$msocial->course) searching: $hashtag  ";
             $result = $this->post_harvest($result);
         } else {
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
             $result->errors[0]->message = $errormessage;
             $msocial = $this->msocial;
-            $result->messages[] = "For module msocial\\connector\\twitter by users: $msocial->name (id=$msocial->id) " .
-            "in course (id=$msocial->course) searching: $msocial->hashtag  " . $errormessage;
+            $result->messages[] = "Searching by users. For module msocial\\connector\\twitter by users: $msocial->name (id=$msocial->id) " .
+            "in course (id=$msocial->course) searching: $hashtag  " . $errormessage;
             $result->statuses = [];
         }
         if ($token) {
@@ -468,6 +475,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     protected function get_statuses($tokens, $hashtag) {
             return $this->search_twitter($tokens, $hashtag); // Twitter API depends on letter cases.
     }
+
     /**
      *
      * @param unknown $tokens
@@ -488,12 +496,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $totalresults->statuses = [];
             return $totalresults;
         }
-        $hashtaglist = explode(' AND ', $hashtag);
-        $hashtaglist = array_map(function ($hashtag) {
-                            $h = substr(trim($hashtag), 1);
-                            return $h;
-        }, $hashtaglist);
-
+        $hashtaglist = $this->create_search_filter($hashtag);
         global $CFG;
         $settings = array('oauth_access_token' => $tokens->token, 'oauth_access_token_secret' => $tokens->token_secret,
                         'consumer_key' => get_config('msocialconnector_twitter', 'consumer_key'),
@@ -519,10 +522,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     // Filter hashtags.
                     $statuses = [];
                     foreach ($result as $status) {
-                        if (count($status->entities->hashtags) > 1) {
-                            if ($this->check_hashtaglist($status, $hashtaglist)) {
-                                $statuses[] = $status;
-                            }
+                        if ($this->check_hashtaglist($status, $hashtaglist)) {
+                            $statuses[] = $status;
                         }
                     }
                     $totalresults->statuses = array_merge(isset($totalresults->statuses) ? $totalresults->statuses : [],
@@ -534,26 +535,76 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         return $totalresults;
     }
     /**
+     * Parse hashtag search string.
+     * According twitter https://twitter.com/search-advanced a lista of terms are ANDed, OR creates takes precedence to the left.
+     * @param unknown $hashtagexpr
+     */
+    protected function create_search_filter($hashtagexpr) {
+        preg_match_all("/(\".+\"|\S+)/", $hashtagexpr, $terms);
+        $terms = $terms[0];
+        $searchstruct = [];
+        $orexpression = [];
+        for ($i = 0; $i < count($terms); $i++) {
+            $term = $terms[$i];
+            $nextterm = isset($terms[$i + 1]) ? $terms[$i + 1] : null;
+            if ($nextterm == 'OR') {
+                // Start or add ORed expression.
+                $orexpression[] = $term;
+                $i++;
+                continue;
+            }
+            // Building OR expression.
+            if ( ($nextterm != 'OR' || $nextterm == 'AND') && count($orexpression) > 0) {
+                // Finish OR clause.
+                $orexpression[] = $term;
+                $searchstruct[] = $orexpression;
+                $orexpression = [];
+                continue;
+            }
+
+            if ($term != 'AND') {
+                // Trim quotes.
+                $term = trim($term);
+                $term = trim($term, '"');
+                // Add ANDed expression.
+                $searchstruct[] = $term;
+            }
+        }
+        return $searchstruct;
+    }
+    /**
      * Check filter condition. Only a list of AND tags
      * TODO: implement more conditions.
      * @param unknown $status
-     * @param unknown $hashtaglist
+     * @param unknown $searchstruct
      */
-    protected function check_hashtaglist($status, $hashtaglist) {
-        foreach ($hashtaglist as $hashtag) {
-            if (!$this->tweet_has_hashtag($status, $hashtag)) {
+    protected function check_hashtaglist($status, $searchstruct) {
+        foreach ($searchstruct as $condition) {
+            if (!$this->check_single_condition($status, $condition)) {
                 return false;
             }
         }
         return true;
     }
-    protected function tweet_has_hashtag($status, $searchhashtag) {
-        foreach ($status->entities->hashtags as $hashtag) {
-            if ($hashtag->text == $searchhashtag) {
+    protected function check_single_condition($status, $condition) {
+        if (is_array($condition)) {
+            // ORed expression.
+            return $this->check_ored_conditions($status, $condition);
+        } else if (strpos($condition, '-') === 0) {
+            // Negative condition.
+            return strpos($status->text, substr($condition, 1)) !== false;
+        } else {
+            return strpos($status->text, $condition) !== false;
+        }
+        return false;
+    }
+    protected function check_ored_conditions($status, $conditions) {
+        foreach ($conditions as $condition) {
+            if ($this->check_single_condition($status, $condition)) {
                 return true;
             }
         }
-        return false;
+        return true;
     }
     /**
      * @todo Get a list of interactions between the users
