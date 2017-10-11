@@ -52,4 +52,5 @@ function xmldb_msocialconnector_questournament_upgrade($oldversion = 0) {
         // questournament savepoint reached.
         upgrade_plugin_savepoint(true, 2017092201, 'msocialconnector', 'questournament');
     }
+    return true;
 }

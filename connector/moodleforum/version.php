@@ -24,6 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017071001;
+$plugin->version   = 2017071002;
 $plugin->requires  = 2013051407;
 $plugin->component = 'msocialconnector_moodleforum';
+$plugin->dependencies = array('mod_msocial' => 2017081900, 'mod_forum' => 2015051100);

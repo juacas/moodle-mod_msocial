@@ -24,6 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017092100;
+$plugin->version   = 2017092101;
 $plugin->requires  = 2013051407;
 $plugin->component = 'msocialconnector_facebook';
+$plugin->dependencies = array('mod_msocial' => 2017081900);

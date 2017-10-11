@@ -52,4 +52,5 @@ function xmldb_msocialconnector_moodleforum_upgrade($oldversion = 0) {
         // moodleforum savepoint reached.
         upgrade_plugin_savepoint(true, 2017071001, 'msocialconnector', 'moodleforum');
     }
+    return true;
 }

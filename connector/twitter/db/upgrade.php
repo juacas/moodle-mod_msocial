@@ -38,4 +38,5 @@ function xmldb_msocialconnector_twitter_upgrade($oldversion) {
         // Twitter savepoint reached.
         upgrade_plugin_savepoint(true, 2017091900, 'msocialconnector', 'twitter');
     }
+    return true;
 }

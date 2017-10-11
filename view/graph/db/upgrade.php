@@ -51,4 +51,5 @@ function xmldb_msocialview_graph_upgrade($oldversion = 0) {
         // Graph savepoint reached.
         upgrade_plugin_savepoint(true, 2017100500, 'msocialview', 'graph');
     }
+    return true;
 }

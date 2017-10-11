@@ -55,4 +55,5 @@ function xmldb_msocialconnector_facebook_upgrade($oldversion = 0) {
         // Facebook savepoint reached.
         upgrade_plugin_savepoint(true, 2017092100, 'msocialconnector', 'facebook');
     }
+    return true;
 }
