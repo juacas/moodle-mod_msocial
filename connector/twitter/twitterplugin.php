@@ -634,12 +634,13 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $interaction->nativefromname = $status->user->screen_name;
             $interaction->timestamp = new \DateTime($status->created_at);
             $interaction->description = $status->text;
-            if ($status->in_reply_to_user_id == null) {
+            if ($status->in_reply_to_status_id_str == "") {
                 $interaction->type = social_interaction::POST;
             } else {
                 $interaction->type = social_interaction::REPLY;
                 $interaction->nativeto = $status->in_reply_to_user_id_str;
                 $interaction->nativetoname = $status->in_reply_to_screen_name;
+                $interaction->parentinteraction = $status->in_reply_to_status_id_str;
             }
             $interaction->nativefrom = $status->user->id_str;
             $interaction->fromid = $this->get_userid($interaction->nativefrom);
@@ -663,7 +664,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $mentioninteraction->description = '@' . $mentionstatus->id_str . " ($mentionstatus->name)";
                 $mentioninteraction->uid = $interaction->uid . '-' . $mentionstatus->id_str;
                 $mentioninteraction->parentinteraction = $interaction->uid;
-                $interactions[$interaction->uid] = $mentioninteraction;
+                $interactions[$mentioninteraction->uid] = $mentioninteraction;
             }
         }
         return $interactions;
