@@ -36,14 +36,14 @@ class pki {
 
     /** Moodle userid this pki refers to.
      * @var int */
-    public $user;
+    public $userid;
     public $msocial;
     public $historical = false;
     public $timestamp;
-    protected static $basefields = ['id', 'name', 'timestamp', 'historical','msocial','user'];
+    protected static $basefields = ['id', 'name', 'timestamp', 'historical', 'msocial', 'userid'];
 
     public function __construct($userid, $msocialid, array $pkiinfos = []) {
-        $this->user = $userid;
+        $this->userid = $userid;
         $this->msocial = $msocialid;
         $this->timestamp = time();
         // Reset to 0 to avoid nulls.
@@ -86,7 +86,7 @@ class pki {
      * @param \stdClass $record database record with pki data.
      * @return \mod_msocial\pki */
     public static function from_record($record) {
-        $pki = new pki($record->user, $record->msocial);
+        $pki = new pki($record->userid, $record->msocial);
         foreach ($record as $prop => $value) {
             if (array_search($prop, self::$basefields) === false) {
                 $pki->{$prop} = $value;

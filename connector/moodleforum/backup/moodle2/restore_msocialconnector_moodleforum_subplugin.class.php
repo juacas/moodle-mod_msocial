@@ -1,8 +1,4 @@
 <?php
-use mod_msocial\plugininfo\msocialbase;
-use mod_msocial\connector\msocial_connector_questournament;
-use mod_msocial\connector\msocial_connector_facebook;
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -30,6 +26,7 @@ use mod_msocial\connector\msocial_connector_facebook;
  * *******************************************************************************
  */
 defined('MOODLE_INTERNAL') || die();
+use mod_msocial\connector\msocial_connector_questournament;
 
 class restore_msocialconnector_moodleforum_subplugin extends restore_subplugin {
 
@@ -71,7 +68,7 @@ class restore_msocialconnector_moodleforum_subplugin extends restore_subplugin {
         $id = $this->get_new_parentid('msocial');
         $msocial = $DB->get_record('msocial', ['id' => $id]);
         require_once($CFG->dirroot . '/mod/msocial/connector/moodleforum/moodleforumplugin.php');
-        $plugin = new msocial_connector_questournament($msocial);
+        $plugin = new \mod_msocial\connector\msocial_connector_moodleforum($msocial);
         $plugin->remap_linked_activities();
     }
 

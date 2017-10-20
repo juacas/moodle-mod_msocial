@@ -136,7 +136,7 @@
 					SEQUENCE="true" />
 				<FIELD NAME="msocial" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="false" COMMENT="Activity instance that generated the PKIs." />
-				<FIELD NAME="user" TYPE="int" LENGTH="10" NOTNULL="true"
+				<FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"
 					SEQUENCE="false" COMMENT="Moodle user id." />
 				<FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="false"
 					SEQUENCE="false" COMMENT="Time when the PKI row was last updated." />
@@ -146,7 +146,7 @@
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />
-				<KEY NAME="msocial_user_time" TYPE="unique" FIELDS="msocial, user, timestamp"
+				<KEY NAME="msocial_user_time" TYPE="unique" FIELDS="msocial, userid, timestamp"
 					COMMENT="Unique definition of a PKI row" />
 			</KEYS>
 			<INDEXES>

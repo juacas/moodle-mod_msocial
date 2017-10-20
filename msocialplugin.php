@@ -210,14 +210,15 @@ abstract class msocial_plugin {
         $dbman = $DB->get_manager();
         $table = new \xmldb_table('msocial_pkis');
         $pkilist = $this->get_pki_list();
-        $transaction = $DB->start_delegated_transaction();
+//         $transaction = $DB->start_delegated_transaction();
         foreach ($pkilist as $pkiname => $pkiinfo) {
             $pkifield = new \xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
             if (!$dbman->field_exists($table, $pkifield)) {
                 $dbman->add_field($table, $pkifield);
+                mtrace("PKI added to database: $pkiname.");
             }
         }
-        $DB->commit_delegated_transaction($transaction);
+//         $DB->commit_delegated_transaction($transaction);
     }
 
     /**
@@ -339,12 +340,12 @@ abstract class msocial_plugin {
         $users = array();
         /** @var pki $pki */
         foreach ($pkis as $pki) {
-            $users[$pki->user] = $pki;
+            $users[$pki->userid] = $pki;
         }
         $records = $DB->get_records_select('msocial_pkis', "historical=0  and msocial=?", [$this->msocial->id]);
         $recordindex = [];
         foreach ($records as $record) {
-            $recordindex[$record->user] = $record;
+            $recordindex[$record->userid] = $record;
             unset($record->id);
         }
         // Create record templates from pki.
@@ -352,8 +353,8 @@ abstract class msocial_plugin {
 
         foreach ($pkis as $pki) {
 
-            if (isset($recordindex[$pki->user])) {
-                $record = $recordindex[$pki->user];
+            if (isset($recordindex[$pki->userid])) {
+                $record = $recordindex[$pki->userid];
             } else {
                 $record = new \stdClass();
                 // Create template fields.
@@ -371,11 +372,11 @@ abstract class msocial_plugin {
                     print_error("Code error. Prop \"$propname\" in Pki is not declared by plugins. Contact administrators.");
                 }
             }
-            $record->user = $pki->user;
+            $record->userid = $pki->userid;
             $record->msocial = $this->msocial->id;
             $record->historical = 0;
             $record->timestamp = time();
-            $recordindex[$pki->user] = $record;
+            $recordindex[$pki->userid] = $record;
         }
         $transaction = $DB->start_delegated_transaction();
         // Remove old pkis.
@@ -406,14 +407,14 @@ abstract class msocial_plugin {
             $pkirecords = $DB->get_records('msocial_pkis', ['msocial' => $msocial->id, 'historical' => 0]);
         } else {
             list($insql, $params) = $DB->get_in_or_equal($users);
-            $selectquery = 'msocial = ? and historical = 0 and user ' . $insql;
+            $selectquery = 'msocial = ? and historical = 0 and userid ' . $insql;
             $params = array_merge([$msocial->id], $params);
             $pkirecords = $DB->get_records_select('msocial_pkis', $selectquery, $params);
         }
         // Store the real Pkis.
         foreach ($pkirecords as $pkirecord) {
             $pki = pki::from_record($pkirecord);
-            $pkiindexed[$pki->user] = $pki;
+            $pkiindexed[$pki->userid] = $pki;
         }
         return $pkiindexed;
     }

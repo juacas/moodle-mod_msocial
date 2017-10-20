@@ -46,7 +46,7 @@ class backup_msocial_activity_structure_step extends backup_activity_structure_s
 
         $interactions = new backup_nested_element('interactions');
         $interaction = new backup_nested_element('interaction', ['uid'],
-                ['fromid', 'nativeform', 'nativefromname', 'toid', 'nativeto', 'nativetoname', 'parentinteraction',
+                ['fromid', 'nativefrom', 'nativefromname', 'toid', 'nativeto', 'nativetoname', 'parentinteraction',
                                 'source', 'timestamp', 'type', 'nativetype', 'description', 'rawdata']);
 
         $mapusers = new backup_nested_element('mapusers');
@@ -72,7 +72,7 @@ class backup_msocial_activity_structure_step extends backup_activity_structure_s
         $this->add_subplugin_structure('msocialview', $msocial, true);
         // Define id annotations.
         $mapuser->annotate_ids('user', 'userid');
-        $pki->annotate_ids('user', 'user');
+        $pki->annotate_ids('user', 'userid');
         $interaction->annotate_ids('user', 'toid');
         $interaction->annotate_ids('user', 'fromid');
         // Define file annotations.

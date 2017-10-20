@@ -22,8 +22,10 @@
  * @package msocial
  * *******************************************************************************
  */
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * Structure step to restore one choice activity
+ * Structure step to restore one msocial activity
  */
 
 class restore_msocial_activity_structure_step extends restore_activity_structure_step {
@@ -33,17 +35,49 @@ class restore_msocial_activity_structure_step extends restore_activity_structure
         $userinfo = $this->get_setting_value('userinfo');
         $msocial = new restore_path_element('msocial', '/activity/msocial');
         $paths[] = $msocial;
+        if ($userinfo) {
+            // Pkis.
+            $paths[]  = new restore_path_element('pki', '/activity/msocial/pkis/pki');
+            // Interactions.
+            $paths[] = new restore_path_element('interaction', '/activity/msocial/interactions/interaction');
+            // Map users.
+            $paths[] = new restore_path_element('socialuser', '/activity/msocial/mapusers/socialuser');
+        }
         $pluginconfig = new restore_path_element('plugin_config', '/activity/msocial/plugin_configs/plugin_config');
         $paths[] = $pluginconfig;
-        // $socialplugins = new restore_path_element('msocial_connector',
-        // '/activity/msocial/msocialconnectors/msocialconnector');
-        // $paths[] = $socialplugins;
+
         $this->add_subplugin_structure('msocialconnector', $msocial);
 
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
+    protected function process_pki($data) {
+        global $DB;
+        $data = (object) $data;
 
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $data->msocial = $this->get_new_parentid('msocial');
+        $newitemid = $DB->insert_record('msocial_pkis', $data);
+    }
+    protected function process_interaction($data) {
+        global $DB;
+        $data = (object) $data;
+
+        $data->fromid = $this->get_mappingid('user', $data->fromid);
+        $data->toid = $this->get_mappingid('user', $data->toid);
+        $data->msocial = $this->get_new_parentid('msocial');
+
+        $newitemid = $DB->insert_record('msocial_interactions', $data);
+    }
+    protected function process_socialuser($data) {
+        global $DB;
+        $data = (object) $data;
+
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $data->msocial = $this->get_new_parentid('msocial');
+
+        $newitemid = $DB->insert_record('msocial_mapusers', $data);
+    }
     protected function process_plugin_config($data) {
         global $DB;
 
