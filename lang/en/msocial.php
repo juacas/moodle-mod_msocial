@@ -83,3 +83,7 @@ $string['msocial:addinstance'] = 'Add new MSocial activities to the course.';
 $string['msocial:manage'] = 'Change settings of a MSocial activity';
 $string['msocial:view'] = 'View information of MSocial about me';
 $string['msocial:viewothers'] = 'View all information collected by MSocial';
+$string['msocial:exportpkis'] = 'Download PKIs calculated by MSocial';
+// Events.
+$string['event:pki_exported'] = 'Download PKI table';
+$string['event:pki_exported_desc'] = 'User downloaded pki table';

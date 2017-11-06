@@ -48,7 +48,6 @@ list($students, $nonstudents, $activeusers, $userrecords) = array_values($userss
 $filter = new filter_interactions($_GET, $msocial);
 $filter->set_users($usersstruct);
 // Process interactions.
-xdebug_break();
 $interactions = social_interaction::load_interactions_filter($filter);
 $nodes = [];
 $nodemap = [];

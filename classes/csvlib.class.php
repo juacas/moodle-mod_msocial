@@ -13,8 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
-/*
- * **************************
+/* ***************************
  * Module developed at the University of Valladolid
  * Designed and directed by Juan Pablo de Castro at telecommunication engineering school
  * Copyright 2017 onwards EdUVaLab http://www.eduvalab.uva.es
@@ -23,14 +22,35 @@
  * @package msocial
  * *******************************************************************************
  */
-/** Code fragment to define the version of msocial
- * This fragment is called by moodle_needs_upgrading() and /admin/index.php
- * @package msocial */
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2017081901; // The current module version (Date: YYYYMMDDXX).
-$plugin->requires = 2013051407.00; // Requires this Moodle version.2013111801.11.
-$plugin->component = 'mod_msocial'; // Full name of the plugin (used for diagnostics).
-$plugin->cron = 12 * 60 * 60; // Period for cron to check this module (secs).
-$plugin->maturity = MATURITY_BETA;
-$plugin->release = 'v0.1.1-beta';
+class CSVWorkbook {
+    protected $currentrow = [];
+    protected $row = 0;
+    protected $separator = ';';
+    public function __construct($separator) {
+        $this->separator = $separator;
+    }
+    public function send($filename) {
+        header("Content-Type: application/download\n");
+        header("Content-Disposition: attachment; filename=\"$filename\"");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate,post-check=0,pre-check=0");
+        header("Pragma: public");
+    }
+    public function add_worksheet($name) {
+        return $this;
+    }
+    public function write_string($row, $col, $string) {
+        if ($row != $this->row) {
+            $this->flush_row($this->row);
+            $this->row = $row;
+        }
+        $this->currentrow[$col] = $string;
+    }
+    private function flush_row($rownum) {
+        echo implode($this->separator, $this->currentrow) . "\n";
+        $this->currentrow = [];
+    }
+    public function close() {
+        $this->flush_row($this->row);
+    }
+}
