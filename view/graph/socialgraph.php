@@ -320,21 +320,26 @@ class SocialMatrix {
         // conectado.
         $indiceproximidad = array();
         // Por cada nodo al que el miembro en cuestión esta conectado.
+        mtrace('<li>Betweenness of ' . count($dmap) . " nodes in distance map.</li>");
         foreach ($dmap as $key => $value) {
             // Elimino bucles por si está conectado a él mismo mediante otros nodos.
             if ($id !== $key) {
-                // Obtengo el nodo al que está conectado.
-                $vertex = $compactgraph->getVertex($key);
-                // Obtengo el camino para llegar a ese nodo.
-                $path = $sp->getWalkTo($vertex);
-                // Obtengo los Ids de los nodos que están en ese camino.
-                $ids = $path->getVertices()->getIds();
-                // Sin contar al usuario que estamos analizando y sin contar el último nodo (ya que
-                // no estaría en el medio del camino).
-                for ($i = 1; $i < count($ids) - 1; $i++) {
-                    // Si no existe el indice de proximidad para el nodo estudiado le asigno valor
-                    // 1, si ya existe incremento en 1.
-                    $indiceproximidad[$ids[$i]] = isset($indiceproximidad[$ids[$i]]) ? $indiceproximidad[$ids[$i]] + 1 : 1;
+                $timestamp = microtime(true);
+                if ($value > 2) {
+                    // Obtengo el nodo al que está conectado.
+                    $vertex = $compactgraph->getVertex($key);
+                    // Obtengo el camino para llegar a ese nodo.
+                    $path = $sp->getWalkTo($vertex);
+                    // Obtengo los Ids de los nodos que están en ese camino.
+                    $ids = $path->getVertices()->getIds();
+                    mtrace('<li>Get intermediate nodes from ' . $id . ' to ' . $key . ' in ' . round(microtime(true) - $timestamp, 4) . ' secs.' );
+                    // Sin contar al usuario que estamos analizando y sin contar el último nodo (ya que
+                    // no estaría en el medio del camino).
+                    for ($i = 1; $i < count($ids) - 1; $i++) {
+                        // Si no existe el indice de proximidad para el nodo estudiado le asigno valor
+                        // 1, si ya existe incremento en 1.
+                        $indiceproximidad[$ids[$i]] = isset($indiceproximidad[$ids[$i]]) ? $indiceproximidad[$ids[$i]] + 1 : 1;
+                    }
                 }
             }
         }

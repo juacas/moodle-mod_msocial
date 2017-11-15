@@ -234,12 +234,13 @@ abstract class msocial_plugin {
             $pkifield = new \xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
             if ($dbman->field_exists($table, $pkifield)) {
                 $dbman->drop_field($table, $pkifield);
+                mtrace("PKI dropped from database: $pkiname.");
             }
         }
         $DB->commit_delegated_transaction($transaction);
     }
 
-    /** Aggregate fields by pki_info metadata form interaction database.
+    /** Aggregate fields by pki_info metadata from interaction database.
      * Calculates max_field.
      * @param unknown $users */
     public function calculate_pkis($users, $pkis = []) {
@@ -299,7 +300,37 @@ abstract class msocial_plugin {
         }
         return $pkis;
     }
+    /**
+     * Calculates aggregated pkis from existent pkis.
+     * @param array $pkis
+     */
+    protected function calculate_aggregated_pkis(array $pkis) {
+        $pkiinfos = $this->get_pki_list();
 
+        foreach ($pkiinfos as $pkiinfo) {
+            if ($pkiinfo->individual == pki_info::PKI_AGREGATED) {
+                // Calculate aggregation.
+                $parts = explode('_', $pkiinfo->name);
+                $operation = $parts[0];
+                $pkiname = $parts[1];
+                $values = [];
+                $aggregated = 0;
+                foreach ($pkis as $pki) {
+                    $values[]  = $pki->{$pkiname};
+                }
+                if ($operation == 'max') {
+                    $aggregated = max($values);
+                } else {
+                    print_error('unsuported');
+                }
+                // Copy to all users.
+                foreach ($pkis as $pki) {
+                    $pki->{$pkiinfo->name}  = $aggregated;
+                }
+            }
+        }
+        return $pkis;
+    }
     /** Reports the list of PKI offered by this plugin.
      * This method does not include any values, just metadata.
      *
@@ -369,7 +400,8 @@ abstract class msocial_plugin {
                 if (property_exists($record, $propname)) {
                     $record->{$propname} = $value;
                 } else {
-                    print_error("Code error. Prop \"$propname\" in Pki is not declared by plugins. Contact administrators.");
+                    print_error("Code error. Prop \"$propname\" in Pki is not declared by plugins. Contact administrators."
+                            . "Properties in records are:" . array_keys(get_object_vars($record)));
                 }
             }
             $record->userid = $pki->userid;

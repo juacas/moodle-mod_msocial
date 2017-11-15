@@ -25,7 +25,7 @@
 class CSVWorkbook {
     protected $currentrow = [];
     protected $row = 0;
-    protected $separator = ';';
+    protected $separator = ',';
     public function __construct($separator) {
         $this->separator = $separator;
     }
@@ -44,10 +44,11 @@ class CSVWorkbook {
             $this->flush_row($this->row);
             $this->row = $row;
         }
-        $this->currentrow[$col] = $string;
+        $this->currentrow[$col] = '"' . str_replace('"', '""', $string) . '"';
     }
     private function flush_row($rownum) {
-        echo implode($this->separator, $this->currentrow) . "\n";
+        $row = implode($this->separator, $this->currentrow) . "\n";
+        echo $row;
         $this->currentrow = [];
     }
     public function close() {

@@ -167,8 +167,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $messages[] = get_string('hashtag_reminder', 'msocialconnector_twitter', ['hashtag' => $hashtag, 'hashtagscaped' => urlencode($hashtag)]);
             }
             // Check user's social credentials.
-            $twitterusername = $this->get_social_userid($USER);
-            if ($twitterusername === null) { // Offer to register.
+            $socialuserids = $this->get_social_userid($USER);
+            if (!$socialuserids) { // Offer to register.
                 $notifications[] = $this->render_user_linking($USER, false, true);
             }
         }
@@ -307,7 +307,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         }
         return $token;
     }
-
     /**
      * @global moodle_database $DB
      * @return type */

@@ -98,7 +98,7 @@ if (!empty($format) && !empty($type) ) {
         } else if ($format == "ods") {
             require_once("$CFG->libdir/odslib.class.php");
             $workbook = new MoodleODSWorkbook("-");
-        } else if ($format == "txt") {
+        } else if ($format == "csv") {
             require_once("classes/csvlib.class.php");
             $workbook = new CSVWorkbook(";");
         } else {
@@ -167,7 +167,7 @@ $options["format"] = "xls";
 $button = $OUTPUT->single_button(new moodle_url("exportpkis.php", $options), get_string("downloadexcel"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 
-$options["format"] = "txt";
+$options["format"] = "csv";
 $button = $OUTPUT->single_button(new moodle_url("exportpkis.php", $options), get_string("downloadtext"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 

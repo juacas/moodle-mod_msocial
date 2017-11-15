@@ -134,6 +134,7 @@ class msocial_view_graph extends msocial_view_plugin {
                 $pkis[$userid]->betweenness = isset($result->intermediacion) ? $result->intermediacion : 0;
             }
         }
+        $pkis = $this->calculate_aggregated_pkis($pkis);
         return $pkis;
     }
 

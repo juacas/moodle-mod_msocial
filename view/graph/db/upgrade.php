@@ -43,13 +43,13 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool */
 function xmldb_msocialview_graph_upgrade($oldversion = 0) {
     global $CFG, $DB;
-    if ($oldversion < 2017100500) {
+    if ($oldversion < 2017110600) {
         require_once($CFG->dirroot . '/mod/msocial/view/graph/graphplugin.php');
         $plugin = new mod_msocial\view\msocial_view_graph(null);
         mtrace("Updating pki table for graph plugin...");
         $plugin->create_pki_fields();
         // Graph savepoint reached.
-        upgrade_plugin_savepoint(true, 2017100500, 'msocialview', 'graph');
+        upgrade_plugin_savepoint(true, 2017110600, 'msocialview', 'graph');
     }
     return true;
 }
