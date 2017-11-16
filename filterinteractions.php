@@ -35,6 +35,7 @@ class filter_interactions {
     const PARAM_INTERACTION_MENTION = 'interaction_mention';
     const PARAM_RECEIVED_BY_TEACHERS = 'hideteachers';
     const PARAM_UNKNOWN_USERS = 'unknownusers';
+    const PARAM_PURE_EXTERNAL = 'external';
     const PARAM_INTERACTIONS = 'interactions';
     const PARAM_DATERANGE = 'daterange';
 
@@ -51,6 +52,7 @@ class filter_interactions {
     public $enddate = 0;
     public $receivedbyteachers = false;
     public $unknownusers = false;
+    public $pureexternal = false;
 
     public function __construct(array $formparams, $msocial) {
         $this->msocial = $msocial;
@@ -72,6 +74,8 @@ class filter_interactions {
                 $this->receivedbyteachers = ($param == 'true' || $param == 'on' || $param == '1' || $param === true);
             } else if ($name == self::PARAM_UNKNOWN_USERS) {
                 $this->unknownusers = ($param == 'true' || $param == 'on' || $param == '1' || $param === true);
+            } else if ($name == self::PARAM_PURE_EXTERNAL) {
+                $this->pureexternal = ($param == 'true' || $param == 'on' || $param == '1' || $param === true);
             } else if (substr($name, 0, 7) == 'source_') {
                 $this->sources[] = substr($name, 7);
             } else if ($name == 'sources') {
@@ -127,7 +131,7 @@ class filter_interactions {
             return (array_search($source, $this->sources) !== false);
         }
     }
-    public function get_checked_usersonly() {
+    public function get_checked_receivedbyteachers() {
         return $this->receivedbyteachers;
     }
     public function get_extra_params() {
@@ -145,19 +149,23 @@ class filter_interactions {
             $out .= "<input type=\"hidden\" name=\"$paramname\" value=\"$paramvalue\"/>\n";
         }
         // Students only.
-        $checked = $this->get_checked_usersonly() ? 'checked' : '';
         $out .= "<b>" . get_string('interactionstoshow', 'msocial') . "</b>";
+
+        $checked = $this->get_checked_receivedbyteachers() ? 'checked' : '';
         $out .= "<input type=\"checkbox\" name=\"". self::PARAM_RECEIVED_BY_TEACHERS . "\" $checked value=\"true\">" .
                 get_string("receivedbyteacher", "msocial") . "</input> ";
         $checked = $this->unknownusers ? 'checked="checked"' : '';
         $out .= "<input type=\"checkbox\" name=\"" . self::PARAM_UNKNOWN_USERS ."\" $checked value=\"true\">" .
-                get_string("pureexternal", "msocial") . "</input> ";
+                get_string("unregistered", "msocial") . "</input> ";
+        $checked = $this->pureexternal ? 'checked="checked"' : '';
+        $out .= "<input type=\"checkbox\" name=\"" . self::PARAM_PURE_EXTERNAL ."\" $checked value=\"true\">" .
+        get_string("pureexternal", "msocial") . "</input> ";
         $checked = $this->get_checked_interaction(social_interaction::POST) ? 'checked="checked"' : '';
         $out .= "<input type=\"checkbox\" name=\"" . self::PARAM_INTERACTION_POST . "\" $checked value=\"true\">" .
                 get_string("posts", "msocial") . "</input> ";
         $checked = $this->get_checked_interaction(social_interaction::REPLY) ? 'checked="checked"' : '';
         $out .= "<input type=\"checkbox\" name=\"" . self::PARAM_INTERACTION_REPLY . "\" $checked value=\"true\">" .
-                get_string('replies','msocial') . "</input> ";
+                get_string('replies', 'msocial') . "</input> ";
         $checked = $this->get_checked_interaction(social_interaction::REACTION) ? 'checked="checked"' : '';
         $out .= "<input type=\"checkbox\" name=\"" . self::PARAM_INTERACTION_REACTION . "\" $checked value=\"true\">" .
                 get_string('reactions', 'msocial') . "</input> ";
@@ -255,6 +263,7 @@ SCRIPT;
                         self::PARAM_INTERACTIONS => $this->interactions,
                         self::PARAM_RECEIVED_BY_TEACHERS => $this->receivedbyteachers,
                         self::PARAM_UNKNOWN_USERS => $this->unknownusers,
+                        self::PARAM_PURE_EXTERNAL => $this->pureexternal,
                         self::PARAM_SOURCES => $this->sources,
                         self::PARAM_STARTDATE => $this->startdate,
                         self::PARAM_ENDDATE => $this->enddate,
@@ -292,7 +301,7 @@ SCRIPT;
         $andedqueries[] = $select;
         $userquery = [];
         if (!$this->receivedbyteachers) {
-            if ($this->users_struct == null) {
+            if ($this->users_struct == null) { // Select only students.
                 $contextcourse = \context_course::instance($this->msocial->course);
                 $this->users_struct = msocial_get_users_by_type($contextcourse);
             }
@@ -306,21 +315,28 @@ SCRIPT;
             $userquery[] = "( fromid $inwhere OR toid $inwhere)";
             $params = array_merge($params, $paramsin, $paramsin);
         }
-        if ($filterusers && $this->unknownusers) { // Include ORed pure external interactions.
+        if ($filterusers && $this->pureexternal) { // Include ORed pure external interactions.
             $userquery[] = '(fromid IS NULL AND toid IS NULL)';
+        }
+        if ($filterusers && $this->unknownusers) { // Include ORed unknown users' interactions.
+            $userquery[] = 'fromid IS NULL';
+            $userquery[] = 'toid IS NULL';
         }
         if (count($userquery) > 0) {
             $andedqueries[]  = '(' . implode(' OR ', $userquery) . ')';
         }
-        if (!$this->unknownusers) { // Exclude pure external interactoins.
+        if (!$this->pureexternal) { // Exclude pure external interactions.
             $andedqueries[] = 'NOT (fromid IS NULL AND toid IS NULL)';
         }
+        if (!$this->unknownusers) { // Exclude unknown users' interactions.
+            $andedqueries[] = 'NOT (fromid IS NULL OR toid IS NULL)';
+        }
         if ($this->startdate && $this->startdate != 0) {
-            $andedqueries[] = "timestamp >= ?"; // TODO: Format date.
+            $andedqueries[] = "(timestamp >= ? OR timestamp IS NULL)"; // TODO: Format date.
             $params[] = $this->startdate;
         }
         if ($this->enddate && $this->enddate != 0) {
-            $andedqueries[] = "timestamp <= ?"; // TODO: Format date.
+            $andedqueries[] = "(timestamp <= ? OR timestamp IS NULL)"; // TODO: Format date.
             $params[] = $this->enddate;
         }
         $query = implode(' AND ', $andedqueries);

@@ -67,7 +67,8 @@ $string['yeartodate'] = 'This year';
 $string['fromactivitystart'] = 'During this activity';
 
 $string['receivedbyteacher'] = 'Received by teachers';
-$string['pureexternal'] = 'Pure external';
+$string['pureexternal'] = 'Between strangers';
+$string['unknownusers'] = 'Stranger users';
 $string['posts'] = 'Posts';
 $string['replies'] = 'Replies';
 $string['reactions'] = 'Reactions';

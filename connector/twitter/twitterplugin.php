@@ -32,8 +32,10 @@ use mod_msocial\social_user;
 use core_calendar\local\event\proxies\std_proxy;
 
 defined('MOODLE_INTERNAL') || die();
-require_once('TwitterAPIExchange.php');
+global $CFG;
 
+require_once('TwitterAPIExchange.php');
+require_once($CFG->dirroot . '/mod/msocial/tagparser.php');
 /** library class for social network twitter plugin extending social plugin base class
  *
  * @package msocialconnector_twitter
@@ -495,7 +497,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $totalresults->statuses = [];
             return $totalresults;
         }
-        $hashtaglist = $this->create_search_filter($hashtag);
+        $tagparser = new \tag_parser($hashtag);
         global $CFG;
         $settings = array('oauth_access_token' => $tokens->token, 'oauth_access_token_secret' => $tokens->token_secret,
                         'consumer_key' => get_config('msocialconnector_twitter', 'consumer_key'),
@@ -521,7 +523,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     // Filter hashtags.
                     $statuses = [];
                     foreach ($result as $status) {
-                        if ($this->check_hashtaglist($status, $hashtaglist)) {
+                        if ($tagparser->check_hashtaglist($status->text)) {
                             $statuses[] = $status;
                         }
                     }
@@ -533,78 +535,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         }
         return $totalresults;
     }
-    /**
-     * Parse hashtag search string.
-     * According twitter https://twitter.com/search-advanced a lista of terms are ANDed, OR creates takes precedence to the left.
-     * @param unknown $hashtagexpr
-     */
-    protected function create_search_filter($hashtagexpr) {
-        preg_match_all("/(\".+\"|\S+)/", $hashtagexpr, $terms);
-        $terms = $terms[0];
-        $searchstruct = [];
-        $orexpression = [];
-        for ($i = 0; $i < count($terms); $i++) {
-            $term = $terms[$i];
-            $nextterm = isset($terms[$i + 1]) ? $terms[$i + 1] : null;
-            if ($nextterm == 'OR') {
-                // Start or add ORed expression.
-                $orexpression[] = $term;
-                $i++;
-                continue;
-            }
-            // Building OR expression.
-            if ( ($nextterm != 'OR' || $nextterm == 'AND') && count($orexpression) > 0) {
-                // Finish OR clause.
-                $orexpression[] = $term;
-                $searchstruct[] = $orexpression;
-                $orexpression = [];
-                continue;
-            }
 
-            if ($term != 'AND') {
-                // Trim quotes.
-                $term = trim($term);
-                $term = trim($term, '"');
-                // Add ANDed expression.
-                $searchstruct[] = $term;
-            }
-        }
-        return $searchstruct;
-    }
-    /**
-     * Check filter condition. Only a list of AND tags
-     * TODO: implement more conditions.
-     * @param unknown $status
-     * @param unknown $searchstruct
-     */
-    protected function check_hashtaglist($status, $searchstruct) {
-        foreach ($searchstruct as $condition) {
-            if (!$this->check_single_condition($status, $condition)) {
-                return false;
-            }
-        }
-        return true;
-    }
-    protected function check_single_condition($status, $condition) {
-        if (is_array($condition)) {
-            // ORed expression.
-            return $this->check_ored_conditions($status, $condition);
-        } else if (strpos($condition, '-') === 0) {
-            // Negative condition.
-            return strpos($status->text, substr($condition, 1)) !== false;
-        } else {
-            return strpos($status->text, $condition) !== false;
-        }
-        return false;
-    }
-    protected function check_ored_conditions($status, $conditions) {
-        foreach ($conditions as $condition) {
-            if ($this->check_single_condition($status, $condition)) {
-                return true;
-            }
-        }
-        return true;
-    }
     /**
      * @todo Get a list of interactions between the users
      * @global moodle_database $DB

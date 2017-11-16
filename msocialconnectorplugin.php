@@ -100,8 +100,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
             $usermessage = $this->render_user_link($user, $brief);
             if ($disconnectaction) {
                 $iconurl = new \moodle_url('/mod/msocial/pix/icon_unlink.png');
-                $unlinktext = get_string('unlinksocialaccount','msocial');
-                $iconhtml = \html_writer::img($iconurl->out(), $unlinktext,[ 'title' => $unlinktext, 'width' => 15, ]);
+                $unlinktext = get_string('unlinksocialaccount', 'msocial');
+                $iconhtml = \html_writer::img($iconurl->out(), $unlinktext, [ 'title' => $unlinktext, 'width' => 15]);
                 $urlprofile = new \moodle_url("/mod/msocial/connector/{$subtype}/connectorSSO.php",
                         array('id' => $this->cm->id, 'action' => 'disconnect', 'type' => 'profile', 'userid' => $user->id,
                                         'socialid' => $socialids->socialid));
@@ -121,7 +121,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         if ($socialuserid) {
             $link = $this->get_social_user_url($socialuserid);
             $icon = $this->get_icon();
-            $link = "<a href=\"$link\"><img src=\"$icon\" height=\"29px\" title=\"$socialuserid->socialname\" " .
+            $link = "<a target=\"_blank\" href=\"$link\"><img src=\"$icon\" height=\"29px\" title=\"$socialuserid->socialname\" " .
                     "alt=\"$socialuserid->socialname\"/>";
             if (!$brief) {
                 $link .= $socialuserid->socialname;

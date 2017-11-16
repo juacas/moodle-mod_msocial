@@ -64,12 +64,13 @@ $string['prevmonth'] = 'El mes pasado';
 $string['yeartodate'] = 'Este año';
 $string['fromactivitystart'] = 'Durante esta actividad';
 $string['receivedbyteacher'] = 'Recibidas por profesores';
-$string['pureexternal'] = 'Inter. desconocidos';
+$string['pureexternal'] = 'Entre desconocidos';
+$string['unknownusers'] = 'De desconocidos';
 $string['posts'] = 'Posts';
 $string['replies'] = 'Replies';
 $string['reactions'] = 'Reacciones';
 $string['mentions'] = 'Menciones';
-$string['interactionstoshow'] = 'Mostrar interacciones:';
+$string['interactionstoshow'] = 'Mostrar interacciones de:';
 $string['socialnetworktoshow'] = 'Mostrar las redes sociales:';
 $string['unlinksocialaccount'] = 'Elimina la relación entre el estudiante y su cuenta de la red social';
 

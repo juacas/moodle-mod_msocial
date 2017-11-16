@@ -16,13 +16,13 @@
 
 $string['pluginname'] = 'Twitter Connector';
 
-$string['hashtag'] = 'Hashtag to search for in tweets';
-$string['hashtag_help'] = 'It can be any string as specified in Twitter API. You can use this tool to compose your search string <a href="https://twitter.com/search-advanced">https://twitter.com/search-advanced</a>. Make a query and then copy the text from the search field of Twitter.';
+$string['hashtag'] = 'Hashtag expression to search for in tweets';
+$string['hashtag_help'] = 'It can be a list of tags with AND and OR. OR takes precedence to the left. Example: "#uva AND #msocial OR #m_social"';
 $string['hashtag_missing'] = 'Hashtag to search for in tweets in missing. Configure it in the activity <a href="../../course/modedit.php?update={$a->cmid}&return=1">settings</a>.';
 $string['hashtag_reminder'] = 'Twitter is searched by search string: <a href="https://twitter.com/search?q={$a->hashtagscaped}">{$a->hashtag}</a>.';
 
 $string['widget_id'] = 'Widget id to be embedded in the main page.';
-$string['widget_id_help'] = 'Tweeter API forces to create mannually a search widget in yout twitter account to be embedded in any page. Create one and copy and paste the WidgetId created. You can create the widgets at <a href="https://twitter.com/settings/widgets">Create and manage yout Twitter Widgets</a>';
+$string['widget_id_help'] = 'Tweeter API forces to create mannually a search widget in yout twitter account to be embedded in any page. Create one and copy and paste the WidgetId created. You can create the widgets at <a href="https://twitter.com/settings/widgets">Create and manage your Twitter Widgets</a>';
 
 
 $string['pluginadministration'] = 'Twitter conquest';
