@@ -156,7 +156,7 @@ class filter_interactions {
                 get_string("receivedbyteacher", "msocial") . "</input> ";
         $checked = $this->unknownusers ? 'checked="checked"' : '';
         $out .= "<input type=\"checkbox\" name=\"" . self::PARAM_UNKNOWN_USERS ."\" $checked value=\"true\">" .
-                get_string("unregistered", "msocial") . "</input> ";
+                get_string("unknownusers", "msocial") . "</input> ";
         $checked = $this->pureexternal ? 'checked="checked"' : '';
         $out .= "<input type=\"checkbox\" name=\"" . self::PARAM_PURE_EXTERNAL ."\" $checked value=\"true\">" .
         get_string("pureexternal", "msocial") . "</input> ";
