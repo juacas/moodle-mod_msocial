@@ -150,7 +150,7 @@ class msocial_view_sequence extends msocial_view_plugin {
             if ($to == null) {
                 $to = '[COMMUNITY]';
             }
-            $diagram .= $from . $arrow . $to . ":" . $interaction->source . ':' . $interaction->nativetype . "\r\n";
+            $diagram .= '"' . $from . '"' . $arrow . '"' . $to . '"' . ":" . $interaction->source . ':' . $interaction->nativetype . "\r\n";
         }
         echo '<div id="diagram" class="diagram" style="max-witdh=1000px">' . $diagram . '</div>';
         $reqs->js_init_call('initview', []);
