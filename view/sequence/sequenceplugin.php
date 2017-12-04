@@ -143,8 +143,7 @@ class msocial_view_sequence extends msocial_view_plugin {
             if ($interaction->type == social_interaction::POST) {
                 $to = $from; // Represents as a self-message.
             } else {
-                $to = isset($userrecords[$interaction->toid]) ?
-                        fullname($userrecords[$interaction->toid]) :
+                $to = isset($userrecords[$interaction->toid]) ? fullname($userrecords[$interaction->toid]) :
                         '[' . ($interaction->nativetoname ? $interaction->nativetoname : $interaction->nativeto) . ']';
             }
             if ($to == null) {

@@ -213,6 +213,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @param array(\stdClass) $user records indexed by userid.
      * @return array[pki] */
     public function calculate_pkis($users, $pkis = []) {
+        $pkis = parent::calculate_pkis($users, $pkis);
         $stats = $this->calculate_stats(array_keys($users));
         $stataggregated = $stats->maximums;
         // Convert stats to PKI.
@@ -251,14 +252,13 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         global $DB;
         $cm = get_coursemodule_from_instance('msocial', $this->msocial->id, 0, false, MUST_EXIST);
         $stats = $DB->get_records_sql(
-                'SELECT userid as id, sum(retweets) as retweets, count(tweetid) as tweets, sum(favs) as favs ' .
+                'SELECT userid as id, sum(retweets) as retweets, sum(favs) as favs ' .
                          'FROM {msocial_tweets} where msocial = ? and userid is not null group by userid', array($this->msocial->id));
         $userstats = new \stdClass();
         $userstats->users = array();
 
         $favs = array();
         $retweets = array();
-        $tweets = array();
         if ($users == null) {
             $users = array_keys($stats);
         }
@@ -266,19 +266,15 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $stat = new \stdClass();
 
             if (isset($stats[$userid])) {
-                $tweets[] = $stat->tweets = $stats[$userid]->tweets;
                 $retweets[] = $stat->retweets = $stats[$userid]->retweets;
                 $favs[] = $stat->favs = $stats[$userid]->favs;
             } else {
                 $stat->retweets = 0;
-                $stat->tweets = 0;
                 $stat->favs = 0;
             }
             $userstats->users[$userid] = $stat;
         }
         $stat = new \stdClass();
-        $stat->max_retweets = 0;
-        $stat->max_tweets = count($tweets) == 0 ? 0 : max($tweets);
         $stat->max_favs = count($favs) == 0 ? 0 : max($favs);
         $stat->max_retweets = count($retweets) == 0 ? 0 : max($retweets);
         $userstats->maximums = $stat;

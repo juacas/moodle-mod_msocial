@@ -102,6 +102,10 @@ class pki_info {
     /** This pki is calculated by dedicated code of a plugin, not from recorded interactions.
      * @var string */
     const PKI_CUSTOM = 'custom_pki';
+    /**
+     * This pki is calculated by summarizing interaction table
+     * @var string
+     */
     const PKI_CALCULATED = 'stats_pki';
     /** Measures a person indicator or not.
      *

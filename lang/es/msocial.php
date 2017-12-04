@@ -81,3 +81,5 @@ $string['msocial:addinstance'] = 'Añadir una nueva actividad MSocial al curso.'
 $string['msocial:manage'] = 'Change settings of a MSocial activity';
 $string['msocial:view'] = 'View information of MSocial about me';
 $string['msocial:viewothers'] = 'View all information collected by MSocial';
+$string['msocial:exportpkis'] = 'Descargar PKIs calculados por MSocial';
+$string['msocial:exportinteractions'] = 'Descargar las interacciones en bruto';
