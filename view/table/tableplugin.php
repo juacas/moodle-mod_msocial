@@ -228,12 +228,10 @@ class msocial_view_table extends msocial_view_plugin {
             // Get the PKIs.
             foreach ($pkiindividual as $type => $pkinfs) {
                 foreach ($pkinfs as $pkiinfo) {
-                    $row->cells[] = new \html_table_cell(isset($pki->{$pkiinfo->name}) ? $pki->{$pkiinfo->name} : '--');
+                    $pkivalue = isset($pki->{$pkiinfo->name}) ? (float) sprintf("%.5f", $pki->{$pkiinfo->name}, 6) : '--';
+                    $row->cells[] = new \html_table_cell($pkivalue);
                 }
             }
-            // $tweetsdata = '<a href="https://twitter.com/search?q=' .
-            // urlencode($enabledplugins['twitter']->get_config('hashtag')) .
-            // '%20from%3A' . $twitterusername . '&src=typd">' . $stat->tweets . "</a>";
             $table->data[] = $row;
         }
         echo '<div id="tablepkis" class="container">';
