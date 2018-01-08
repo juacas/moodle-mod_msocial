@@ -42,7 +42,7 @@ class filter_interactions {
     const PARAM_SOURCES = 'sources';
     const PARAM_STARTDATE = 'startdate';
     const PARAM_ENDDATE = 'enddate';
-    const PARAM_SOCIALUSERNAME = 'socialname';
+    const PARAM_FROMID = 'fromid';
 
     public $msocial;
     public $users_struct = null;
@@ -54,7 +54,7 @@ class filter_interactions {
     public $receivedbyteachers = false;
     public $unknownusers = false;
     public $pureexternal = false;
-    public $socialname = null;
+    public $fromid = null;
 
     public function __construct(array $formparams, $msocial) {
         $this->msocial = $msocial;
@@ -101,8 +101,8 @@ class filter_interactions {
                     $this->startdate = $startdate->getTimestamp();
                     $this->enddate = $enddate->getTimestamp();
                 }
-            } else if ($name == self::PARAM_SOCIALUSERNAME) {
-                $this->socialname = (string) $param;
+            } else if ($name == self::PARAM_FROMID) {
+                $this->fromid = (string) $param;
             } else {
                 $this->extraparams[$name] = $param;
             }
@@ -183,7 +183,20 @@ class filter_interactions {
             $checked = $this->get_checked_source($sourcename) ? 'checked="checked"' : '';
             $out .= "<input type=\"checkbox\" name=\"source_$sourcename\" $checked >$sourcename</input> ";
         }
-        $out .= '<b>'. get_string('socialnamefilter', 'msocial') . '</b><input id="socialname" type="text" name="' . self::PARAM_SOCIALUSERNAME . '" value="' . $this->socialname . '" />';
+
+        $out .= '<b>'. get_string('fromidfilter', 'msocial') . '</b>';
+        $out .= '<select id="fromid" name="' . self::PARAM_FROMID . '">';
+
+        $contextcourse = \context_course::instance($this->msocial->course);
+        $users_struct = msocial_get_users_by_type($contextcourse);
+        $out .= "<option value=\"\">All</option>";
+        foreach ($users_struct['user_records'] as $userid => $user) {
+            $selected = $this->fromid == $userid ? 'selected="true"' : '';
+            $username = fullname($user);
+            $out .= "<option $selected value=\"$userid\">$username</option>";
+        }
+        $out .= '</select>';
+
         $out .= ' <div><b>' . get_string('datesrange', 'msocial') . '</b>:';
         $out .= '<input id="daterange" type="text" class="daterange" name="daterange" />';
         $out .= " <input type=\"submit\"></div>";
@@ -273,7 +286,7 @@ SCRIPT;
                         self::PARAM_SOURCES => $this->sources,
                         self::PARAM_STARTDATE => $this->startdate,
                         self::PARAM_ENDDATE => $this->enddate,
-                        self::PARAM_SOCIALUSERNAME => $this->socialname,
+                        self::PARAM_FROMID => $this->fromid,
         ];
         return $params;
     }
@@ -346,9 +359,9 @@ SCRIPT;
             $andedqueries[] = "(timestamp <= ? OR timestamp IS NULL)"; // TODO: Format date.
             $params[] = $this->enddate;
         }
-        if ($this->socialname) {
-            $andedqueries[] = "( nativefromname = ?)";
-            $params[] = $this->socialname;
+        if ($this->fromid) {
+            $andedqueries[] = "( fromid = ?)";
+            $params[] = $this->fromid;
         }
         $query = implode(' AND ', $andedqueries);
 

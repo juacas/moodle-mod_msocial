@@ -77,7 +77,7 @@ $string['mentions'] = 'Mentions';
 $string['interactionstoshow'] = 'Show interactions:';
 $string['socialnetworktoshow'] = 'Show social networks:';
 $string['unlinksocialaccount'] = 'Remove the relationship between the student and his social network account';
-$string['socialnamefilter'] = 'Author social name:';
+$string['fromidfilter'] = 'Author:';
 // SETTINGS.
 // Permissions.
 $string['msocial:view'] = 'View basic information of MSocial module.';

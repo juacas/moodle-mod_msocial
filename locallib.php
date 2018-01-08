@@ -102,7 +102,7 @@ function msocial_get_users_by_type($contextcourse) {
     }
     return array('student_ids' => $students,
                  'nonstudent_ids' => $nonstudents,
-                 'active:ids' => $activeids,
+                 'active_ids' => $activeids,
                  'user_records' => $userrecords);
 }
 
