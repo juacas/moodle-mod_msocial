@@ -682,10 +682,10 @@ abstract class msocial_plugin {
             if ($level === self::NOTIFY_NORMAL) {
                 $tablemsgs = join('</br>', $messages);
                 $table = '<table><tr><td valign="top">'. $icondecoration . '</td><td>' . $tablemsgs. '</td></tr></table>';
-                echo $OUTPUT->notification($table , 'info');
+                msocial_notify_info($table);
             } else if ($level === self::NOTIFY_WARNING) {
                 $text = join('<br/>', $messages);
-                echo $OUTPUT->notification($icondecoration . $text, 'error');
+                msocial_notify_warning($icondecoration . $text);
             }
         }
     }

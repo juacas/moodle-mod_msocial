@@ -42,6 +42,7 @@ class filter_interactions {
     const PARAM_SOURCES = 'sources';
     const PARAM_STARTDATE = 'startdate';
     const PARAM_ENDDATE = 'enddate';
+    const PARAM_SOCIALUSERNAME = 'socialname';
 
     public $msocial;
     public $users_struct = null;
@@ -53,6 +54,7 @@ class filter_interactions {
     public $receivedbyteachers = false;
     public $unknownusers = false;
     public $pureexternal = false;
+    public $socialname = null;
 
     public function __construct(array $formparams, $msocial) {
         $this->msocial = $msocial;
@@ -99,6 +101,8 @@ class filter_interactions {
                     $this->startdate = $startdate->getTimestamp();
                     $this->enddate = $enddate->getTimestamp();
                 }
+            } else if ($name == self::PARAM_SOCIALUSERNAME) {
+                $this->socialname = (string) $param;
             } else {
                 $this->extraparams[$name] = $param;
             }
@@ -172,12 +176,14 @@ class filter_interactions {
         $checked = $this->get_checked_interaction(social_interaction::MENTION) ? 'checked="checked"' : '';
         $out .= "<input type=\"checkbox\" name=\"" . self::PARAM_INTERACTION_MENTION . "\" $checked value=\"true\">" .
                 get_string('mentions', 'msocial') . "</input> ";
-        $out .= " <br/> <b>". get_string('socialnetworktoshow', 'msocial') . "</b>";
+        $out .= " <br/> ";
+        $out .= "<b>". get_string('socialnetworktoshow', 'msocial') . "</b>";
         foreach ($plugins as $plugin) {
             $sourcename = $plugin->get_subtype();
             $checked = $this->get_checked_source($sourcename) ? 'checked="checked"' : '';
             $out .= "<input type=\"checkbox\" name=\"source_$sourcename\" $checked >$sourcename</input> ";
         }
+        $out .= '<b>'. get_string('socialnamefilter', 'msocial') . '</b><input id="socialname" type="text" name="' . self::PARAM_SOCIALUSERNAME . '" value="' . $this->socialname . '" />';
         $out .= ' <div><b>' . get_string('datesrange', 'msocial') . '</b>:';
         $out .= '<input id="daterange" type="text" class="daterange" name="daterange" />';
         $out .= " <input type=\"submit\"></div>";
@@ -267,6 +273,7 @@ SCRIPT;
                         self::PARAM_SOURCES => $this->sources,
                         self::PARAM_STARTDATE => $this->startdate,
                         self::PARAM_ENDDATE => $this->enddate,
+                        self::PARAM_SOCIALUSERNAME => $this->socialname,
         ];
         return $params;
     }
@@ -338,6 +345,10 @@ SCRIPT;
         if ($this->enddate && $this->enddate != 0) {
             $andedqueries[] = "(timestamp <= ? OR timestamp IS NULL)"; // TODO: Format date.
             $params[] = $this->enddate;
+        }
+        if ($this->socialname) {
+            $andedqueries[] = "( nativefromname = ?)";
+            $params[] = $this->socialname;
         }
         $query = implode(' AND ', $andedqueries);
 

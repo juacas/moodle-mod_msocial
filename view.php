@@ -76,9 +76,15 @@ echo $OUTPUT->spacer(array('height' => 20));
 echo $OUTPUT->heading(format_string($msocial->name) . $OUTPUT->help_icon('mainpage', 'msocial'));
 // Description text.
 echo $OUTPUT->box_start('generalbox boxaligncenter', 'intro');
+// Module intro.
 echo format_module_intro('msocial', $msocial, $cm->id);
 echo $OUTPUT->box_end();
-
+// Date span of the tracking.
+$dates = new stdClass();
+$dates->startdate = $msocial->startdate ? userdate($msocial->startdate) : '-∞';
+$dates->enddate = $msocial->enddate ? userdate($msocial->enddate) : '∞';
+$datemsg = format_string(get_string('msocial:daterange', 'msocial', $dates));
+echo $OUTPUT->box($datemsg, 'block');
 // Print the information about the linking of the module with social plugins..
 $enabledsocialplugins = \mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
 $enabledplugins = array_merge($enabledviewplugins, $enabledsocialplugins);
@@ -116,8 +122,7 @@ foreach ($enabledplugins as $name => $enabledplugin) {
     // msocial_plugin::NOTIFY_NORMAL).
     $enabledplugin->notify($notifications, msocial_plugin::NOTIFY_WARNING);
 }
-echo $OUTPUT->box($totalnotification, 'block');
-
+msocial_notify_info($totalnotification);
 // Filters section.
 require_once('filterinteractions.php');
 $filter = new filter_interactions($_GET, $msocial);

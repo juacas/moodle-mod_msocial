@@ -44,6 +44,7 @@ $string['startdate'] = 'Moment of the conquest starting.';
 $string['startdate_help'] = 'ACtivity before this moment are not included in the statistics.';
 $string['enddate'] = 'Moment of the conquest ending.';
 $string['enddate_help'] = 'Activity after this moment are not included in the statistics.';
+$string['msocial:daterange'] = 'Activity tracking from {$a->startdate} until {$a->enddate}';
 $string['grade_variables'] = 'Social variables';
 $string['grade_variables_help'] = 'Variables generated from the social network activities. They can be used in the grading formula';
 $string['grade_expr'] = 'Formula for converting stats into grades.';
@@ -76,6 +77,7 @@ $string['mentions'] = 'Mentions';
 $string['interactionstoshow'] = 'Show interactions:';
 $string['socialnetworktoshow'] = 'Show social networks:';
 $string['unlinksocialaccount'] = 'Remove the relationship between the student and his social network account';
+$string['socialnamefilter'] = 'Author social name:';
 // SETTINGS.
 // Permissions.
 $string['msocial:view'] = 'View basic information of MSocial module.';

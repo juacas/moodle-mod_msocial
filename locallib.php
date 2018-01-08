@@ -24,11 +24,49 @@
  */
 use mod_msocial\plugininfo\msocialview;
 use msocial\msocial_plugin;
+
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->libdir . '/mathslib.php');
 
+/**
+ * Compatibility with Moodle 2.9 notifications.
+ *
+ * @param string $message
+ */
+function msocial_notify_info($message) {
+    if (class_exists('\core\notification')) {
+        \core\notification::info($message);
+    } else {
+        global $OUTPUT;
+        echo $OUTPUT->notification($message , 'notifymessage');
+    }
+}
+/**
+ * Compatibility with Moodle 2.9 notifications
+ * @param unknown $message
+ */
+function msocial_notify_error($message) {
+    if (class_exists('\core\notification')) {
+        \core\notification::error($message);
+    } else {
+        global $OUTPUT;
+        echo $OUTPUT->notification($message , 'notifyproblem');
+    }
+}
+/**
+ * Compatibility with Moodle 2.9 notifications
+ * @param unknown $message
+ */
+function msocial_notify_warning($message) {
+    if (class_exists('\core\notification')) {
+        \core\notification::warning($message);
+    } else {
+        global $OUTPUT;
+        echo $OUTPUT->notification($message , 'notifyproblem');
+    }
+}
 /** Find the list of users and get a list with the ids of students and a list of non-students
  * @param type $contextcourse
  * @return array(array($studentIds), array($non_studentIds), array($activeids),

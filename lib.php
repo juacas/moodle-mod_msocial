@@ -266,7 +266,7 @@ function msocial_extend_settings_navigation(settings_navigation $settings, navig
     }
     if (has_capability('mod/msocial:exportpkis', $cm->context)) {
         $link = new moodle_url('/mod/msocial/exportpkis.php', array('id' => $cm->id));
-        $linkname = get_string('event:pki_exported', 'msocial');
+        $linkname = get_string('msocial:exportrawdata', 'msocial');
         $node = $navref->add($linkname, $link, navigation_node::TYPE_CUSTOM);
     }
 }
