@@ -188,9 +188,9 @@ class filter_interactions {
         $out .= '<select id="fromid" name="' . self::PARAM_FROMID . '">';
 
         $contextcourse = \context_course::instance($this->msocial->course);
-        $users_struct = msocial_get_users_by_type($contextcourse);
+        $userrecords = get_enrolled_users($contextcourse, '', 0, '*', 'lastname');;
         $out .= "<option value=\"\">All</option>";
-        foreach ($users_struct['user_records'] as $userid => $user) {
+        foreach ($userrecords as $userid => $user) {
             $selected = $this->fromid == $userid ? 'selected="true"' : '';
             $username = fullname($user);
             $out .= "<option $selected value=\"$userid\">$username</option>";
