@@ -30,11 +30,12 @@ use mod_msocial\pki_info;
 use mod_msocial\pki;
 use mod_msocial\connector\msocial_connector_plugin;
 use mod_msocial\connector\harvest_intervals;
+use mod_msocial\view\graph\graph_task;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot . '/mod/msocial/msocialviewplugin.php');
-require_once($CFG->dirroot . '/mod/msocial/pki.php');
+require_once(__DIR__.'../../../msocialviewplugin.php');
+require_once(__DIR__.'../../../pki.php');
 
 /** library class for view the network activity as a sequence diagram extending view plugin base
  * class
@@ -43,7 +44,7 @@ require_once($CFG->dirroot . '/mod/msocial/pki.php');
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 class msocial_view_graph extends msocial_view_plugin {
-
+    const PLUGINNAME = "graph";
     /** Get the name of the plugin
      *
      * @return string */
@@ -82,7 +83,7 @@ class msocial_view_graph extends msocial_view_plugin {
     }
 
     public function get_subtype() {
-        return 'graph';
+        return self::PLUGINNAME;
     }
 
     public function get_category() {
@@ -165,15 +166,25 @@ class msocial_view_graph extends msocial_view_plugin {
      * @global moodle_database $DB
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
     public function harvest() {
+        $async = false;
         $result = (object) ['messages' => []];
         $contextcourse = \context_course::instance($this->msocial->course);
         list($students, $nonstudents, $active, $users) = array_values(msocial_get_users_by_type($contextcourse));
-        $pkis = $this->calculate_pkis($users);
-        $this->store_pkis($pkis, true);
-        $this->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
         $msocial = $this->msocial;
-        $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) processing network topology.";
-        return $result;
+        if ($async) {
+            require_once('graphtask.php');
+            $task = new graph_task();
+            $task->set_custom_data((object)['msocial' => $this->msocial, 'users' => $users ]);
+            $task->execute();
+            $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) asynchronously processing network topology.";
+            return $result;
+        } else {
+            $pkis = $this->calculate_pkis($users);
+            $this->store_pkis($pkis, true);
+            $this->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
+            $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) processing network topology.";
+            return $result;
+        }
     }
     /**
      * {@inheritDoc}
@@ -201,7 +212,7 @@ class msocial_view_graph extends msocial_view_plugin {
         if ($this->is_enabled()) {
             $context = \context_module::instance($this->cm->id);
             if (has_capability('mod/msocial:manage', $context)) {
-                $harvestbutton= $OUTPUT->action_icon(
+                $harvestbutton = $OUTPUT->action_icon(
                         new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->get_cmid(),
                                         'subtype' => $this->get_subtype()]), new \pix_icon('a/refresh', ''));
             }

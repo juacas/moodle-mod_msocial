@@ -39,16 +39,35 @@ class JPDijkstra extends \Graphp\Algorithms\ShortestPath\Dijkstra {
 
     public function __construct(\Fhaculty\Graph\Vertex $vertex) {
         parent::__construct($vertex);
-        $this->edges = parent::getEdges();
+        parent::calculate();
     }
 
+    public function getDistanceMap()
+    {
+        $ret = array();
+        foreach ($this->vertex->getGraph()->getVertices()->getMap() as $vid => $vertex) {
+            try {
+                if (isset($this->totalCostOfCheapestPathTo[$vid])) {
+                    $ret[$vid] = $this->totalCostOfCheapestPathTo[$vid];
+                }
+            } catch (OutOfBoundsException $ignore) {
+            } // ignore vertices that can not be reached
+        }
+
+        return $ret;
+    }
     /**
      * get all edges on shortest path for this vertex
      *
      * @return Edges
      * @throws UnexpectedValueException when encountering an Edge with negative weight
      */
-    public function getEdges() {
+    public function getEdges()
+    {
+        if ($this->edges == null) {
+            $this->edges = parent::getEdges();
+        }
+        // algorithm is done, return resulting edges
         return $this->edges;
     }
 }

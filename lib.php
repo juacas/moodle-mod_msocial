@@ -313,7 +313,6 @@ function msocial_grade_item_update($msocial, $grades = null) {
  * @return array array of grades, false if none */
 function msocial_get_user_grades($msocial, $userid = 0) {
     global $CFG;
-
     require_once($CFG->dirroot . '/mod/msocial/locallib.php');
 
     $grades = msocial_calculate_user_grades($msocial, $userid);

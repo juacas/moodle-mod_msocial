@@ -68,7 +68,7 @@ class msocialbase extends base {
      * @param \stdClass $msocial record of the instance for initializing plugins
      * @param unknown $subtype 'connector' or 'view'
      * @param unknown $pluginname
-     * @return unknown */
+     * @return msocial_plugin */
     public static function instance($msocial, $subtype, $pluginname) {
         $path = \core_component::get_plugin_directory('msocial' . $subtype, $pluginname);
         $classfile = $pluginname . 'plugin.php';
@@ -146,7 +146,7 @@ class msocialbase extends base {
     /**
      * Gets all instance-wide enabled plugins.
      * @param unknown $msocial
-     * @param unknown $subtype
+     * @param unknown $subtype 'connector' or 'view'
      * @return array
      */
     public static function get_enabled_plugins($msocial = null, $subtype = null) {

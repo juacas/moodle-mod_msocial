@@ -37,7 +37,7 @@ use mod_msocial\SocialUser;
 use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot . '/mod/msocial/msocialplugin.php');
+require_once('msocialplugin.php');
 require_once('harvestintervals.php');
 abstract class msocial_connector_plugin extends msocial_plugin {
     protected $usertosocialmapping = null;
@@ -51,7 +51,15 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     public final function __construct($msocial) {
         parent::__construct($msocial, 'msocialconnector');
     }
-
+    /**
+     * User's token broke. Maybe expired. Ask the user to relogin.
+     * @param \stdClass $socialuser record from msocial_map_user table.
+     * @param string $msg
+     */
+    protected function notify_user_token( $socialuser, $msg) {
+        // TODO: Notify users with messagging.
+        $this->notify([$msg], self::NOTIFY_WARNING);
+    }
     public abstract function get_connection_token();
 
     public abstract function set_connection_token($token);
@@ -203,11 +211,14 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $studentinteractions = array_filter($processedinteractions,
                 function (social_interaction $interaction) {
                     return isset($interaction->fromid) &&
-                    msocial_time_is_between($interaction->timestamp, $this->msocial->startdate, $this->msocial->enddate);
+                    msocial_time_is_between($interaction->timestamp,
+                                            (int) $this->msocial->startdate,
+                                            (int) $this->msocial->enddate);
                 });
         $intimeinteractions = array_filter($processedinteractions,
                 function (social_interaction $interaction) {
-                    return msocial_time_is_between($interaction->timestamp, $this->msocial->startdate, $this->msocial->enddate);
+                    return msocial_time_is_between($interaction->timestamp,
+                            $this->msocial->startdate, $this->msocial->enddate);
                 });
         $subtype = $this->get_subtype();
         $logmessage = "For module msocial\\connector\\$subtype: \"" . $this->msocial->name .

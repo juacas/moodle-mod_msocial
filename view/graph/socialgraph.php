@@ -35,6 +35,8 @@ use Graphp\Algorithms\TransposeGraph;
 use Graphp\Algorithms\BidirectionalGraph;
 use Fhaculty\Graph\Set\Vertices;
 use Fhaculty\Graph\Vertex;
+use Graphp\Algorithms\SimpleGraph;
+use Fhaculty\Graph\Exception\OutOfBoundsException;
 
 class SocialMatrix {
     private $adjacencymatrix = [];
@@ -144,10 +146,17 @@ class SocialMatrix {
      * @return \stdClass $results */
     public function calculate_centralities($users) {
         require_once('BidirectionalGraph.php');
+        require_once('SimpleGraph.php');
+
         // Invert graph.
-        $transposer = new TransposeGraph($this->graph);
-        $transposedgraph = $transposer->createGraph();
-        $bidirectionalgraph = (new BidirectionalGraph($this->graph))->createGraph(false);
+//         $transposer = new TransposeGraph($this->graph);
+//         $transposedgraph = $transposer->createGraph();
+        // Merge parallel edges.
+        $simplifier = new SimpleGraph($this->graph);
+        $simplegraph = $simplifier->createGraph();
+
+//         $bidirectionalgraph = (new BidirectionalGraph($this->graph))->createGraph(false);
+        $bidirectionalgraph = (new BidirectionalGraph($simplegraph))->createGraph(false);
         $results = [];
         $analysisgraph = $bidirectionalgraph;
         // $communityvertex = $analysisgraph->getVertex('Community');
@@ -170,16 +179,19 @@ class SocialMatrix {
             // Obtiene el camino mas corto a cada uno de los vertex que esta conectado el miembro.
             $timestamp = microtime(true);
             $sp = new JPDijkstra($vertex);
-            mtrace('<li>Calculating shortest paths for ' . $username . ' in ' . round(microtime(true) - $timestamp, 4) . ' secs.' );
+            mtrace('<li>Calculated shortest paths for ' . $username . ' in ' . round(microtime(true) - $timestamp, 4) . ' secs.' );
 
             // Array que contiene como clave los "ids" y como valor el "peso" total (por el camino
             // mas corto)
             // a cada uno de los "Vertex" que está conectado.
+            $timestamp = microtime(true);
             $dmap = $sp->getDistanceMap();
+            mtrace('<li>Calculated distance map for ' . fullname($users[$id]) . ' in ' .   round(microtime(true) - $timestamp, 4) . ' secs.' );
+
             // Calculo de la suma de todos los caminos a todos los vertices que está conectado.
             $timestamp = microtime(true);
             $indcercania = $this->centralidad_cercania($dmap, $id);
-            mtrace('<li>Calculating nearness for ' . ' in ' .   round(microtime(true) - $timestamp, 4) . ' secs.' );
+            mtrace('<li>Calculated nearness for ' . fullname($users[$id]) .' in ' .   round(microtime(true) - $timestamp, 4) . ' secs.' );
             if (!isset($results[$id])) {
                 $results[$id] = new stdClass();
             }
@@ -187,7 +199,7 @@ class SocialMatrix {
             // Calculo de todos los "vertex" que están entre medias de los caminos mas cortos.
             $timestamp = microtime(true);
             $intermediacionparcial = $this->centralidad_intermediacion($analysisgraph, $dmap, $sp, $id);
-            mtrace('<li>Calculating betweeness for ' . fullname($users[$id]) . ' in ' .  round(microtime(true) - $timestamp, 4) . ' secs.' );
+            mtrace('<li>Calculated betweeness for ' . fullname($users[$id]) . ' in ' .  round(microtime(true) - $timestamp, 4) . ' secs.' );
 
             foreach ($intermediacionparcial as $key => $value) {
                 if (!isset($results[$key])) {
@@ -323,24 +335,41 @@ class SocialMatrix {
         mtrace('<li>Betweenness of ' . count($dmap) . " nodes in distance map.</li>");
         foreach ($dmap as $key => $value) {
             // Elimino bucles por si está conectado a él mismo mediante otros nodos.
-            if ($id !== $key) {
-                $timestamp = microtime(true);
-                if ($value > 2) {
-                    // Obtengo el nodo al que está conectado.
-                    $vertex = $compactgraph->getVertex($key);
-                    // Obtengo el camino para llegar a ese nodo.
-                    $path = $sp->getWalkTo($vertex);
-                    // Obtengo los Ids de los nodos que están en ese camino.
-                    $ids = $path->getVertices()->getIds();
-                    mtrace('<li>Get intermediate nodes from ' . $id . ' to ' . $key . ' in ' . round(microtime(true) - $timestamp, 4) . ' secs.' );
-                    // Sin contar al usuario que estamos analizando y sin contar el último nodo (ya que
-                    // no estaría en el medio del camino).
-                    for ($i = 1; $i < count($ids) - 1; $i++) {
-                        // Si no existe el indice de proximidad para el nodo estudiado le asigno valor
-                        // 1, si ya existe incremento en 1.
-                        $indiceproximidad[$ids[$i]] = isset($indiceproximidad[$ids[$i]]) ? $indiceproximidad[$ids[$i]] + 1 : 1;
+                try {
+                if ($id != $key) {
+                    if ($value > 1) {
+                        $timestamp = microtime(true);
+                        // Obtengo el nodo al que está conectado.
+
+                        // Obtengo el camino para llegar a ese nodo.
+                        $ids = [];
+                        $previd = $key;
+                        do {
+                            $prevvertex = $sp->predecesVertexOfCheapestPathTo[$previd];
+                            $previd = $prevvertex->getId();
+                            if ($previd != $id) {
+                                $ids[] = $previd;
+                            }
+                        } while ($previd != $id);
+
+//                         $vertex = $compactgraph->getVertex($key);
+//                         $path = $sp->getWalkTo($vertex);
+                        // Obtengo los Ids de los nodos que están en ese camino.
+//                         $ids = $path->getVertices()->getIds();
+                        // Sin contar al usuario que estamos analizando y sin contar el último nodo (ya que
+                        // no estaría en el medio del camino).
+                        for ($i = 1; $i < count($ids) - 1; $i++) {
+                            // Si no existe el indice de proximidad para el nodo estudiado le asigno valor
+                            // 1, si ya existe incremento en 1.
+                            $indiceproximidad[$ids[$i]] = isset($indiceproximidad[$ids[$i]]) ? $indiceproximidad[$ids[$i]] + 1 : 1;
+                        }
+//                         mtrace('<li>Got ' . count($ids) . ' intermediate nodes from ' . $id . ' to ' . $key . ' dmap=' . $value . ' in ' . round(microtime(true) - $timestamp, 4) . ' secs.' );
                     }
                 }
+            } catch ( OutOfBoundsException $ex) {
+                    // ignore.
+                mtrace('<li>No path found from ' . $id . ' to ' . $key . ' Distancemap says: ' . $value );
+
             }
         }
         return $indiceproximidad;

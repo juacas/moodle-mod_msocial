@@ -107,11 +107,14 @@ function msocial_get_users_by_type($contextcourse) {
 }
 
 /**
- * @param int $timestamp
+ * @param int|DateTime $timestamp
  * @param int|null $fromdate
  * @param int|null $todate
  * @return bool */
 function msocial_time_is_between($timestamp, $fromdate, $todate) {
+    if ($timestamp instanceof DateTime) {
+        $timestamp = $timestamp->getTimestamp();
+    }
     if ($fromdate == "0") {
         $fromdate = null;
     }
@@ -180,13 +183,13 @@ function msocial_calculate_user_grades($msocial, $userid = 0) {
     $cm = get_coursemodule_from_instance('msocial', $msocial->id, 0, false, MUST_EXIST);
     if ($userid == 0) {
         $context = context_module::instance($cm->id);
-        list($sudents) = array_values(msocial_get_users_by_type($context));
+        list($students) = array_values(msocial_get_users_by_type($context));
     } else if (is_array($userid)) {
         $students = $userid;
     } else {
         $students = array($userid);
     }
-
+    // TODO: honor $userid param.
     $grades = msocial_calculate_grades($msocial);
     return $grades;
 }

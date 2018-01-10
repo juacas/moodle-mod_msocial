@@ -421,6 +421,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             }
             $errormessage = implode('. ', $result->errors);
             $msocial = $this->msocial;
+            $cm = $this->cm;
             $errormessage = "Searching by users. For module msocial\connector\twitter: $msocial->name (id=$cm->instance) " .
             " in course (id=$msocial->course) searching: $hashtag $info ERROR:" . $errormessage;
             $result->messages[] = $errormessage;
@@ -508,25 +509,26 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $twitter = new TwitterAPIExchange($settings);
             $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
             $result = json_decode($json);
-            if ($result == null) {
-                $totalresults->errors[] = "Error querying last tweets from user $socialuser->socialname. Response was $json.";
-            } else {
+            if ($result == null || isset($result->error)) {
 
-                if (isset($result->errors)) {
-                    $result->errors->message .= $socialuser->socialname;
-                    $totalresults->errors[] = $result->errors;
-                } else {
-                    // Filter hashtags.
-                    $statuses = [];
-                    foreach ($result as $status) {
-                        if ($tagparser->check_hashtaglist($status->text)) {
+                $msg = "Error querying last tweets from user $socialuser->socialname. Response was " .
+                        ($result == null ? $json : $result->error);
+                $totalresults->errors[] = $msg;
+                // TODO: Notify user to renew tokens.
+                $this->notify_user_token($socialuser, $msg);
+            } else {
+                // Filter hashtags.
+                $statuses = [];
+                foreach ($result as $status) {
+                    if ($status instanceof \stdClass) {
+                        $text = $status->text;
+                        if ($tagparser->check_hashtaglist($text)) {
                             $statuses[] = $status;
                         }
                     }
-                    $totalresults->statuses = array_merge(isset($totalresults->statuses) ? $totalresults->statuses : [],
-                                                        $statuses);
                 }
-
+                $totalresults->statuses = array_merge(isset($totalresults->statuses) ? $totalresults->statuses : [],
+                                                    $statuses);
             }
         }
         return $totalresults;
