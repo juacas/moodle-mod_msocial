@@ -152,11 +152,17 @@ class SocialMatrix {
 //         $transposer = new TransposeGraph($this->graph);
 //         $transposedgraph = $transposer->createGraph();
         // Merge parallel edges.
+        $timestamp = microtime(true);
         $simplifier = new SimpleGraph($this->graph);
         $simplegraph = $simplifier->createGraph();
-
+        mtrace('<li>Graph simplified ' . $this->graph->getVertices()->count() .
+                ' vertices. From '. $this->graph->getEdges()->count() .
+                ' to '. $simplegraph->getEdges()->count(). ' edges. In' . round(microtime(true) - $timestamp, 4) . ' secs.' );
+        $timestamp = microtime(true);
 //         $bidirectionalgraph = (new BidirectionalGraph($this->graph))->createGraph(false);
         $bidirectionalgraph = (new BidirectionalGraph($simplegraph))->createGraph(false);
+        mtrace('<li>Graph undirected: '. $bidirectionalgraph->getEdges()->count(). ' edges. In' . round(microtime(true) - $timestamp, 4) . ' secs.' );
+
         $results = [];
         $analysisgraph = $bidirectionalgraph;
         // $communityvertex = $analysisgraph->getVertex('Community');

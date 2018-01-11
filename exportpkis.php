@@ -71,7 +71,7 @@ if (!empty($format) && !empty($type) ) {
     list($students, $nonstudents, $activeusers, $userrecords) = array_values($usersstruct);
     if ($type == 'pkis') {
         $hiddencolumns = ['id', 'msocial'];
-        $anonymouscolumns = ['userid'];
+        $anonymouscolumns = ['userid', 'firstname', 'lastname'];
         $data = msocial_plugin::get_pkis($msocial, $students, null);
     } else if ($type == 'interactions') {
         $hiddencolumns = ['id', 'msocial', 'status', 'rawdata'];
@@ -91,7 +91,18 @@ if (!empty($format) && !empty($type) ) {
         $columnnames = array_filter($columnnames, function($columname) use ($hiddencolumns) {
             return array_search($columname, $hiddencolumns) === false;
         });
-        $columnnames= array_values($columnnames);
+        $columnnames = array_values($columnnames);
+
+        // Add usernames.
+        if ($type == 'pkis') {
+            foreach ($data as $item) {
+                $item->firstname = $userrecords[$item->userid]->firstname;
+                $item->lastname = $userrecords[$item->userid]->lastname;
+                $item->idnumber = $userrecords[$item->userid]->idnumber;
+            }
+            array_unshift($columnnames, 'idnumber', 'firstname', 'lastname');
+        }
+
         if ($format == "xls") {
             require_once("$CFG->libdir/excellib.class.php");
             $workbook = new MoodleExcelWorkbook("-");
@@ -105,7 +116,7 @@ if (!empty($format) && !empty($type) ) {
             print_error("coursemisconf");
         }
         // Calculate file name.
-        $filename = clean_filename("$course->shortname ".strip_tags(format_string($msocial->name, true)))
+        $filename = clean_filename("$course->shortname_".strip_tags(format_string($msocial->name, true)). '_' . $type)
                         . '.' . $format;
         // Creating a workbook.
         // Send HTTP headers.
@@ -185,7 +196,7 @@ $options["format"] = "xls";
 $button = $OUTPUT->single_button(new moodle_url("exportpkis.php", $options), get_string("downloadexcel"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 
-$options["format"] = "txt";
+$options["format"] = "csv";
 $button = $OUTPUT->single_button(new moodle_url("exportpkis.php", $options), get_string("downloadtext"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 
