@@ -107,7 +107,7 @@ foreach ($interactions as $interaction) {
                                         'user' => $interaction->toid,
                                         'id' => $cm->id,
                                         'redirect' => $redirecturl,
-                        ]))->out();
+                        ]))->out(false);
             } else {
                 $userlinkto = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
                 "nativeid=$interaction->nativeto&nativename=$interaction->nativetoname&redirect=$redirecturl";

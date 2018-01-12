@@ -57,7 +57,12 @@ foreach ($interactions as $interaction) {
         }
     } else {
         $from = fullname($users[$interaction->fromid]);
-        $graphvizfromattr['graphviz.URL'] = $CFG->wwwroot . "/user/view.php?id=$interaction->fromid";
+        $userlinkfrom = (new moodle_url('/mod/msocial/socialusers.php',
+                ['action' => 'showuser',
+                                'user' => $interaction->fromid,
+                                'id' => $cm->id,
+                ]))->out(false);
+        $graphvizfromattr['graphviz.URL'] = $userlinkfrom;
         $fromgroup = 0;
     }
     if ($interaction->toid == null || !isset($users[$interaction->toid])) {
@@ -69,7 +74,12 @@ foreach ($interactions as $interaction) {
         $togroup = 1;
     } else {
         $to = fullname($users[$interaction->toid]);
-        $graphviztoattr['graphviz.URL'] = $CFG->wwwroot . "/user/view.php?id=$interaction->toid";
+        $userlinkto = (new moodle_url('/mod/msocial/socialusers.php',
+                ['action' => 'showuser',
+                                'user' => $interaction->toid,
+                                'id' => $cm->id,
+                ]))->out(false);
+        $graphviztoattr['graphviz.URL'] = $userlinkto;
         $togroup = 0;
     }
     if ($to == null) {
