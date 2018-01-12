@@ -165,7 +165,9 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      *
      * @param social_interaction $interaction */
     public abstract function get_interaction_url(social_interaction $interaction);
-
+    public function get_interaction_description(social_interaction $interaction) {
+        return $interaction->description;
+    }
     /** Get a list of interactions between the users
      *
      * @param integer $fromdate null|starting time

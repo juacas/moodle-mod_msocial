@@ -207,14 +207,25 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         // Facebook uid for a comment is generated with group id and comment id.
         $parts = explode('_', $interaction->uid);
         if (count($parts) == 2) {
-            $url = 'https://www.facebook.com/groups/' . $parts[0] . '/permalink/' . $parts[1];
+            if ($interaction->type == social_interaction::REACTION) {
+                $likeparts = explode('-', $parts[1]);
+                $url = 'https://www.facebook.com/groups/' . $parts[0] . '/permalink/' . $likeparts[0];
+            } else {
+                $url = 'https://www.facebook.com/groups/' . $parts[0] . '/permalink/' . $parts[1];
+            }
         } else {
             $url = 'https://www.facebook.com/groups/' . $this->get_config(self::CONFIG_FBGROUP) . '/permalink/' . $parts[0];
         }
 
         return $url;
     }
-
+    public function get_interaction_description(social_interaction $interaction) {
+        if ($interaction->description == '' && $interaction->type == social_interaction::REACTION) {
+          return $interaction->nativetype;
+        } else {
+            return $interaction->description;
+        }
+    }
     /** Statistics for grading
      *
      * @param array[]integer $users array with the userids to be calculated

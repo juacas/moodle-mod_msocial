@@ -325,7 +325,7 @@ SCRIPT;
                 $contextcourse = \context_course::instance($this->msocial->course);
                 $this->users_struct = msocial_get_users_by_type($contextcourse);
             }
-            $filterusers = $this->users_struct['student_ids'];
+            $filterusers = $this->users_struct['student_ids']; // Only students.
         } else {
             $filterusers = null;
         }
@@ -359,8 +359,10 @@ SCRIPT;
             $andedqueries[] = "(timestamp <= ? OR timestamp IS NULL)"; // TODO: Format date.
             $params[] = $this->enddate;
         }
+        // Restrictive filtering.
         if ($this->fromid) {
-            $andedqueries[] = "( fromid = ?)";
+            $andedqueries[] = "( fromid = ? OR toid = ?)";
+            $params[] = $this->fromid;
             $params[] = $this->fromid;
         }
         $query = implode(' AND ', $andedqueries);

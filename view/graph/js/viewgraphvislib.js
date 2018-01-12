@@ -21,7 +21,7 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 			// Collapse semantically equivalent edges.
 			jsondata.links.forEach(function(jsonedge){
 				var key;
-				// Key is used to collapse edges. Generate duplicates to collapse them.
+				// Key is used to collapse edges. Detect duplicates to collapse them.
 				if (collapse == 'all' || (collapse == 'loops' && jsonedge.source == jsonedge.target)) {
 					key = jsonedge.subtype + '-' + jsonedge.interactiontype + '-' + jsonedge.source +
 					'-' + jsonedge.target;				
@@ -98,9 +98,11 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 		                        springConstant: 0.18
 		                    },
 		                    maxVelocity: 146,
+		                    minVelocity: 5.5,
 		                    solver: 'forceAtlas2Based',
 		                    timestep: 0.35,
-		                    stabilization: {iterations: 150}
+		                    stabilization: {iterations: 50},
+		                    adaptiveTimestep: true
 		                },
             };		
 			var network = new vis.Network(document.getElementById(container), data, options);		

@@ -34,8 +34,8 @@ require_once('../../filterinteractions.php');
 header('Content-Type: application/json; charset=utf-8');
 $id = required_param('id', PARAM_INT);
 $community = optional_param('include_community', true, PARAM_BOOL);
-$redirecturl = optional_param('redirect', null, PARAM_ALPHANUM);
-
+$redirecturl = optional_param('redirect', null, PARAM_RAW);
+$redirecturl = urlencode($redirecturl);
 
 $cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
@@ -72,7 +72,12 @@ foreach ($interactions as $interaction) {
             continue;
         }
         if (isset($userrecords[$interaction->fromid])) {
-            $userlinkfrom = (new moodle_url('/user/view.php', ['id' => $interaction->fromid]))->out();
+            $userlinkfrom = (new moodle_url('/mod/msocial/socialusers.php',
+                            ['action' => 'showuser',
+                             'user' => $interaction->fromid,
+                             'id' => $cm->id,
+                             'redirect' => $redirecturl,
+                            ]))->out(false);
         } else {
             $userlinkfrom = $plugin->get_social_user_url(new social_user($interaction->nativefrom, $interaction->nativefromname));
             $userlinkfrom = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
@@ -84,7 +89,7 @@ foreach ($interactions as $interaction) {
                             'userlink' => $userlinkfrom];
             if (isset($userrecords[$interaction->fromid])) {
                 $userpicture = new user_picture(($userrecords[$interaction->fromid]));
-                $node->usericon = $userpicture->get_url($PAGE)->out();
+                $node->usericon = $userpicture->get_url($PAGE)->out(false);
             } else {
                 $node->usericon = '';
             }
@@ -96,9 +101,13 @@ foreach ($interactions as $interaction) {
             $userlinkto = '';
         } else {
             $nodenameto = get_fullname($interaction->toid, $userrecords, "[$interaction->nativetoname]");
-            // TODO: link social network or local user.
             if (isset($userrecords[$interaction->toid])) {
-                $userlinkto = (new moodle_url('/user/view.php', ['id' => $interaction->toid]))->out();
+                $userlinkto = (new moodle_url('/mod/msocial/socialusers.php',
+                        ['action' => 'showuser',
+                                        'user' => $interaction->toid,
+                                        'id' => $cm->id,
+                                        'redirect' => $redirecturl,
+                        ]))->out();
             } else {
                 $userlinkto = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
                 "nativeid=$interaction->nativeto&nativename=$interaction->nativetoname&redirect=$redirecturl";
@@ -140,7 +149,7 @@ foreach ($interactions as $interaction) {
 
         $edge = (object) ['id' => $interaction->uid, 'source' => $nodemap[$nodenamefrom], 'target' => $nodemap[$nodenameto],
                         'value' => $typevalue, 'interactiontype' => $interaction->type, 'subtype' => $subtype,
-                        'description' => $interaction->description,
+                        'description' => $plugin->get_interaction_description($interaction),
                         'icon' => $plugin->get_icon()->out(), 'link' => $thispageurl];
         $edges[] = $edge;
     }

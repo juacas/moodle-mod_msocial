@@ -47,5 +47,6 @@ echo "\n";
 $reqs->js('/mod/msocial/view/graph/js/hammer.js', false);
 $reqs->js('/mod/msocial/view/graph/js/configuregraphvisrequire.js', false);
 global $CFG;
-$reqs->js_call_amd('msocialview/graphvis', 'initview', ['graph', $cm->id, $filter->get_filter_params_url(), $redirect]);
+$reqs->js_call_amd('msocialview/graphvis', 'initview',
+        ['graph', $cm->id, $filter->get_filter_params_url(), $redirect, 'all']);
 

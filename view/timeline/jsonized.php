@@ -66,8 +66,9 @@ foreach ($interactions as $interaction) {
         $userinfo = (object) ['socialname' => $interaction->nativefromname];
     }
     $thispageurl = $plugin->get_interaction_url($interaction);
+    $description = $plugin->get_interaction_description($interaction);
     $event = ['start' => $date, 'title' => $userinfo->socialname,
-                    'description' => "<a target=\"_blank\" href=\"$thispageurl\">$interaction->description</a>",
+                    'description' => "<a target=\"_blank\" href=\"$thispageurl\">$description</a>",
                     'icon' => $plugin->get_icon()->out()];
     $events[] = $event;
 }
