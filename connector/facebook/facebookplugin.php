@@ -141,7 +141,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                     if ($errorstatus) {
                         $connectlink = $OUTPUT->action_link(new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
                                 array('id' => $id, 'action' => 'connect')), " <b>Re-link user!!</b>");
-                        $notifications[] = '<p>' . get_string('problemwithfacebookaccount', 'msocialconnector_facebook',
+                        $notifications[] = '' . get_string('problemwithfacebookaccount', 'msocialconnector_facebook',
                                         $errorstatus) . $connectlink;
                     } else {
                         $connectlink = $OUTPUT->action_link(new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
