@@ -137,17 +137,24 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 if ($token) {
                     $username = $token->username;
                     $errorstatus = $token->errorstatus;
-                    if ($errorstatus) {
-                        $notifications[] = '<p>' . get_string('problemwithfacebookaccount', 'msocialconnector_facebook', $errorstatus);
-                    }
 
-                    $messages[] = get_string('module_connected_facebook', 'msocialconnector_facebook', $username) . $OUTPUT->action_link(
-                            new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
-                                    array('id' => $id, 'action' => 'connect')), "Change user") . '/' . $OUTPUT->action_link(
+                    if ($errorstatus) {
+                        $connectlink = $OUTPUT->action_link(new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
+                                array('id' => $id, 'action' => 'connect')), " <b>Re-link user!!</b>");
+                        $notifications[] = '<p>' . get_string('problemwithfacebookaccount', 'msocialconnector_facebook',
+                                        $errorstatus) . $connectlink;
+                    } else {
+                        $connectlink = $OUTPUT->action_link(new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
+                                array('id' => $id, 'action' => 'connect')), "Change user");
+                        $messages[] = get_string('module_connected_facebook', 'msocialconnector_facebook',
+                                            $username) . $connectlink . '/' .
+                            $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
                                     array('id' => $id, 'action' => 'disconnect')), "Disconnect") . ' ';
+                    }
                 } else {
-                    $notifications[] = get_string('module_not_connected_facebook', 'msocialconnector_facebook') . $OUTPUT->action_link(
+                    $notifications[] = get_string('module_not_connected_facebook', 'msocialconnector_facebook') .
+                            $OUTPUT->action_link(
                             new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
                                     array('id' => $id, 'action' => 'connect')), "Connect");
                 }
