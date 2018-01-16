@@ -39,8 +39,23 @@ $filter->set_users($usersstruct);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($this->msocial);
 
 /* @var $OUTPUT \core_renderer */
+echo <<<STYLE
+<style>
+@import url(view/graph/graphvis.css);
+</style>
+STYLE;
 echo '<div id="optionsContainer"></div>';
-echo '<div id="graph" style="width:100%;height:1000px; border: 1px solid lightgray;"></div>';
+echo '<div id="wrapper">';
+echo '<div id="graph" style="width:100%;height:600px; border: 1px solid lightgray;"></div>';
+echo '<div id="loadingBar">
+        <div class="outerBorder">
+            <div id="text">0%</div>
+            <div id="border">
+                <div id="bar"></div>
+            </div>
+        </div>
+    </div>
+</div>';
 echo "\n";
 
 /** @var page_requirements_manager $reqs */

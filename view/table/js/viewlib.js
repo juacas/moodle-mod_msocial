@@ -27,11 +27,11 @@ define('msocialview/table',
 		'datatables.colReorder',
 		'datatables.fixedHeader',
 		'datatables.responsive',
-		'datatables.colVis'
+		'datatables.colVis',
 		], function($, jqui, datatables) {
 
 	var init = {
-		initview : function(containerid,colgroupsconfig) {
+		initview : function(containerid,colgroupsconfig, cols) {
 			$(document).ready(function() {
 				$(containerid).DataTable({
 					scrollY : '600px',
@@ -50,7 +50,7 @@ define('msocialview/table',
 						colgroupsconfig
 						],
 					"pageLength": 25,
-					"lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ]
+					"lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
 				});
 			});
 		} // End of function init.
