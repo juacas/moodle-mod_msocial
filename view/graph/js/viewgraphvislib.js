@@ -153,12 +153,17 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 			        params.event = "[original event]";
 			        if (params.nodes.length > 0) {
 			        	window.open(this.body.data.nodes.get(params.nodes[0]).userlink, '_blank');
-			        }
-			        if (params.edges.length > 0) {
+			        } else if (params.edges.length > 0) {
 			        	var edge = this.body.data.edges.get(params.edges[0]);
 			        	if (edge.link != '') {
 			        		window.open(edge.link, '_blank');
 			        	}
+			        } else {
+			        	var options = {
+								scale: 0.8,
+								animation: true,
+						};
+						network.fit({animation: options});
 			        }
 			    });
 			network.on("click", function (params) {
@@ -169,13 +174,7 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 							animation: true,
 					};
 				    network.focus(params.nodes[0], options);
-				} else {
-					var options = {
-							scale: 0.8,
-							animation: true,
-					};
-					network.fit({animation: options});
-				}
+				} 
 			});
 			network.on("stabilizationProgress", updateprogress );
             network.once("stabilizationIterationsDone", function() {
