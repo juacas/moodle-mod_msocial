@@ -124,7 +124,6 @@ class msocial_view_table extends msocial_view_plugin {
             $reqs->css('/mod/msocial/view/table/css/buttons.dataTables.css');
             $reqs->css('/mod/msocial/view/table/css/colReorder.jqueryui.css');
             $reqs->js('/mod/msocial/view/table/js/configurerequire.js', false);
-            $reqs->js('/mod/msocial/view/table/js/dataTables.anyNumber.js', false);
         }
     }
 
