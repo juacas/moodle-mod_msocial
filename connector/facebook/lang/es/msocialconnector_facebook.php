@@ -46,5 +46,5 @@ $string['facebook_app_id'] = 'app_id';
 $string['config_app_id'] = 'app_id según se indica en el FacebookAPI (<a href="https://developers.facebook.com/docs/apps/register" target="_blank" >https://developers.facebook.com/docs/apps/register</a>)';
 $string['facebook_app_secret'] = 'app_secret';
 $string['config_app_secret'] = 'app_secret según se indica en el FacebookAPI (<a href="https://developers.facebook.com/docs/apps/register" target="_blank" >https://developers.facebook.com/docs/apps/register</a>)';
-$string['problemwithfacebookaccount'] = 'Los últimos intentos de cargar mensajes de Facebook generó un error. Intente reconectar la actividad con Facebook con su usuario. Mensaje: {$a}';
+$string['problemwithfacebookaccount'] = 'Los últimos intentos de cargar mensajes de Facebook generaron un error. Intente reconectar la actividad con Facebook con su usuario. Mensaje: {$a}';
 

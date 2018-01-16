@@ -214,8 +214,10 @@ class social_interaction {
             $record->msocial = $msocialid;
             $records[] = $record;
         }
-
-        $DB->insert_records('msocial_interactions', $records);
+        foreach ($records as $record) {
+            $DB->insert_record('msocial_interactions', $record);
+        }
+        //         $DB->insert_records('msocial_interactions', $records);
     }
 
     static private function clean_emojis($text) {

@@ -124,6 +124,7 @@ class msocial_view_table extends msocial_view_plugin {
             $reqs->css('/mod/msocial/view/table/css/buttons.dataTables.css');
             $reqs->css('/mod/msocial/view/table/css/colReorder.jqueryui.css');
             $reqs->js('/mod/msocial/view/table/js/configurerequire.js', false);
+            $reqs->js('/mod/msocial/view/table/js/dataTables.anyNumber.js', false);
         }
     }
 
@@ -182,7 +183,7 @@ class msocial_view_table extends msocial_view_plugin {
             $columnstart = $columnend + 1;
         }
         $columngroups[] = (object) ["extend" => "colvisGroup", "text" => "All", "show" => ":hidden"];
-        $reqs->js_call_amd('msocialview/table', 'initview', ['#pkitable', $columngroups]);
+        $reqs->js_call_amd('msocialview/table', 'initview', ['#pkitable', $columngroups, count($pkicolumns)]);
         echo $renderer->heading('Table of PKIs');
         $table = new \html_table();
         $table->id = 'pkitable';
@@ -228,7 +229,7 @@ class msocial_view_table extends msocial_view_plugin {
             // Get the PKIs.
             foreach ($pkiindividual as $type => $pkinfs) {
                 foreach ($pkinfs as $pkiinfo) {
-                    $pkivalue = isset($pki->{$pkiinfo->name}) ? (float) sprintf("%.5f", $pki->{$pkiinfo->name}, 6) : '--';
+                    $pkivalue = isset($pki->{$pkiinfo->name}) ? (float) sprintf("%.5f", $pki->{$pkiinfo->name}, 6) : '';
                     $row->cells[] = new \html_table_cell($pkivalue);
                 }
             }

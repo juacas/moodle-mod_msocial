@@ -311,7 +311,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     public function set_connection_token($token) {
         global $DB;
         $token->msocial = $this->msocial->id;
-
+        if (empty($token->errorstatus)) {
+            $token->errorstatus = null;
+        }
         $record = $DB->get_record('msocial_twitter_tokens', array("msocial" => $this->msocial->id));
         if ($record) {
             $token->id = $record->id;
@@ -661,11 +663,13 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         foreach ($statuses as $status) {
             $userrecord = isset($status->userauthor) ? $status->userauthor : null;
             $tweetid = $status->id_str;
-            $statusrecord = $DB->get_record('msocial_tweets', array('tweetid' => $tweetid));
+            $statusrecord = $DB->get_record('msocial_tweets',
+                     array('msocial' => $this->msocial->id, 'tweetid' => $tweetid));
             if (!$statusrecord) {
                 $statusrecord = new \stdClass();
             } else {
-                $DB->delete_records('msocial_tweets', array('tweetid' => $tweetid));
+                $DB->delete_records('msocial_tweets',
+                        array('msocial' => $this->msocial->id, 'tweetid' => $tweetid));
             }
             $statusrecord->tweetid = $tweetid;
             $statusrecord->twitterusername = $status->user->screen_name;

@@ -56,6 +56,8 @@
 					COMMENT="The subtype of this plugin (msocialconnector or msocialview)." />
 				<INDEX NAME="name" UNIQUE="false" FIELDS="name"
 					COMMENT="The name of this plugin setting." />
+				<INDEX NAME="uniqueset" UNIQUE="true" FIELDS="msocial,plugin,subtype,name"
+					COMMENT="The unique constraint for a setting for this plugin." />
 			</INDEXES>
 		</TABLE>
 		<TABLE NAME="msocial_interactions" COMMENT="msocial_interactions table">

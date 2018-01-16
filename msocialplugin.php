@@ -286,7 +286,7 @@ abstract class msocial_plugin {
                     $pki->{$pkiinfo->name} = $aggr->total;
                     $stats['max_' . $pkiinfo->name] = max([ 0,
                                                             $aggr->total,
-                                    isset( $stats['max_' . $pkiinfo->name]) ?  $stats['max_' . $pkiinfo->name]: 0]);
+                                    isset( $stats['max_' . $pkiinfo->name]) ? $stats['max_' . $pkiinfo->name] : 0]);
                 }
             }
         }

@@ -359,6 +359,9 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         global $DB;
         $token->msocial = $this->msocial->id;
         $record = $DB->get_record('msocial_facebook_tokens', array("msocial" => $this->msocial->id));
+        if (empty($token->errorstatus)) {
+            $token->errorstatus = null;
+        }
         if ($record) {
             $token->id = $record->id;
             $DB->update_record('msocial_facebook_tokens', $token);
@@ -552,11 +555,13 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 /** @var Facebook\GraphNodes\GraphEdge $feednode*/
                 // Get the feed.
                 $feednode = $globalnode->getField('feed');
-                /** @var ArrayIterator $posts*/
+                if (empty($feednode)) {
+                    throw new \Exception("Feed can't be retrieved using token for user $token->username. Possibly user has no enough privileges.");
+                }
                 // Iterate the posts.
+                /** @var ArrayIterator $posts*/
                 $posts = $feednode->getIterator();
                 while ($posts->valid()) {
-
                     /* @var Facebook\GraphNodes\GraphNode $post Post in the group. */
                     $post = $posts->current();
                     $postinteraction = $this->process_post($post);
