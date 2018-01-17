@@ -357,7 +357,9 @@ SCRIPT;
             $andedqueries[] = 'NOT (fromid IS NULL AND toid IS NULL)';
         }
         if (!$this->unknownusers) { // Exclude unknown users' interactions.
-            $andedqueries[] = 'fromid IS NOT NULL AND toid IS NOT NULL';
+            $andedqueries[] = 'fromid IS NOT NULL';
+            $andedqueries[] = 'NOT (toid IS NULL AND type <> "post")'; // POSTs has toid=null...
+
         }
         if ($this->startdate && $this->startdate != 0) {
             $andedqueries[] = "(timestamp >= ? OR timestamp IS NULL)"; // TODO: Format date.
