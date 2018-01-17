@@ -56,6 +56,7 @@ $string['mainpage_help'] = 'Portada de redes sociales. Esta actividad registra p
         'Cada red social marca de una manera las publicaciones para que podamos identificarlas. En la cabecera aparecen qué hashtag, tablones, o grupos deben tener los mensajes de la actividad en cada red social.';
 $string['mapunknownsocialusers'] = 'Seleccione un usuario del curso para asociarlo a la cuenta "{$a->link}" del {$a->source}';
 // Filter form.
+$string['collapse'] = 'Simplicar interacciones';
 $string['datesrange'] = 'Rango de fechas';
 $string['yesterday'] = 'Ayer';
 $string['last7days'] = '7 últimos días';

@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 class filter_interactions {
     const INFINITY_DATE  = 8640000000000000;
+    const PARAM_COLLAPSE_INTERACTIONS = 'collapse_interactions';
     const PARAM_INTERACTION_POST = 'interaction_post';
     const PARAM_INTERACTION_REPLY = 'interaction_reply';
     const PARAM_INTERACTION_REACTION = 'interaction_reaction';
@@ -55,6 +56,7 @@ class filter_interactions {
     public $unknownusers = false;
     public $pureexternal = false;
     public $fromid = null;
+    public $collapse = false;
 
     public function __construct(array $formparams, $msocial) {
         $this->msocial = $msocial;
@@ -78,6 +80,8 @@ class filter_interactions {
                 $this->unknownusers = ($param == 'true' || $param == 'on' || $param == '1' || $param === true);
             } else if ($name == self::PARAM_PURE_EXTERNAL) {
                 $this->pureexternal = ($param == 'true' || $param == 'on' || $param == '1' || $param === true);
+            } else if ($name == self::PARAM_COLLAPSE_INTERACTIONS) {
+                $this->collapse = ($param == 'true' || $param == 'on' || $param == '1' || $param === true);
             } else if (substr($name, 0, 7) == 'source_') {
                 $this->sources[] = substr($name, 7);
             } else if ($name == 'sources') {
@@ -123,7 +127,7 @@ class filter_interactions {
 
     public function get_checked_interaction($type) {
         if (count($this->interactions) == 0 ) {
-            return true;
+            return $type != self::PARAM_INTERACTION_REACTION; // Default REACTIONS disabled.
         } else {
             return (array_search($type, $this->interactions) !== false);
         }
@@ -199,6 +203,9 @@ class filter_interactions {
 
         $out .= ' <div><b>' . get_string('datesrange', 'msocial') . '</b>:';
         $out .= '<input id="daterange" type="text" class="daterange" name="daterange" />';
+        $checked = $this->collapse ? 'checked="checked"' : '';
+        $out .= " <input type=\"checkbox\" name=\"" . self::PARAM_COLLAPSE_INTERACTIONS . "\" $checked value=\"true\">" .
+                 get_string('collapse', 'msocial') . "</input> ";
         $out .= " <input type=\"submit\"></div>";
         $out .= '</form>';
         $today = get_string('today');
@@ -287,6 +294,7 @@ SCRIPT;
                         self::PARAM_STARTDATE => $this->startdate,
                         self::PARAM_ENDDATE => $this->enddate,
                         self::PARAM_FROMID => $this->fromid,
+                        self::PARAM_COLLAPSE_INTERACTIONS => $this->collapse,
         ];
         return $params;
     }

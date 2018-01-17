@@ -67,6 +67,7 @@ $string['prevmonth'] = 'Last month';
 $string['yeartodate'] = 'This year';
 $string['fromactivitystart'] = 'During this activity';
 
+$string['collapse'] = 'Simplify interactions';
 $string['receivedbyteacher'] = 'Received by teachers';
 $string['pureexternal'] = 'Between strangers';
 $string['unknownusers'] = 'Stranger users';

@@ -176,7 +176,9 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      * @return array[]mod_msocial\connector\social_interaction of interactions. @see
      *         mod_msocial\connector\social_interaction */
     public function get_interactions($fromdate = null, $todate = null, $users = null) {
-        $filter = new \filter_interactions(['sources' => $this->get_subtype()], $msocial);
+        $filter = new \filter_interactions([\filter_interactions::PARAM_SOURCES => $this->get_subtype(),
+                                            \filter_interactions::PARAM_INTERACTION_MENTION => true,
+                                            ], $msocial);
         $filter->set_users($users);
         return social_interaction::load_interactions_filter($filter);
     }

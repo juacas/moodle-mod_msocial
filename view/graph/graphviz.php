@@ -37,6 +37,7 @@ global $CFG;
 $cm = $this->cm;
 $shownativeids = has_capability('mod/msocial:manage', $context);
 $duplicatededges = [];
+$collapseedges = $filter->collapse;
 $filter->set_users($usersstruct);
 $interactions = social_interaction::load_interactions_filter($filter);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($this->msocial);
@@ -91,21 +92,27 @@ foreach ($interactions as $interaction) {
     $graphviztoattr['graphviz.label'] = $to;
     $type = $interaction->type;
     $source = $interaction->source;
-    if (isset($duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto . $interaction->source . $interaction->type])) {
-        $edge = $duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto . $interaction->source . $interaction->type];
+
+    $edgelabel = $source;
+    if (!$collapseedges) {
+        $edgelabel .= ':' . $type;
+    }
+    $edgekey = $interaction->nativefrom . '-' . $interaction->nativeto . '-' . $edgelabel;
+    if (isset($duplicatededges[$edgekey])) {
+        $edge = $duplicatededges[$edgekey];
         $edge->setFlow($edge->getFlow() + 1);
         $fromvertex = $edge->getVertexStart();
         $tovertex = $edge->getVertexEnd();
     } else {
         list($fromvertex, $edge, $tovertex) = $socialgraph->register_interaction($interaction,
-                                              ['graphviz.label' => $source . ':' . $type], $graphvizfromattr, $graphviztoattr);
+                                              ['graphviz.label' => $edgelabel], $graphvizfromattr, $graphviztoattr);
         if ($edge) {
-            $duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto . $interaction->source . $interaction->type] = $edge;
+            $duplicatededges[$edgekey] = $edge;
             $edge->setFlow(1);
         }
     }
 //     if ($interaction->nativefrom == $interaction->nativeto && $edge) {
-//         $duplicatededges[$interaction->nativefrom . '-' . $interaction->nativeto . $interaction->source . $interaction->type] = $edge;
+//         $duplicatededges[$edgekey] = $edge;
 //     }
     if ($fromvertex) {
         $fromvertex->setGroup($fromgroup);

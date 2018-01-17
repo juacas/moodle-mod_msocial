@@ -124,7 +124,7 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 		                        springConstant: 0.18
 		                    },
 		                    maxVelocity: 156,
-		                    minVelocity: 5.5,
+		                    minVelocity: 1.5,
 		                    solver: 'forceAtlas2Based',
 		                    timestep: 0.15,
 		                    stabilization: {
