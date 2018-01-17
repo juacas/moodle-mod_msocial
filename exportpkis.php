@@ -116,7 +116,7 @@ if (!empty($format) && !empty($type) ) {
             print_error("coursemisconf");
         }
         // Calculate file name.
-        $filename = clean_filename("$course->shortname_".strip_tags(format_string($msocial->name, true)). '_' . $type)
+        $filename = clean_filename("{$course->shortname}_".strip_tags(format_string($msocial->name, true)). '_' . $type)
                         . '.' . $format;
         // Creating a workbook.
         // Send HTTP headers.
