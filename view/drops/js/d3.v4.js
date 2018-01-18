@@ -3946,7 +3946,7 @@ function circleIn(t) {
 }
 
 function circleOut(t) {
-  return Math.sqrt(1 - --t * t);
+  return Math.sqrt(1 - (--t) * t);
 }
 
 function circleInOut(t) {
