@@ -119,7 +119,7 @@ class msocial_view_drops extends msocial_view_plugin {
         if ($viewparam == $this->get_subtype()) {
             $reqs->js('/mod/msocial/view/drops/js/configuredropsrequire.js', false);
 
-            $reqs->js('/mod/msocial/view/drops/js/d3.v4.min.js', true);
+            $reqs->js('/mod/msocial/view/drops/js/d3.v4.js', true);
             $reqs->css('/mod/msocial/view/drops/css/drops.css');
         }
     }
