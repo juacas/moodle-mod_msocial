@@ -312,6 +312,9 @@ function msocial_tabbed_reports($msocial, $view, moodle_url $thispageurl, $conte
                             return ($a->get_sort_order() > $b->get_sort_order());
     }
         );
+    if ($view==null) {
+        $view = $plugins[0]->get_subtype();
+    }
     $rows = [];
     /** @var msocial_view_plugin*/
     foreach ($plugins as $name => $plugin) {
@@ -337,7 +340,7 @@ function msocial_tabbed_reports($msocial, $view, moodle_url $thispageurl, $conte
             $rows[] = $plugintab;
         }
     }
-    return $OUTPUT->tabtree($rows, $view);
+    return [$OUTPUT->tabtree($rows, $view), $view];
 }
 
 /** This function creates a minimal JS script that requires and calls a single function from an AMD

@@ -35,7 +35,7 @@ require_once("msocialplugin.php");
 /* @var $OUTPUT \core_renderer */
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);
-$view = optional_param('view', 'table', PARAM_ALPHA);
+$view = optional_param('view', null, PARAM_ALPHA);
 $cattab = optional_param('cattab', msocial_plugin::CAT_VISUALIZATION, PARAM_ALPHA);
 
 $cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);
@@ -61,7 +61,8 @@ $requ->jquery_plugin('ui');
 $requ->jquery_plugin('ui-css');
 $requ->jquery_plugin('daterangepicker', 'msocial');
 $requ->jquery_plugin('datepicker_es', 'msocial'); // TODO support rest of languages.
-
+// Get tabs and selected view.
+list($tabs, $view) = msocial_tabbed_reports($msocial, $view, $thispageurl, $contextmodule, false);
 // Configure header for plugins.
 $enabledviewplugins = msocialview::get_enabled_view_plugins($msocial);
 foreach ($enabledviewplugins as $name => $plugin) {
@@ -129,7 +130,7 @@ $filter = new filter_interactions($_GET, $msocial);
 
 // Reporting area...
 // Tabs...
-echo msocial_tabbed_reports($msocial, $view, $thispageurl, $contextmodule, false);
+echo $tabs;
 
 if (isset($enabledviewplugins[$view]) && $enabledviewplugins[$view]->is_enabled()) {
     $enabledviewplugins[$view]->render_view($OUTPUT, $requ, $filter);
