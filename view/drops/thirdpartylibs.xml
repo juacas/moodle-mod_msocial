@@ -6,6 +6,7 @@
 		<license>MIT</license>
 		<version>0.3.1-alpha4</version>
 		<licenseversion>1.0+</licenseversion>
+<!-- 		https://github.com/marmelab/EventDrops -->
 	</library>
 	<library>
 		<location>js/d3.v4.min.js</location>

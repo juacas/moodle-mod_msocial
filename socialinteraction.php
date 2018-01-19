@@ -210,17 +210,30 @@ class social_interaction {
             if ($record->timestamp) {
                 $record->timestamp = $inter->timestamp->getTimeStamp();
             }
+            // For databases that doesn't support 4bytes unicode chars.
             $record->description = self::clean_emojis($record->description);
+
             $record->msocial = $msocialid;
             $records[] = $record;
         }
-        foreach ($records as $record) {
-            $DB->insert_record('msocial_interactions', $record);
-        }
-        //         $DB->insert_records('msocial_interactions', $records);
+        $DB->insert_records('msocial_interactions', $records);
     }
 
     static private function clean_emojis($text) {
-        return trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', mb_convert_encoding($text, "UTF-8")));
+        if ($text == null) {
+            return null;
+        } else {
+            $regexemoticons = '/[\x{1F600}-\x{1F64F}]/u';
+            $utftext = mb_convert_encoding($text, "UTF-8");
+            $cleantext = preg_replace($regexemoticons, '', $utftext);
+            // Match Miscellaneous Symbols and Pictographs
+            $regexsymbols = '/[\x{1F300}-\x{1F5FF}]/u';
+            $cleantext = preg_replace($regexsymbols, '', $cleantext);
+
+            // Match Transport And Map Symbols
+            $regextransport = '/[\x{1F680}-\x{1F6FF}]/u';
+            $cleantext = preg_replace($regextransport, '', $cleantext);
+            return $cleantext;
+        }
     }
 }
