@@ -111,6 +111,12 @@ class filter_interactions {
                 $this->extraparams[$name] = $param;
             }
         }
+        // Default interactions.
+        if (count($this->interactions) == 0 && empty($formparams['interactions'])) {
+            $this->interactions[] = social_interaction::POST;
+            $this->interactions[] = social_interaction::REPLY;
+            $this->interactions[] = social_interaction::MENTION;
+        }
     }
     public function param_if_absent($name, $default) {
         if (!array_key_exists($name, $this->extraparams)) {
@@ -127,7 +133,7 @@ class filter_interactions {
 
     public function get_checked_interaction($type) {
         if (count($this->interactions) == 0 ) {
-            return $type != self::PARAM_INTERACTION_REACTION; // Default REACTIONS disabled.
+            return $type != 'reaction'; //self::PARAM_INTERACTION_REACTION Default REACTIONS disabled.
         } else {
             return (array_search($type, $this->interactions) !== false);
         }
