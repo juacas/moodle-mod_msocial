@@ -228,6 +228,10 @@ class social_interaction {
         if ($text == null) {
             return null;
         } else {
+            $regexemoticonsold = '/[\x00-\x1F\x80-\xFF]/';
+            $cleantext = preg_replace($regexemoticons, '', $utftext);
+            return $cleantext;
+            // TODO: Test alternatives bellow.
             $regexemoticons = '/[\x{1F600}-\x{1F64F}]/u';
             $utftext = mb_convert_encoding($text, "UTF-8");
             $cleantext = preg_replace($regexemoticons, '', $utftext);
