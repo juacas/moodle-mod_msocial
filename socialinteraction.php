@@ -228,12 +228,12 @@ class social_interaction {
         if ($text == null) {
             return null;
         } else {
+            $utftext = mb_convert_encoding($text, "UTF-8");
             $regexemoticonsold = '/[\x00-\x1F\x80-\xFF]/';
-            $cleantext = preg_replace($regexemoticons, '', $utftext);
+            $cleantext = preg_replace($regexemoticonsold, '', $utftext);
             return $cleantext;
             // TODO: Test alternatives bellow.
             $regexemoticons = '/[\x{1F600}-\x{1F64F}]/u';
-            $utftext = mb_convert_encoding($text, "UTF-8");
             $cleantext = preg_replace($regexemoticons, '', $utftext);
             // Match Miscellaneous Symbols and Pictographs
             $regexsymbols = '/[\x{1F300}-\x{1F5FF}]/u';
