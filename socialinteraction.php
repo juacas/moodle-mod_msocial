@@ -198,7 +198,6 @@ class social_interaction {
         list($whereuids, $params) = $DB->get_in_or_equal($uids);
         $where = "uid $whereuids and msocial=?";
         $params[] = $msocialid;
-        $DB->delete_records_select('msocial_interactions', $where, $params);
         $fields = ['uid', 'msocial', 'fromid', 'nativefrom', 'nativefromname', 'toid', 'nativeto', 'nativetoname',
                         'parentinteraction', 'source', 'timestamp', 'type', 'nativetype', 'description', 'rawdata'];
         $records = [];
@@ -216,6 +215,7 @@ class social_interaction {
             $record->msocial = $msocialid;
             $records[] = $record;
         }
+        $DB->delete_records_select('msocial_interactions', $where, $params);
         $DB->insert_records('msocial_interactions', $records);
     }
 /**

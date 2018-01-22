@@ -91,13 +91,22 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
 
     /** TODO
      * @param \stdClass $post moodleforum post.
-     * @param array(\stdClass) $posts other posts for lookup. */
+     * @param array(\stdClass) $posts other posts for lookup.
+     * @param array(\stdClass) user list.
+     */
     protected function process_post($post, $posts, $users) {
         $postinteraction = new social_interaction();
         $postinteraction->uid = $post->id;
         $postinteraction->nativefrom = $post->userid;
-        $postinteraction->nativefromname = fullname($users[$post->userid]);
-        $postinteraction->fromid = $post->userid;
+        if (isset($users[$post->userid])) {
+            $postinteraction->nativefromname = fullname($users[$post->userid]);
+            $postinteraction->fromid = $post->userid;
+        } else {
+            // Unenrolled user.
+            global $DB;
+            $user = $DB->get_record('user',['id' =>  $post->userid]);
+            $postinteraction->nativefromname = fullname($user);
+        }
         $postinteraction->rawdata = json_encode($post);
         $time = new \DateTime();
         $time->setTimestamp($post->created);

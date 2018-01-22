@@ -97,7 +97,7 @@ if (count($interactions) > 0) {
 
 }
 $timeseries = [];
-foreach ($events as $key=>$eventseries) {
+foreach ($events as $key => $eventseries) {
     $serie = new stdClass();
     $serie->name = $key;
     $serie->data = $eventseries;

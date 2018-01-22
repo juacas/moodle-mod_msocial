@@ -91,8 +91,15 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
         $challengeinteraction = new social_interaction();
         $challengeinteraction->uid = $challenge->id;
         $challengeinteraction->nativefrom = $challenge->userid;
-        $challengeinteraction->nativefromname = fullname($users[$challenge->userid]);
-        $challengeinteraction->fromid = $challenge->userid;
+        if (isset($users[$challenge->userid])) {
+            $challengeinteraction->nativefromname = fullname($users[$challenge->userid]);
+            $challengeinteraction->fromid = $challenge->userid;
+        } else {
+            // Unenrolled user.
+            global $DB;
+            $user = $DB->get_record('user',['id' =>  $challenge->userid]);
+            $challengeinteraction->nativefromname = fullname($user);
+        }
         $challengeinteraction->rawdata = json_encode($challenge);
         $time = new \DateTime();
         $time->setTimestamp($challenge->timecreated);
@@ -110,18 +117,27 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
         $answerinteraction = new social_interaction();
         $answerinteraction->uid = $answer->id;
         $answerinteraction->nativefrom = $answer->userid;
-        $answerinteraction->nativefromname = fullname($users[$answer->userid]);
-        $answerinteraction->fromid = $answer->userid;
+
+        if (isset($users[$answer->userid])) {
+            $answerinteraction->nativefromname = fullname($users[$answer->userid]);
+            $answerinteraction->fromid = $answer->userid;
+        } else {
+            // Unenrolled user.
+            global $DB;
+            $user = $DB->get_record('user',['id' => $answer->userid]);
+            $answerinteraction->nativefromname = fullname($user);
+        }
+
         $answerinteraction->rawdata = json_encode($answer);
 
         $challengeinteraction = $this->lastinteractions[$answer->submissionid];
 
         $answerinteraction->toid = $challengeinteraction->fromid;
         $answerinteraction->nativeto  = $challengeinteraction->fromid;
-        $answerinteraction->nativetoname = fullname($users[$answerinteraction->nativeto]);
+        $answerinteraction->nativetoname = $challengeinteraction->nativetoname;;
 
         $time = new \DateTime();
-        $time->setTimestamp($answer->timecreated);
+        $time->setTimestamp($answer->date);
         $answerinteraction->timestamp = $time;
 
         $answerinteraction->type = social_interaction::REPLY;
@@ -178,13 +194,13 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
                 list($insql, $inparams) = $DB->get_in_or_equal($activities);
                 $sql = 'select s.* from {quest_submissions} s left join {quest} q on q.id = s.questid ' .
                         'where q.course = ? and s.questid ' . $insql;
-                $sqlanswers = 'select a.* from {quest_answerss} a left join {quest} q on q.id = a.questid ' .
+                $sqlanswers = 'select a.* from {quest_answers} a left join {quest} q on q.id = a.questid ' .
                         'where q.course = ? and a.questid ' . $insql;
                 $params = array_merge($params, $inparams);
             } else {
                 $sql = 'select s.* from {quest_submissions} s left join {quest} q on q.id = s.questid ' .
                         'where q.course = ?';
-                $sqlanswers = 'select a.* from {quest_answerss} a left join {quest} q on q.id = a.questid ' .
+                $sqlanswers = 'select a.* from {quest_answers} a left join {quest} q on q.id = a.questid ' .
                         'where q.course = ?';
             }
             $challenges = $DB->get_records_sql($sql, $params);
