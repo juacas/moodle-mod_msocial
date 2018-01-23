@@ -48,3 +48,7 @@ $string['facebook_app_secret'] = 'app_secret';
 $string['config_app_secret'] = 'app_secret según se indica en el FacebookAPI (<a href="https://developers.facebook.com/docs/apps/register" target="_blank" >https://developers.facebook.com/docs/apps/register</a>)';
 $string['problemwithfacebookaccount'] = 'Los últimos intentos de cargar mensajes de Facebook generaron un error. Intente reconectar la actividad con Facebook con su usuario. Mensaje: {$a}';
 
+$string['pki_description_posts'] = 'Mensajes publicados';
+$string['pki_description_replies'] = 'Comentarios recibidos';
+$string['pki_description_reactions'] = 'Reacciones recibidas (Like, love, hate, etc.)';
+$string['pki_description_likes'] = 'LIKEs recibidos';

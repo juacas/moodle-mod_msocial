@@ -24,3 +24,6 @@ $string['harvest'] = 'Search Moodle forums groups for student activity';
 $string['onlyasetofactivities'] = 'Searching only a set of the forums in course.';
 $string['selectactivity'] = 'Selection of forums to be analysed';
 $string['select'] = 'Select forums';
+$string['pki_description_mfposts'] = 'Published messages';
+$string['pki_description_mfreplies'] = 'Received answers';
+$string['pki_description_mfgrades'] = 'Assessments received (Not implemented yet)';

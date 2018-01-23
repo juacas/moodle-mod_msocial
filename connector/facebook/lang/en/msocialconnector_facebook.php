@@ -50,3 +50,7 @@ $string['facebook_app_secret'] = 'app_secret';
 $string['config_app_secret'] = 'app_secret according to FacebookAPI (<a href="https://developers.facebook.com/docs/apps/register" target="_blank" >https://developers.facebook.com/docs/apps/register</a>)';
 $string['problemwithfacebookaccount'] = 'Recent attempts to get the posts resulted in an error. Try to reconnect Facebook with your user. Message: {$a}';
 
+$string['pki_description_posts'] = 'Published posts';
+$string['pki_description_replies'] = 'Received comments';
+$string['pki_description_reactions'] = 'Received reactions (Like, love, hate, etc.)';
+$string['pki_description_likes'] = 'Received LIKEs';

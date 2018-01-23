@@ -146,7 +146,7 @@ class pki_info {
     public function __construct($name, $description = null, $individual = self::PKI_INDIVIDUAL, $generated = self::PKI_CALCULATED,
                                 $interactiontype = null, $interactionnativetypequery = '*', $interactionsource = 'fromid') {
         $this->name = $name;
-        $this->value = $description;
+        $this->description = $description;
         $this->individual = $individual;
         $this->generated = $generated;
         $this->interaction_type = $interactiontype;

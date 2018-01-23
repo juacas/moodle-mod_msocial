@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2018012300;
+$plugin->version   = 2018012302;
 $plugin->requires  = 2013051407;
 $plugin->component = 'msocialconnector_questournament';
 $plugin->dependencies = array('mod_msocial' => 2017081900, 'mod_quest' => 2014101500);

@@ -75,11 +75,14 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
     }
 
     public function get_pki_list() {
-        $pkiobjs['mfposts'] = new pki_info('mfposts', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::POST, 'POST',
+        $pkiobjs['mfposts'] = new pki_info('mfposts', get_string('pki_description_mfposts', 'msocialconnector_moodleforum'),
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::POST, 'POST',
                 social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['mfreplies'] = new pki_info('mfreplies', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REPLY, '*',
+        $pkiobjs['mfreplies'] = new pki_info('mfreplies', get_string('pki_description_mfreplies', 'msocialconnector_moodleforum'),
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REPLY, '*',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['mfgrades'] = new pki_info('mfgrades', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, '*',
+        $pkiobjs['mfgrades'] = new pki_info('mfgrades', get_string('pki_description_mfgrades', 'msocialconnector_moodleforum'),
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, '*',
                 social_interaction::DIRECTION_RECIPIENT);
         $pkiobjs['max_mfposts'] = new pki_info('max_mfposts', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
         $pkiobjs['max_mfreplies'] = new pki_info('max_mfreplies', null, pki_info::PKI_AGREGATED,  pki_info::PKI_CALCULATED);

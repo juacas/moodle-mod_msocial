@@ -269,8 +269,8 @@ abstract class msocial_plugin {
                         and source=?
                         and type=?
                         and $interactionsource IS NOT NULL
-                        and timestamp > ?
-                        and timestamp < ?
+                        and timestamp >= ?
+                        and timestamp <= ?
                         $nativetypequery
                     group by $interactionsource";
                 $aggregatedrecords = $DB->get_records_sql($sql,
@@ -334,7 +334,7 @@ abstract class msocial_plugin {
     /** Reports the list of PKI offered by this plugin.
      * This method does not include any values, just metadata.
      *
-     * @return array[string]pki list of PKI names indexed by name */
+     * @return array[pki_info] pki list of PKI names indexed by name */
     public abstract function get_pki_list();
     /**
      * Reports the date/time this plugin was evaluated: harvest or recalculted.

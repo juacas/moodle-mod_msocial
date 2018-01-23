@@ -79,10 +79,14 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
         $pkiobjs['qposts'] = new pki_info('qposts', get_string('pki_description_qposts', 'msocialconnector_questournament'),
                 pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
                 social_interaction::POST, '*', social_interaction::DIRECTION_AUTHOR);
+        $pkiobjs['qanswers'] = new pki_info('qanswers', get_string('pki_description_qanswers', 'msocialconnector_questournament'),
+                        pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
+                        social_interaction::REPLY, '*', social_interaction::DIRECTION_AUTHOR);
         $pkiobjs['qreplies'] = new pki_info('qreplies', get_string('pki_description_qreplies', 'msocialconnector_questournament'),
                 pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
                 social_interaction::REPLY, '*', social_interaction::DIRECTION_RECIPIENT);
         $pkiobjs['max_qposts'] = new pki_info('max_qposts', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
+        $pkiobjs['max_qanswers'] = new pki_info('max_qanswers', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
         $pkiobjs['max_qreplies'] = new pki_info('max_qreplies', null, pki_info::PKI_AGREGATED,  pki_info::PKI_CALCULATED);
         return $pkiobjs;
     }

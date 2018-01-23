@@ -23,6 +23,7 @@
  * *******************************************************************************
  */
 use msocial\msocial_plugin;
+use function msocial\msocial_addHelpButton;
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
@@ -73,16 +74,27 @@ class mod_msocial_mod_form extends moodleform_mod {
         // Otras caracteristicas.
         $calculation = get_string('grade_expr', 'msocial');
         $varliststr = '';
+        $varlisthelpstr = '';
         /** @var msocial_plugin $plugin */
         $enabledplugins = mod_msocial\plugininfo\msocialbase::get_enabled_plugins_all_types();
         foreach ($enabledplugins as $type => $plugin) {
-            $vars = $plugin->get_pki_list();
-            if (count($vars) > 0) {
-                $varliststr = $varliststr . '<p><b>' . $plugin->get_name() . '</b>: ' . implode(',', array_keys($vars)) . '</p>';
+            $pkiinfos = $plugin->get_pki_list();
+            if (count($pkiinfos) > 0) {
+                $varliststr = $varliststr . '<p><b>' . $plugin->get_name() . '</b>: ' .
+                implode(', ', array_map(
+                        function ($pkinfo) {
+                            $out = '';
+                            if (isset($pkinfo->description)) {
+                                return '<span title="' . $pkinfo->description . '">' . $pkinfo->name . '</span>';
+                            } else {
+                                return $pkinfo->name;
+                            }
+                        }
+                        , $pkiinfos)). '</p>';
             }
         }
-
         $mform->addElement('static', 'list_of_variables', get_string('grade_variables', 'msocial'), $varliststr);
+        echo $varlisthelpstr;
         $mform->addElement('text', 'grade_expr', $calculation);
         $mform->setDefault('grade_expr', '=100*(favs+retweets+tweets)/(max_favs+max_retweets+max_tweets)');
         $mform->addHelpButton('grade_expr', 'grade_expr', 'msocial');

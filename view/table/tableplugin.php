@@ -186,7 +186,14 @@ class msocial_view_table extends msocial_view_plugin {
         echo $renderer->heading('Table of PKIs');
         $table = new \html_table();
         $table->id = 'pkitable';
-        $table->head = array_merge(array('Student', 'Identity'), array_keys($pkiinfosall));
+        // Add caption to Headers.
+        $headerspki = [];
+        foreach ($pkiinfosall as $pkiinfo) {
+            $cell = new \html_table_cell($pkiinfo->name);
+            $cell->attributes['title'] = $pkiinfo->description;
+            $headerspki[] = $cell;
+        }
+        $table->head = array_merge(array('Student', 'Identity'), $headerspki);
         foreach ($pkis as $userid => $pki) {
             if (!isset($userrecords[$userid]) ||
                     ($showinactive == false
@@ -214,7 +221,7 @@ class msocial_view_table extends msocial_view_plugin {
                     $disconnectaction = ($USER->id == $user->id || has_capability('mod/msocial:manage', $contextmodule));
                     $sociallinking = $plugin->render_user_linking($user, $briefformat, false, $disconnectaction);
                     if ($briefformat) {
-                        $usersociallink .=  '<div style="display: inline-block">' . $sociallinking . '</div>' ;
+                        $usersociallink .= '<div style="display: inline-block">' . $sociallinking . '</div>';
                     } else {
                         $usersociallink .= '<p fontsize="8" >' . $sociallinking . '</p>';
                     }

@@ -49,11 +49,11 @@ function xmldb_msocialconnector_facebook_upgrade($oldversion = 0) {
     global $CFG;
 
     if ($oldversion < 2017092100) {
-        require_once($CFG->dirroot . '/mod/msocial/connector/facebook/facebookplugin.php');
-        $plugininfo = new mod_msocial\connector\msocial_connector_facebook(null);
-        $plugininfo->create_pki_fields();
         // Facebook savepoint reached.
         upgrade_plugin_savepoint(true, 2017092100, 'msocialconnector', 'facebook');
     }
+    require_once($CFG->dirroot . '/mod/msocial/connector/facebook/facebookplugin.php');
+    $plugininfo = new mod_msocial\connector\msocial_connector_facebook(null);
+    $plugininfo->create_pki_fields();
     return true;
 }

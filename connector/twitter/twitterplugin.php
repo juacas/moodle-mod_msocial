@@ -283,13 +283,20 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     }
 
     public function get_pki_list() {
-        $pkiobjs['tweets'] = new pki_info('tweets', null, pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, social_interaction::POST, 'tweet',
+        $pkiobjs['tweets'] = new pki_info('tweets',  get_string('pki_description_tweets', 'msocialconnector_twitter'),
+                pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, social_interaction::POST, 'tweet',
                 social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['retweets'] = new pki_info('retweets', null, pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, pki_info::PKI_CUSTOM);
-        $pkiobjs['favs'] = new pki_info('favs', null, pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, pki_info::PKI_CUSTOM);
+        $pkiobjs['retweets'] = new pki_info('retweets',  get_string('pki_description_retweets', 'msocialconnector_twitter'),
+                pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, pki_info::PKI_CUSTOM);
+        $pkiobjs['favs'] = new pki_info('favs',  get_string('pki_description_favs', 'msocialconnector_twitter'),
+                pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, pki_info::PKI_CUSTOM);
+        $pkiobjs['twmentions'] = new pki_info('twmentions',  get_string('pki_description_twmentions', 'msocialconnector_twitter'),
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
+                social_interaction::MENTION, '*', social_interaction::DIRECTION_RECIPIENT);
         $pkiobjs['max_tweets'] = new pki_info('max_tweets', null, pki_info::PKI_AGREGATED);
         $pkiobjs['max_retweets'] = new pki_info('max_retweets', null, pki_info::PKI_AGREGATED);
         $pkiobjs['max_favs'] = new pki_info('max_favs', null, pki_info::PKI_AGREGATED);
+        $pkiobjs['max_twmentions'] = new pki_info('max_twmentions', null, pki_info::PKI_AGREGATED);
         return $pkiobjs;
     }
 

@@ -25,4 +25,5 @@ $string['onlyasetofactivities'] = 'Searching only a set of the Questournaments i
 $string['selectactivity'] = 'Selection of Questournaments to be analysed';
 $string['select'] = 'Select Questournaments.';
 $string['pki_description_qposts'] = 'Created Challenges.';
+$string['pki_description_qanswers'] = 'Submitted answers.';
 $string['pki_description_qreplies'] = 'Received answers.';

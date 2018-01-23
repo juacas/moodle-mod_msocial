@@ -46,11 +46,12 @@ function xmldb_msocialconnector_questournament_upgrade($oldversion = 0) {
     global $CFG;
 
     if ($oldversion < 2017092201) {
-        require_once($CFG->dirroot . '/mod/msocial/connector/questournament/questournamentplugin.php');
-        $plugininfo = new mod_msocial\connector\msocial_connector_questournament(null);
-        $plugininfo->create_pki_fields();
-        // questournament savepoint reached.
+        // Questournament savepoint reached.
         upgrade_plugin_savepoint(true, 2017092201, 'msocialconnector', 'questournament');
     }
+    require_once($CFG->dirroot . '/mod/msocial/connector/questournament/questournamentplugin.php');
+    $plugininfo = new mod_msocial\connector\msocial_connector_questournament(null);
+    $plugininfo->create_pki_fields();
+
     return true;
 }

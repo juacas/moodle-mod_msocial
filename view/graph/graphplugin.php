@@ -144,13 +144,13 @@ class msocial_view_graph extends msocial_view_plugin {
     }
 
     public function get_pki_list() {
-        $pkiobjs['closeness'] = new pki_info('closeness', 'Centralidad de cercanía.',
+        $pkiobjs['closeness'] = new pki_info('closeness', get_string('pki_description_closeness', 'msocialview_graph'),
                 pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['degreein'] = new pki_info('degreein', 'Centralidad de grado de entrada (interacciones recibidas).',
+        $pkiobjs['degreein'] = new pki_info('degreein', get_string('pki_description_degreein', 'msocialview_graph'),
                 pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['degreeout'] = new pki_info('degreeout', 'Centralidad de grado de salida (interacciones emitidas).',
+        $pkiobjs['degreeout'] = new pki_info('degreeout', get_string('pki_description_degreeout', 'msocialview_graph'),
                 pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['betweenness'] = new pki_info('betweenness', 'Centralidad de intermediación.',
+        $pkiobjs['betweenness'] = new pki_info('betweenness', get_string('pki_description_betweeness', 'msocialview_graph'),
                 pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
         $pkiobjs['max_closeness'] = new pki_info('max_closeness', null, pki_info::PKI_AGREGATED);
         $pkiobjs['max_degreein'] = new pki_info('max_degreein', null, pki_info::PKI_AGREGATED);

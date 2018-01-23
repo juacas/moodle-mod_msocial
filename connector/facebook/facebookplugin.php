@@ -302,13 +302,17 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      *
      * @see \msocial\msocial_plugin::get_pki_list() */
     public function get_pki_list() {
-        $pkiobjs['posts'] = new pki_info('posts', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::POST, 'POST',
+        $pkiobjs['posts'] = new pki_info('posts', get_string('pki_description_posts', 'msocialconnector_facebook'),
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::POST, 'POST',
                 social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['replies'] = new pki_info('replies', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REPLY, '*',
+        $pkiobjs['replies'] = new pki_info('replies', get_string('pki_description_replies', 'msocialconnector_facebook'),
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REPLY, '*',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['likes'] = new pki_info('likes', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, 'LIKE',
+        $pkiobjs['likes'] = new pki_info('likes', get_string('pki_description_likes', 'msocialconnector_facebook'),
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, 'LIKE',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['reactions'] = new pki_info('reactions', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, '*',
+        $pkiobjs['reactions'] = new pki_info('reactions', get_string('pki_description_reactions', 'msocialconnector_facebook'),
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, '*',
                 social_interaction::DIRECTION_RECIPIENT);
         $pkiobjs['max_posts'] = new pki_info('max_posts', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
         $pkiobjs['max_replies'] = new pki_info('max_replies', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
