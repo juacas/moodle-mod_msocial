@@ -44,7 +44,8 @@ require_once($CFG->dirroot . '/mod/msocial/moodleactivityplugin.php');
 class msocial_connector_questournament extends msocial_connector_moodleactivity {
     const CONFIG_ACTIVITIES = 'activities';
     const CONFIG_ACTIVITY_NAMES = 'activitynames';
-
+    const INTERACTION_NATIVE_TYPE_POST = 'CHALLENGE';
+    const INTERACTION_NATIVE_TYPE_REPLY = 'ANSWER';
     // To remap them after a restore.
 
     /** Get the name of the plugin
@@ -75,10 +76,12 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
     }
 
     public function get_pki_list() {
-        $pkiobjs['qposts'] = new pki_info('qposts', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::POST, 'POST',
-                social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['qreplies'] = new pki_info('qreplies', null, pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REPLY, '*',
-                social_interaction::DIRECTION_RECIPIENT);
+        $pkiobjs['qposts'] = new pki_info('qposts', get_string('pki_description_qposts', 'msocialconnector_questournament'),
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
+                social_interaction::POST, '*', social_interaction::DIRECTION_AUTHOR);
+        $pkiobjs['qreplies'] = new pki_info('qreplies', get_string('pki_description_qreplies', 'msocialconnector_questournament'),
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
+                social_interaction::REPLY, '*', social_interaction::DIRECTION_RECIPIENT);
         $pkiobjs['max_qposts'] = new pki_info('max_qposts', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
         $pkiobjs['max_qreplies'] = new pki_info('max_qreplies', null, pki_info::PKI_AGREGATED,  pki_info::PKI_CALCULATED);
         return $pkiobjs;
@@ -106,7 +109,7 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
         $challengeinteraction->timestamp = $time;
 
         $challengeinteraction->type = social_interaction::POST;
-        $challengeinteraction->nativetype = 'CHALLENGE';
+        $challengeinteraction->nativetype = self::INTERACTION_NATIVE_TYPE_POST;
 
         $message = $challenge->description;
         $challengeinteraction->description = $message == '' ? 'No text.' : $message;
@@ -141,7 +144,7 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
         $answerinteraction->timestamp = $time;
 
         $answerinteraction->type = social_interaction::REPLY;
-        $answerinteraction->nativetype = 'ANSWER';
+        $answerinteraction->nativetype = self::INTERACTION_NATIVE_TYPE_REPLY;
 
         $message = $answer->description;
         $answerinteraction->description = $message == '' ? 'No text.' : $message;

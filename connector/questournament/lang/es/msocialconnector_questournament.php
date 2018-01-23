@@ -24,3 +24,5 @@ $string['harvest'] = 'Analiza la actividad en los foros del curso';
 $string['onlyasetofactivities'] = 'Solo se busca en algunos foros';
 $string['selectactivity'] = 'Selecciona los foros en los que buscar';
 $string['select'] = 'Selecciona Questournaments.';
+$string['pki_description_qposts'] = 'Desafíos creados.';
+$string['pki_description_qreplies'] = 'Respuestas recibidas.';
