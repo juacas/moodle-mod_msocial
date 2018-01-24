@@ -32,11 +32,11 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_msocialconnector_twitter_upgrade($oldversion) {
     global $CFG, $DB;
     if ($oldversion < 2017091900) {
-        require_once($CFG->dirroot . '/mod/msocial/connector/twitter/twitterplugin.php');
-        $plugininfo = new mod_msocial\connector\msocial_connector_twitter(null);
-        $plugininfo->create_pki_fields();
         // Twitter savepoint reached.
         upgrade_plugin_savepoint(true, 2017091900, 'msocialconnector', 'twitter');
     }
+    require_once($CFG->dirroot . '/mod/msocial/connector/twitter/twitterplugin.php');
+    $plugininfo = new mod_msocial\connector\msocial_connector_twitter(null);
+    $plugininfo->create_pki_fields();
     return true;
 }

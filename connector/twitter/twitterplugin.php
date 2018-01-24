@@ -379,7 +379,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $result->messages[] = "Searching by hashtag: $hashtag. For module msocial\\connector\\twitter by hashtags: $msocial->name (id=$msocial->id) " .
             "in course (id=$msocial->course) ";
 
-            $result = $this->post_harvest($result);
         } else {
             $msocial = $this->msocial;
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
@@ -409,7 +408,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         $result->statuses = array_merge($resultusers->statuses, $resulttags->statuses);
         $result->errors = array_merge($resultusers->errors, $resulttags->errors);
         $result->messages = array_merge($resultusers->messages, $resulttags->messages);
-        return $result;
+        return $this->post_harvest($result);
     }
     protected function harvest_users() {
             global $DB;
@@ -452,7 +451,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $errormessage = null;
             $result->messages[] = "Searching by users. For module msocial\\connector\\twitter by users: $msocial->name (id=$msocial->id) " .
                                     "in course (id=$msocial->course) searching: $hashtag  ";
-            $result = $this->post_harvest($result);
         } else {
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
             $result->errors[0]->message = $errormessage;
