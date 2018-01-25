@@ -263,20 +263,30 @@ abstract class msocial_plugin {
                 // get_records? Duplicate value '29' found in column 'userid'.
 
                 $interactionsource = $pkiinfo->interaction_source;
+                if (is_array($pkiinfo->interaction_type )) {
+                    $typeparams = $pkiinfo->interaction_type;
+                } else {
+                    $typeparams = [$pkiinfo->interaction_source];
+                }
+                [$typequery, $typeparams] = $DB->get_in_or_equal($typeparams);
+
                 $sql = "SELECT $interactionsource as userid, count(*) as total
                     from {msocial_interactions}
                     where msocial=?
                         and source=?
-                        and type=?
+                        and type $typequery
                         and $interactionsource IS NOT NULL
                         and timestamp >= ?
                         and timestamp <= ?
                         $nativetypequery
                     group by $interactionsource";
-                $aggregatedrecords = $DB->get_records_sql($sql,
-                        [$this->msocial->id, $subtype, $pkiinfo->interaction_type,
-                                        $this->msocial->startdate,
-                                        $this->msocial->enddate == 0 ? PHP_INT_MAX : $this->msocial->enddate]);
+                $sqlparams =  [$this->msocial->id, $subtype];
+                $sqlparams = array_merge($sqlparams, $typeparams);
+                $sqlparams[] = $this->msocial->startdate;
+                $sqlparams[] = $this->msocial->enddate == 0 ? PHP_INT_MAX : $this->msocial->enddate;
+
+                $aggregatedrecords = $DB->get_records_sql($sql, $sqlparams);
+
                 // Process users' pkis.
                 foreach ($aggregatedrecords as $aggr) {
                     if (!isset($pkis[$aggr->userid])) {

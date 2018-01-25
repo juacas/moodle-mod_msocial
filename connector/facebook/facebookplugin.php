@@ -303,7 +303,8 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * @see \msocial\msocial_plugin::get_pki_list() */
     public function get_pki_list() {
         $pkiobjs['posts'] = new pki_info('posts', get_string('pki_description_posts', 'msocialconnector_facebook'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::POST, 'POST',
+                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
+                [social_interaction::POST, social_interaction::REPLY], '*',
                 social_interaction::DIRECTION_AUTHOR);
         $pkiobjs['replies'] = new pki_info('replies', get_string('pki_description_replies', 'msocialconnector_facebook'),
                 pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REPLY, '*',
