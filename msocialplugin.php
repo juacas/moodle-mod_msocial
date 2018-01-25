@@ -268,7 +268,7 @@ abstract class msocial_plugin {
                 } else {
                     $typeparams = [$pkiinfo->interaction_source];
                 }
-                [$typequery, $typeparams] = $DB->get_in_or_equal($typeparams);
+                list($typequery, $typeparams) = $DB->get_in_or_equal($typeparams);
 
                 $sql = "SELECT $interactionsource as userid, count(*) as total
                     from {msocial_interactions}
