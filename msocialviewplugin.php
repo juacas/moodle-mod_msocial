@@ -101,14 +101,6 @@ abstract class msocial_view_plugin extends msocial_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::is_tracking()
-     */
-    public function is_tracking() {
-        return $this->is_enabled();
-    }
-    /**
-     *
-     * {@inheritDoc}
      * @see \msocial\msocial_plugin::get_pki_list()
      */
     public function get_pki_list() {

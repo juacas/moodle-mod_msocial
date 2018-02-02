@@ -56,7 +56,11 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /**
      * @return true if the plugin is making searches in the social network */
     public function is_tracking() {
-        return ($this->is_enabled() && $this->get_connection_token() != null && $this->get_config(self::CONFIG_FBGROUP) != null);
+        // Check timespan.
+        return parent::is_tracking() &&
+                $this->is_enabled() &&
+                $this->get_connection_token() != null &&
+                $this->get_config(self::CONFIG_FBGROUP) != null);
     }
 
     /** Get the instance settings for the plugin

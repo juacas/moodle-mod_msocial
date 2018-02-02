@@ -302,7 +302,6 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $this->check_mapping_cache();
         return isset($this->socialtousermapping[$socialid]) ? $this->socialtousermapping[$socialid] : null;
     }
-
     /** Reports if the users are from an external social network or from a Moodle activity.
      * @return boolean */
     public function users_are_local() {

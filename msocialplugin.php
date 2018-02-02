@@ -489,7 +489,7 @@ abstract class msocial_plugin {
         return $this->set_config(self::CONFIG_DISABLED, 1);
     }
 
-    /** Allows hiding this plugin from the submission/feedback screen if it is not enabled.
+    /** Allows hiding this plugin from the MSocial screen if it is not enabled.
      *
      * @return bool - if false - this plugin will not accept submissions / feedback */
     public function is_enabled() {
@@ -500,13 +500,16 @@ abstract class msocial_plugin {
         return $this->enabledcache;
     }
     /**
-     * @return boolean true if the plugin is making searches in the social network or computing pkis
+     * Disable tracking a day after the end of the activity time window.
+     * @return boolean true if the plugin is making searches in the social network or computing pkis.
      * (@see msocial_plugin->harvest())
      */
-    public abstract function is_tracking();
-
-    /** Get the numerical sort order for this plugin
-     *
+    public function is_tracking() {
+        return $this->is_enabled() &&
+        msocial_time_is_between(time(), $this->msocial->startdate, $this->msocial->enddate + 24 * 2600);
+    }
+    /**
+     * Get the numerical sort order for this plugin
      * @return int */
     public function get_sort_order() {
         $order = get_config($this->get_subtype() . '_' . $this->get_type(), 'sortorder');
