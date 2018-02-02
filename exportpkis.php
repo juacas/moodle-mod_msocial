@@ -74,7 +74,8 @@ if (!empty($format) && !empty($type) ) {
         $anonymouscolumns = ['userid', 'firstname', 'lastname'];
         $data = msocial_plugin::get_pkis($msocial, $students, null);
     } else if ($type == 'interactions') {
-        $hiddencolumns = ['id', 'msocial', 'status', 'rawdata'];
+        $hiddencolumns = ['id', 'msocial', 'status'];
+//         $hiddencolumns[] = 'rawdata';
         $anonymouscolumns = ['fromid', 'toid'];
         require_once('filterinteractions.php');
         require_once('socialinteraction.php');
