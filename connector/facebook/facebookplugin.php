@@ -60,7 +60,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         return parent::is_tracking() &&
                 $this->is_enabled() &&
                 $this->get_connection_token() != null &&
-                $this->get_config(self::CONFIG_FBGROUP) != null);
+                $this->get_config(self::CONFIG_FBGROUP) != null;
     }
 
     /** Get the instance settings for the plugin
