@@ -28,9 +28,9 @@
  * @package msocial */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017081901; // The current module version (Date: YYYYMMDDXX).
+$plugin->version = 2018021200; // The current module version (Date: YYYYMMDDXX).
 $plugin->requires = 2013051407.00; // Requires this Moodle version.2013111801.11.
 $plugin->component = 'mod_msocial'; // Full name of the plugin (used for diagnostics).
 $plugin->cron = 12 * 60 * 60; // Period for cron to check this module (secs).
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = 'v0.1.1-beta';
+$plugin->release = 'v1.0.0';
