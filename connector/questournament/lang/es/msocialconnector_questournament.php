@@ -18,11 +18,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-$string['pluginname'] = 'Conector para foros de Moodle';
-$string['allactivities'] = 'Buscando en todos los foros del curso';
-$string['harvest'] = 'Analiza la actividad en los foros del curso';
-$string['onlyasetofactivities'] = 'Solo se busca en algunos foros';
-$string['selectactivity'] = 'Selecciona los foros en los que buscar';
+$string['pluginname'] = 'Conector para Questournament de Moodle';
+$string['allactivities'] = 'Buscando en todos los Questournament del curso';
+$string['harvest'] = 'Analiza la actividad en los Questournament del curso';
+$string['onlyasetofactivities'] = 'Solo se busca en algunos Questournament';
+$string['selectactivity'] = 'Selecciona los Questournament en los que buscar';
 $string['select'] = 'Selecciona Questournaments.';
 $string['pki_description_qposts'] = 'Desafíos creados';
 $string['pki_description_qreplies'] = 'Respuestas recibidas';
