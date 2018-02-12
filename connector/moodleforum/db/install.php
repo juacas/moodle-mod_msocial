@@ -39,7 +39,7 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_msocialconnector_moodleforum_install() {
     global $CFG;
     require_once($CFG->dirroot . '/mod/msocial/connector/moodleforum/moodleforumplugin.php');
-    $plugin = new mod_msocial\connector\msocial_connector_questournament(null);
+    $plugin = new mod_msocial\connector\msocial_connector_forum(null);
     $plugin->create_pki_fields();
     return true;
 }
