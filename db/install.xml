@@ -21,6 +21,8 @@
 					COMMENT="The final date after which tweets will no longer be accounted." />
 				<FIELD NAME="grade_expr" TYPE="char" LENGTH="100" NOTNULL="false"
 					SEQUENCE="false" COMMENT="expression for computing the grade" />
+				<FIELD NAME="anonymizeviews" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"
+					COMMENT="Users without mod/msocial:viewothersnames don't see actual user full names." />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />

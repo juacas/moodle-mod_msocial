@@ -37,13 +37,12 @@ $todate = optional_param('enddate', null, PARAM_ALPHANUMEXT);
 $subtype = optional_param('subtype', null, PARAM_ALPHA);
 $cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
-$contextcourse = context_course::instance($msocial->course);
 
 require_login($cm->course, false, $cm);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
 
-$usersstruct = msocial_get_users_by_type($contextcourse);
-list($students, $nonstudents, $activeusers, $userrecords) = array_values($usersstruct);
+$usersstruct = msocial_get_viewable_users($cm, $msocial);
+
 $filter = new filter_interactions($_GET, $msocial);
 $filter->set_users($usersstruct);
 // Process interactions.

@@ -196,13 +196,14 @@ class filter_interactions {
 
         $out .= '<b>'. get_string('fromidfilter', 'msocial') . '</b>';
         $out .= '<select id="fromid" name="' . self::PARAM_FROMID . '">';
+        $cm = get_fast_modinfo($this->msocial->course)->instances['msocial'][$this->msocial->id];
+        list($students, $nonstudents, $activeusers, $userrecords) = array_values(msocial_get_viewable_users($cm, $this->msocial));
 
-        $contextcourse = \context_course::instance($this->msocial->course);
-        $userrecords = get_enrolled_users($contextcourse, '', 0, '*', 'lastname');;
         $out .= "<option value=\"\">All</option>";
-        foreach ($userrecords as $userid => $user) {
+        foreach ($students as $userid) {
+            $user = $userrecords[$userid];
             $selected = $this->fromid == $userid ? 'selected="true"' : '';
-            $username = fullname($user);
+            $username = msocial_get_visible_fullname($user, $this->msocial);
             $out .= "<option $selected value=\"$userid\">$username</option>";
         }
         $out .= '</select>';

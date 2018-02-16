@@ -38,7 +38,6 @@ $duplicatededges = [];
 $filter->set_users($usersstruct);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($this->msocial);
 
-/* @var $OUTPUT \core_renderer */
 echo <<<STYLE
 <style>
 @import url(view/graph/graphvis.css);

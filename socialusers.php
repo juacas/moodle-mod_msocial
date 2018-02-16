@@ -65,10 +65,12 @@ if ($action == 'setmap') {
     $plugin->set_social_userid($user, $nativeid, $nativename);
 
 } else if ($action == 'selectmapuser') {
+    require_capability('mod/msocial:mapaccounts', $contextmodule);
     $nativeid = required_param('nativeid', PARAM_ALPHANUMEXT);
     $nativename = required_param('nativename', PARAM_RAW_TRIMMED);
     $source = required_param('source', PARAM_ALPHA);
 } else if ($action == 'showuser') {
+    require_capability('mod/msocial:viewothers', $contextmodule);
     $userid = required_param('user', PARAM_INT);
     $user = $DB->get_record('user', ['id' => $userid]);
 }
@@ -100,7 +102,12 @@ if ($mappingrequested) {
     echo $OUTPUT->box(get_string('mapunknownsocialusers', 'msocial', $a));
 }
 $table = new html_table();
-list($studentids, $nonstudentids, $inactiveids, $users) = array_values(msocial_get_users_by_type($contextmodule));
+if (msocial_can_view_others($cm, $msocial)) {
+    list($studentids, $nonstudentids, $inactiveids, $users) = array_values(msocial_get_users_by_type($contextmodule));
+} else {
+    $studentids = [$USER->id];
+    $users = [$USER];
+}
 $table->head = [get_string('user')];
 foreach ($enabledsocialplugins as $plugin) {
     if ($plugin->users_are_local() === false) {
@@ -111,6 +118,9 @@ foreach ($enabledsocialplugins as $plugin) {
 if ($action == 'setmap' || $action == 'showuser') {
     $users = [$user];
 }
+$cm = get_fast_modinfo($msocial->course)->instances['msocial'][$msocial->id];
+$context = context_module::instance($cm->id);
+
 foreach ($users as $user) {
     $row = new html_table_row();
     $table->data[] = $row;
@@ -118,9 +128,16 @@ foreach ($users as $user) {
     if ($mappingrequested) {
         $checkbox = '<input type="radio" name="user" value="' . $user->id . '">';
     }
-    // User name and pic.
-    $pic = $OUTPUT->user_picture($user);
-    $link = html_writer::link(new moodle_url('/user/view.php', ['id' => $user->id]), fullname($user));
+    $anonym = ! msocial_can_view_others_names($msocial);
+    if ($anonym) {
+        $pic = '';
+        $link = msocial_get_visible_fullname($user, $msocial);
+    } else {
+        // User name and pic.
+        $pic = $OUTPUT->user_picture($user);
+        $link = html_writer::link(new moodle_url('/user/view.php', ['id' => $user->id]),
+                                msocial_get_visible_fullname($user, $msocial));
+    }
     $row->cells[] = new html_table_cell($checkbox . $pic . ' ' . $link);
     foreach ($enabledsocialplugins as $plugin) {
         if ($plugin->users_are_local() === false) {

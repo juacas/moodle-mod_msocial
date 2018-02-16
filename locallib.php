@@ -26,7 +26,7 @@ use mod_msocial\plugininfo\msocialview;
 use msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
-
+global $CFG;
 require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->libdir . '/mathslib.php');
 
@@ -180,7 +180,7 @@ function msocial_calculate_grades($msocial) {
  * @param int\array(int) $userid Userid or an array of user ids.
  * @return stdClass */
 function msocial_calculate_user_grades($msocial, $userid = 0) {
-    $cm = get_coursemodule_from_instance('msocial', $msocial->id, 0, false, MUST_EXIST);
+    $cm = get_fast_modinfo($msocial->course)->instances['msocial'][$msocial->id];
     if ($userid == 0) {
         $context = context_module::instance($cm->id);
         list($students) = array_values(msocial_get_users_by_type($context));
@@ -241,7 +241,46 @@ function msocial_get_user_fields() {
     $idtypeoptions = $options1 + $options2;
     return $idtypeoptions;
 }
-
+/**
+ * Resolve user to fullusername according to permissions and settings.
+ * @param unknown $user
+ * @param unknown $msocial
+ * @param string $override
+ * @return string
+ */
+function msocial_get_visible_fullname($user, $msocial, $override = false) {
+    global $USER;
+    if ($USER->id == $user->id || msocial_can_view_others_names($msocial)) {
+        return fullname($user, $override);
+    } else {
+        // Simple anonymizing method. Ofuscate user id with a simple xor.
+        return mb_convert_case(substr($user->lastname, 0, 2) . substr($user->firstname, 0, 2) . ($user->id ^ 343), MB_CASE_UPPER);
+    }
+}
+function msocial_can_view_others($cm, $msocial) {
+    $contextmodule = \context_module::instance($cm->id);
+    $viewothers = has_capability('mod/msocial:viewothers', $contextmodule);
+    return $viewothers;
+}
+function msocial_can_view_others_names($msocial) {
+    $cm = get_fast_modinfo($msocial->course)->instances['msocial'][$msocial->id];
+    $context = context_module::instance($cm->id);
+    $canview = has_capability('mod/msocial:alwaysviewothersnames', $context) || $msocial->anonymizeviews == false;
+    return $canview;
+}
+function msocial_get_viewable_users($cm, $msocial) {
+    global $USER;
+    $viewothers = msocial_can_view_others($cm, $msocial);
+    $contextcourse = context_course::instance($msocial->course);
+    $usersstruct = msocial_get_users_by_type($contextcourse);
+    list($students, $nonstudents, $activeusers, $userrecords) = array_values($usersstruct);
+    if ($viewothers) {
+        $usersstruct['student_ids'] = array_merge($students, $nonstudents);
+    } else {
+        $usersstruct['student_ids']= array($USER->id);
+    }
+    return $usersstruct;
+}
 function msocial_is_custom_field_name($fieldid) {
     if (in_array($fieldid, ['aim', 'msn', 'skype', 'yahoo'])) {
         return false;
@@ -255,7 +294,7 @@ function msocial_is_custom_field_name($fieldid) {
  * @param msocial_plugin $plugin The plugin to update
  * @param stdClass $formdata The form data
  * @return bool false if an error occurs */
-function update_plugin_instance($plugin, stdClass $formdata) {
+function msocial_update_plugin_instance($plugin, stdClass $formdata) {
     $enabledname = $plugin->get_type() . '_' . $plugin->get_subtype() . '_enabled';
     if (!empty($formdata->$enabledname)) {
         $plugin->enable();

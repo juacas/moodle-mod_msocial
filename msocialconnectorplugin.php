@@ -79,7 +79,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      * @param object $user user record
      * @return string message with the linking info of the user */
     public function render_user_linking($user, $brief = false, $connectaction = false, $disconnectaction = false) {
-        global $USER, $COURSE;
+        global $COURSE;
         $course = $COURSE;
         $usermessage = '';
         $socialids = $this->get_social_userid($user);
@@ -87,12 +87,12 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $cm = get_coursemodule_from_instance('msocial', $this->msocial->id);
         if ($socialids == null) { // Offer to register.
             $pixurl = new \moodle_url("/mod/msocial/connector/{$subtype}/pix"); // For i18n strings.
-            $userfullname = fullname($user);
+            $userfullname = msocial_get_visible_fullname($user, $this->msocial);
             if ($connectaction) {
                 $urlprofile = new \moodle_url("/mod/msocial/connector/$subtype/connectorSSO.php",
                         array('id' => $cm->id, 'action' => 'connect', 'type' => 'profile'));
                 $usermessage = get_string("no_{$subtype}_name_advice2", "msocialconnector_{$subtype}",
-                        ['userfullname' => $userfullname, 'userid' => $USER->id, 'courseid' => $course->id,
+                        ['userfullname' => $userfullname, 'userid' => $user->id, 'courseid' => $course->id,
                                         'url' => $urlprofile->out(false), 'pixurl' => $pixurl->out(false)]);
             } else {
                 if ($brief) {

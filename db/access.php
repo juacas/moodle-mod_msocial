@@ -59,23 +59,46 @@ $capabilities = array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
-            'student' => CAP_ALLOW,
-            'frontpage' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
+                        'student' => CAP_ALLOW,
+                        'guest' => CAP_ALLOW,
+                        'frontpage' => CAP_ALLOW,
+                        'teacher' => CAP_ALLOW,
+                        'editingteacher' => CAP_ALLOW,
+                        'manager' => CAP_ALLOW
         )
     ),
     'mod/msocial:viewothers' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
-            'student' => CAP_ALLOW,
-            'guest' => CAP_PREVENT,
-            'teacher' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
+                        'student' => CAP_ALLOW,
+                        'guest' => CAP_ALLOW,
+                        'teacher' => CAP_ALLOW,
+                        'editingteacher' => CAP_ALLOW,
+                        'manager' => CAP_ALLOW
         )
+    ),
+    'mod/msocial:mapaccounts' => array(
+                    'captype' => 'write',
+                    'contextlevel' => CONTEXT_MODULE,
+                    'archetypes' => array(
+                                    'student' => CAP_PREVENT,
+                                    'guest' => CAP_PREVENT,
+                                    'teacher' => CAP_ALLOW,
+                                    'editingteacher' => CAP_ALLOW,
+                                    'manager' => CAP_ALLOW
+                    )
+    ),
+    'mod/msocial:alwaysviewothersnames' => array(
+                    'captype' => 'read',
+                    'contextlevel' => CONTEXT_MODULE,
+                    'archetypes' => array(
+                                    'student' => CAP_PREVENT,
+                                    'guest' => CAP_PREVENT,
+                                    'teacher' => CAP_ALLOW,
+                                    'editingteacher' => CAP_ALLOW,
+                                    'manager' => CAP_ALLOW
+                    )
     ),
     'mod/msocial:manage' => array(
         'captype' => 'write',

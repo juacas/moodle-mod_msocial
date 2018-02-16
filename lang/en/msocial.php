@@ -22,6 +22,8 @@
  * @package msocial
  * *******************************************************************************
  */
+$string['anonymizeviews'] = 'Anonymize users in all views.';
+$string['anonymizeviews_help'] = 'Actual full names are hidden, i.e. anonymize users in all views. Users without specific permission only view names like "Anonymous-XX".';
 $string['socialconnectors'] = 'Social connectors.';
 $string['socialviews'] = 'Social visualizations.';
 $string['settings'] = 'MSocial settings';
@@ -83,10 +85,11 @@ $string['fromidfilter'] = 'Author:';
 // Permissions.
 $string['msocial:view'] = 'View basic information of MSocial module.';
 $string['msocial:viewothers'] = 'View activity of other users.';
+$string['msocial:alwaysviewothersnames'] = 'View actual fullnames despite the anonymize option.';
 $string['msocial:addinstance'] = 'Add new MSocial activities to the course.';
 $string['msocial:manage'] = 'Change settings of a MSocial activity';
-$string['msocial:view'] = 'View information of MSocial about me';
-$string['msocial:viewothers'] = 'View all information collected by MSocial';
+$string['msocial:view'] = 'View information of the MSocial activity';
+$string['msocial:mapaccounts'] = 'Change/assign a social account to a course student';
 $string['msocial:exportpkis'] = 'Download PKIs calculated by MSocial';
 $string['msocial:exportinteractions'] = 'Download raw interactions by MSocial';
 $string['msocial:exportrawdata'] = 'Download raw data';

@@ -72,9 +72,25 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
     }
 
     protected function get_mod_name() {
-        return 'forum';
+        return 'quest';
     }
+    public function get_interaction_url(social_interaction $interaction) {
+        $parts = explode('_', $interaction->uid);
+        if (count($parts) < 2) {
+            return null; // TODO query local database.
+        }
+        $cm = get_fast_modinfo($this->msocial->course)->instances['quest'][$parts[0]];
 
+        if (count($parts) == 3) { // TODO...
+            $url = new \moodle_url("/mod/quest/answer.php",
+                    ['id' => $cm->id, 'sid' => $parts[1], 'aid' => $parts[2], 'action' => 'showanswer']);
+        } else {
+            $url = new \moodle_url("/mod/quest/submissions.php",
+                    ['id' => $cm->id, 'sid' => $parts[1], 'action' => 'showsubmission']);
+        }
+
+        return $url->out();
+    }
     public function get_pki_list() {
         $pkiobjs['qposts'] = new pki_info('qposts', get_string('pki_description_qposts', 'msocialconnector_questournament'),
                 pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
@@ -96,16 +112,16 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
      * @param array(\stdClass) $posts other posts for lookup. */
     protected function process_challenge($challenge, $users) {
         $challengeinteraction = new social_interaction();
-        $challengeinteraction->uid = $challenge->id;
+        $challengeinteraction->uid = $challenge->questid . '_' . $challenge->id;
         $challengeinteraction->nativefrom = $challenge->userid;
         if (isset($users[$challenge->userid])) {
-            $challengeinteraction->nativefromname = fullname($users[$challenge->userid]);
+            $challengeinteraction->nativefromname = msocial_get_visible_fullname($users[$challenge->userid], $this->msocial);
             $challengeinteraction->fromid = $challenge->userid;
         } else {
             // Unenrolled user.
             global $DB;
             $user = $DB->get_record('user',['id' =>  $challenge->userid]);
-            $challengeinteraction->nativefromname = fullname($user);
+            $challengeinteraction->nativefromname = msocial_get_visible_fullname($user, $this->msocial);
         }
         $challengeinteraction->rawdata = json_encode($challenge);
         $time = new \DateTime();
@@ -121,23 +137,23 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
         return $challengeinteraction;
     }
     protected function process_answer($answer, $users) {
+        $challengeinteraction = $this->lastinteractions[$answer->questid . '_' . $answer->submissionid];
         $answerinteraction = new social_interaction();
-        $answerinteraction->uid = $answer->id;
+        $answerinteraction->uid = $challengeinteraction->uid . '_' . $answer->id;
         $answerinteraction->nativefrom = $answer->userid;
 
         if (isset($users[$answer->userid])) {
-            $answerinteraction->nativefromname = fullname($users[$answer->userid]);
+            $answerinteraction->nativefromname = msocial_get_visible_fullname($users[$answer->userid], $this->msocial);
             $answerinteraction->fromid = $answer->userid;
         } else {
             // Unenrolled user.
             global $DB;
             $user = $DB->get_record('user',['id' => $answer->userid]);
-            $answerinteraction->nativefromname = fullname($user);
+            $answerinteraction->nativefromname = msocial_get_visible_fullname($user, $this->msocial);
         }
 
         $answerinteraction->rawdata = json_encode($answer);
 
-        $challengeinteraction = $this->lastinteractions[$answer->submissionid];
 
         $answerinteraction->toid = $challengeinteraction->fromid;
         $answerinteraction->nativeto  = $challengeinteraction->fromid;

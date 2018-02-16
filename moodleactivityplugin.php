@@ -154,7 +154,11 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
     }
 
     public function get_social_user_url(social_user $userid) {
-        return new \moodle_url("/user/view.php", ['id' => $userid->userid]) . out();
+        if (msocial_can_view_others_names($this->msocial) || $USER->id == $userid->socialid) {
+            return (new \moodle_url("/user/view.php", ['id' => $userid->socialid]))->out();
+        } else {
+            return null;
+        }
     }
 
     public function get_interaction_url(social_interaction $interaction) {
@@ -167,7 +171,7 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
             $url = new \moodle_url("/mod/$modname/view.php", ['id' => $parts[0]]);
         }
 
-        return $url;
+        return $url->out();
     }
     /**
      *

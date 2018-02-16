@@ -40,6 +40,8 @@ $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EX
 require_login($cm->course, false, $cm);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
 $contextcourse = context_course::instance($msocial->course);
+$contextmodule = context_module::instance($cm->id);
+$canmapusers = has_capability('mod/msocial:mapaccounts', $contextmodule);
 
 $events = [];
 foreach ($plugins as $plugin) {
@@ -49,7 +51,7 @@ $lastitemdate = null;
 $firstitemdate = null;
 
 $filter = new filter_interactions($_GET, $msocial);
-$usersstruct = msocial_get_users_by_type($contextcourse);
+$usersstruct = msocial_get_viewable_users($cm, $msocial);
 list($students, $nonstudents, $activeusers, $userrecords) = array_values($usersstruct);
 $filter->set_users($usersstruct);
 // Process interactions.
@@ -71,30 +73,43 @@ if (count($interactions) > 0) {
         if (!$userinfo) {
             $userinfo = (object) ['socialname' => $interaction->nativefromname];
         }
-        $namefrom = get_fullname($interaction->fromid, $userrecords, "[$interaction->nativefromname]");
-        if (isset($userrecords[$interaction->fromid])) {
-            global $OUTPUT, $PAGE;
-            $userlinkfrom = (new moodle_url('/mod/msocial/socialusers.php',
-                    ['action' => 'showuser',
-                                    'user' => $interaction->fromid,
-                                    'id' => $cm->id,
-                                    'redirect' => $redirecturl,
-                    ]))->out(false);
-            $userpicture = new user_picture(($userrecords[$interaction->fromid]));
-            $usericon = $userpicture->get_url($PAGE)->out(false);
+        $namefrom = get_fullname($interaction->fromid, $userrecords, "[$interaction->nativefromname]", $msocial);
+        if ($canmapusers || $interaction->fromid  == $USER->id) {
+            if (isset($userrecords[$interaction->fromid])) {
+                global $OUTPUT, $PAGE;
+                $userlinkfrom = (new moodle_url('/mod/msocial/socialusers.php',
+                        ['action' => 'showuser',
+                                        'user' => $interaction->fromid,
+                                        'id' => $cm->id,
+                                        'redirect' => $redirecturl,
+                        ]))->out(false);
+                $userpicture = new user_picture(($userrecords[$interaction->fromid]));
+                $usericon = $userpicture->get_url($PAGE)->out(false);
+            } else {
+                $userlinkfrom = (new moodle_url('/mod/msocial/socialusers.php',
+                        ['action' => 'selectmapuser',
+                        'source' => $interaction->source,
+                        'user' => $interaction->fromid,
+                        'id' => $cm->id,
+                        'nativeid' => $interaction->nativefrom,
+                        'nativename' => $interaction->nativefromname,
+                        'redirect' => $redirecturl,
+                        ]))->out(false);
+                $usericon = '';
+            }
         } else {
-            $userlinkfrom = $plugin->get_social_user_url(new social_user($interaction->nativefrom, $interaction->nativefromname));
-            $userlinkfrom = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
-            "nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname&redirect=$redirecturl";
-            $usericon = '';
+            $userlinkfrom = '#';
+            $usericon = (new \moodle_url('/mod/msocial/pix/Anonymous2.svg'))->out();
         }
         $thispageurl = $plugin->get_interaction_url($interaction);
-        $event = ['id' => $interaction->uid, 'username' => $namefrom, 'usericon' => $usericon, 'userlink' => $userlinkfrom, 'startdate' => $date, 'title' => $userinfo->socialname,
-                        'description' => $plugin->get_interaction_description($interaction), 'icon' => $plugin->get_icon()->out(), 'link' => $thispageurl,
-                        'importance' => 10, 'date_limit' => 'mo'];
+        $event = ['id' => $interaction->uid, 'username' => $namefrom, 'usericon' => $usericon,
+                        'startdate' => $date, 'title' => $userinfo->socialname,
+                        'description' => $plugin->get_interaction_description($interaction), 'icon' => $plugin->get_icon()->out(),
+                        'link' => $thispageurl, 'importance' => 10, 'date_limit' => 'mo',
+                        'userlink' => $userlinkfrom,
+        ];
         $events[$subtype][] = $event;
     }
-
 }
 $timeseries = [];
 foreach ($events as $key => $eventseries) {
@@ -106,10 +121,10 @@ foreach ($events as $key => $eventseries) {
 $jsonencoded = json_encode($timeseries);
 echo $jsonencoded;
 
-function get_fullname($userid, $users, $default) {
+function get_fullname($userid, $users, $default, $msocial) {
     if ($userid != null && isset($users[$userid])) {
         $user = $users[$userid];
-        return fullname($user);
+        return msocial_get_visible_fullname($user, $msocial);
     } else {
         return $default;
     }

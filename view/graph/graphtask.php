@@ -39,8 +39,6 @@ class graph_task extends \core\task\adhoc_task {
         foreach ($users as $key => $val) {
             $usersreindex[(int)$key] = $val;
         }
-
-        //$plugin = msocialbase::instance($msocial, 'view', msocial_view_graph::PLUGINNAME);
         $plugin = new msocial_view_graph($msocial);
         $pkis = $plugin->calculate_pkis($usersreindex);
         $plugin->store_pkis($pkis, true);

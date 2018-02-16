@@ -42,8 +42,10 @@ $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EX
 require_login($cm->course, false, $cm);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
 $contextcourse = context_course::instance($msocial->course);
-
-$usersstruct = msocial_get_users_by_type($contextcourse);
+$contextmodule = context_module::instance($cm->id);
+$canviewothers = has_capability('mod/msocial:viewothers', $contextmodule);
+// Get list of users.
+$usersstruct = msocial_get_viewable_users($cm, $msocial);
 list($students, $nonstudents, $activeusers, $userrecords) = array_values($usersstruct);
 $filter = new filter_interactions($_GET, $msocial);
 $filter->set_users($usersstruct);
@@ -66,68 +68,17 @@ foreach ($interactions as $interaction) {
         if ($interaction->nativeto == null && $community == false) {
             continue;
         }
-        $nodenamefrom = get_fullname($interaction->fromid, $userrecords, "[$interaction->nativefromname]");
-
+        list($nodenamefrom, $userlinkfrom) = msocial_create_userlink($interaction, 'from', $userrecords, $msocial, $cm, $redirecturl, $canviewothers);
         if ($nodenamefrom == null) {
             continue;
         }
-        if (isset($userrecords[$interaction->fromid])) {
-            $userlinkfrom = (new moodle_url('/mod/msocial/socialusers.php',
-                            ['action' => 'showuser',
-                             'user' => $interaction->fromid,
-                             'id' => $cm->id,
-                             'redirect' => $redirecturl,
-                            ]))->out(false);
-        } else {
-            $userlinkfrom = $plugin->get_social_user_url(new social_user($interaction->nativefrom, $interaction->nativefromname));
-            $userlinkfrom = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
-                            "nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname&redirect=$redirecturl";
-        }
-        if (!array_key_exists($nodenamefrom, $nodemap)) {
-            global $OUTPUT, $PAGE;
-            $node = (object) ['id' => $index, 'name' => $nodenamefrom, 'group' => $interaction->fromid == null ? 1 : 0,
-                            'userlink' => $userlinkfrom];
-            if (isset($userrecords[$interaction->fromid])) {
-                $userpicture = new user_picture(($userrecords[$interaction->fromid]));
-                $node->usericon = $userpicture->get_url($PAGE)->out(false);
-            } else {
-                $node->usericon = '';
-            }
-            $nodes[] = $node;
-            $nodemap[$node->name] = $index++;
-        }
-        if ($interaction->nativeto == null) { // Community destination.
-            $nodenameto = '[COMMUNITY]';
-            $userlinkto = '';
-        } else {
-            $nodenameto = get_fullname($interaction->toid, $userrecords, "[$interaction->nativetoname]");
-            if (isset($userrecords[$interaction->toid])) {
-                $userlinkto = (new moodle_url('/mod/msocial/socialusers.php',
-                        ['action' => 'showuser',
-                                        'user' => $interaction->toid,
-                                        'id' => $cm->id,
-                                        'redirect' => $redirecturl,
-                        ]))->out(false);
-            } else {
-                $userlinkto = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
-                "nativeid=$interaction->nativeto&nativename=$interaction->nativetoname&redirect=$redirecturl";
-            }
-        }
+        msocial_add_node_if_not_exists($nodenamefrom, $interaction->fromid, $userlinkfrom, $nodemap, $nodes, $canviewothers, $userrecords, $index);
+        list($nodenameto, $userlinkto) = msocial_create_userlink($interaction, 'to', $userrecords, $msocial, $cm, $redirecturl, $canviewothers);
         if ($nodenameto == null) {
             continue;
         }
-        if (!array_key_exists($nodenameto, $nodemap)) {
-            $node = (object) ['id' => $index, 'name' => $nodenameto, 'group' => $interaction->toid == null ? 1 : 0,
-                            'userlink' => $userlinkto];
-            if (isset($userrecords[$interaction->toid])) {
-                $userpicture = new user_picture(($userrecords[$interaction->toid]));
-                $node->usericon = $userpicture->get_url($PAGE)->out();
-            } else {
-                $node->usericon = '';
-            }
-            $nodes[] = $node;
-            $nodemap[$node->name] = $index++;
-        }
+        msocial_add_node_if_not_exists($nodenameto, $interaction->toid, $userlinkto, $nodemap, $nodes, $canviewothers, $userrecords, $index);
+
         switch ($interaction->type) {
             case social_interaction::POST:
                 $typevalue = 5;
@@ -147,10 +98,15 @@ foreach ($interactions as $interaction) {
         }
         $thispageurl = $plugin->get_interaction_url($interaction);
 
-        $edge = (object) ['id' => $interaction->uid, 'source' => $nodemap[$nodenamefrom], 'target' => $nodemap[$nodenameto],
-                        'value' => $typevalue, 'interactiontype' => $interaction->type, 'subtype' => $subtype,
+        $edge = (object) ['id' => $interaction->uid,
+                        'source' => $nodemap[$nodenamefrom],
+                        'target' => $nodemap[$nodenameto],
+                        'value' => $typevalue,
+                        'interactiontype' => $interaction->type,
+                        'subtype' => $subtype,
                         'description' => $plugin->get_interaction_description($interaction),
-                        'icon' => $plugin->get_icon()->out(), 'link' => $thispageurl];
+                        'icon' => $plugin->get_icon()->out(),
+                        'link' => $thispageurl];
         $edges[] = $edge;
     }
 }
@@ -159,10 +115,56 @@ $jsondata = (object) ['nodes' => $nodes, 'links' => $edges];
 $jsonencoded = json_encode($jsondata);
 echo $jsonencoded;
 
-function get_fullname($userid, $users, $default) {
+function msocial_add_node_if_not_exists($nodename, $userid, $userlink, &$nodemap, &$nodes, $canviewothers, $userrecords, &$index) {
+    global $PAGE, $USER;
+    if (!array_key_exists($nodename, $nodemap)) {
+        $node = (object) ['id' => $index,
+                        'name' => $nodename,
+                        'group' => $userid == null ? 1 : 0,
+                        'userlink' => $userlink];
+
+        if (($canviewothers || $userid == $USER->id) && isset($userrecords[$userid])) {
+            $userpicture = new user_picture(($userrecords[$userid]));
+            $node->usericon = $userpicture->get_url($PAGE)->out(false);
+        } else {
+            $node->usericon = (new \moodle_url('/mod/msocial/pix/Anonymous2.svg'))->out();
+
+        }
+        $nodes[] = $node;
+        $nodemap[$node->name] = $index++;
+    }
+}
+function msocial_create_userlink($interaction, $dir = 'to', $userrecords, $msocial, $cm, $redirecturl, $canviewothers) {
+    global $USER;
+    $nativeid = $interaction->{"native{$dir}"};
+    $userid = $interaction->{"{$dir}id"};
+    $nativename = $interaction->{"native{$dir}name"};
+    if ($nativeid == null) { // Community destination.
+        $nodename = '[COMMUNITY]';
+        $userlink = '';
+    } else {
+        $nodename = get_fullname($userid, $userrecords, "[$nativename]", $msocial);
+        $userlink = '';
+        if ($canviewothers || $USER->id == $userid) {
+            if (isset($userrecords[$userid])) {
+                $userlink = (new moodle_url('/mod/msocial/socialusers.php',
+                        ['action' => 'showuser',
+                                        'user' => $userid,
+                                        'id' => $cm->id,
+                                        'redirect' => $redirecturl,
+                        ]))->out(false);
+            } else {
+                $userlink = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
+                "nativeid=$nativeid&nativename=$nativename&redirect=$redirecturl";
+            }
+        }
+    }
+    return [$nodename, $userlink];
+}
+function get_fullname($userid, $users, $default, $msocial) {
     if ($userid != null && isset($users[$userid])) {
         $user = $users[$userid];
-        return fullname($user);
+        return msocial_get_visible_fullname($user, $msocial);
     } else {
         return $default;
     }

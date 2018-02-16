@@ -180,13 +180,15 @@ class msocial_view_graph extends msocial_view_plugin {
             $task = new graph_task();
             $task->set_custom_data((object)['msocial' => $this->msocial, 'users' => $users ]);
             $task->execute();
-            $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) asynchronously processing network topology.";
+            $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course)" .
+                                  " asynchronously processing network topology.";
             return $result;
         } else {
             $pkis = $this->calculate_pkis($users);
             $this->store_pkis($pkis, true);
             $this->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
-            $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) processing network topology.";
+            $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) " .
+                                    "processing network topology.";
             return $result;
         }
     }

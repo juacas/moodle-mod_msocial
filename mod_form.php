@@ -53,12 +53,12 @@ class mod_msocial_mod_form extends moodleform_mod {
         // Descripción.
         $this->standard_intro_elements();
 
-        $this->add_all_plugin_settings($mform);
+        // Anonymize option.
+        $mform->addElement('header', 'anonymizeviewsheader', get_string('anonymizeviews', 'msocial'));
+        $mform->addElement('checkbox', 'anonymizeviews', '', get_string('anonymizeviews', 'msocial'));
+        $mform->addHelpButton('anonymizeviews', 'anonymizeviews', 'msocial');
 
-        // $mform->addElement('text', 'widget_id', get_string("widget_id", "msocial"), array('size'
-        // => '20'));
-        // $mform->setType('widget_id', PARAM_TEXT);
-        // $mform->addHelpButton('widget_id', 'widget_id', 'msocial');
+        $this->add_all_plugin_settings($mform);
 
         $mform->addElement('header', 'availability', get_string('availability', 'assign'));
         $mform->setExpanded('availability', true);

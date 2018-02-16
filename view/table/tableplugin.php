@@ -139,8 +139,7 @@ class msocial_view_table extends msocial_view_plugin {
         $contextcourse = \context_course::instance($this->cm->course);
         $showinactive = optional_param('showinactive', false, PARAM_BOOL);
         // Table view.
-        $viewothers = has_capability('mod/msocial:viewothers', $contextmodule);
-
+        $viewothers = msocial_can_view_others($this->cm, $this->msocial);
         if ($viewothers) {
             list($students, $nonstudents, $activeusers, $userrecords) = array_values(msocial_get_users_by_type($contextcourse));
             $students = array_merge($students, $nonstudents);
@@ -208,7 +207,7 @@ class msocial_view_table extends msocial_view_plugin {
             if (has_capability('moodle/user:viewdetails', $contextmodule)) {
                 $userpic = $renderer->user_picture($user);
                 $url = new \moodle_url('/user/view.php', ['id' => $user->id, 'course' => $this->cm->course]);
-                $profilelink = \html_writer::link($url, fullname($user, true));
+                $profilelink = \html_writer::link($url, msocial_get_visible_fullname($user, $this->msocial, true));
                 ;
             } else {
                 $userpic = '';

@@ -30,8 +30,6 @@ defined('MOODLE_INTERNAL') || die();
 use core\plugininfo\base, core_plugin_manager, moodle_url;
 use msocial\msocial_plugin;
 
-// require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
-
 class msocialbase extends base {
     private static $plugins = [];
 

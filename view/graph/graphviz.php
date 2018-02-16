@@ -57,7 +57,7 @@ foreach ($interactions as $interaction) {
             "id=$cm->id&nativeid=$interaction->nativefrom&nativename=$interaction->nativefromname&redirect=$redirect";
         }
     } else {
-        $from = fullname($users[$interaction->fromid]);
+        $from = msocial_get_visible_fullname($users[$interaction->fromid], $this->msocial);
         $userlinkfrom = (new moodle_url('/mod/msocial/socialusers.php',
                 ['action' => 'showuser',
                                 'user' => $interaction->fromid,
@@ -74,7 +74,7 @@ foreach ($interactions as $interaction) {
         }
         $togroup = 1;
     } else {
-        $to = fullname($users[$interaction->toid]);
+        $to = msocial_get_visible_fullname($users[$interaction->toid], $this->msocial);
         $userlinkto = (new moodle_url('/mod/msocial/socialusers.php',
                 ['action' => 'showuser',
                                 'user' => $interaction->toid,
@@ -124,7 +124,6 @@ foreach ($interactions as $interaction) {
 $dot = new Dot();
 $graph = $socialgraph->get_graph();
 $graph->getAttributeBag()->setAttribute('graphviz.graph.rankdir', 'LR');
-// $graph->getAttributeBag()->setAttribute('graphviz.graph.bgcolor', "#aaaaaa5f");
 $graph->getAttributeBag()->setAttribute('graphviz.graph.size', "10,10");
 $dotsource = $dot->getOutput($graph);
 $dotsource = str_replace('label = 0', 'label = "Course users"', $dotsource);

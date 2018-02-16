@@ -106,7 +106,7 @@ function msocial_add_instance($msocial) {
     /** @var msocial_plugin $plugin */
     foreach (mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins($msocial) as $type => $plugin) {
         $plugin->enable(); // Default value is enabled...
-        if (!update_plugin_instance($plugin, $msocial)) {
+        if (!msocial_update_plugin_instance($plugin, $msocial)) {
             print_error($plugin->get_error());
             return false;
         }
@@ -129,17 +129,11 @@ function msocial_update_instance($msocial) {
     // Call save_settings hook for subplugins.
     $systemenabledplugins = mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins($msocial);
     foreach ($systemenabledplugins as $type => $plugin) {
-        if (!update_plugin_instance($plugin, $msocial)) {
+        if (!msocial_update_plugin_instance($plugin, $msocial)) {
             print_error($plugin->get_error());
             return false;
         }
     }
-//     foreach (mod_msocial\plugininfo\msocialview::get_system_enabled_view_plugins($msocial) as $type => $plugin) {
-//         if (!update_plugin_instance($plugin, $msocial)) {
-//             print_error($plugin->get_error());
-//             return false;
-//         }
-//     }
     return $DB->update_record("msocial", $msocial);
 }
 
@@ -258,8 +252,8 @@ function msocial_extend_settings_navigation(settings_navigation $settings, navig
     if (!$cm) {
         return;
     }
-
-    if (has_capability('mod/msocial:viewothers', $cm->context)) {
+    require_once('locallib.php');
+    if (msocial_can_view_others($cm, null)) {
         $link = new moodle_url('/mod/msocial/socialusers.php', array('id' => $cm->id));
         $linkname = get_string('view_social_users', 'msocial');
         $node = $navref->add($linkname, $link, navigation_node::TYPE_CUSTOM);

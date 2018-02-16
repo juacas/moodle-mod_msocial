@@ -102,13 +102,13 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
         $postinteraction->uid = $post->id;
         $postinteraction->nativefrom = $post->userid;
         if (isset($users[$post->userid])) {
-            $postinteraction->nativefromname = fullname($users[$post->userid]);
+            $postinteraction->nativefromname = msocial_get_visible_fullname($users[$post->userid], $this->msocial);
             $postinteraction->fromid = $post->userid;
         } else {
             // Unenrolled user.
             global $DB;
             $user = $DB->get_record('user',['id' =>  $post->userid]);
-            $postinteraction->nativefromname = fullname($user);
+            $postinteraction->nativefromname = msocial_get_visible_fullname($user, $this->msocial);
         }
         $postinteraction->rawdata = json_encode($post);
         $time = new \DateTime();
@@ -121,7 +121,7 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
             $postinteraction->type = social_interaction::REPLY;
             $postinteraction->nativetype = 'REPLY';
             $postinteraction->nativeto = $posts[$post->parent]->userid;
-            $postinteraction->nativefromname = fullname($users[$postinteraction->nativeto]);
+            $postinteraction->nativefromname = msocial_get_visible_fullname($users[$postinteraction->nativeto], $this->msocial);
             $postinteraction->toid = $posts[$post->parent]->userid;
         }
         $message = $post->subject;

@@ -20,7 +20,7 @@ $string['hashtag'] = 'Expresión de búsqueda (Hashtags) para buscar tweets';
 $string['hashtag_help'] = 'Puede ser una lista de tags combinados con AND y OR. OR tiene precedencia por la izquierda. Ejemplo:"#uva AND #msocial OR #m_social"';
 
 $string['hashtag_missing'] = 'No hay una cadena de búsqueda de Hashtags. Configúrelo en la <a href="../../course/modedit.php?update={$a->cmid}&return=1">configuración de la actividad</a>.';
-$string['hashtag_reminder'] = 'Se busca en Twitter la cadena: <a href="https://twitter.com/search?q={$a->hashtagscaped}">{$a->hashtag}</a>';
+$string['hashtag_reminder'] = 'Se busca en Twitter con el filtro: <a href="https://twitter.com/search?q={$a->hashtagscaped}">{$a->hashtag}</a>';
 
 $string['widget_id'] = 'Widget id to be embedded in the main page.';
 $string['widget_id_help'] = 'weeter API forces to create mannually a search widget in your twitter account to be embedded in any page. Create one and copy and paste the WidgetId created. You can create the widgets at <a href="https://twitter.com/settings/widgets">Create and manage yout Twitter Widgets</a>';

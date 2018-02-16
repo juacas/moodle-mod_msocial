@@ -27,16 +27,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+$string['anonymizeviews'] = 'Anonimiza los usuarios en las visualizaciones';
+$string['anonymizeviews_help'] = 'Se ocultan los nombres reales en las vistas. ' .
+                                'Los usuarios sin permisos específicos verán los nombres como "Anonymous-XX".';
 $string['modulename'] = 'Uso de redes sociales';
 $string['modulenameplural'] = 'Usos de redes sociales';
-$string['modulename_help'] = 'La actividad MSocial permite a los profesores definir una expresión de búsqueda en el
-timeline de twitter, facebook, foros de Moodle y otras redes sociales y pedir a los alumnos que publiquen mensajes
-con un determinado hashtag o término de búsqueda.
-El módulo busca periódicamente en segundo plano la actividad en las redes sociales y hace una contabilidad de los
-eventos recibidos por cada estudiante.
-El módulo calcula una calificación mediante una fórmula definida por el profesor que combina estas estadísticas.
-INSTRUCCIONES:
-El profesor necesita tener una cuenta de cada red social que va a usar y conectar la actividad con su usuario de esa red social.';
+$string['modulename_help'] = 'La actividad MSocial permite a los profesores definir una expresión de búsqueda en el ' .
+'timeline de twitter, facebook, foros de Moodle y otras redes sociales y pedir a los alumnos que publiquen mensajes ' .
+'con un determinado hashtag o término de búsqueda. ' .
+'El módulo busca periódicamente en segundo plano la actividad en las redes sociales y hace una contabilidad de los ' .
+'eventos recibidos por cada estudiante. ' .
+'El módulo calcula una calificación mediante una fórmula definida por el profesor que combina estas estadísticas. ' .
+'INSTRUCCIONES: ' .
+'El profesor necesita tener una cuenta de cada red social que va a usar y conectar la actividad con su usuario de esa red social.';
 $string['pluginname'] = 'Actividad en redes sociales';
 $string['harvestedtimeago'] = 'Refrescado hace {$a->interval}';
 $string['startdate'] = 'Momento en que se empiezan a contar las interacciones.';
@@ -80,9 +83,9 @@ $string['unlinksocialaccount'] = 'Elimina la relación entre el estudiante y su 
 // Permissions.
 $string['msocial:view'] = 'Ver información básica del módulo MSocial.';
 $string['msocial:viewothers'] = 'Ver la actividad de los otros usuarios.';
+$string['msocial:alwaysviewothersnames'] = 'Ver los nombres completos de los usuarios aunque el módulo esté anonimizado.';
 $string['msocial:addinstance'] = 'Añadir una nueva actividad MSocial al curso.';
-$string['msocial:manage'] = 'Change settings of a MSocial activity';
-$string['msocial:view'] = 'View information of MSocial about me';
-$string['msocial:viewothers'] = 'View all information collected by MSocial';
+$string['msocial:mapaccounts'] = 'Cambiar o asignar una cuenta de red social a un estudiante.';
+$string['msocial:manage'] = 'Configurar la actividad MSocial';
 $string['msocial:exportpkis'] = 'Descargar PKIs calculados por MSocial';
 $string['msocial:exportinteractions'] = 'Descargar las interacciones en bruto';
