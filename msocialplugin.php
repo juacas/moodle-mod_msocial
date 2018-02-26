@@ -506,7 +506,8 @@ abstract class msocial_plugin {
      */
     public function is_tracking() {
         return $this->is_enabled() &&
-        msocial_time_is_between(time(), $this->msocial->startdate, $this->msocial->enddate + 24 * 2600);
+        msocial_time_is_between(time(), $this->msocial->startdate,
+                $this->msocial->enddate ? $this->msocial->enddate + 24 * 2600 : null);
     }
     /**
      * Get the numerical sort order for this plugin
