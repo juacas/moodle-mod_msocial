@@ -266,7 +266,7 @@ abstract class msocial_plugin {
                 if (is_array($pkiinfo->interaction_type )) {
                     $typeparams = $pkiinfo->interaction_type;
                 } else {
-                    $typeparams = [$pkiinfo->interaction_source];
+                    $typeparams = [$pkiinfo->interaction_type];
                 }
                 list($typequery, $typeparams) = $DB->get_in_or_equal($typeparams);
 
@@ -280,7 +280,7 @@ abstract class msocial_plugin {
                         and timestamp <= ?
                         $nativetypequery
                     group by $interactionsource";
-                $sqlparams =  [$this->msocial->id, $subtype];
+                $sqlparams = [$this->msocial->id, $subtype];
                 $sqlparams = array_merge($sqlparams, $typeparams);
                 $sqlparams[] = $this->msocial->startdate;
                 $sqlparams[] = $this->msocial->enddate == 0 ? PHP_INT_MAX : $this->msocial->enddate;
