@@ -184,7 +184,7 @@ class SocialMatrix {
             // Obtiene el camino mas corto a cada uno de los vertex que esta conectado el miembro.
             $timestamp = microtime(true);
             $sp = new JPDijkstra($vertex);
-            mtrace('<li>Calculated shortest paths for ' . $user->id . ' in ' . round(microtime(true) - $timestamp, 4) . ' secs.' );
+            mtrace('<li>Calculated shortest paths for ' . $users[$id]->id . ' in ' . round(microtime(true) - $timestamp, 4) . ' secs.' );
 
             // Array que contiene como clave los "ids" y como valor el "peso" total (por el camino
             // mas corto)
