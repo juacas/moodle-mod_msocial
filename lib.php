@@ -66,7 +66,9 @@ function msocial_supports($feature) {
         case FEATURE_MOD_INTRO:
             return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS:
-            return false;
+            return true;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return true;
         case FEATURE_COMPLETION_HAS_RULES:
             return false;
         case FEATURE_GRADE_HAS_GRADE:
@@ -268,11 +270,18 @@ function msocial_extend_settings_navigation(settings_navigation $settings, navig
 function msocial_has_config() {
     return true;
 }
-
+/**
+ * Lists all gradable areas for the advanced grading methods gramework
+ *
+ * @return array('string'=>'string') An array with area names as keys and descriptions as values
+ */
+function msocial_grading_areas_list() {
+    return array('msocials' => get_string('modulenames', 'msocial'));
+}
 /** Create grade item for given assignment.
  *
  * @param stdClass $msocial record with extra cmidnumber
- * @param array $grades optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @param array $grades optional array/object of grade(s); 'reset' means reset grades in gradebook, null: update gradeitem only.
  * @return int 0 if ok, error code otherwise */
 function msocial_grade_item_update($msocial, $grades = null) {
     global $CFG;
@@ -287,16 +296,25 @@ function msocial_grade_item_update($msocial, $grades = null) {
     $params = array('itemname' => $msocial->name, 'idnumber' => $msocial->cmidnumber);
 
     $params['gradetype'] = GRADE_TYPE_VALUE;
-    if (isset($msocial->grade)) {
-        $params['grademax'] = $msocial->grade;
-    }
+    $params['grademax'] = 100;
     $params['grademin'] = 0;
+    $params['gradepass'] = 50;
 
     if ($grades === 'reset') {
         $params['reset'] = true;
         $grades = null;
     }
-
+    // Update completion state.
+    if (is_array($grades)) {
+        $cm = get_fast_modinfo($msocial->course)->instances['msocial'][$msocial->id];
+        $course = get_course($cm->course);
+        $completion = new completion_info($course);
+        if ($completion->is_enabled($cm)) {
+            foreach ($grades as $grade) {
+                $completion->update_state($cm, COMPLETION_UNKNOWN, $grade->userid);
+            }
+        }
+    }
     return grade_update('mod/msocial', $msocial->courseid, 'mod', 'msocial', $msocial->id, 0, $grades, $params);
 }
 
@@ -331,4 +349,74 @@ function msocial_update_grades($msocial, $userid = 0, $nullifnone = true) {
     } else {
         msocial_grade_item_update($msocial);
     }
+}
+
+
+/**
+ * Callback which returns human-readable strings describing the active completion custom rules for the module instance.
+ *
+ * @param cm_info|stdClass $cm object with fields ->completion and ->customdata['customcompletionrules']
+ * @return array $descriptions the array of descriptions for the custom rules.
+ */
+function mod_msocial_get_completion_active_rule_descriptions($cm) {
+    // Values will be present in cm_info, and we assume these are up to date.
+    if (empty($cm->customdata['customcompletionrules'])
+            || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
+                return [];
+    }
+
+    $descriptions = [];
+    foreach ($cm->customdata['customcompletionrules'] as $key => $val) {
+        switch ($key) {
+            case 'completionpass':
+                if (empty($val)) {
+                    continue;
+                }
+                $descriptions[] = get_string('completionpassdesc', 'quiz', format_time($val));
+                break;
+            default:
+                break;
+        }
+    }
+    return $descriptions;
+}
+
+/**
+ * Obtains the automatic completion state for this module based on any conditions in game settings.
+ *
+ * @param object $course Course
+ * @param object $cm Course-module
+ * @param int $userid User ID
+ * @param bool $type Type of comparison (or/and; can be used as return value if no conditions)
+ *
+ * @return bool True if completed, false if not, $type if conditions not set.
+ */
+function msocial_get_completion_state($course, $cm, $userid, $type) {
+    global $CFG, $DB;
+    if (($cm->completion == 0) or ($cm->completion == 1)) {
+        // Completion option is not enabled so just return $type.
+        return $type;
+    }
+
+    if ($cm->completionview) {
+        // Just want to view it. Not needed it.
+        return true;
+    }
+
+    $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
+    // Check for passing grade.
+    if ($msocial->completionpass) {
+        require_once($CFG->libdir . '/gradelib.php');
+        $item = grade_item::fetch(array('courseid' => $course->id, 'itemtype' => 'mod',
+                        'itemmodule' => 'msocial', 'iteminstance' => $cm->instance, 'outcomeid' => null));
+        if ($item) {
+            $grades = grade_grade::fetch_users_grades($item, array($userid), false);
+            if (!empty($grades[$userid])) {
+                $passed = $grades[$userid]->is_passed($item);
+                return $passed;
+            }
+        }
+    }
+
+    return false;
 }

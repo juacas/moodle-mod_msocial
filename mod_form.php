@@ -95,12 +95,11 @@ class mod_msocial_mod_form extends moodleform_mod {
         }
         $mform->addElement('static', 'list_of_variables', get_string('grade_variables', 'msocial'), $varliststr);
         echo $varlisthelpstr;
-        $mform->addElement('text', 'grade_expr', $calculation);
+        $mform->addElement('textarea', 'grade_expr', $calculation, 'wrap="virtual" rows="4" cols="60"');
         $mform->setDefault('grade_expr', '=100*(favs+retweets+tweets)/(max_favs+max_retweets+max_tweets)');
         $mform->addHelpButton('grade_expr', 'grade_expr', 'msocial');
         $mform->setType('grade_expr', PARAM_TEXT);
 
-        // $this->standard_grading_coursemodule_elements();
         $this->standard_coursemodule_elements();
         $this->apply_admin_defaults();
         // Buttons.
@@ -205,6 +204,13 @@ class mod_msocial_mod_form extends moodleform_mod {
      * @param array $defaultvalues */
     public function data_preprocessing(&$defaultvalues) {
         $this->plugin_data_preprocessing($defaultvalues);
+        // Set up the completion checkboxes which aren't part of standard data.
+        // We also make the default value (if you turn on the checkbox) for those
+        // numbers to be 1, this will not apply unless checkbox is ticked.
+        $defaultvalues['completionpasssenabled'] = !empty($defaultvalues['completionpass']) ? 1 : 0;
+        if (empty($defaultvalues['completionusegrade']) || empty($defaultvalues['completionpass'])) {
+            $defaultvalues['completionpass'] = 0;
+        }
     }
 
     /** Load the plugins from the sub folders under subtype.
@@ -236,4 +242,30 @@ class mod_msocial_mod_form extends moodleform_mod {
         ksort($result);
         return $result;
     }
+    /**
+     * Add any custom completion rules to the form.
+     *
+     * @return array Contains the names of the added form elements
+     */
+    public function add_completion_rules() {
+        $mform =& $this->_form;
+
+        $mform->addElement('advcheckbox', 'completionpass', '', get_string('completionpass', 'quiz'));
+        $mform->disabledIf('completionpass', 'completionusegrade', 'notchecked');
+        $mform->addHelpButton('completionpass', 'completionpass', 'quiz');
+        // Enable this completion rule by default.
+        $mform->setDefault('completionpass', 0);
+        return array('completionpass');
+    }
+
+    /**
+     * Determines if completion is enabled for this module.
+     *
+     * @param array $data
+     * @return bool
+     */
+    public function completion_rule_enabled($data) {
+        return !empty($data['completionpass']);
+    }
+
 }

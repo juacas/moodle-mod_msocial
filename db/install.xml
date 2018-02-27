@@ -23,6 +23,8 @@
 					SEQUENCE="false" COMMENT="expression for computing the grade" />
 				<FIELD NAME="anonymizeviews" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"
 					COMMENT="Users without mod/msocial:viewothersnames don't see actual user full names." />
+				<FIELD NAME="completionpass" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"
+					COMMENT="Instance is marked completed if grade is above 50%." />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="primary" TYPE="primary" FIELDS="id" />

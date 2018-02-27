@@ -28,7 +28,6 @@ use msocial\msocial_plugin;
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 global $CFG;
 require_once($CFG->libdir . '/gradelib.php');
-require_once($CFG->libdir . '/mathslib.php');
 
 /**
  * Compatibility with Moodle 2.9 notifications.
@@ -143,7 +142,10 @@ function msocial_user_inactive($userid, $stat) {
  * @see msocial_calculate_stats
  * @return \stdClass grade struct with grade->rawgrade = -1 if no calculation is possible */
 function msocial_calculate_grades($msocial) {
+    global $CFG;
     require_once('pki.php');
+    require_once('msocialplugin.php');
+    require_once($CFG->libdir . '/mathslib.php');
     $grades = array();
     $pkis = msocial_plugin::get_pkis($msocial);
     /** @var \mod_msocial\pki $pki */
@@ -157,18 +159,21 @@ function msocial_calculate_grades($msocial) {
         $calculation = new calc_formula($formula);
         // Extract fields as variables.
         $vars = $pki->as_array();
+        $vars = array_map(function ($val) {
+            return (double)$val;
+        }, $vars);
         $calculation->set_params($vars);
         $value = $calculation->evaluate();
+        $descr = [];
+        foreach ($vars as $varname => $varvalue) {
+            $descr[] = $varname . '=' . number_format($varvalue);
+        }
         if ($value !== false) {
             $grade->rawgrade = $value;
-            $descr = [];
-            foreach ($vars as $varname => $varvalue) {
-                $descr[] = $varname . '=' . number_format($varvalue);
-            }
             $grade->feedback = "You have " . join(', ', $descr);
         } else {
             $grade->rawgrade = -1;
-            $grade->feedback = "Error: " . $calculation->get_error() . ". Contact your teacher.";
+            $grade->feedback = "Error: " . $calculation->get_error() . ". Contact your teacher. Values: " .  join(', ', $descr);
         }
         $grades[$userid] = $grade;
     }

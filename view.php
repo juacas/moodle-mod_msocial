@@ -68,6 +68,9 @@ $enabledviewplugins = msocialview::get_enabled_view_plugins($msocial);
 foreach ($enabledviewplugins as $name => $plugin) {
     $plugin->render_header_requirements($requ, $view);
 }
+// Complete on view.
+$completion = new completion_info($course);
+$completion->set_module_viewed($cm);
 // Print the page header.
 $PAGE->set_title(format_string($msocial->name));
 $PAGE->set_heading($course->fullname);
@@ -124,6 +127,7 @@ foreach ($enabledplugins as $name => $enabledplugin) {
     $enabledplugin->notify($notifications, msocial_plugin::NOTIFY_WARNING);
 }
 msocial_notify_info($totalnotification);
+
 // Filters section.
 require_once('filterinteractions.php');
 $filter = new filter_interactions($_GET, $msocial);

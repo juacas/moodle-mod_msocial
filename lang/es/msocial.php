@@ -30,6 +30,8 @@
 $string['anonymizeviews'] = 'Anonimiza los usuarios en las visualizaciones';
 $string['anonymizeviews_help'] = 'Se ocultan los nombres reales en las vistas. ' .
                                 'Los usuarios sin permisos específicos verán los nombres como "Anonymous-XX".';
+$string['socialconnectors'] = 'Conectores a redes sociales.';
+$string['socialviews'] = 'Visualizaciones de actividad.';
 $string['modulename'] = 'Uso de redes sociales';
 $string['modulenameplural'] = 'Usos de redes sociales';
 $string['modulename_help'] = 'La actividad MSocial permite a los profesores definir una expresión de búsqueda en el ' .

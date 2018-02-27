@@ -35,7 +35,8 @@ class backup_msocial_activity_structure_step extends backup_activity_structure_s
 
         // Define each element separated.
         $msocial = new backup_nested_element('msocial', array('id'),
-                array('name', 'intro', 'introformat', 'startdate', 'enddate', 'grade_expr'));
+                array('name', 'intro', 'introformat', 'startdate', 'enddate',
+                      'grade_expr', 'anonymizeviews', 'completionpass'));
         $pluginconfigs = new backup_nested_element('plugin_configs');
         $pluginconfig = new backup_nested_element('plugin_config', null, array('plugin', 'subtype', 'name', 'value'));
 
