@@ -160,7 +160,8 @@ class msocial_view_timeline extends msocial_view_plugin {
 
         echo '<div id="my-timeline" style="overflow-y: visible; height: 650px; border: 1px solid #aaa"></div>';
         echo $renderer->spacer(array('height' => 20));
-        $reqs->js_init_call("init_timeline", [$this->cm->id, null, $filter->get_filter_params_url()], false);
+        $reqs->js_init_call("init_timeline",
+                [$this->cm->id, null, $filter->get_filter_params_url()], true);
     }
 
     /**
