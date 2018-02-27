@@ -95,6 +95,9 @@ $enabledplugins = array_merge($enabledviewplugins, $enabledsocialplugins);
 $totalnotification = '';
 /** @var msocial_plugin $enabledplugin */
 foreach ($enabledplugins as $name => $enabledplugin) {
+    if (!$enabledplugin->is_enabled()) {
+        continue;
+    }
     list($messages, $notifications) = $enabledplugin->render_header();
     $updated = $enabledplugin->get_updated_date();
     $updatemessage = '';
