@@ -27,7 +27,7 @@ use mod_msocial\connector\msocial_connector_questournament;
 
 require_once("../../../../config.php");
 require_once('../../locallib.php');
-require_once('../../msocialconnectorplugin.php');
+require_once('../../classes/msocialconnectorplugin.php');
 require_once('questournamentplugin.php');
 global $CFG;
 $id = required_param('id', PARAM_INT); // MSocial module instance.

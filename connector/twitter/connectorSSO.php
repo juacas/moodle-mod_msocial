@@ -29,7 +29,7 @@ use mod_msocial\connector\OAuthCurl;
 require_once("../../../../config.php");
 require_once($CFG->dirroot . '/mod/lti/OAuth.php');
 require_once('../../locallib.php');
-require_once('../../msocialconnectorplugin.php');
+require_once('../../classes/msocialconnectorplugin.php');
 require_once('twitterplugin.php');
 require_once('TwitterAPIExchange.php');
 global $CFG;

@@ -29,7 +29,7 @@ use mod_msocial\connector\social_interaction;
 require_once("../../config.php");
 require_once("locallib.php");
 require_once('classes/plugininfo/msocialbase.php');
-require_once("msocialplugin.php");
+require_once("classes/msocialplugin.php");
 // require_once("msocialconnectorplugin.php");
 // require_once("msocialviewplugin.php");
 /* @var $OUTPUT \core_renderer */
@@ -132,7 +132,7 @@ foreach ($enabledplugins as $name => $enabledplugin) {
 msocial_notify_info($totalnotification);
 
 // Filters section.
-require_once('filterinteractions.php');
+require_once('classes/filterinteractions.php');
 $filter = new filter_interactions($_GET, $msocial);
 
 // Reporting area...

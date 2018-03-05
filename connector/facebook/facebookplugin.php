@@ -34,7 +34,7 @@ use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/msocialconnectorplugin.php');
 /** library class for social network facebook plugin extending social plugin base class
  *
  * @package msocialconnector_facebook

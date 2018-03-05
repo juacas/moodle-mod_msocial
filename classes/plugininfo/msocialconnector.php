@@ -27,7 +27,7 @@ namespace mod_msocial\plugininfo;
 use mod_msocial\connector\msocial_connector_plugin;
 
 require_once('msocialbase.php');
-require_once($CFG->dirroot . '/mod/msocial/msocialconnectorplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/msocialconnectorplugin.php');
 defined('MOODLE_INTERNAL') || die();
 
 class msocialconnector extends msocialbase {

@@ -29,7 +29,7 @@ use Facebook\GraphNodes\GraphNodeFactory;
 
 require_once("../../../../config.php");
 require_once('../../locallib.php');
-require_once('../../msocialconnectorplugin.php');
+require_once('../../classes/msocialconnectorplugin.php');
 require_once('facebookplugin.php');
 require_once('vendor/Facebook/autoload.php');
 global $CFG;

@@ -32,11 +32,11 @@
 namespace msocial;
 
 defined('MOODLE_INTERNAL') || die();
-require_once('classes/plugininfo/msocialbase.php');
-require_once('socialuser.php');
-require_once('pki.php');
-require_once('socialinteraction.php');
-require_once('filterinteractions.php');
+require_once('plugininfo/msocialbase.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/socialuser.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/pki.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/socialinteraction.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/filterinteractions.php');
 
 use mod_msocial\pki;
 use mod_msocial\pki_info;
@@ -242,7 +242,8 @@ abstract class msocial_plugin {
 
     /** Aggregate fields by pki_info metadata from interaction database.
      * Calculates max_field.
-     * @param unknown $users */
+     * @param unknown $users
+     */
     public function calculate_pkis($users, $pkis = []) {
         global $DB;
         $pkiinfos = $this->get_pki_list();

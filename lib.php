@@ -397,13 +397,7 @@ function msocial_get_completion_state($course, $cm, $userid, $type) {
         // Completion option is not enabled so just return $type.
         return $type;
     }
-
-    if ($cm->completionview) {
-        // Just want to view it. Not needed it.
-        return true;
-    }
-
-    $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
+   $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
     // Check for passing grade.
     if ($msocial->completionpass) {
         require_once($CFG->libdir . '/gradelib.php');
@@ -418,5 +412,5 @@ function msocial_get_completion_state($course, $cm, $userid, $type) {
         }
     }
 
-    return false;
+    return $type;
 }

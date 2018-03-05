@@ -172,13 +172,13 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      *
      * @param integer $fromdate null|starting time
      * @param integer $todate null|end time
-     * @param array $users filter of users
+     * @param array $users filter of users $users struct obtained from msocial_get_users_by_type
      * @return array[]mod_msocial\connector\social_interaction of interactions. @see
      *         mod_msocial\connector\social_interaction */
     public function get_interactions($fromdate = null, $todate = null, $users = null) {
         $filter = new \filter_interactions([\filter_interactions::PARAM_SOURCES => $this->get_subtype(),
                                             \filter_interactions::PARAM_INTERACTION_MENTION => true,
-                                            ], $msocial);
+                                            ], $this->msocial);
         $filter->set_users($users);
         return social_interaction::load_interactions_filter($filter);
     }

@@ -28,7 +28,7 @@ use mod_msocial\connector\social_interaction;
 
 require_once("../../config.php");
 require_once('locallib.php');
-require_once('msocialconnectorplugin.php');
+require_once('classes/msocialconnectorplugin.php');
 
 global $CFG;
 $id = required_param('id', PARAM_INT);
@@ -76,8 +76,8 @@ if (!empty($format) && !empty($type) ) {
     } else if ($type == 'interactions') {
         $hiddencolumns = ['id', 'msocial', 'status'];
         $anonymouscolumns = ['fromid', 'toid'];
-        require_once('filterinteractions.php');
-        require_once('socialinteraction.php');
+        require_once('classes/filterinteractions.php');
+        require_once('classes/socialinteraction.php');
         $filter = new filter_interactions([], $msocial);
         $filter->set_users($usersstruct);
         // Process interactions.

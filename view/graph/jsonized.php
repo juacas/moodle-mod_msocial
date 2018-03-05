@@ -27,9 +27,9 @@ use mod_msocial\connector\social_interaction;
 use mod_msocial\social_user;
 require_once('../../../../config.php');
 require_once('../../locallib.php');
-require_once('../../msocialconnectorplugin.php');
-require_once('../../socialinteraction.php');
-require_once('../../filterinteractions.php');
+require_once('../../classes/msocialconnectorplugin.php');
+require_once('../../classes/socialinteraction.php');
+require_once('../../classes/filterinteractions.php');
 
 header('Content-Type: application/json; charset=utf-8');
 $id = required_param('id', PARAM_INT);

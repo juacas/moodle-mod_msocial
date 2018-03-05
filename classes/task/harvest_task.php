@@ -47,7 +47,7 @@ class harvest_task extends \core\task\scheduled_task {
         $msocials = array_filter($msocials,
                 function ($msocial) {
                     $cminfo = get_coursemodule_from_instance('msocial', $msocial->id);
-                    return !$cminfo->deletioninprogress;
+                    return !isset($cminfo->deletioninprogress) || !$cminfo->deletioninprogress;
                 });
         mtrace("<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances.");
         mtrace("==========================================================================");

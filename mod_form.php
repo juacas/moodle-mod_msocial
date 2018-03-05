@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once('locallib.php');
-require_once('msocialconnectorplugin.php');
+require_once('classes/msocialconnectorplugin.php');
 require_once($CFG->libdir . '/mathslib.php');
 
 class mod_msocial_mod_form extends moodleform_mod {

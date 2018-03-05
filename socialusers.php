@@ -32,8 +32,8 @@ use mod_msocial\social_user;
 
 require_once("../../config.php");
 require_once("locallib.php");
-require_once("msocialconnectorplugin.php");
-require_once("msocialviewplugin.php");
+require_once("classes/msocialconnectorplugin.php");
+require_once("classes/msocialviewplugin.php");
 /* @var $OUTPUT \core_renderer */
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);

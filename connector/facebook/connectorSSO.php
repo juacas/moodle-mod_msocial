@@ -32,7 +32,7 @@ require_once('vendor/Facebook/autoload.php');
 require_once("../../../../config.php");
 require_once($CFG->dirroot . '/mod/lti/OAuth.php');
 require_once('../../locallib.php');
-require_once('../../msocialconnectorplugin.php');
+require_once('../../classes/msocialconnectorplugin.php');
 require_once('facebookplugin.php');
 require_once('locallib.php');
 global $CFG;

@@ -34,8 +34,8 @@ use mod_msocial\view\graph\graph_task;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once(__DIR__.'../../../msocialviewplugin.php');
-require_once(__DIR__.'../../../pki.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/msocialviewplugin.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/pki.php');
 
 /** library class for view the network activity as a sequence diagram extending view plugin base
  * class

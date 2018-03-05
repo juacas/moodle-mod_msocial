@@ -143,8 +143,8 @@ function msocial_user_inactive($userid, $stat) {
  * @return \stdClass grade struct with grade->rawgrade = -1 if no calculation is possible */
 function msocial_calculate_grades($msocial) {
     global $CFG;
-    require_once('pki.php');
-    require_once('msocialplugin.php');
+    require_once('classes/pki.php');
+    require_once('classes/msocialplugin.php');
     require_once($CFG->libdir . '/mathslib.php');
     $grades = array();
     $pkis = msocial_plugin::get_pkis($msocial);

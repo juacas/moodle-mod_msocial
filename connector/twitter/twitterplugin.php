@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once('TwitterAPIExchange.php');
-require_once($CFG->dirroot . '/mod/msocial/tagparser.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/tagparser.php');
 /** library class for social network twitter plugin extending social plugin base class
  *
  * @package msocialconnector_twitter
