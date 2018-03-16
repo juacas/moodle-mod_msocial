@@ -95,7 +95,7 @@ if (count($interactions) > 0) {
                         'nativename' => $interaction->nativefromname,
                         'redirect' => $redirecturl,
                         ]))->out(false);
-                $usericon = '';
+                $usericon = (new \moodle_url('/mod/msocial/pix/Anonymous2.svg'))->out();
             }
         } else {
             $userlinkfrom = '#';
