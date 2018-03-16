@@ -60,7 +60,9 @@ function($) {
 				    const left = direction === 'right'
 				        ? d3.event.pageX - rightOrLeftLimit
 				        : d3.event.pageX - ((ARROW_MARGIN * (FONT_SIZE - ARROW_WIDTH)) / 2);
-
+				    if (event.usericon == '') {
+				    	event.usericon = 'pix/Anonymous.png';
+				    }
 				    tooltip.html(
 				        `
 				        <div class="commit">
