@@ -74,7 +74,7 @@ if (count($interactions) > 0) {
             $userinfo = (object) ['socialname' => $interaction->nativefromname];
         }
         $namefrom = get_fullname($interaction->fromid, $userrecords, "[$interaction->nativefromname]", $msocial);
-        if ($canmapusers || $interaction->fromid  == $USER->id) {
+        if ($canmapusers || $interaction->fromid == $USER->id) {
             if (isset($userrecords[$interaction->fromid])) {
                 global $OUTPUT, $PAGE;
                 $userlinkfrom = (new moodle_url('/mod/msocial/socialusers.php',
