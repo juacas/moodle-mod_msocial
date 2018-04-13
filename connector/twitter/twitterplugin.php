@@ -614,8 +614,10 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         $filter = new \filter_interactions([\filter_interactions::PARAM_SOURCES => $this->get_subtype(),
                         \filter_interactions::PARAM_INTERACTION_POST => true], $this->msocial);
         $interactions = social_interaction::load_interactions_filter($filter);
+        mtrace("Checking ". count($interactions) . " tweets for Favs.");
         foreach ($interactions as $interaction) {
             if ($interaction->type == social_interaction::POST) {
+                mtrace("<li>Getting favs for " . $this->get_interaction_url($interaction));
                 $popupcode = $this->browse_twitter('https://twitter.com/i/activity/favorited_popup?id=' . $interaction->uid);
                 $json = json_decode($popupcode);
                 if (isset($json->htmlUsers)) {
@@ -626,6 +628,10 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $matches = [];
                 preg_match_all('/screen-name="(?\'screenname\'[\w\s]+)"\s+data-user-id="(?\'userid\'\d+)"/', $users, $matches, PREG_PATTERN_ORDER);
                 $count = count($matches[1]);
+                if ($count == 0) {
+                    continue;
+                }
+                mtrace("<li>Tweet " . $this->get_interaction_url($interaction) . " has $count favs.");
                 for ($i = 0; $i < $count; $i++) {
                     // Create a new Like interaction.
                     $likeinteraction = new social_interaction();
