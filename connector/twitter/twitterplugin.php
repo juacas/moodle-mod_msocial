@@ -25,18 +25,19 @@
  */
 namespace mod_msocial\connector;
 
-use msocial\msocial_plugin;
-use mod_msocial\pki_info;
 use mod_msocial\pki;
+use mod_msocial\pki_info;
 use mod_msocial\social_user;
-use core_calendar\local\event\proxies\std_proxy;
+use msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once('TwitterAPIExchange.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/tagparser.php');
-/** library class for social network twitter plugin extending social plugin base class
+require_once($CFG->dirroot . '/mod/msocial/classes/socialinteraction.php');
+/**
+ * Library class for social network twitter plugin extending social plugin base class
  *
  * @package msocialconnector_twitter
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
@@ -373,7 +374,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     });
             $this->store_status($processedstatuses);
 
-            $this->lastinteractions = $this->build_interactions($processedstatuses);
+            $this->lastinteractions = array_merge($this->lastinteractions, $this->build_interactions($processedstatuses));
             $errormessage = null;
             $result->errors = [];
             $result->messages[] = "Searching by hashtag: $hashtag. For module msocial\\connector\\twitter by hashtags: $msocial->name (id=$msocial->id) " .
@@ -404,6 +405,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     public function harvest() {
         $resultusers = $this->harvest_users();
         $resulttags = $this->harvest_hashtags();
+        $this->lastinteractions = array_merge($this->lastinteractions, $this->refresh_likes());
+
         $result = new \stdClass();
         $result->statuses = array_merge($resultusers->statuses, $resulttags->statuses);
         $result->errors = array_merge($resultusers->errors, $resulttags->errors);
@@ -421,7 +424,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
         if (isset($result->errors)) {
             // TODO: generate best error message.
-
             if ($token) {
                 $info = "UserToken for:$token->username ";
             } else {
@@ -446,8 +448,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                         return isset($status->userauthor);
                     });
             $this->store_status($processedstatuses);
-
-            $this->lastinteractions = $this->build_interactions($processedstatuses);
+            $this->lastinteractions = array_merge($this->lastinteractions, $this->build_interactions($processedstatuses));
             $errormessage = null;
             $result->messages[] = "Searching by users. For module msocial\\connector\\twitter by users: $msocial->name (id=$msocial->id) " .
                                     "in course (id=$msocial->course) searching: $hashtag  ";
@@ -547,7 +548,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @param integer $fromdate null|starting time
      * @param integer $todate null|end time
      * @param array $users filter of users
-     * @return array[]mod_msocial\connector\social_interaction of interactions. @see
+     * @return mod_msocial\connector\social_interaction[] of interactions. @see
      *         mod_msocial\connector\social_interaction */
     public function get_interactions($fromdate = null, $todate = null, $users = null) {
         global $DB;
@@ -601,8 +602,72 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $mentioninteraction->parentinteraction = $interaction->uid;
                 $interactions[$mentioninteraction->uid] = $mentioninteraction;
             }
+
         }
         return $interactions;
+    }
+    /**
+     * Search for new Likes.
+     */
+    protected function refresh_likes() {
+        $likeinteractions = [];
+        $filter = new \filter_interactions([\filter_interactions::PARAM_SOURCES => $this->get_subtype(),
+                        \filter_interactions::PARAM_INTERACTION_POST => true], $this->msocial);
+        $interactions = social_interaction::load_interactions_filter($filter);
+        foreach ($interactions as $interaction) {
+            if ($interaction->type == social_interaction::POST) {
+                $popupcode = $this->browse_twitter('https://twitter.com/i/activity/favorited_popup?id=' . $interaction->uid);
+                $json = json_decode($popupcode);
+                if (isset($json->htmlUsers)) {
+                    $users = $json->htmlUsers;
+                } else {
+                    continue; // Tweet deleted or account made private.
+                }
+                $matches = [];
+                preg_match_all('/screen-name="(?\'screenname\'[\w\s]+)"\s+data-user-id="(?\'userid\'\d+)"/', $users, $matches, PREG_PATTERN_ORDER);
+                $count = count($matches[1]);
+                for ($i = 0; $i < $count; $i++) {
+                    // Create a new Like interaction.
+                    $likeinteraction = new social_interaction();
+                    $likeinteraction->source = $this->get_subtype();
+                    $likeinteraction->nativefrom = $matches['userid'][$i];
+                    $likeinteraction->fromid = $this->get_userid($likeinteraction->nativefrom);
+                    $likeinteraction->nativeto = $interaction->fromid;
+                    $likeinteraction->toid = $interaction->toid;
+                    $likeinteraction->nativetoname = $interaction->nativefromname;
+                    $likeinteraction->nativefromname = $matches['screenname'][$i];
+                    $likeinteraction->description = $likeinteraction->nativefromname . ' liked tweet ' . $interaction->uid;
+                    $likeinteraction->parentinteraction = $interaction->uid;
+                    $likeinteraction->uid = $interaction->uid . '-likedby-' . $likeinteraction->nativefrom;
+                    $likeinteraction->timestamp = $interaction->timestamp;
+                    $likeinteraction->nativetype = 'fav';
+                    $likeinteraction->type = social_interaction::REACTION;
+                    $interactions[$likeinteraction->uid] = $likeinteraction;
+                }
+            }
+        }
+        return $likeinteractions;
+    }
+    private function browse_twitter($geturl) {
+        $agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0';
+        $options = array(
+                        CURLOPT_RETURNTRANSFER => true, // to return web page
+                        CURLOPT_FOLLOWLOCATION => true, // to follow redirects
+                        CURLOPT_ENCODING       => "",   // to handle all encodings
+                        CURLOPT_AUTOREFERER    => true, // to set referer on redirect
+                        CURLOPT_CONNECTTIMEOUT => 120,  // set a timeout on connect
+                        CURLOPT_TIMEOUT        => 120,  // set a timeout on response
+                        CURLOPT_MAXREDIRS      => 10,   // to stop after 10 redirects
+                        CURLINFO_HEADER_OUT    => true, // no header out
+                        CURLOPT_SSL_VERIFYPEER => false,// to disable SSL Cert checks
+                        CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_USERAGENT      => $agent,
+        );
+        $ch = curl_init($geturl);
+        curl_setopt_array( $ch, $options );
+        $popupcode = curl_exec($ch);
+        curl_close($ch);
+        return $popupcode;
     }
 
     /** Process the statuses looking for students mentions

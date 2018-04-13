@@ -42,9 +42,9 @@ $string['pluginname'] = 'Social Activity count module';
 $string['widget_id'] = 'Widget id to be embedded in the main page.';
 $string['widget_id_help'] = 'weeter API forces to create mannually a search widget in yout twitter account to be embedded in any page. Create one and copy and paste the WidgetId created. You can create the widgets at <a href="https://twitter.com/settings/widgets">Create and manage yout Twitter Widgets</a>';
 
-$string['startdate'] = 'Moment of the conquest starting.';
-$string['startdate_help'] = 'ACtivity before this moment are not included in the statistics.';
-$string['enddate'] = 'Moment of the conquest ending.';
+$string['startdate'] = 'Moment of the start of the conquest.';
+$string['startdate_help'] = 'Activity before this moment are not included in the statistics.';
+$string['enddate'] = 'Moment of the end of the conquest.';
 $string['enddate_help'] = 'Activity after this moment are not included in the statistics.';
 $string['msocial:daterange'] = 'Activity tracking from {$a->startdate} until {$a->enddate}';
 $string['grade_variables'] = 'Social variables';

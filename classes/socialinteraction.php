@@ -175,7 +175,9 @@ class social_interaction {
      * @param unknown $fromdate
      * @param unknown $todate
      * @param array(int) $users list of moodle identifiers
-     * @return \mod_msocial\connector\social_interaction[] */
+     * @return \mod_msocial\connector\social_interaction[]
+     * @deprecated
+     */
     static public function load_interactions($msocial, $conditions = null, $fromdate = null, $todate = null, $users = null) {
         $filter = new \filter_interactions(['fromdate' => $fromdate, 'todate' => $todate ], $msocial);
         $filter->set_users($users);
