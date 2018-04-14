@@ -217,8 +217,15 @@ class social_interaction {
             $record->msocial = $msocialid;
             $records[] = $record;
         }
-        $DB->delete_records_select('msocial_interactions', $where, $params);
-        $DB->insert_records('msocial_interactions', $records);
+        $tr = $DB->start_delegated_transaction();
+        try {
+            $DB->delete_records_select('msocial_interactions', $where, $params);
+            $DB->insert_records('msocial_interactions', $records);
+            $tr->allow_commit();
+        } catch (\Exception $e) {
+            mtrace("Error " . $e->getMessage() . " uids: <p>" . $uids . " <p> keys:" . array_keys($interactions));
+            $tr->rollback($e);
+        }
     }
     /**
      * Remove emojis in utf8mb4 format.

@@ -405,7 +405,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     public function harvest() {
         $resultusers = $this->harvest_users();
         $resulttags = $this->harvest_hashtags();
-        $this->lastinteractions = array_merge($this->lastinteractions, $this->refresh_likes());
+        $likeinteractions = $this->refresh_likes();
+        $this->lastinteractions = array_merge($this->lastinteractions, $likeinteractions);
 
         $result = new \stdClass();
         $result->statuses = array_merge($resultusers->statuses, $resulttags->statuses);
@@ -614,7 +615,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         $filter = new \filter_interactions([\filter_interactions::PARAM_SOURCES => $this->get_subtype(),
                         \filter_interactions::PARAM_INTERACTION_POST => true], $this->msocial);
         $interactions = social_interaction::load_interactions_filter($filter);
-        mtrace("Checking ". count($interactions) . " tweets for Favs.");
+        $interactions = array_merge($interactions, $this->lastinteractions);
+
+        mtrace("<li>Checking ". count($interactions) . " tweets for Favs.");
         foreach ($interactions as $interaction) {
             if ($interaction->type == social_interaction::POST) {
                 mtrace("<li>Getting favs for " . $this->get_interaction_url($interaction));
@@ -648,7 +651,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     $likeinteraction->timestamp = $interaction->timestamp;
                     $likeinteraction->nativetype = 'fav';
                     $likeinteraction->type = social_interaction::REACTION;
-                    $interactions[$likeinteraction->uid] = $likeinteraction;
+                    $likeinteractions[$likeinteraction->uid] = $likeinteraction;
                 }
             }
         }
