@@ -48,7 +48,7 @@ class filter_interactions {
     public $msocial;
     public $users_struct = null;
     protected $sources = [];
-    protected $interactions = [];
+    protected $interactiontypes = [];
     protected $extraparams = [];
     public $startdate = 0;
     public $enddate = 0;
@@ -67,13 +67,13 @@ class filter_interactions {
         foreach ($formparams as $name => $param) {
             // Sources.
             if ($name == self::PARAM_INTERACTION_POST) {
-                $this->interactions[] = social_interaction::POST;
+                $this->interactiontypes[] = social_interaction::POST;
             } else if ($name == self::PARAM_INTERACTION_REPLY) {
-                $this->interactions[] = social_interaction::REPLY;
+                $this->interactiontypes[] = social_interaction::REPLY;
             } else if ($name == self::PARAM_INTERACTION_REACTION) {
-                $this->interactions[] = social_interaction::REACTION;
+                $this->interactiontypes[] = social_interaction::REACTION;
             } else if ($name == self::PARAM_INTERACTION_MENTION) {
-                $this->interactions[] = social_interaction::MENTION;
+                $this->interactiontypes[] = social_interaction::MENTION;
             } else if ($name == self::PARAM_RECEIVED_BY_TEACHERS) {
                 $this->receivedbyteachers = ($param == 'true' || $param == 'on' || $param == '1' || $param === true);
             } else if ($name == self::PARAM_UNKNOWN_USERS) {
@@ -90,7 +90,7 @@ class filter_interactions {
                 }
             } else if ($name == self::PARAM_INTERACTIONS) {
                 if ($param) {
-                    $this->interactions = explode(',', $param);
+                    $this->interactiontypes = explode(',', $param);
                 }
             } else if ($name == 'startdate' && !$rangepresent) {
                     $this->startdate = (int) $param;
@@ -112,10 +112,10 @@ class filter_interactions {
             }
         }
         // Default interactions.
-        if (count($this->interactions) == 0 && empty($formparams['interactions'])) {
-            $this->interactions[] = social_interaction::POST;
-            $this->interactions[] = social_interaction::REPLY;
-            $this->interactions[] = social_interaction::MENTION;
+        if (count($this->interactiontypes) == 0 && empty($formparams['interactions'])) {
+            $this->interactiontypes[] = social_interaction::POST;
+            $this->interactiontypes[] = social_interaction::REPLY;
+            $this->interactiontypes[] = social_interaction::MENTION;
         }
     }
     public function param_if_absent($name, $default) {
@@ -132,10 +132,10 @@ class filter_interactions {
     }
 
     public function get_checked_interaction($type) {
-        if (count($this->interactions) == 0 ) {
+        if (count($this->interactiontypes) == 0 ) {
             return $type != 'reaction'; //self::PARAM_INTERACTION_REACTION Default REACTIONS disabled.
         } else {
-            return (array_search($type, $this->interactions) !== false);
+            return (array_search($type, $this->interactiontypes) !== false);
         }
     }
     public function get_checked_source($source) {
@@ -293,7 +293,7 @@ SCRIPT;
     }
     public function get_filter_params() {
         $params = [
-                        self::PARAM_INTERACTIONS => $this->interactions,
+                        self::PARAM_INTERACTIONS => $this->interactiontypes,
                         self::PARAM_RECEIVED_BY_TEACHERS => $this->receivedbyteachers,
                         self::PARAM_UNKNOWN_USERS => $this->unknownusers,
                         self::PARAM_PURE_EXTERNAL => $this->pureexternal,
@@ -306,10 +306,10 @@ SCRIPT;
         return $params;
     }
     public function get_interactions_query() {
-        if (count($this->interactions) == 0) {
+        if (count($this->interactiontypes) == 0) {
             $sql = null;
         } else {
-            $sql = "type = '". implode("' OR type = '", $this->interactions) . "'";
+            $sql = "type = '". implode("' OR type = '", $this->interactiontypes) . "'";
         }
         return $sql;
     }

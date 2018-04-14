@@ -165,7 +165,8 @@ class social_interaction {
         list($select, $params) = $filter->get_sqlquery();
         $records = $DB->get_records_select('msocial_interactions', $select, $params, 'timestamp');
         foreach ($records as $record) {
-            $interactions[] = self::build($record);
+            $interaction = self::build($record);
+            $interactions[$interaction->uid] = $interaction;
         }
         return $interactions;
     }
