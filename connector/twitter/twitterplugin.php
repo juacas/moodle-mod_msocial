@@ -374,7 +374,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                     });
             $this->store_status($processedstatuses);
 
-            $this->lastinteractions = array_merge($this->lastinteractions, $this->build_interactions($processedstatuses));
+            $this->lastinteractions = $this->merge_interactions($this->lastinteractions, $this->build_interactions($processedstatuses));
             $errormessage = null;
             $result->errors = [];
             $result->messages[] = "Searching by hashtag: $hashtag. For module msocial\\connector\\twitter by hashtags: $msocial->name (id=$msocial->id) " .
@@ -400,13 +400,26 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         return $result;
     }
     /**
+     * Merge arrays preserving keys. (PHP may convert string to int and renumber the items).
+     */
+    protected function merge_interactions(array $arr1, array $arr2) {
+        $merged = [];
+        foreach ($arr1 as $key => $inter) {
+            $merged[$key] = $inter;
+        }
+        foreach ($arr2 as $key => $inter) {
+            $merged[$key] = $inter;
+        }
+        return $merged;
+    }
+    /**
      * @global moodle_database $DB
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
     public function harvest() {
         $resultusers = $this->harvest_users();
         $resulttags = $this->harvest_hashtags();
         $likeinteractions = $this->refresh_likes();
-        $this->lastinteractions = array_merge($this->lastinteractions, $likeinteractions);
+        $this->lastinteractions = $this->merge_interactions($this->lastinteractions, $likeinteractions);
 
         $result = new \stdClass();
         $result->statuses = array_merge($resultusers->statuses, $resulttags->statuses);
@@ -449,7 +462,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                         return isset($status->userauthor);
                     });
             $this->store_status($processedstatuses);
-            $this->lastinteractions = array_merge($this->lastinteractions, $this->build_interactions($processedstatuses));
+            $this->lastinteractions = $this->merge_interactions($this->lastinteractions, $this->build_interactions($processedstatuses));
             $errormessage = null;
             $result->messages[] = "Searching by users. For module msocial\\connector\\twitter by users: $msocial->name (id=$msocial->id) " .
                                     "in course (id=$msocial->course) searching: $hashtag  ";
@@ -615,7 +628,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         $filter = new \filter_interactions([\filter_interactions::PARAM_SOURCES => $this->get_subtype(),
                         \filter_interactions::PARAM_INTERACTION_POST => true], $this->msocial);
         $interactions = social_interaction::load_interactions_filter($filter);
-        $interactions = array_merge($interactions, $this->lastinteractions);
+        $interactions = $this->merge_interactions($interactions, $this->lastinteractions);
 
         mtrace("<li>Checking ". count($interactions) . " tweets for Favs.");
         foreach ($interactions as $interaction) {
