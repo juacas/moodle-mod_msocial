@@ -223,7 +223,7 @@ class social_interaction {
             $DB->insert_records('msocial_interactions', $records);
             $tr->allow_commit();
         } catch (\Exception $e) {
-            mtrace("Error " . $e->getMessage() . " uids: <p>" . $uids . " <p> keys:" . array_keys($interactions));
+            mtrace("Error " . $e->getMessage() . " uids: <p>" . implode(', ', $uids) . " <p> keys:" . implode(', ', array_keys($interactions)));
             $tr->rollback($e);
         }
     }
