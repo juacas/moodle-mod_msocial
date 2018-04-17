@@ -179,16 +179,10 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     }
     public function render_harvest_link() {
         global $OUTPUT;
-        $harvestbutton = '';
         $id = $this->cm->id;
-        $context = \context_module::instance($id);
-        if (has_capability('mod/msocial:manage', $context) && $this->is_tracking()) {
-            $harvestbutton = $OUTPUT->action_icon(
-                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
-                    new \pix_icon('a/refresh', get_string('harvest_tweets', 'msocialconnector_twitter')));
-        } else {
-            $harvestbutton = '';
-        }
+        $harvestbutton = $OUTPUT->action_icon(
+                new \moodle_url('/mod/msocial/harvest.php', ['id' => $id, 'subtype' => $this->get_subtype()]),
+                new \pix_icon('a/refresh', get_string('harvest_tweets', 'msocialconnector_twitter')));
         return $harvestbutton;
     }
 
@@ -207,7 +201,10 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     /**
      * @return true if the plugin is making searches in the social network */
     public function is_tracking() {
-        return $this->is_enabled() && $this->get_connection_token() != null && trim($this->get_config('hashtag')) != "";
+        return parent::is_tracking() &&
+                $this->is_enabled() &&
+                $this->get_connection_token() != null &&
+                trim($this->get_config('hashtag')) != "";
     }
 
     /**

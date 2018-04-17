@@ -506,9 +506,15 @@ abstract class msocial_plugin {
      * (@see msocial_plugin->harvest())
      */
     public function is_tracking() {
-        return $this->is_enabled() &&
+        return $this->can_harvest() &&
         msocial_time_is_between(time(), $this->msocial->startdate,
                 $this->msocial->enddate ? $this->msocial->enddate + 24 * 2600 : null);
+    }
+    /**
+     * Check if the plugin is properly configured to harvest data. Ignores time window.
+     */
+    public function can_harvest() {
+        return $this->is_enabled();
     }
     /**
      * Get the numerical sort order for this plugin
@@ -644,7 +650,7 @@ abstract class msocial_plugin {
         echo "Processing plugins:" . implode(', ', array_keys($enabledplugins));
 
         foreach ($enabledplugins as $type => $plugin) {
-            if ($plugin->is_tracking()) {
+            if ($plugin->can_harvest()) {
                 $result = $plugin->harvest();
                 foreach ($result->messages as $message) {
                     echo "<p>$message</p>";

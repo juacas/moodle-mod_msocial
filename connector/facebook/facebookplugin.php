@@ -52,17 +52,16 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     public function get_name() {
         return get_string('pluginname', 'msocialconnector_facebook');
     }
-
     /**
-     * @return true if the plugin is making searches in the social network */
-    public function is_tracking() {
-        // Check timespan.
-        return parent::is_tracking() &&
-                $this->is_enabled() &&
-                $this->get_connection_token() != null &&
-                $this->get_config(self::CONFIG_FBGROUP) != null;
+     *
+     * {@inheritDoc}
+     * @see \msocial\msocial_plugin::can_harvest()
+     */
+    public function can_harvest() {
+        return $this->is_enabled() &&
+        $this->get_connection_token() != null &&
+        $this->get_config(self::CONFIG_FBGROUP) != null;
     }
-
     /** Get the instance settings for the plugin
      *
      * @param MoodleQuickForm $mform The form to add elements to
@@ -187,13 +186,9 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     }
     public function render_harvest_link() {
         global $OUTPUT;
-        $harvestbutton = '';
-        $context = \context_module::instance($this->cm->id);
-        if (has_capability('mod/msocial:manage', $context) && $this->is_tracking()) {
-            $harvestbutton = $OUTPUT->action_icon(
-                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->cm->id, 'subtype' => $this->get_subtype()]),
-                    new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_facebook')));
-        }
+        $harvestbutton = $OUTPUT->action_icon(
+                new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->cm->id, 'subtype' => $this->get_subtype()]),
+                new \pix_icon('a/refresh', get_string('harvest', 'msocialconnector_facebook')));
         return $harvestbutton;
     }
     public function render_groups_links() {

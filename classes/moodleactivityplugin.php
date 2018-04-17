@@ -106,14 +106,10 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
     }
     public function render_harvest_link() {
         global $OUTPUT;
-        $harvestbutton = '';
         $subtype = $this->get_subtype();
-        $context = \context_module::instance($this->cm->id);
-        if (has_capability('mod/msocial:manage', $context)) {
-            $harvestbutton=  $OUTPUT->action_icon(
-                    new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->cm->id, 'subtype' => $subtype]),
-                    new \pix_icon('a/refresh', get_string('harvest', "msocialconnector_$subtype")));
-        }
+        $harvestbutton=  $OUTPUT->action_icon(
+                new \moodle_url('/mod/msocial/harvest.php', ['id' => $this->cm->id, 'subtype' => $subtype]),
+                new \pix_icon('a/refresh', get_string('harvest', "msocialconnector_$subtype")));
         return $harvestbutton;
     }
     /** Place social-network user information or a link to connect.
