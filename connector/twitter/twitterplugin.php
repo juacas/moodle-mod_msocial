@@ -355,9 +355,11 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             }
             $errormessage = $result->errors[0]->message;
             $msocial = $this->msocial;
-            $errormessage = "Searching: $hashtag. For module msocial\connector\twitter by hashtag: $msocial->name (id=$cm->instance) " .
+            $cm = $this->cm;
+            $result->message[] = "Searching: $hashtag. For module msocial\connector\twitter by hashtag: $msocial->name (id=$cm->instance) " .
                             " in course (id=$msocial->course) $info ERROR:" . $errormessage;
-            $result->messages[] = $errormessage;
+            $result->error[] = (object) ['message' => $errormessage];;
+            $result->statuses = [];
         } else if (isset($result->statuses)) {
             $DB->set_field('msocial_twitter_tokens', 'errorstatus', null, array('id' => $token->id));
 
@@ -376,7 +378,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $result->errors = [];
             $result->messages[] = "Searching by hashtag: $hashtag. For module msocial\\connector\\twitter by hashtags: $msocial->name (id=$msocial->id) " .
             "in course (id=$msocial->course) ";
-
+            $result->statuses = [];
         } else {
             $msocial = $this->msocial;
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
@@ -392,6 +394,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $message = "Updating token with id = $token->id with $errormessage";
                 $result->errors[] = (object) ['message' => $message];
                 $result->messages[] = $message;
+                $result->statuses = [];
             }
         }
         return $result;
@@ -443,9 +446,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $errormessage = implode('. ', $result->errors);
             $msocial = $this->msocial;
             $cm = $this->cm;
-            $errormessage = "Searching by users. For module msocial\connector\twitter: $msocial->name (id=$cm->instance) " .
-            " in course (id=$msocial->course) searching: $hashtag $info ERROR:" . $errormessage;
-            $result->messages[] = $errormessage;
+            $errormessage = "ERROR:" . $errormessage . " Searching by users. For module msocial\connector\twitter: $msocial->name (id=$cm->instance) " .
+            " in course (id=$msocial->course) searching: $hashtag $info";
+            $result->errors[0]->message = $errormessage;
         } else {
             $result->errors = [];
         }
@@ -468,7 +471,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $result->errors[0]->message = $errormessage;
             $msocial = $this->msocial;
             $result->messages[] = "Searching by users. For module msocial\\connector\\twitter by users: $msocial->name (id=$msocial->id) " .
-            "in course (id=$msocial->course) searching: $hashtag  " . $errormessage;
+            "in course (id=$msocial->course) searching: $hashtag  ";
             $result->statuses = [];
         }
         if ($token) {
@@ -499,7 +502,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @param \stdClass[] $users records from mdl_msocial_mapusers
      * @param unknown $hashtag
      * @throws \ErrorException
-     * @return array|mixed
+     * @return mixed
      */
     protected function get_users_statuses($tokens, $users, $hashtag) {
 
@@ -507,7 +510,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         if (!$tokens) {
             $result = (object) ['statuses' => [],
                             'errors' => ['message' => "No connection tokens provided!!! Impossible to connect to twitter."]];
-            return array();
+            return $result;
         }
         if (count($users) == 0) {
             $totalresults->statuses = [];
@@ -790,8 +793,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     protected function search_twitter($tokens, $hashtag) {
         if (!$tokens) {
             $result = (object) ['statuses' => [],
-                            'errors' => ['message' => "No connection tokens provided!!! Impossible to connect to twitter."]];
-            return array();
+                            'errors' => [(object)['message' => "No connection tokens provided!!! Impossible to connect to twitter."]]];
+            return $result;
         }
         global $CFG;
         $settings = array('oauth_access_token' => $tokens->token, 'oauth_access_token_secret' => $tokens->token_secret,

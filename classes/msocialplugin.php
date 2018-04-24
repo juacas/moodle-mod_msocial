@@ -652,9 +652,11 @@ abstract class msocial_plugin {
         foreach ($enabledplugins as $type => $plugin) {
             if ($plugin->can_harvest()) {
                 $result = $plugin->harvest();
-                foreach ($result->messages as $message) {
-                    echo "<p>$message</p>";
-                }
+                $plugin->notify(array_map(function ($item) {
+                        return $item->message;
+                }, $result->errors), self::NOTIFY_WARNING);
+                $plugin->notify($result->messages, self::NOTIFY_NORMAL);
+
             } else {
                 echo "<p>Plugin $type is not tracking. (Disabled or some critical configuration missing.)</p>";
             }
