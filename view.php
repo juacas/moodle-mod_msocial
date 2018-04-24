@@ -106,7 +106,7 @@ foreach ($enabledplugins as $name => $enabledplugin) {
                                 [ 'interval' => msocial_pretty_date_difference($updated->getTimestamp())] ) .
                                 ' ';
     }
-    if (has_capability('mod/msocial:manage', $contextmodule) && $plugin->can_harvest()) {
+    if (has_capability('mod/msocial:manage', $contextmodule) && $enabledplugin->can_harvest()) {
         $updatemessage .= $enabledplugin->render_harvest_link();
     }
     if ($updatemessage != '') {
