@@ -356,9 +356,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $errormessage = $result->errors[0]->message;
             $msocial = $this->msocial;
             $cm = $this->cm;
-            $result->message[] = "Searching: $hashtag. For module msocial\connector\twitter by hashtag: $msocial->name (id=$cm->instance) " .
+            $result->messages[] = "Searching: $hashtag. For module msocial\connector\twitter by hashtag: $msocial->name (id=$cm->instance) " .
                             " in course (id=$msocial->course) $info ERROR:" . $errormessage;
-            $result->error[] = (object) ['message' => $errormessage];;
+            $result->error[] = (object) ['message' => $errormessage];
             $result->statuses = [];
         } else if (isset($result->statuses)) {
             $DB->set_field('msocial_twitter_tokens', 'errorstatus', null, array('id' => $token->id));
@@ -382,7 +382,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         } else {
             $msocial = $this->msocial;
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
-            $result->errors[0]->message = $errormessage;
+            $result->errors[0] = (object) ['message' => $errormessage];
             $result->messages[] = "Searching: $hashtag. For module msocial\\connector\\twitter by hashtags: $msocial->name (id=$msocial->id) " .
                                   "in course (id=$msocial->course) " . $errormessage;
             $result->statuses = [];
