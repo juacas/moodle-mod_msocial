@@ -52,6 +52,7 @@ abstract class msocial_plugin {
     const CAT_RESULTS = 'Results';
     const NOTIFY_WARNING = 'WARN';
     const NOTIFY_NORMAL = 'NORMAL';
+    const NOTIFY_ERROR = 'ERROR';
     const LAST_HARVEST_TIME = 'lastharvest';
 
     /**
@@ -654,7 +655,7 @@ abstract class msocial_plugin {
                 $result = $plugin->harvest();
                 $plugin->notify(array_map(function ($item) {
                         return $item->message;
-                }, $result->errors), self::NOTIFY_WARNING);
+                }, $result->errors), self::NOTIFY_ERROR);
                 $plugin->notify($result->messages, self::NOTIFY_NORMAL);
 
             } else {
@@ -709,6 +710,9 @@ abstract class msocial_plugin {
             } else if ($level === self::NOTIFY_WARNING) {
                 $text = join('<br/>', $messages);
                 msocial_notify_warning($icondecoration . $text);
+            } else if ($level === self::NOTIFY_ERROR) {
+                $text = join('<br/>', $messages);
+                msocial_notify_error($icondecoration . $text);
             }
         }
     }

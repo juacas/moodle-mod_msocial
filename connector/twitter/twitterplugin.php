@@ -382,7 +382,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         } else {
             $msocial = $this->msocial;
             $errormessage = "ERROR querying twitter results null! Maybe there is no twiter account linked in this activity.";
-            $result->errors[0] = (object) ['message' => $errormessage];
+            $result->errors[] = (object) ['message' => $errormessage];
             $result->messages[] = "Searching: $hashtag. For module msocial\\connector\\twitter by hashtags: $msocial->name (id=$msocial->id) " .
                                   "in course (id=$msocial->course) " . $errormessage;
             $result->statuses = [];
