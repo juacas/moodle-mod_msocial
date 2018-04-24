@@ -446,10 +446,12 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $errormessage = implode('. ', $result->errors);
             $msocial = $this->msocial;
             $cm = $this->cm;
-            $errormessage = "ERROR:" . $errormessage . " Searching by users. For module msocial\connector\twitter: $msocial->name (id=$cm->instance) " .
+            $errormessage = "ERROR:" . $errormessage;
+            $result->messages[] = "Searching by users. For module msocial\connector\twitter: $msocial->name (id=$cm->instance) " .
             " in course (id=$msocial->course) searching: $hashtag $info";
-            $result->errors[0]->message = $errormessage;
+            $result->errors[0] = (object) ['message' => $errormessage];
         } else {
+            $result->messages = [];
             $result->errors = [];
         }
         if (isset($result->statuses)) {
