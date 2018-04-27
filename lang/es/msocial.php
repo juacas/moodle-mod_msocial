@@ -89,5 +89,5 @@ $string['msocial:alwaysviewothersnames'] = 'Ver los nombres completos de los usu
 $string['msocial:addinstance'] = 'Añadir una nueva actividad MSocial al curso.';
 $string['msocial:mapaccounts'] = 'Cambiar o asignar una cuenta de red social a un estudiante.';
 $string['msocial:manage'] = 'Configurar la actividad MSocial';
-$string['msocial:exportpkis'] = 'Descargar PKIs calculados por MSocial';
+$string['msocial:exportkpis'] = 'Descargar Key Performance Indicators (KPIs) calculados por MSocial';
 $string['msocial:exportinteractions'] = 'Descargar las interacciones en bruto';

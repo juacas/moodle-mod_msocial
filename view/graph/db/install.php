@@ -43,6 +43,6 @@ function xmldb_msocialview_graph_install() {
 
     require_once($CFG->dirroot . '/mod/msocial/view/graph/graphplugin.php');
     $plugin = new mod_msocial\view\msocial_view_graph(null);
-    $plugin->create_pki_fields();
+    $plugin->create_kpi_fields();
     return true;
 }

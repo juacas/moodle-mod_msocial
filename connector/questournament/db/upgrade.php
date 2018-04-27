@@ -51,7 +51,7 @@ function xmldb_msocialconnector_questournament_upgrade($oldversion = 0) {
     }
     require_once($CFG->dirroot . '/mod/msocial/connector/questournament/questournamentplugin.php');
     $plugininfo = new mod_msocial\connector\msocial_connector_questournament(null);
-    $plugininfo->create_pki_fields();
+    $plugininfo->create_kpi_fields();
 
     return true;
 }

@@ -27,7 +27,7 @@ namespace mod_msocial\view;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/msocial/classes/msocialviewplugin.php');
-require_once($CFG->dirroot . '/mod/msocial/classes/pki.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/kpi.php');
 /**
  * library class for view the network activity as a table extending view plugin base class
  *

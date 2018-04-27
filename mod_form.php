@@ -78,19 +78,19 @@ class mod_msocial_mod_form extends moodleform_mod {
         /** @var msocial_plugin $plugin */
         $enabledplugins = mod_msocial\plugininfo\msocialbase::get_enabled_plugins_all_types();
         foreach ($enabledplugins as $type => $plugin) {
-            $pkiinfos = $plugin->get_pki_list();
-            if (count($pkiinfos) > 0) {
+            $kpiinfos = $plugin->get_kpi_list();
+            if (count($kpiinfos) > 0) {
                 $varliststr = $varliststr . '<p><b>' . $plugin->get_name() . '</b>: ' .
                 implode(', ', array_map(
-                        function ($pkinfo) {
+                        function ($kpinfo) {
                             $out = '';
-                            if (isset($pkinfo->description)) {
-                                return '<span title="' . $pkinfo->description . '">' . $pkinfo->name . '</span>';
+                            if (isset($kpinfo->description)) {
+                                return '<span title="' . $kpinfo->description . '">' . $kpinfo->name . '</span>';
                             } else {
-                                return $pkinfo->name;
+                                return $kpinfo->name;
                             }
                         }
-                        , $pkiinfos)). '</p>';
+                        , $kpiinfos)). '</p>';
             }
         }
         $mform->addElement('static', 'list_of_variables', get_string('grade_variables', 'msocial'), $varliststr);
@@ -119,9 +119,9 @@ class mod_msocial_mod_form extends moodleform_mod {
         $enabledplugins = mod_msocial\plugininfo\msocialbase::get_enabled_plugins_all_types($data);
         $vars = [];
         foreach ($enabledplugins as $plugin) {
-            /** @var \mod_msocial\pki_info $pki */
-            foreach ($plugin->get_pki_list() as $pkiinfo) {
-                $vars[$pkiinfo->name] = 1;
+            /** @var \mod_msocial\kpi_info $kpi */
+            foreach ($plugin->get_kpi_list() as $kpiinfo) {
+                $vars[$kpiinfo->name] = 1;
             }
         }
         $calculation->set_params($vars);

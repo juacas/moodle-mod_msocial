@@ -23,23 +23,23 @@
  * *******************************************************************************
  */
 
-/**
- * Post-install code for the msocialconnector_moodleforum module.
+/** class for msocial course users struct
  *
- * @package msocialconnector_moodleforum
- * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+ * @package msocialconnector
+ * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
+namespace mod_msocial;
+
 defined('MOODLE_INTERNAL') || die();
-/**
- * Code run after the msocialconnector_moodleforum module database tables have been created.
- * @global moodle_database $DB
- * @return bool
- */
-function xmldb_msocialconnector_moodleforum_install() {
-    global $CFG;
-    require_once($CFG->dirroot . '/mod/msocial/connector/moodleforum/moodleforumplugin.php');
-    $plugin = new mod_msocial\connector\msocial_connector_moodleforum(null);
-    $plugin->create_kpi_fields();
-    return true;
+
+class users_struct {
+
+    /** @var int[] students ids referred (for filtering per example). */
+    public $studentids;
+    /** @var int[] non students ids referred (for filtering per example). */
+    public $nonstudentids;
+    /** @var int[] students ids with usage in the course */
+    public $activeids;
+    /** @var \stdClass[] cached records from users table */
+    public $userrecords;
 }

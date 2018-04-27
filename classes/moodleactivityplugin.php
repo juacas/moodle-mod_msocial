@@ -25,7 +25,7 @@
  */
 namespace mod_msocial\connector;
 
-use mod_msocial\pki_info;
+use mod_msocial\kpi_info;
 use moodleactivity\GraphNodes\GraphEdge;
 use moodleactivity\moodleactivity as moodleactivity;
 use msocial\msocial_plugin;

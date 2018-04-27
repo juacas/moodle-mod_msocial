@@ -164,25 +164,25 @@ function xmldb_msocial_upgrade($oldversion = 0) {
     }
     if ($oldversion < 2017071000) {
 
-        // Define table msocial_pkis to be created.
-        $table = new xmldb_table('msocial_pkis');
+        // Define table msocial_kpis to be created.
+        $table = new xmldb_table('msocial_kpis');
 
-        // Adding fields to table msocial_pkis.
+        // Adding fields to table msocial_kpis.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('msocial', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('user', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
         $table->add_field('historical', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
 
-        // Adding keys to table msocial_pkis.
+        // Adding keys to table msocial_kpis.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
         $table->add_key('msocial_user_time', XMLDB_KEY_UNIQUE, array('msocial', 'user', 'timestamp'));
 
-        // Adding indexes to table msocial_pkis.
+        // Adding indexes to table msocial_kpis.
         $table->add_index('historical_idx', XMLDB_INDEX_NOTUNIQUE, array('historical'));
         $table->add_index('msocial_idx', XMLDB_INDEX_NOTUNIQUE, array('msocial'));
 
-        // Conditionally launch create table for msocial_pkis.
+        // Conditionally launch create table for msocial_kpis.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
@@ -225,6 +225,14 @@ function xmldb_msocial_upgrade($oldversion = 0) {
         }
         // Msocial savepoint reached.
         upgrade_mod_savepoint(true, 2018022701, 'msocial');
+    }
+    if ($oldversion < 2018042600) {
+        // Rename PKI table to KPI
+        $table = new xmldb_table('msocial_pkis');
+
+        $dbman->rename_table($table, 'msocial_kpis');
+        // Msocial savepoint reached.
+        upgrade_mod_savepoint(true, 2018042600, 'msocial');
     }
 
     return true;

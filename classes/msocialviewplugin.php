@@ -58,7 +58,7 @@ abstract class msocial_view_plugin extends msocial_plugin {
     public abstract function get_icon();
 
     /**
-     * Collect information and calculate fresh PKIs if supported.
+     * Collect information and calculate fresh Key Performance Indicators (KPIs) if supported.
      *
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message
      */
@@ -86,9 +86,9 @@ abstract class msocial_view_plugin extends msocial_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::calculate_pkis()
+     * @see \msocial\msocial_plugin::calculate_kpis()
      */
-    public function calculate_pkis($users, $pkis = []) {
+    public function calculate_kpis($users, $kpis = []) {
         return [];
     }
     /**
@@ -101,11 +101,11 @@ abstract class msocial_view_plugin extends msocial_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::get_pki_list()
+     * @see \msocial\msocial_plugin::get_kpi_list()
      */
-    public function get_pki_list() {
-        $pkis = [];
-        return $pkis;
+    public function get_kpi_list() {
+        $kpis = [];
+        return $kpis;
     }
     /**
      *

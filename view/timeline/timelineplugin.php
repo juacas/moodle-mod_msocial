@@ -98,7 +98,7 @@ class msocial_view_timeline extends msocial_view_plugin {
      * Statistics for grading
      *
      * @param array[]integer $users array with the userids to be calculated
-     * @return array[string]object object->userstats with PKIs for each user object->maximums max
+     * @return array[string]object object->userstats with KPIs for each user object->maximums max
      *         values for normalization.
      */
     public function calculate_stats($users) {

@@ -49,7 +49,7 @@ function xmldb_msocialview_graph_upgrade($oldversion = 0) {
     }
     require_once($CFG->dirroot . '/mod/msocial/view/graph/graphplugin.php');
     $plugin = new mod_msocial\view\msocial_view_graph(null);
-    mtrace("Updating pki table for graph plugin...");
-    $plugin->create_pki_fields();
+    mtrace("Updating kpi table for graph plugin...");
+    $plugin->create_kpi_fields();
     return true;
 }

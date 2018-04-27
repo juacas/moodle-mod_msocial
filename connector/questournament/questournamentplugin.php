@@ -25,7 +25,7 @@
  */
 namespace mod_msocial\connector;
 
-use mod_msocial\pki_info;
+use mod_msocial\kpi_info;
 use questournament\GraphNodes\GraphEdge;
 use questournament\questournament as questournament;
 use msocial\msocial_plugin;
@@ -91,20 +91,20 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
 
         return $url->out();
     }
-    public function get_pki_list() {
-        $pkiobjs['qposts'] = new pki_info('qposts', get_string('pki_description_qposts', 'msocialconnector_questournament'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
+    public function get_kpi_list() {
+        $kpiobjs['qposts'] = new kpi_info('qposts', get_string('kpi_description_qposts', 'msocialconnector_questournament'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED,
                 social_interaction::POST, '*', social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['qanswers'] = new pki_info('qanswers', get_string('pki_description_qanswers', 'msocialconnector_questournament'),
-                        pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
+        $kpiobjs['qanswers'] = new kpi_info('qanswers', get_string('kpi_description_qanswers', 'msocialconnector_questournament'),
+                        kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED,
                         social_interaction::REPLY, '*', social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['qreplies'] = new pki_info('qreplies', get_string('pki_description_qreplies', 'msocialconnector_questournament'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
+        $kpiobjs['qreplies'] = new kpi_info('qreplies', get_string('kpi_description_qreplies', 'msocialconnector_questournament'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED,
                 social_interaction::REPLY, '*', social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['max_qposts'] = new pki_info('max_qposts', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
-        $pkiobjs['max_qanswers'] = new pki_info('max_qanswers', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
-        $pkiobjs['max_qreplies'] = new pki_info('max_qreplies', null, pki_info::PKI_AGREGATED,  pki_info::PKI_CALCULATED);
-        return $pkiobjs;
+        $kpiobjs['max_qposts'] = new kpi_info('max_qposts', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
+        $kpiobjs['max_qanswers'] = new kpi_info('max_qanswers', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
+        $kpiobjs['max_qreplies'] = new kpi_info('max_qreplies', null, kpi_info::KPI_AGREGATED,  kpi_info::KPI_CALCULATED);
+        return $kpiobjs;
     }
 
     /** TODO
@@ -201,8 +201,8 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
 
         $this->lastinteractions = [];
         $contextcourse = \context_course::instance($this->msocial->course);
-        list($students, $nonstudents, $active, $users) = array_values(msocial_get_users_by_type($contextcourse));
-
+        $usersstruct = msocial_get_users_by_type($contextcourse);
+        $users = $usersstruct->userrecords;
         try {
             // Query questournament...
             $since = '';

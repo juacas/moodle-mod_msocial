@@ -1,6 +1,7 @@
 <?php
 use mod_msocial\connector\social_interaction;
 use mod_msocial\plugininfo\msocialconnector;
+use mod_msocial\users_struct;
 
 // This file is part of MSocial activity for Moodle http://moodle.org/
 //
@@ -46,7 +47,8 @@ class filter_interactions {
     const PARAM_FROMID = 'fromid';
 
     public $msocial;
-    public $users_struct = null;
+    /** @var users_struct $usersstruct */
+    public $usersstruct = null;
     protected $sources = [];
     protected $interactiontypes = [];
     protected $extraparams = [];
@@ -125,10 +127,10 @@ class filter_interactions {
     }
     /**
      *
-     * @param object[] $users struct obtained from msocial_get_users_by_type
+     * @param users_struct $users struct obtained from msocial_get_users_by_type
      */
-    public function set_users($users) {
-        $this->users_struct = $users;
+    public function set_users(users_struct $users) {
+        $this->usersstruct = $users;
     }
 
     public function get_checked_interaction($type) {
@@ -197,11 +199,10 @@ class filter_interactions {
         $out .= '<b>'. get_string('fromidfilter', 'msocial') . '</b>';
         $out .= '<select id="fromid" name="' . self::PARAM_FROMID . '">';
         $cm = get_fast_modinfo($this->msocial->course)->instances['msocial'][$this->msocial->id];
-        list($students, $nonstudents, $activeusers, $userrecords) = array_values(msocial_get_viewable_users($cm, $this->msocial));
-
+        $usersstruct = msocial_get_viewable_users($cm, $this->msocial);
         $out .= "<option value=\"\">All</option>";
-        foreach ($students as $userid) {
-            $user = $userrecords[$userid];
+        foreach ($usersstruct->studentids as $userid) {
+            $user = $usersstruct->userrecords[$userid];
             $selected = $this->fromid == $userid ? 'selected="true"' : '';
             $username = msocial_get_visible_fullname($user, $this->msocial);
             $out .= "<option $selected value=\"$userid\">$username</option>";
@@ -336,11 +337,11 @@ SCRIPT;
         $andedqueries[] = $select;
         $userquery = [];
         if (!$this->receivedbyteachers) {
-            if ($this->users_struct == null) { // Select only students.
+            if ($this->usersstruct == null) { // Select only students.
                 $contextcourse = \context_course::instance($this->msocial->course);
-                $this->users_struct = msocial_get_users_by_type($contextcourse);
+                $this->usersstruct = msocial_get_users_by_type($contextcourse);
             }
-            $filterusers = $this->users_struct['student_ids']; // Only students.
+            $filterusers = $this->usersstruct->studentids; // Only students.
         } else {
             $filterusers = null;
         }

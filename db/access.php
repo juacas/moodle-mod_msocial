@@ -109,7 +109,7 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
-     'mod/msocial:exportpkis' => array(
+     'mod/msocial:exportkpis' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(

@@ -45,7 +45,7 @@ $string['msocial_consumer_secret'] = 'consumer_secret';
 $string['config_consumer_secret'] = 'consumer_secret according to TwitterAPI (<a href="https://apps.twitter.com" target="_blank" >https://apps.twitter.com</a>)';
 $string['problemwithtwitteraccount'] = 'Los últimos intentos de obtener Tweets provocaron errores. Intente reconectar con Twitter con su cuenta. Mensajes: {$a}';
 
-$string['pki_description_tweets'] = 'Tweets publicados';
-$string['pki_description_twmentions'] = 'Menciones recibidas';
-$string['pki_description_favs'] = 'Marcas "Favoritas" recibidas';
-$string['pki_description_retweets'] = 'Retweets obtenidos';
+$string['kpi_description_tweets'] = 'Tweets publicados';
+$string['kpi_description_twmentions'] = 'Menciones recibidas';
+$string['kpi_description_favs'] = 'Marcas "Favoritas" recibidas';
+$string['kpi_description_retweets'] = 'Retweets obtenidos';

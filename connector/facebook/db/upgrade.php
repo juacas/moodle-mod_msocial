@@ -54,6 +54,6 @@ function xmldb_msocialconnector_facebook_upgrade($oldversion = 0) {
     }
     require_once($CFG->dirroot . '/mod/msocial/connector/facebook/facebookplugin.php');
     $plugininfo = new mod_msocial\connector\msocial_connector_facebook(null);
-    $plugininfo->create_pki_fields();
+    $plugininfo->create_kpi_fields();
     return true;
 }

@@ -122,7 +122,8 @@ class msocial_view_sequence extends msocial_view_plugin {
 
         if (msocial_can_view_others($this->cm, $this->msocial)) {
             $usersstruct = msocial_get_users_by_type($contextcourse);
-            list($students, $nonstudents, $activeids, $userrecords) = array_values($usersstruct);
+            $students = $usersstruct->studentids;
+            $userrecords = $usersstruct->userrecords;
         } else {
             $students = array($USER->id);
             $userrecords[$USER->id] = $USER;

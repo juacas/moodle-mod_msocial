@@ -28,7 +28,7 @@ namespace mod_msocial\connector;
 use Facebook\Facebook as Facebook;
 use Facebook\GraphNodes\GraphEdge;
 use Facebook\GraphNodes\GraphNode;
-use mod_msocial\pki_info;
+use mod_msocial\kpi_info;
 use msocial\msocial_plugin;
 use mod_msocial\social_user;
 
@@ -235,14 +235,14 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /** Statistics for grading
      *
      * @param array[]integer $users array with the userids to be calculated
-     * @return array[string]object object->userstats with PKIs for each user object->maximums max
+     * @return array[string]object object->userstats with KPIs for each user object->maximums max
      *         values for normalization.
      * @deprecated */
     private function calculate_stats($users) {
         global $DB;
         $userstats = new \stdClass();
         $userstats->users = array();
-        $pkinames = $this->get_pki_list();
+        $kpinames = $this->get_kpi_list();
         $posts = [];
         $replies = [];
         $reactions = [];
@@ -273,12 +273,12 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /**
      * @deprecated
      *
-     * @param unknown $pkiname
+     * @param unknown $kpiname
      * @param unknown $records
      * @param unknown $users
      * @param unknown $userstats
      * @param unknown $accum */
-    private function append_stats($pkiname, &$records, $users, &$userstats, &$accum) {
+    private function append_stats($kpiname, &$records, $users, &$userstats, &$accum) {
         foreach ($users as $userid) {
 
             if (!isset($userstats->users[$userid])) {
@@ -288,9 +288,9 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             }
             if (isset($records[$userid])) {
                 $accum[] = $records[$userid]->total;
-                $stat->{$pkiname} = $records[$userid]->total;
+                $stat->{$kpiname} = $records[$userid]->total;
             } else {
-                $stat->{$pkiname} = null;
+                $stat->{$kpiname} = null;
             }
             $userstats->users[$userid] = $stat;
         }
@@ -299,26 +299,26 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /**
      * {@inheritdoc}
      *
-     * @see \msocial\msocial_plugin::get_pki_list() */
-    public function get_pki_list() {
-        $pkiobjs['posts'] = new pki_info('posts', get_string('pki_description_posts', 'msocialconnector_facebook'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
+     * @see \msocial\msocial_plugin::get_kpi_list() */
+    public function get_kpi_list() {
+        $kpiobjs['posts'] = new kpi_info('posts', get_string('kpi_description_posts', 'msocialconnector_facebook'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED,
                 [social_interaction::POST, social_interaction::REPLY], '*',
                 social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['replies'] = new pki_info('replies', get_string('pki_description_replies', 'msocialconnector_facebook'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REPLY, '*',
+        $kpiobjs['replies'] = new kpi_info('replies', get_string('kpi_description_replies', 'msocialconnector_facebook'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::REPLY, '*',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['likes'] = new pki_info('likes', get_string('pki_description_likes', 'msocialconnector_facebook'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, 'LIKE',
+        $kpiobjs['likes'] = new kpi_info('likes', get_string('kpi_description_likes', 'msocialconnector_facebook'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::REACTION, 'LIKE',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['reactions'] = new pki_info('reactions', get_string('pki_description_reactions', 'msocialconnector_facebook'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, '*',
+        $kpiobjs['reactions'] = new kpi_info('reactions', get_string('kpi_description_reactions', 'msocialconnector_facebook'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::REACTION, '*',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['max_posts'] = new pki_info('max_posts', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
-        $pkiobjs['max_replies'] = new pki_info('max_replies', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
-        $pkiobjs['max_likes'] = new pki_info('max_likes', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
-        $pkiobjs['max_reactions'] = new pki_info('max_reactions', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
-        return $pkiobjs;
+        $kpiobjs['max_posts'] = new kpi_info('max_posts', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
+        $kpiobjs['max_replies'] = new kpi_info('max_replies', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
+        $kpiobjs['max_likes'] = new kpi_info('max_likes', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
+        $kpiobjs['max_reactions'] = new kpi_info('max_reactions', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
+        return $kpiobjs;
     }
 
     /**

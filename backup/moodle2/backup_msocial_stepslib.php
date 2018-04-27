@@ -40,10 +40,10 @@ class backup_msocial_activity_structure_step extends backup_activity_structure_s
         $pluginconfigs = new backup_nested_element('plugin_configs');
         $pluginconfig = new backup_nested_element('plugin_config', null, array('plugin', 'subtype', 'name', 'value'));
 
-        $pkis = new backup_nested_element('pkis');
-        $pkicols = array_keys($DB->get_columns('msocial_pkis'));
-        array_splice($pkicols, 0, 2); // Excludes id and msocial.
-        $pki = new backup_nested_element('pki', null, $pkicols);
+        $kpis = new backup_nested_element('kpis');
+        $kpicols = array_keys($DB->get_columns('msocial_kpis'));
+        array_splice($kpicols, 0, 2); // Excludes id and msocial.
+        $kpi = new backup_nested_element('kpi', null, $kpicols);
 
         $interactions = new backup_nested_element('interactions');
         $interaction = new backup_nested_element('interaction', ['uid'],
@@ -55,25 +55,25 @@ class backup_msocial_activity_structure_step extends backup_activity_structure_s
 
         // Build the tree.
         $msocial->add_child($pluginconfigs);
-        $msocial->add_child($pkis);
+        $msocial->add_child($kpis);
         $msocial->add_child($interactions);
         $msocial->add_child($mapusers);
         $pluginconfigs->add_child($pluginconfig);
-        $pkis->add_child($pki);
+        $kpis->add_child($kpi);
         $interactions->add_child($interaction);
         $mapusers->add_child($mapuser);
 
         // Define sources.
         $msocial->set_source_table('msocial', array('id' => backup::VAR_ACTIVITYID));
         $pluginconfig->set_source_table('msocial_plugin_config', array('msocial' => backup::VAR_PARENTID));
-        $pki->set_source_table('msocial_pkis', ['msocial' => backup::VAR_ACTIVITYID]);
+        $kpi->set_source_table('msocial_kpis', ['msocial' => backup::VAR_ACTIVITYID]);
         $interaction->set_source_table('msocial_interactions', ['msocial' => backup::VAR_ACTIVITYID]);
         $mapuser->set_source_table('msocial_mapusers', ['msocial' => backup::VAR_ACTIVITYID]);
         $this->add_subplugin_structure('msocialconnector', $msocial, true);
         $this->add_subplugin_structure('msocialview', $msocial, true);
         // Define id annotations.
         $mapuser->annotate_ids('user', 'userid');
-        $pki->annotate_ids('user', 'userid');
+        $kpi->annotate_ids('user', 'userid');
         $interaction->annotate_ids('user', 'toid');
         $interaction->annotate_ids('user', 'fromid');
         // Define file annotations.

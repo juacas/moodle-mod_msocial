@@ -20,9 +20,9 @@
  */
 
 
-$string['pluginname'] = 'Graph analysis reports and pkis';
+$string['pluginname'] = 'Graph analysis reports and kpis';
 
-$string['pki_description_closeness'] = 'Closeness centrality (mean distance to others)';
-$string['pki_description_betweeness'] = 'Betweeness centrality (times a person is in the shortest path to others)';
-$string['pki_description_degreein'] = 'In-degree centrality (received interactions)';
-$string['pki_description_degreeout'] = 'Out-degree centrality (produced interactions)';
+$string['kpi_description_closeness'] = 'Closeness centrality (mean distance to others)';
+$string['kpi_description_betweeness'] = 'Betweeness centrality (times a person is in the shortest path to others)';
+$string['kpi_description_degreein'] = 'In-degree centrality (received interactions)';
+$string['kpi_description_degreeout'] = 'Out-degree centrality (produced interactions)';

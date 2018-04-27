@@ -34,7 +34,7 @@ global $CFG;
 $id = required_param('id', PARAM_INT);
 $type = optional_param('type', '', PARAM_ALPHA);
 $format = optional_param('format', '', PARAM_ALPHA);
-$url = new moodle_url('/mod/msocial/exportpkis.php', array('id' => $id));
+$url = new moodle_url('/mod/msocial/exportkpis.php', array('id' => $id));
 if ($type !== '') {
     $url->param('type', $type);
 }
@@ -55,9 +55,9 @@ $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EX
 
 require_login($course->id, false, $cm);
 $context = context_module::instance($cm->id);
-require_capability('mod/msocial:exportpkis', $context);
+require_capability('mod/msocial:exportkpis', $context);
 $contextcourse = context_course::instance($course->id);
-require_capability('mod/msocial:exportpkis', $context);
+require_capability('mod/msocial:exportkpis', $context);
 
 
 $strmsocial = get_string("modulename", "msocial");
@@ -68,11 +68,10 @@ if (!empty($format) && !empty($type) ) {
     $hiddencolumns = [];
     $anonymouscolumns = [];
     $usersstruct = msocial_get_users_by_type($contextcourse);
-    list($students, $nonstudents, $activeusers, $userrecords) = array_values($usersstruct);
-    if ($type == 'pkis') {
+    if ($type == 'kpis') {
         $hiddencolumns = ['id', 'msocial'];
         $anonymouscolumns = ['userid', 'firstname', 'lastname'];
-        $data = msocial_plugin::get_pkis($msocial, $students, null);
+        $data = msocial_plugin::get_kpis($msocial, $students, null);
     } else if ($type == 'interactions') {
         $hiddencolumns = ['id', 'msocial', 'status'];
         $anonymouscolumns = ['fromid', 'toid'];
@@ -94,7 +93,7 @@ if (!empty($format) && !empty($type) ) {
         $columnnames = array_values($columnnames);
 
         // Add usernames.
-        if ($type == 'pkis') {
+        if ($type == 'kpis') {
             foreach ($data as $item) {
                 $item->firstname = $userrecords[$item->userid]->firstname;
                 $item->lastname = $userrecords[$item->userid]->lastname;
@@ -151,7 +150,7 @@ if (!empty($format) && !empty($type) ) {
                         'context' => $context,
                         'objectid' => $msocial->id
         );
-        $event = \mod_msocial\event\pki_exported::create($eventparams);
+        $event = \mod_msocial\event\kpi_exported::create($eventparams);
         $event->add_record_snapshot('course_modules', $cm);
         $event->add_record_snapshot('course', $course);
         $event->add_record_snapshot('msocial', $msocial);
@@ -171,33 +170,33 @@ echo $OUTPUT->heading('Interactions');
 $options["id"] = "$cm->id";
 $options["format"] = "ods";
 $options["type"] = "interactions";
-$button = $OUTPUT->single_button(new moodle_url("exportpkis.php", $options), get_string("downloadods"));
+$button = $OUTPUT->single_button(new moodle_url("exportkpis.php", $options), get_string("downloadods"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 
 $options["format"] = "xls";
-$button = $OUTPUT->single_button(new moodle_url("exportpkis.php", $options), get_string("downloadexcel"));
+$button = $OUTPUT->single_button(new moodle_url("exportkpis.php", $options), get_string("downloadexcel"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 
 $options["format"] = "csv";
-$button = $OUTPUT->single_button(new moodle_url("exportpkis.php", $options), get_string("downloadtext"));
+$button = $OUTPUT->single_button(new moodle_url("exportkpis.php", $options), get_string("downloadtext"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 
 $downloadlist = html_writer::tag('ul', implode('', $downloadoptions));
 echo html_writer::tag('div', $downloadlist, array('class' => 'downloadreport'));
 
-echo $OUTPUT->heading('PKIs');
+echo $OUTPUT->heading('KPIs');
 $downloadoptions = array();
 $options["format"] = "ods";
-$options["type"] = "pkis";
-$button = $OUTPUT->single_button(new moodle_url("exportpkis.php", $options), get_string("downloadods"));
+$options["type"] = "kpis";
+$button = $OUTPUT->single_button(new moodle_url("exportkpis.php", $options), get_string("downloadods"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 
 $options["format"] = "xls";
-$button = $OUTPUT->single_button(new moodle_url("exportpkis.php", $options), get_string("downloadexcel"));
+$button = $OUTPUT->single_button(new moodle_url("exportkpis.php", $options), get_string("downloadexcel"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 
 $options["format"] = "csv";
-$button = $OUTPUT->single_button(new moodle_url("exportpkis.php", $options), get_string("downloadtext"));
+$button = $OUTPUT->single_button(new moodle_url("exportkpis.php", $options), get_string("downloadtext"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 
 $downloadlist = html_writer::tag('ul', implode('', $downloadoptions));

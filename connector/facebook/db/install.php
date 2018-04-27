@@ -42,6 +42,6 @@ function xmldb_msocialconnector_facebook_install() {
     global $CFG, $DB;
     require_once($CFG->dirroot . '/mod/msocial/connector/facebook/facebookplugin.php');
     $plugin = new mod_msocial\connector\msocial_connector_facebook(null);
-    $plugin->create_pki_fields();
+    $plugin->create_kpi_fields();
     return true;
 }

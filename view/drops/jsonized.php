@@ -52,7 +52,7 @@ $firstitemdate = null;
 
 $filter = new filter_interactions($_GET, $msocial);
 $usersstruct = msocial_get_viewable_users($cm, $msocial);
-list($students, $nonstudents, $activeusers, $userrecords) = array_values($usersstruct);
+$userrecords = $usersstruct->userrecords;
 $filter->set_users($usersstruct);
 // Process interactions.
 $interactions = social_interaction::load_interactions_filter($filter);

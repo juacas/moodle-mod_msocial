@@ -40,6 +40,6 @@ function xmldb_msocialconnector_questournament_install() {
     global $CFG;
     require_once($CFG->dirroot . '/mod/msocial/connector/questournament/questournamentplugin.php');
     $plugin = new mod_msocial\connector\msocial_connector_questournament(null);
-    $plugin->create_pki_fields();
+    $plugin->create_kpi_fields();
     return true;
 }

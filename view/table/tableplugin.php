@@ -26,7 +26,7 @@ namespace mod_msocial\view;
 
 use mod_msocial\plugininfo\msocialconnector;
 use msocial\msocial_plugin;
-use mod_msocial\pki_info;
+use mod_msocial\kpi_info;
 use mod_msocial\plugininfo\msocialbase;
 
 defined('MOODLE_INTERNAL') || die();
@@ -141,8 +141,9 @@ class msocial_view_table extends msocial_view_plugin {
         // Table view.
         $viewothers = msocial_can_view_others($this->cm, $this->msocial);
         if ($viewothers) {
-            list($students, $nonstudents, $activeusers, $userrecords) = array_values(msocial_get_users_by_type($contextcourse));
-            $students = array_merge($students, $nonstudents);
+            $usersstruct = msocial_get_users_by_type($contextcourse);
+            $userrecords = $usersstruct->userrecords;
+            $students = array_merge($usersstruct->studentids, $usersstruct->nonstudentids);
         } else {
             $students = array($USER->id);
             $userrecords[$USER->id] = $USER;
@@ -151,53 +152,53 @@ class msocial_view_table extends msocial_view_plugin {
         $enabledsocialplugins = msocialconnector::get_enabled_connector_plugins($this->msocial);
         $enabledplugins = msocialbase::get_enabled_plugins_all_types($this->msocial);
 
-        $pkis = msocial_plugin::get_pkis($this->msocial, $students, null);
-        $pkiinfosall = [];
-        $pkiindividual = [];
+        $kpis = msocial_plugin::get_kpis($this->msocial, $students, null);
+        $kpiinfosall = [];
+        $kpiindividual = [];
         foreach ($enabledplugins as $type => $plugin) {
-            // Get PKIs.
+            // Get KPIs.
             if ($plugin->is_enabled()) {
-                $pkilist = $plugin->get_pki_list();
-                if (count($pkilist) > 0) {
-                    $pkiinfos[$type] = $pkilist;
-                    $pkiindividual[$type] = array_filter($pkiinfos[$type],
-                            function ($pki) {
-                                return $pki->individual !== pki_info::PKI_AGREGATED;
+                $kpilist = $plugin->get_kpi_list();
+                if (count($kpilist) > 0) {
+                    $kpiinfos[$type] = $kpilist;
+                    $kpiindividual[$type] = array_filter($kpiinfos[$type],
+                            function ($kpi) {
+                                return $kpi->individual !== kpi_info::KPI_AGREGATED;
                             });
-                    $pkiinfosall = array_merge($pkiinfosall, $pkiindividual[$type]);
+                    $kpiinfosall = array_merge($kpiinfosall, $kpiindividual[$type]);
                 }
             }
         }
         // Define column groups.
         $columnstart = 2;
-        $pkicolumns = range($columnstart, $columnstart + count($pkiinfosall) - 1);
-        foreach ($pkiindividual as $type => $pkiinfs) {
-            $columnend = $columnstart + count($pkiinfs) - 1;
+        $kpicolumns = range($columnstart, $columnstart + count($kpiinfosall) - 1);
+        foreach ($kpiindividual as $type => $kpiinfs) {
+            $columnend = $columnstart + count($kpiinfs) - 1;
             $columns = range($columnstart, $columnend);
-            $restcolumns = array_values(array_diff($pkicolumns, $columns));
+            $restcolumns = array_values(array_diff($kpicolumns, $columns));
             $showcolumns = (array) array_merge([0, 1], $columns);
             $columngroups[] = (object) ["extend" => "colvisGroup", "text" => $type, "show" => $showcolumns,
                             "hide" => $restcolumns];
             $columnstart = $columnend + 1;
         }
         $columngroups[] = (object) ["extend" => "colvisGroup", "text" => "All", "show" => ":hidden"];
-        $reqs->js_call_amd('msocialview/table', 'initview', ['#pkitable', $columngroups, count($pkicolumns)]);
-        echo $renderer->heading('Table of PKIs');
+        $reqs->js_call_amd('msocialview/table', 'initview', ['#kpitable', $columngroups, count($kpicolumns)]);
+        echo $renderer->heading('Table of KPIs');
         $table = new \html_table();
-        $table->id = 'pkitable';
+        $table->id = 'kpitable';
         // Add caption to Headers.
-        $headerspki = [];
-        foreach ($pkiinfosall as $pkiinfo) {
-            $cell = new \html_table_cell($pkiinfo->name);
-            $cell->attributes['title'] = $pkiinfo->description;
-            $headerspki[] = $cell;
+        $headerskpi = [];
+        foreach ($kpiinfosall as $kpiinfo) {
+            $cell = new \html_table_cell($kpiinfo->name);
+            $cell->attributes['title'] = $kpiinfo->description;
+            $headerskpi[] = $cell;
         }
-        $table->head = array_merge(array('Student', 'Identity'), $headerspki);
-        foreach ($pkis as $userid => $pki) {
+        $table->head = array_merge(array('Student', 'Identity'), $headerskpi);
+        foreach ($kpis as $userid => $kpi) {
             if (!isset($userrecords[$userid]) ||
                     ($showinactive == false
                         && $userid != $USER->id
-                        && $pki->seems_inactive() ) ) {
+                        && $kpi->seems_inactive() ) ) {
                 continue;
             }
 
@@ -231,16 +232,16 @@ class msocial_view_table extends msocial_view_plugin {
             $socialids = $usersociallink;
             $row->cells[] = new \html_table_cell($usercard);
             $row->cells[] = new \html_table_cell($socialids);
-            // Get the PKIs.
-            foreach ($pkiindividual as $type => $pkinfs) {
-                foreach ($pkinfs as $pkiinfo) {
-                    $pkivalue = isset($pki->{$pkiinfo->name}) ? (float) sprintf("%.5f", $pki->{$pkiinfo->name}, 6) : '';
-                    $row->cells[] = new \html_table_cell($pkivalue);
+            // Get the KPIs.
+            foreach ($kpiindividual as $type => $kpinfs) {
+                foreach ($kpinfs as $kpiinfo) {
+                    $kpivalue = isset($kpi->{$kpiinfo->name}) ? (float) sprintf("%.5f", $kpi->{$kpiinfo->name}, 6) : '';
+                    $row->cells[] = new \html_table_cell($kpivalue);
                 }
             }
             $table->data[] = $row;
         }
-        echo '<div id="tablepkis" class="container">';
+        echo '<div id="tablekpis" class="container">';
         echo \html_writer::table($table);
         echo '</div>';
     }

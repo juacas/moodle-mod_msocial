@@ -133,7 +133,7 @@ class social_interaction {
 
     /** Construct an instance from a database record
      *
-     * @param unknown $record */
+     * @param \stdClass $record */
     static public function build($record) {
         $inter = new social_interaction();
         foreach ($record as $key => $value) {

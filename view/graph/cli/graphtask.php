@@ -66,6 +66,7 @@ $msocial = $DB->get_record('msocial', ['id' => $msocialid]);
 // $plugin = msocialbase::instance($msocial, 'view', msocial_view_graph::PLUGINNAME);
 $task = new graph_task();
 $contextcourse = \context_course::instance($msocial->course);
-list($students, $nonstudents, $active, $users) = array_values(msocial_get_users_by_type($contextcourse));
+$usersstruct = msocial_get_users_by_type($contextcourse);
+$users = $usersstruct->userrecords;
 $task->set_custom_data((object)['msocial' => $msocial, 'users' => $users ]);
 $task->execute();

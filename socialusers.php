@@ -103,7 +103,9 @@ if ($mappingrequested) {
 }
 $table = new html_table();
 if (msocial_can_view_others($cm, $msocial)) {
-    list($studentids, $nonstudentids, $inactiveids, $users) = array_values(msocial_get_users_by_type($contextmodule));
+    $usersstruct = msocial_get_users_by_type($contextmodule);
+    $studentids = $usersstruct->studentsids;
+    $users = $usersstruct->userrecords;
 } else {
     $studentids = [$USER->id];
     $users = [$USER];

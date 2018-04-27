@@ -24,7 +24,7 @@ $string['harvest'] = 'Analiza la actividad en los foros del curso';
 $string['onlyasetofactivities'] = 'Solo se busca en algunos foros';
 $string['selectactivity'] = 'Selecciona los foros en los que buscar';
 $string['select'] = 'Selecciona foros';
-$string['pki_description_mfposts'] = 'Mensajes publicados';
-$string['pki_description_mfreplies'] = 'Respuestas recibidas';
-$string['pki_description_mfgrades'] = 'Calificaciones recibidas (Not implemented yet)';
+$string['kpi_description_mfposts'] = 'Mensajes publicados';
+$string['kpi_description_mfreplies'] = 'Respuestas recibidas';
+$string['kpi_description_mfgrades'] = 'Calificaciones recibidas (Not implemented yet)';
 

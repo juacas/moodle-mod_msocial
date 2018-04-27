@@ -8595,7 +8595,7 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
     Snap.flat.emerland = "#2ecc71";
     Snap.flat.nephritis = "#27ae60";
     Snap.flat.carrot = "#e67e22";
-    Snap.flat.pumpkin = "#d35400";
+    Snap.flat.pumkpin = "#d35400";
     Snap.flat.peterriver = "#3498db";
     Snap.flat.belizehole = "#2980b9";
     Snap.flat.alizarin = "#e74c3c";

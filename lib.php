@@ -169,7 +169,7 @@ function msocial_delete_instance($id) {
             $result = $result && $plugin->delete_instance();
         }
     }
-    if (!$DB->delete_records('msocial_pkis', array('id' => $id))) {
+    if (!$DB->delete_records('msocial_kpis', array('id' => $id))) {
         $result = false;
     }
     msocial_grade_item_update($msocial);
@@ -260,8 +260,8 @@ function msocial_extend_settings_navigation(settings_navigation $settings, navig
         $linkname = get_string('view_social_users', 'msocial');
         $node = $navref->add($linkname, $link, navigation_node::TYPE_CUSTOM);
     }
-    if (has_capability('mod/msocial:exportpkis', $cm->context)) {
-        $link = new moodle_url('/mod/msocial/exportpkis.php', array('id' => $cm->id));
+    if (has_capability('mod/msocial:exportkpis', $cm->context)) {
+        $link = new moodle_url('/mod/msocial/exportkpis.php', array('id' => $cm->id));
         $linkname = get_string('msocial:exportrawdata', 'msocial');
         $node = $navref->add($linkname, $link, navigation_node::TYPE_CUSTOM);
     }

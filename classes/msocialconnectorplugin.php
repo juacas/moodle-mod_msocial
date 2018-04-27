@@ -31,10 +31,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 namespace mod_msocial\connector;
 
-use mod_msocial\connector\social_interaction;
-use msocial\msocial_plugin;
-use mod_msocial\SocialUser;
 use mod_msocial\social_user;
+use msocial\msocial_plugin;
+use mod_msocial\users_struct;
 
 defined('MOODLE_INTERNAL') || die();
 require_once('msocialplugin.php');
@@ -46,7 +45,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
 
     /** Constructor for the abstract plugin type class
      *
-     * @param msocial $msocial
+     * @param \stdClass $msocial
      * @param string $type */
     public final function __construct($msocial) {
         parent::__construct($msocial, 'msocialconnector');
@@ -67,7 +66,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     public abstract function unset_connection_token();
 
     /**
-     * @return moodle_url url of the icon for this service */
+     * @return \moodle_url url of the icon for this service */
     public abstract function get_icon();
 
     /** Place social-network user information or a link to connect.
@@ -172,8 +171,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      *
      * @param integer $fromdate null|starting time
      * @param integer $todate null|end time
-     * @param array $users filter of users $users struct obtained from msocial_get_users_by_type
-     * @return array[]mod_msocial\connector\social_interaction of interactions. @see
+     * @param users_struct $users filter of users $users struct obtained from msocial_get_users_by_type
+     * @return \mod_msocial\connector\social_interaction[] of interactions. @see
      *         mod_msocial\connector\social_interaction */
     public function get_interactions($fromdate = null, $todate = null, $users = null) {
         $filter = new \filter_interactions([\filter_interactions::PARAM_SOURCES => $this->get_subtype(),
@@ -195,7 +194,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     }
     /**
      * Common tasks after harvesting.
-     * Generate PKIs, store PKIs, mark harvest time, report harvest messages.
+     * Generate Key Performance Indicators (KPIs), store KPIs, mark harvest time, report harvest messages.
      * @param string[] $result
      * @return string[] $result
      */
@@ -207,9 +206,10 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         // worth to be registered or only student's.
         $this->store_interactions($processedinteractions);
         $contextcourse = \context_course::instance($this->msocial->course);
-        list($students, $nonstudents, $active, $users) = array_values(msocial_get_users_by_type($contextcourse));
-        $pkis = $this->calculate_pkis($users);
-        $this->store_pkis($pkis, true);
+        $usersstruct = msocial_get_users_by_type($contextcourse);
+        $users = $usersstruct->userrecords;
+        $kpis = $this->calculate_kpis($users);
+        $this->store_kpis($kpis, true);
         $this->set_config(self::LAST_HARVEST_TIME, time());
 
         $studentinteractions = array_filter($processedinteractions,
@@ -257,8 +257,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $this->refresh_interaction_users($record);
         // Reset cache...
         $this->usertosocialmapping = null;
-        $pkis = $this->calculate_pkis([$user->id => $user]);
-        $this->store_pkis($pkis);
+        $kpis = $this->calculate_kpis([$user->id => $user]);
+        $this->store_kpis($kpis);
     }
 
     public function unset_social_userid($user, $socialid) {
@@ -273,8 +273,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $this->refresh_interaction_users($record);
         // Reset cache...
         $this->usertosocialmapping = null;
-        $pkis = $this->calculate_pkis([$user->id => $user]);
-        $this->store_pkis($pkis);
+        $kpis = $this->calculate_kpis([$user->id => $user]);
+        $this->store_kpis($kpis);
     }
 
     /** Try to fill interactions with null fromid or toid.

@@ -34,12 +34,12 @@ namespace msocial;
 defined('MOODLE_INTERNAL') || die();
 require_once('plugininfo/msocialbase.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/socialuser.php');
-require_once($CFG->dirroot . '/mod/msocial/classes/pki.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/kpi.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/socialinteraction.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/filterinteractions.php');
 
-use mod_msocial\pki;
-use mod_msocial\pki_info;
+use mod_msocial\kpi;
+use mod_msocial\kpi_info;
 use mod_msocial\plugininfo\msocialbase;
 
 defined('MOODLE_INTERNAL') || die();
@@ -204,19 +204,19 @@ abstract class msocial_plugin {
         return $this->msocial->id;
     }
 
-    /** Add pki fields to the database in table msocial_pkis. */
-    public function create_pki_fields() {
+    /** Add kpi fields to the database in table msocial_kpis. */
+    public function create_kpi_fields() {
         global $DB;
         /* @var $dbman database_manager */
         $dbman = $DB->get_manager();
-        $table = new \xmldb_table('msocial_pkis');
-        $pkilist = $this->get_pki_list();
+        $table = new \xmldb_table('msocial_kpis');
+        $kpilist = $this->get_kpi_list();
 //         $transaction = $DB->start_delegated_transaction();
-        foreach ($pkilist as $pkiname => $pkiinfo) {
-            $pkifield = new \xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
-            if (!$dbman->field_exists($table, $pkifield)) {
-                $dbman->add_field($table, $pkifield);
-                mtrace("PKI added to database: $pkiname.");
+        foreach ($kpilist as $kpiname => $kpiinfo) {
+            $kpifield = new \xmldb_field($kpiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
+            if (!$dbman->field_exists($table, $kpifield)) {
+                $dbman->add_field($table, $kpifield);
+                mtrace("Key Performance Indicators (KPIs) added to database: $kpiname.");
             }
         }
 //         $DB->commit_delegated_transaction($transaction);
@@ -224,51 +224,51 @@ abstract class msocial_plugin {
 
     /**
      * @global moodle_database $DB */
-    public function drop_pki_fields() {
+    public function drop_kpi_fields() {
         global $DB;
         /* @var  database_manager $dbman */
         $dbman = $DB->get_manager();
-        $table = new \xmldb_table('msocial_pkis');
-        $pkilist = $this->get_pki_list();
+        $table = new \xmldb_table('msocial_kpis');
+        $kpilist = $this->get_kpi_list();
         $transaction = $DB->start_delegated_transaction();
-        foreach ($pkilist as $pkiname => $pkiinfo) {
-            $pkifield = new \xmldb_field($pkiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
-            if ($dbman->field_exists($table, $pkifield)) {
-                $dbman->drop_field($table, $pkifield);
-                mtrace("PKI dropped from database: $pkiname.");
+        foreach ($kpilist as $kpiname => $kpiinfo) {
+            $kpifield = new \xmldb_field($kpiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
+            if ($dbman->field_exists($table, $kpifield)) {
+                $dbman->drop_field($table, $kpifield);
+                mtrace("Key Performance Indicators (KPIs) dropped from database: $kpiname.");
             }
         }
         $DB->commit_delegated_transaction($transaction);
     }
 
-    /** Aggregate fields by pki_info metadata from interaction database.
+    /** Aggregate fields by kpi_info metadata from interaction database.
      * Calculates max_field.
      * @param unknown $users
      */
-    public function calculate_pkis($users, $pkis = []) {
+    public function calculate_kpis($users, $kpis = []) {
         global $DB;
-        $pkiinfos = $this->get_pki_list();
+        $kpiinfos = $this->get_kpi_list();
         $subtype = $this->get_subtype();
 
         // Calculate totals.
         $stats = [];
-        /** @var pki_info $pkiinfo description of pki.*/
-        foreach ($pkiinfos as $pkiinfo) {
-            if ($pkiinfo->individual == pki_info::PKI_INDIVIDUAL && $pkiinfo->generated == pki_info::PKI_CALCULATED) {
+        /** @var kpi_info $kpiinfo description of kpi.*/
+        foreach ($kpiinfos as $kpiinfo) {
+            if ($kpiinfo->individual == kpi_info::KPI_INDIVIDUAL && $kpiinfo->generated == kpi_info::KPI_CALCULATED) {
                 // Calculate posts.
                 $nativetypequery = '';
-                if ($pkiinfo->interaction_nativetype_query !== null && $pkiinfo->interaction_nativetype_query !== '*') {
-                    $nativetypequery = "and nativetype = '$pkiinfo->interaction_nativetype_query' ";
+                if ($kpiinfo->interaction_nativetype_query !== null && $kpiinfo->interaction_nativetype_query !== '*') {
+                    $nativetypequery = "and nativetype = '$kpiinfo->interaction_nativetype_query' ";
                 }
                 // TODO: Check query:
                 // Did you remember to make the first column something unique in your call to
                 // get_records? Duplicate value '29' found in column 'userid'.
 
-                $interactionsource = $pkiinfo->interaction_source;
-                if (is_array($pkiinfo->interaction_type )) {
-                    $typeparams = $pkiinfo->interaction_type;
+                $interactionsource = $kpiinfo->interaction_source;
+                if (is_array($kpiinfo->interaction_type )) {
+                    $typeparams = $kpiinfo->interaction_type;
                 } else {
-                    $typeparams = [$pkiinfo->interaction_type];
+                    $typeparams = [$kpiinfo->interaction_type];
                 }
                 list($typequery, $typeparams) = $DB->get_in_or_equal($typeparams);
 
@@ -289,46 +289,46 @@ abstract class msocial_plugin {
 
                 $aggregatedrecords = $DB->get_records_sql($sql, $sqlparams);
 
-                // Process users' pkis.
+                // Process users' kpis.
                 foreach ($aggregatedrecords as $aggr) {
-                    if (!isset($pkis[$aggr->userid])) {
-                        $pkis[$aggr->userid] = new pki($aggr->userid, $this->msocial->id, $pkiinfos);
+                    if (!isset($kpis[$aggr->userid])) {
+                        $kpis[$aggr->userid] = new kpi($aggr->userid, $this->msocial->id, $kpiinfos);
                     }
-                    $pki = $pkis[$aggr->userid];
-                    $pki->{$pkiinfo->name} = $aggr->total;
-                    $stats['max_' . $pkiinfo->name] = max([ 0,
+                    $kpi = $kpis[$aggr->userid];
+                    $kpi->{$kpiinfo->name} = $aggr->total;
+                    $stats['max_' . $kpiinfo->name] = max([ 0,
                                                             $aggr->total,
-                                    isset( $stats['max_' . $pkiinfo->name]) ? $stats['max_' . $pkiinfo->name] : 0]);
+                                    isset( $stats['max_' . $kpiinfo->name]) ? $stats['max_' . $kpiinfo->name] : 0]);
                 }
             }
         }
-        foreach ($pkiinfos as $pkiinfo) {
-            if ($pkiinfo->individual == pki_info::PKI_AGREGATED && isset($stats[$pkiinfo->name])) {
-                foreach ($pkis as $userid => $pki) {
-                    $pki = $pkis[$userid];
-                    $pki->{$pkiinfo->name} = $stats[$pkiinfo->name];
+        foreach ($kpiinfos as $kpiinfo) {
+            if ($kpiinfo->individual == kpi_info::KPI_AGREGATED && isset($stats[$kpiinfo->name])) {
+                foreach ($kpis as $userid => $kpi) {
+                    $kpi = $kpis[$userid];
+                    $kpi->{$kpiinfo->name} = $stats[$kpiinfo->name];
                 }
             }
         }
-        return $pkis;
+        return $kpis;
     }
     /**
-     * Calculates aggregated pkis from existent pkis.
-     * @param array $pkis
+     * Calculates aggregated kpis from existent kpis.
+     * @param array $kpis
      */
-    protected function calculate_aggregated_pkis(array $pkis) {
-        $pkiinfos = $this->get_pki_list();
+    protected function calculate_aggregated_kpis(array $kpis) {
+        $kpiinfos = $this->get_kpi_list();
 
-        foreach ($pkiinfos as $pkiinfo) {
-            if ($pkiinfo->individual == pki_info::PKI_AGREGATED) {
+        foreach ($kpiinfos as $kpiinfo) {
+            if ($kpiinfo->individual == kpi_info::KPI_AGREGATED) {
                 // Calculate aggregation.
-                $parts = explode('_', $pkiinfo->name);
+                $parts = explode('_', $kpiinfo->name);
                 $operation = $parts[0];
-                $pkiname = $parts[1];
+                $kpiname = $parts[1];
                 $values = [];
                 $aggregated = 0;
-                foreach ($pkis as $pki) {
-                    $values[]  = $pki->{$pkiname};
+                foreach ($kpis as $kpi) {
+                    $values[]  = $kpi->{$kpiname};
                 }
                 if ($operation == 'max') {
                     $aggregated = max($values);
@@ -336,18 +336,18 @@ abstract class msocial_plugin {
                     print_error('unsuported');
                 }
                 // Copy to all users.
-                foreach ($pkis as $pki) {
-                    $pki->{$pkiinfo->name}  = $aggregated;
+                foreach ($kpis as $kpi) {
+                    $kpi->{$kpiinfo->name}  = $aggregated;
                 }
             }
         }
-        return $pkis;
+        return $kpis;
     }
-    /** Reports the list of PKI offered by this plugin.
+    /** Reports the list of Key Performance Indicators (KPIs) offered by this plugin.
      * This method does not include any values, just metadata.
      *
-     * @return array[pki_info] pki list of PKI names indexed by name */
-    public abstract function get_pki_list();
+     * @return kpi_info[] kpi list of KPI names indexed by name */
+    public abstract function get_kpi_list();
     /**
      * Reports the date/time this plugin was evaluated: harvest or recalculted.
      * @return \DateTime
@@ -373,31 +373,31 @@ abstract class msocial_plugin {
         }
     }
 
-    /** Add to the pkis the fields in the arguments or insert new records.
-     * TODO: create and manage historical pkis
+    /** Add to the kpis the fields in the arguments or insert new records.
+     * TODO: create and manage historical kpis
      * Timestamp updated
-     * @param array(pki) $pkis */
-    public function store_pkis($pkis, $newversion = false) {
+     * @param kpi[] $kpis */
+    public function store_kpis($kpis, $newversion = false) {
         global $DB;
         $insert = false;
         $users = array();
-        /** @var pki $pki */
-        foreach ($pkis as $pki) {
-            $users[$pki->userid] = $pki;
+        /** @var kpi $kpi */
+        foreach ($kpis as $kpi) {
+            $users[$kpi->userid] = $kpi;
         }
-        $records = $DB->get_records_select('msocial_pkis', "historical=0  and msocial=?", [$this->msocial->id]);
+        $records = $DB->get_records_select('msocial_kpis', "historical=0  and msocial=?", [$this->msocial->id]);
         $recordindex = [];
         foreach ($records as $record) {
             $recordindex[$record->userid] = $record;
             unset($record->id);
         }
-        // Create record templates from pki.
-        $columnsinfo = $DB->get_columns('msocial_pkis');
+        // Create record templates from kpi.
+        $columnsinfo = $DB->get_columns('msocial_kpis');
 
-        foreach ($pkis as $pki) {
+        foreach ($kpis as $kpi) {
 
-            if (isset($recordindex[$pki->userid])) {
-                $record = $recordindex[$pki->userid];
+            if (isset($recordindex[$kpi->userid])) {
+                $record = $recordindex[$kpi->userid];
             } else {
                 $record = new \stdClass();
                 // Create template fields.
@@ -408,7 +408,7 @@ abstract class msocial_plugin {
                 }
             }
             // Copy new values.
-            foreach ($pki as $propname => $value) {
+            foreach ($kpi as $propname => $value) {
                 if (property_exists($record, $propname)) {
                     $record->{$propname} = $value;
                 } else {
@@ -416,51 +416,51 @@ abstract class msocial_plugin {
                             . "Properties in records are:" . array_keys(get_object_vars($record)));
                 }
             }
-            $record->userid = $pki->userid;
+            $record->userid = $kpi->userid;
             $record->msocial = $this->msocial->id;
             $record->historical = 0;
             $record->timestamp = time();
-            $recordindex[$pki->userid] = $record;
+            $recordindex[$kpi->userid] = $record;
         }
         $transaction = $DB->start_delegated_transaction();
-        // Remove old pkis.
-        $DB->delete_records_list('msocial_pkis', 'id', array_keys($records));
+        // Remove old kpis.
+        $DB->delete_records_list('msocial_kpis', 'id', array_keys($records));
         // Insert new records.
-        $DB->insert_records('msocial_pkis', $recordindex);
+        $DB->insert_records('msocial_kpis', $recordindex);
         $DB->commit_delegated_transaction($transaction);
     }
 
-    /** Load all PKIs from the table.
-     * TODO: impleement historical pkis.
-     * TODO: see if a cache of pkis is needed.
+    /** Load all Key Performance Indicators (KPIs) from the table.
+     * TODO: impleement historical kpis.
+     * TODO: see if a cache of kpis is needed.
      * @param \stdClass $msocial instance of a module.
      * @param array(int) $users
      * @param int $timestamp
-     * @return array of pkis indexed by userid. All users are represented. Empty pki will be created
+     * @return array of kpis indexed by userid. All users are represented. Empty kpi will be created
      *         to fill the gaps. */
-    public static function get_pkis($msocial, $users = null, $timestamp = null) {
+    public static function get_kpis($msocial, $users = null, $timestamp = null) {
         global $DB;
         // Initialize response.
-        $pkiindexed = [];
+        $kpiindexed = [];
         if ($users) { // Fill the absent users.
             foreach ($users as $userid) {
-                $pkiindexed[$userid] = new pki($userid, $msocial->id);
+                $kpiindexed[$userid] = new kpi($userid, $msocial->id);
             }
         }
         if ($users == null) { // All records.
-            $pkirecords = $DB->get_records('msocial_pkis', ['msocial' => $msocial->id, 'historical' => 0]);
+            $kpirecords = $DB->get_records('msocial_kpis', ['msocial' => $msocial->id, 'historical' => 0]);
         } else {
             list($insql, $params) = $DB->get_in_or_equal($users);
             $selectquery = 'msocial = ? and historical = 0 and userid ' . $insql;
             $params = array_merge([$msocial->id], $params);
-            $pkirecords = $DB->get_records_select('msocial_pkis', $selectquery, $params);
+            $kpirecords = $DB->get_records_select('msocial_kpis', $selectquery, $params);
         }
         // Store the real Pkis.
-        foreach ($pkirecords as $pkirecord) {
-            $pki = pki::from_record($pkirecord);
-            $pkiindexed[$pki->userid] = $pki;
+        foreach ($kpirecords as $kpirecord) {
+            $kpi = kpi::from_record($kpirecord);
+            $kpiindexed[$kpi->userid] = $kpi;
         }
-        return $pkiindexed;
+        return $kpiindexed;
     }
 
     /** Get the required moodle version for this plugin
@@ -503,7 +503,7 @@ abstract class msocial_plugin {
     }
     /**
      * Disable tracking a day after the end of the activity time window.
-     * @return boolean true if the plugin is making searches in the social network or computing pkis.
+     * @return boolean true if the plugin is making searches in the social network or computing kpis.
      * (@see msocial_plugin->harvest())
      */
     public function is_tracking() {
@@ -537,7 +537,7 @@ abstract class msocial_plugin {
         return true;
     }
     /**
-     * Collect information and calculate fresh PKIs if supported.
+     * Collect information and calculate fresh Key Performance Indicators (KPIs) if supported.
      * @return string[] messages generated
      */
     public abstract function harvest();
@@ -653,9 +653,11 @@ abstract class msocial_plugin {
         foreach ($enabledplugins as $type => $plugin) {
             if ($plugin->can_harvest()) {
                 $result = $plugin->harvest();
-                $plugin->notify(array_map(function ($item) {
-                        return $item->message;
-                }, $result->errors), self::NOTIFY_ERROR);
+                if (isset($result->errors)) {
+                        $plugin->notify(array_map(function ($item) {
+                            return $item->message;
+                    }, $result->errors), self::NOTIFY_ERROR);
+                }
                 $plugin->notify($result->messages, self::NOTIFY_NORMAL);
 
             } else {
@@ -704,14 +706,14 @@ abstract class msocial_plugin {
 
             $icondecoration = \html_writer::img($icon->out(), $this->get_name() . ' icon.', ['height' => 29]) . ' ';
             if ($level === self::NOTIFY_NORMAL) {
-                $tablemsgs = join('</br>', $messages);
+                $tablemsgs = join("\n<br/>", $messages);
                 $table = '<table><tr><td valign="top">'. $icondecoration . '</td><td>' . $tablemsgs. '</td></tr></table>';
                 msocial_notify_info($table);
             } else if ($level === self::NOTIFY_WARNING) {
-                $text = join('<br/>', $messages);
+                $text = join("\n<br/>", $messages);
                 msocial_notify_warning($icondecoration . $text);
             } else if ($level === self::NOTIFY_ERROR) {
-                $text = join('<br/>', $messages);
+                $text = join("\n<br/>", $messages);
                 msocial_notify_error($icondecoration . $text);
             }
         }

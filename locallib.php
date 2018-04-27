@@ -24,10 +24,12 @@
  */
 use mod_msocial\plugininfo\msocialview;
 use msocial\msocial_plugin;
+use mod_msocial\users_struct;
 
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 global $CFG;
 require_once($CFG->libdir . '/gradelib.php');
+require_once('classes/usersstruct.php');
 
 /**
  * Compatibility with Moodle 2.9 notifications.
@@ -68,8 +70,7 @@ function msocial_notify_warning($message) {
 }
 /** Find the list of users and get a list with the ids of students and a list of non-students
  * @param type $contextcourse
- * @return array(array($studentIds), array($non_studentIds), array($activeids),
- *         array($user_records)) */
+ * @return user_struct */
 function msocial_get_users_by_type($contextcourse) {
     // Get users with gradable roles.
     global $CFG;
@@ -99,10 +100,13 @@ function msocial_get_users_by_type($contextcourse) {
             $activeids[] = $record->userid;
         }
     }
-    return array('student_ids' => $students,
-                 'nonstudent_ids' => $nonstudents,
-                 'active_ids' => $activeids,
-                 'user_records' => $userrecords);
+    $userstruct = new users_struct();
+    $userstruct->studentids = $students;
+    $userstruct->nonstudentids = $nonstudents;
+    $userstruct->activeids = $activeids;
+    $userstruct->userrecords = $userrecords;
+
+    return $userstruct;
 }
 
 /**
@@ -143,13 +147,13 @@ function msocial_user_inactive($userid, $stat) {
  * @return \stdClass grade struct with grade->rawgrade = -1 if no calculation is possible */
 function msocial_calculate_grades($msocial) {
     global $CFG;
-    require_once('classes/pki.php');
+    require_once('classes/kpi.php');
     require_once('classes/msocialplugin.php');
     require_once($CFG->libdir . '/mathslib.php');
     $grades = array();
-    $pkis = msocial_plugin::get_pkis($msocial);
-    /** @var \mod_msocial\pki $pki */
-    foreach ($pkis as $userid => $pki) {
+    /** @var \mod_msocial\kpi[] $kpis */
+    $kpis = msocial_plugin::get_kpis($msocial);
+    foreach ($kpis as $userid => $kpi) {
         $grade = new stdClass();
         $grade->userid = $userid;
         $grade->itemname = 'msocial';
@@ -158,7 +162,7 @@ function msocial_calculate_grades($msocial) {
         $formula = calc_formula::unlocalize($formula);
         $calculation = new calc_formula($formula);
         // Extract fields as variables.
-        $vars = $pki->as_array();
+        $vars = $kpi->as_array();
         $vars = array_map(function ($val) {
             return (double)$val;
         }, $vars);
@@ -188,7 +192,8 @@ function msocial_calculate_user_grades($msocial, $userid = 0) {
     $cm = get_fast_modinfo($msocial->course)->instances['msocial'][$msocial->id];
     if ($userid == 0) {
         $context = context_module::instance($cm->id);
-        list($students) = array_values(msocial_get_users_by_type($context));
+        $studentsstruct = msocial_get_users_by_type($context);
+        $students = $studentsstruct->studentids;
     } else if (is_array($userid)) {
         $students = $userid;
     } else {
@@ -248,9 +253,9 @@ function msocial_get_user_fields() {
 }
 /**
  * Resolve user to fullusername according to permissions and settings.
- * @param unknown $user
- * @param unknown $msocial
- * @param string $override
+ * @param string $user
+ * @param stdClass $msocial
+ * @param boolean $override
  * @return string
  */
 function msocial_get_visible_fullname($user, $msocial, $override = false) {
@@ -273,16 +278,21 @@ function msocial_can_view_others_names($msocial) {
     $canview = has_capability('mod/msocial:alwaysviewothersnames', $context) || $msocial->anonymizeviews == false;
     return $canview;
 }
+/**
+ *
+ * @param stdClass $cm
+ * @param stdClass $msocial
+ * @return user_struct
+ */
 function msocial_get_viewable_users($cm, $msocial) {
     global $USER;
     $viewothers = msocial_can_view_others($cm, $msocial);
     $contextcourse = context_course::instance($msocial->course);
     $usersstruct = msocial_get_users_by_type($contextcourse);
-    list($students, $nonstudents, $activeusers, $userrecords) = array_values($usersstruct);
     if ($viewothers) {
-        $usersstruct['student_ids'] = array_merge($students, $nonstudents);
+        $usersstruct->studentids = array_merge($usersstruct->studentids, $usersstruct->nonstudentids);
     } else {
-        $usersstruct['student_ids']= array($USER->id);
+        $usersstruct->studentids = array($USER->id);
     }
     return $usersstruct;
 }

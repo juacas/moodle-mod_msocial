@@ -25,8 +25,8 @@
  */
 namespace mod_msocial\connector;
 
-use mod_msocial\pki;
-use mod_msocial\pki_info;
+use mod_msocial\kpi;
+use mod_msocial\kpi_info;
 use mod_msocial\social_user;
 use msocial\msocial_plugin;
 
@@ -209,34 +209,34 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
     /**
      * @param array(\stdClass) $user records indexed by userid.
-     * @return array[pki] */
-    public function calculate_pkis($users, $pkis = []) {
-        $pkis = parent::calculate_pkis($users, $pkis);
+     * @return array[kpi] */
+    public function calculate_kpis($users, $kpis = []) {
+        $kpis = parent::calculate_kpis($users, $kpis);
         $stats = $this->calculate_stats(array_keys($users));
         $stataggregated = $stats->maximums;
-        // Convert stats to PKI.
+        // Convert stats to KPI.
         foreach ($stats->users as $userid => $stat) {
-            $pki = isset($pkis[$userid]) ? $pkis[$userid] : null;
-            $pkis[$userid] = $this->pki_from_stat($userid, $stat, $stataggregated, $this, $pki);
+            $kpi = isset($kpis[$userid]) ? $kpis[$userid] : null;
+            $kpis[$userid] = $this->kpi_from_stat($userid, $stat, $stataggregated, $this, $kpi);
         }
-        return $pkis;
+        return $kpis;
     }
     /**
      * @param unknown $user
      * @param unknown $stat
      * @param msocial_plugin $msocialplugin
-     * @param pki $pki existent pki. For chaining calls. Assumes user and msocialid are coherent.
-     * @return \mod_msocial\connector\pki_info[] */
-    private function pki_from_stat($user, $stat, $stataggregated, $msocialplugin, $pki = null) {
-        $pki = $pki == null ? new pki($user, $msocialplugin->msocial->id) : $pki;
+     * @param kpi $kpi existent kpi. For chaining calls. Assumes user and msocialid are coherent.
+     * @return \mod_msocial\connector\kpi_info[] */
+    private function kpi_from_stat($user, $stat, $stataggregated, $msocialplugin, $kpi = null) {
+        $kpi = $kpi == null ? new kpi($user, $msocialplugin->msocial->id) : $kpi;
         foreach ($stat as $propname => $value) {
-            $pki->{$propname} = $value;
+            $kpi->{$propname} = $value;
         }
         foreach ($stataggregated as $propname => $value) {
-            $pki->{$propname} = $value;
+            $kpi->{$propname} = $value;
         }
 
-        return $pki;
+        return $kpi;
     }
 
     /** Statistics for grading
@@ -244,7 +244,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      *
      * @param array[]integer $users array with the userids to be calculated, null not filter by
      *        users.
-     * @return array[string]object object->userstats with PKIs for each user object->maximums max
+     * @return array[string]object object->userstats with KPIs for each user object->maximums max
      *         values for normalization. */
     private function calculate_stats($users) {
         global $DB;
@@ -280,22 +280,22 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         return $userstats;
     }
 
-    public function get_pki_list() {
-        $pkiobjs['tweets'] = new pki_info('tweets',  get_string('pki_description_tweets', 'msocialconnector_twitter'),
-                pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, social_interaction::POST, 'tweet',
+    public function get_kpi_list() {
+        $kpiobjs['tweets'] = new kpi_info('tweets',  get_string('kpi_description_tweets', 'msocialconnector_twitter'),
+                kpi_info::KPI_INDIVIDUAL,  kpi_info::KPI_CALCULATED, social_interaction::POST, 'tweet',
                 social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['retweets'] = new pki_info('retweets',  get_string('pki_description_retweets', 'msocialconnector_twitter'),
-                pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, pki_info::PKI_CUSTOM);
-        $pkiobjs['favs'] = new pki_info('favs',  get_string('pki_description_favs', 'msocialconnector_twitter'),
-                pki_info::PKI_INDIVIDUAL,  pki_info::PKI_CALCULATED, pki_info::PKI_CUSTOM);
-        $pkiobjs['twmentions'] = new pki_info('twmentions',  get_string('pki_description_twmentions', 'msocialconnector_twitter'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED,
+        $kpiobjs['retweets'] = new kpi_info('retweets',  get_string('kpi_description_retweets', 'msocialconnector_twitter'),
+                kpi_info::KPI_INDIVIDUAL,  kpi_info::KPI_CALCULATED, kpi_info::KPI_CUSTOM);
+        $kpiobjs['favs'] = new kpi_info('favs',  get_string('kpi_description_favs', 'msocialconnector_twitter'),
+                kpi_info::KPI_INDIVIDUAL,  kpi_info::KPI_CALCULATED, kpi_info::KPI_CUSTOM);
+        $kpiobjs['twmentions'] = new kpi_info('twmentions',  get_string('kpi_description_twmentions', 'msocialconnector_twitter'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED,
                 social_interaction::MENTION, '*', social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['max_tweets'] = new pki_info('max_tweets', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_retweets'] = new pki_info('max_retweets', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_favs'] = new pki_info('max_favs', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_twmentions'] = new pki_info('max_twmentions', null, pki_info::PKI_AGREGATED);
-        return $pkiobjs;
+        $kpiobjs['max_tweets'] = new kpi_info('max_tweets', null, kpi_info::KPI_AGREGATED);
+        $kpiobjs['max_retweets'] = new kpi_info('max_retweets', null, kpi_info::KPI_AGREGATED);
+        $kpiobjs['max_favs'] = new kpi_info('max_favs', null, kpi_info::KPI_AGREGATED);
+        $kpiobjs['max_twmentions'] = new kpi_info('max_twmentions', null, kpi_info::KPI_AGREGATED);
+        return $kpiobjs;
     }
 
     /**
@@ -697,12 +697,12 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     /** Process the statuses looking for students mentions
      * TODO: process entities->user_mentions[]
      *
-     * @param type $statuses
-     * @return array[] student statuses meeting criteria. */
+     * @param \stdClass[] $statuses
+     * @return \stdClass[] student statuses meeting criteria. */
     protected function process_statuses($statuses) {
         $context = \context_course::instance($this->msocial->course);
-        list($students, $nonstudent, $active, $userrecords) = array_values(msocial_get_users_by_type($context));
-
+        $usersstruct = msocial_get_users_by_type($context);
+        $userrecords = $usersstruct->userrecords;
         $twitters = array();
         foreach ($userrecords as $userid => $user) { // Include all users (including teachers).
             $socialuserid = $this->get_social_userid($user); // Get twitter usernames from users'

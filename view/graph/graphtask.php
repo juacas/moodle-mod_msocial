@@ -40,8 +40,8 @@ class graph_task extends \core\task\adhoc_task {
             $usersreindex[(int)$key] = $val;
         }
         $plugin = new msocial_view_graph($msocial);
-        $pkis = $plugin->calculate_pkis($usersreindex);
-        $plugin->store_pkis($pkis, true);
+        $kpis = $plugin->calculate_kpis($usersreindex);
+        $plugin->store_kpis($kpis, true);
         $plugin->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
     }
     public function set_custom_data($customdata) {

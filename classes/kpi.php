@@ -23,7 +23,7 @@
  * *******************************************************************************
  */
 
-/** library class for msocial social pki structure
+/** library class for msocial social kpi structure
  *
  * @package msocialconnector
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
@@ -32,9 +32,9 @@ namespace mod_msocial;
 
 defined('MOODLE_INTERNAL') || die();
 
-class pki {
+class kpi {
 
-    /** Moodle userid this pki refers to.
+    /** Moodle userid this kpi refers to.
      * @var int */
     public $userid;
     public $msocial;
@@ -42,18 +42,18 @@ class pki {
     public $timestamp;
     protected static $basefields = ['id', 'name', 'timestamp', 'historical', 'msocial', 'userid'];
 
-    public function __construct($userid, $msocialid, array $pkiinfos = []) {
+    public function __construct($userid, $msocialid, array $kpiinfos = []) {
         $this->userid = $userid;
         $this->msocial = $msocialid;
         $this->timestamp = time();
         // Reset to 0 to avoid nulls.
-        foreach ($pkiinfos as $pkiinforeset) {
-            $this->{$pkiinforeset->name} = 0;
+        foreach ($kpiinfos as $kpiinforeset) {
+            $this->{$kpiinforeset->name} = 0;
         }
     }
 
     /**
-     * @return true if the pki fields are 0. fields 'id', 'name', 'msocial', 'timestamp',
+     * @return true if the kpi fields are 0. fields 'id', 'name', 'msocial', 'timestamp',
      *         'historical' and starting with max_ are ignored. */
     public function seems_inactive() {
         foreach ($this as $prop => $value) {
@@ -69,7 +69,7 @@ class pki {
     }
 
     /**
-     * Return only pki-related fields
+     * Return only kpi-related fields
      * @return string[] property-values array */
     public function as_array() {
         $result = [];
@@ -82,42 +82,42 @@ class pki {
     }
 
     /**
-     * Load pki-fields from the database record.
-     * @param \stdClass $record database record with pki data.
-     * @return \mod_msocial\pki */
+     * Load kpi-fields from the database record.
+     * @param \stdClass $record database record with kpi data.
+     * @return \mod_msocial\kpi */
     public static function from_record($record) {
-        $pki = new pki($record->userid, $record->msocial);
+        $kpi = new kpi($record->userid, $record->msocial);
         foreach ($record as $prop => $value) {
             if (array_search($prop, self::$basefields) === false) {
-                $pki->{$prop} = $value;
+                $kpi->{$prop} = $value;
             }
         }
-        return $pki;
+        return $kpi;
     }
 }
 
-class pki_info {
-    const PKI_INDIVIDUAL = true;
-    const PKI_AGREGATED = false;
-    /** This pki is calculated by dedicated code of a plugin, not from recorded interactions.
+class kpi_info {
+    const KPI_INDIVIDUAL = true;
+    const KPI_AGREGATED = false;
+    /** This kpi is calculated by dedicated code of a plugin, not from recorded interactions.
      * @var string */
-    const PKI_CUSTOM = 'custom_pki';
+    const KPI_CUSTOM = 'custom_kpi';
     /**
-     * This pki is calculated by summarizing interaction table
+     * This kpi is calculated by summarizing interaction table
      * @var string
      */
-    const PKI_CALCULATED = 'stats_pki';
+    const KPI_CALCULATED = 'stats_kpi';
     /** Measures a person indicator or not.
      *
      * @var boolean */
     public $individual = true;
 
-    /** Name of the PKI.
+    /** Name of the Key Performance Indicator (KPI).
      *
      * @var string */
     public $name;
 
-    /** Description of the PKI.
+    /** Description of the Key Performance Indicator (KPI).
      *
      * @var variant */
     public $description;
@@ -143,7 +143,7 @@ class pki_info {
      * @param string $interactiontype
      * @param string $interactionnativetypequery
      * @param string $interactionsource */
-    public function __construct($name, $description = null, $individual = self::PKI_INDIVIDUAL, $generated = self::PKI_CALCULATED,
+    public function __construct($name, $description = null, $individual = self::KPI_INDIVIDUAL, $generated = self::KPI_CALCULATED,
                                 $interactiontype = null, $interactionnativetypequery = '*', $interactionsource = 'fromid') {
         $this->name = $name;
         $this->description = $description;

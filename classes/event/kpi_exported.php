@@ -27,7 +27,7 @@ namespace mod_msocial\event;
 
 defined('MOODLE_INTERNAL') || die();
 
-class pki_exported extends \core\event\course_module_viewed {
+class kpi_exported extends \core\event\course_module_viewed {
 
     /**
      * Init method.
@@ -49,7 +49,7 @@ class pki_exported extends \core\event\course_module_viewed {
         $a = new \stdClass();
         $a->userid = $this->userid;
         $a->contextinstanceid = $this->contextinstanceid;
-        return get_string('event:pki_exported_desc', 'mod_msocial', $a);
+        return get_string('event:kpi_exported_desc', 'mod_msocial', $a);
     }
 
     /**
@@ -58,7 +58,7 @@ class pki_exported extends \core\event\course_module_viewed {
      * @return string
      */
     public static function get_name() {
-        return get_string('event:pki_exported', 'mod_msocial');
+        return get_string('event:kpi_exported', 'mod_msocial');
     }
 
     /**
@@ -67,7 +67,7 @@ class pki_exported extends \core\event\course_module_viewed {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/msocial/exportpkis.php', array('id' => $this->contextinstanceid));
+        return new \moodle_url('/mod/msocial/exportkpis.php', array('id' => $this->contextinstanceid));
     }
 
     /**
@@ -76,7 +76,7 @@ class pki_exported extends \core\event\course_module_viewed {
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'msocial', 'download PKI table', 'exportpkis.php?id=' . $this->contextinstanceid,
+        return array($this->courseid, 'msocial', 'download Key Performance Indicators (KPIs) table', 'exportkpis.php?id=' . $this->contextinstanceid,
             $this->objectid, $this->contextinstanceid);
     }
 

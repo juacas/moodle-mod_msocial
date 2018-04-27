@@ -37,7 +37,7 @@ class restore_msocial_activity_structure_step extends restore_activity_structure
         $paths[] = $msocial;
         if ($userinfo) {
             // Pkis.
-            $paths[]  = new restore_path_element('pki', '/activity/msocial/pkis/pki');
+            $paths[]  = new restore_path_element('kpi', '/activity/msocial/kpis/kpi');
             // Interactions.
             $paths[] = new restore_path_element('interaction', '/activity/msocial/interactions/interaction');
             // Map users.
@@ -51,13 +51,13 @@ class restore_msocial_activity_structure_step extends restore_activity_structure
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
-    protected function process_pki($data) {
+    protected function process_kpi($data) {
         global $DB;
         $data = (object) $data;
 
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->msocial = $this->get_new_parentid('msocial');
-        $newitemid = $DB->insert_record('msocial_pkis', $data);
+        $newitemid = $DB->insert_record('msocial_kpis', $data);
     }
     protected function process_interaction($data) {
         global $DB;

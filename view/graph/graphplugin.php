@@ -26,8 +26,8 @@ namespace mod_msocial\view;
 
 use mod_msocial\connector\social_interaction;
 use msocial\msocial_plugin;
-use mod_msocial\pki_info;
-use mod_msocial\pki;
+use mod_msocial\kpi_info;
+use mod_msocial\kpi;
 use mod_msocial\connector\msocial_connector_plugin;
 use mod_msocial\connector\harvest_intervals;
 use mod_msocial\view\graph\graph_task;
@@ -35,7 +35,7 @@ use mod_msocial\view\graph\graph_task;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/msocial/classes/msocialviewplugin.php');
-require_once($CFG->dirroot . '/mod/msocial/classes/pki.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/kpi.php');
 
 /** library class for view the network activity as a sequence diagram extending view plugin base
  * class
@@ -77,7 +77,7 @@ class msocial_view_graph extends msocial_view_plugin {
      * @return bool */
     public function delete_instance() {
         global $DB;
-        $this->drop_pki_fields();
+        $this->drop_kpi_fields();
         $result = true;
         return $result;
     }
@@ -97,17 +97,17 @@ class msocial_view_graph extends msocial_view_plugin {
     /**
      * {@inheritdoc}
      *
-     * @see \mod_msocial\view\msocial_view_plugin::calculate_pkis() */
-    public function calculate_pkis($users, $pkis = []) {
+     * @see \mod_msocial\view\msocial_view_plugin::calculate_kpis() */
+    public function calculate_kpis($users, $kpis = []) {
         require_once('socialgraph.php');
-        $pkiinfos = $this->get_pki_list();
+        $kpiinfos = $this->get_kpi_list();
         foreach ($users as $user) {
-            if (!isset($pkis[$user->id])) {
-                $pkis[$user->id] = new pki($user->id, $this->msocial->id);
+            if (!isset($kpis[$user->id])) {
+                $kpis[$user->id] = new kpi($user->id, $this->msocial->id);
                 // Reset to 0 to avoid nulls.
-                $pki = $pkis[$user->id];
-                foreach ($pkiinfos as $pkiinfo) {
-                    $pki->{$pkiinfo->name} = 0;
+                $kpi = $kpis[$user->id];
+                foreach ($kpiinfos as $kpiinfo) {
+                    $kpi->{$kpiinfo->name} = 0;
                 }
             }
         }
@@ -129,34 +129,34 @@ class msocial_view_graph extends msocial_view_plugin {
             $social->register_interaction($interaction);
         }
         $results = $social->calculate_centralities($users);
-        list($degreein, $degreeout) = $social->degree_centrality(array_keys($pkis));
+        list($degreein, $degreeout) = $social->degree_centrality(array_keys($kpis));
 
         foreach ($results as $userid => $result) {
-            if (isset($pkis[$userid])) {
-                $pkis[$userid]->closeness = isset($result->cercania) ? $result->cercania : 0;
-                $pkis[$userid]->degreeout = isset($degreeout[$userid]) ? $degreeout[$userid] : 0;
-                $pkis[$userid]->degreein = isset($degreein[$userid]) ? $degreein[$userid] : 0;
-                $pkis[$userid]->betweenness = isset($result->intermediacion) ? $result->intermediacion : 0;
+            if (isset($kpis[$userid])) {
+                $kpis[$userid]->closeness = isset($result->cercania) ? $result->cercania : 0;
+                $kpis[$userid]->degreeout = isset($degreeout[$userid]) ? $degreeout[$userid] : 0;
+                $kpis[$userid]->degreein = isset($degreein[$userid]) ? $degreein[$userid] : 0;
+                $kpis[$userid]->betweenness = isset($result->intermediacion) ? $result->intermediacion : 0;
             }
         }
-        $pkis = $this->calculate_aggregated_pkis($pkis);
-        return $pkis;
+        $kpis = $this->calculate_aggregated_kpis($kpis);
+        return $kpis;
     }
 
-    public function get_pki_list() {
-        $pkiobjs['closeness'] = new pki_info('closeness', get_string('pki_description_closeness', 'msocialview_graph'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['degreein'] = new pki_info('degreein', get_string('pki_description_degreein', 'msocialview_graph'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['degreeout'] = new pki_info('degreeout', get_string('pki_description_degreeout', 'msocialview_graph'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['betweenness'] = new pki_info('betweenness', get_string('pki_description_betweeness', 'msocialview_graph'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CUSTOM);
-        $pkiobjs['max_closeness'] = new pki_info('max_closeness', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_degreein'] = new pki_info('max_degreein', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_degreeout'] = new pki_info('max_degreeout', null, pki_info::PKI_AGREGATED);
-        $pkiobjs['max_betweenness'] = new pki_info('max_betweenness', null, pki_info::PKI_AGREGATED);
-        return $pkiobjs;
+    public function get_kpi_list() {
+        $kpiobjs['closeness'] = new kpi_info('closeness', get_string('kpi_description_closeness', 'msocialview_graph'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CUSTOM);
+        $kpiobjs['degreein'] = new kpi_info('degreein', get_string('kpi_description_degreein', 'msocialview_graph'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CUSTOM);
+        $kpiobjs['degreeout'] = new kpi_info('degreeout', get_string('kpi_description_degreeout', 'msocialview_graph'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CUSTOM);
+        $kpiobjs['betweenness'] = new kpi_info('betweenness', get_string('kpi_description_betweeness', 'msocialview_graph'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CUSTOM);
+        $kpiobjs['max_closeness'] = new kpi_info('max_closeness', null, kpi_info::KPI_AGREGATED);
+        $kpiobjs['max_degreein'] = new kpi_info('max_degreein', null, kpi_info::KPI_AGREGATED);
+        $kpiobjs['max_degreeout'] = new kpi_info('max_degreeout', null, kpi_info::KPI_AGREGATED);
+        $kpiobjs['max_betweenness'] = new kpi_info('max_betweenness', null, kpi_info::KPI_AGREGATED);
+        return $kpiobjs;
     }
     /**
      *
@@ -173,7 +173,8 @@ class msocial_view_graph extends msocial_view_plugin {
         $async = false;
         $result = (object) ['messages' => []];
         $contextcourse = \context_course::instance($this->msocial->course);
-        list($students, $nonstudents, $active, $users) = array_values(msocial_get_users_by_type($contextcourse));
+        $usersstruct = msocial_get_users_by_type($contextcourse);
+        $users = $usersstruct->userrecords;
         $msocial = $this->msocial;
         if ($async) {
             require_once('graphtask.php');
@@ -184,8 +185,8 @@ class msocial_view_graph extends msocial_view_plugin {
                                   " asynchronously processing network topology.";
             return $result;
         } else {
-            $pkis = $this->calculate_pkis($users);
-            $this->store_pkis($pkis, true);
+            $kpis = $this->calculate_kpis($users);
+            $this->store_kpis($kpis, true);
             $this->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
             $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) " .
                                     "processing network topology.";

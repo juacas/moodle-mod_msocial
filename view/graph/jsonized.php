@@ -46,7 +46,7 @@ $contextmodule = context_module::instance($cm->id);
 $canviewothers = has_capability('mod/msocial:viewothers', $contextmodule);
 // Get list of users.
 $usersstruct = msocial_get_viewable_users($cm, $msocial);
-list($students, $nonstudents, $activeusers, $userrecords) = array_values($usersstruct);
+$userrecords = $usersstruct->userrecords;
 $filter = new filter_interactions($_GET, $msocial);
 $filter->set_users($usersstruct);
 // Process interactions.

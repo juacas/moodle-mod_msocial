@@ -43,6 +43,6 @@ function xmldb_msocialconnector_twitter_install() {
     $dbman = $DB->get_manager();
     require_once($CFG->dirroot . '/mod/msocial/connector/twitter/twitterplugin.php');
     $plugininfo = new mod_msocial\connector\msocial_connector_twitter(null);
-    $plugininfo->create_pki_fields();
+    $plugininfo->create_kpi_fields();
     return true;
 }

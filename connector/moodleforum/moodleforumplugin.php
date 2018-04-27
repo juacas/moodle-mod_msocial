@@ -25,7 +25,7 @@
  */
 namespace mod_msocial\connector;
 
-use mod_msocial\pki_info;
+use mod_msocial\kpi_info;
 use moodleforum\GraphNodes\GraphEdge;
 use moodleforum\moodleforum as moodleforum;
 use msocial\msocial_plugin;
@@ -74,20 +74,20 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
         return 'forum';
     }
 
-    public function get_pki_list() {
-        $pkiobjs['mfposts'] = new pki_info('mfposts', get_string('pki_description_mfposts', 'msocialconnector_moodleforum'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::POST, 'POST',
+    public function get_kpi_list() {
+        $kpiobjs['mfposts'] = new kpi_info('mfposts', get_string('kpi_description_mfposts', 'msocialconnector_moodleforum'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::POST, 'POST',
                 social_interaction::DIRECTION_AUTHOR);
-        $pkiobjs['mfreplies'] = new pki_info('mfreplies', get_string('pki_description_mfreplies', 'msocialconnector_moodleforum'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REPLY, '*',
+        $kpiobjs['mfreplies'] = new kpi_info('mfreplies', get_string('kpi_description_mfreplies', 'msocialconnector_moodleforum'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::REPLY, '*',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['mfgrades'] = new pki_info('mfgrades', get_string('pki_description_mfgrades', 'msocialconnector_moodleforum'),
-                pki_info::PKI_INDIVIDUAL, pki_info::PKI_CALCULATED, social_interaction::REACTION, '*',
+        $kpiobjs['mfgrades'] = new kpi_info('mfgrades', get_string('kpi_description_mfgrades', 'msocialconnector_moodleforum'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::REACTION, '*',
                 social_interaction::DIRECTION_RECIPIENT);
-        $pkiobjs['max_mfposts'] = new pki_info('max_mfposts', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
-        $pkiobjs['max_mfreplies'] = new pki_info('max_mfreplies', null, pki_info::PKI_AGREGATED,  pki_info::PKI_CALCULATED);
-        $pkiobjs['max_mfgrades'] = new pki_info('max_mfgrades', null, pki_info::PKI_AGREGATED, pki_info::PKI_CALCULATED);
-        return $pkiobjs;
+        $kpiobjs['max_mfposts'] = new kpi_info('max_mfposts', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
+        $kpiobjs['max_mfreplies'] = new kpi_info('max_mfreplies', null, kpi_info::KPI_AGREGATED,  kpi_info::KPI_CALCULATED);
+        $kpiobjs['max_mfgrades'] = new kpi_info('max_mfgrades', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
+        return $kpiobjs;
     }
 
 
@@ -160,7 +160,7 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
 
         $this->lastinteractions = [];
         $contextcourse = \context_course::instance($this->msocial->course);
-        list($students, $nonstudents, $active, $users) = array_values(msocial_get_users_by_type($contextcourse));
+        $usersstruct = msocial_get_users_by_type($contextcourse);
 
         try {
             // Query moodleforum...
@@ -184,7 +184,7 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
 
             // Iterate the posts.
             foreach ($posts as $post) {
-                $postinteraction = $this->process_post($post, $posts, $users);
+                $postinteraction = $this->process_post($post, $posts, $usersstruct->userrecords);
             }
         } catch (\Exception $e) {
             $msocial = $this->msocial;
