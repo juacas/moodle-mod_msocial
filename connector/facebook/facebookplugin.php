@@ -309,7 +309,10 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::REPLY, '*',
                 social_interaction::DIRECTION_RECIPIENT);
         $kpiobjs['likes'] = new kpi_info('likes', get_string('kpi_description_likes', 'msocialconnector_facebook'),
-                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::REACTION, 'LIKE',
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::REACTION, 'LIKE|LOVE|WOW|HAHA|THANKFUL',
+                social_interaction::DIRECTION_RECIPIENT);
+        $kpiobjs['dislikes'] = new kpi_info('dislikes', get_string('kpi_description_dislikes', 'msocialconnector_facebook'),
+                kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::REACTION, 'SAD|ANGRY',
                 social_interaction::DIRECTION_RECIPIENT);
         $kpiobjs['reactions'] = new kpi_info('reactions', get_string('kpi_description_reactions', 'msocialconnector_facebook'),
                 kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED, social_interaction::REACTION, '*',
@@ -317,6 +320,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $kpiobjs['max_posts'] = new kpi_info('max_posts', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
         $kpiobjs['max_replies'] = new kpi_info('max_replies', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
         $kpiobjs['max_likes'] = new kpi_info('max_likes', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
+        $kpiobjs['max_dislikes'] = new kpi_info('max_dislikes', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
         $kpiobjs['max_reactions'] = new kpi_info('max_reactions', null, kpi_info::KPI_AGREGATED, kpi_info::KPI_CALCULATED);
         return $kpiobjs;
     }

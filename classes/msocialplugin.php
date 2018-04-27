@@ -216,7 +216,7 @@ abstract class msocial_plugin {
             $kpifield = new \xmldb_field($kpiname, XMLDB_TYPE_FLOAT, null, null, null, null, null);
             if (!$dbman->field_exists($table, $kpifield)) {
                 $dbman->add_field($table, $kpifield);
-                mtrace("Key Performance Indicators (KPIs) added to database: $kpiname.");
+                mtrace("<li>Key Performance Indicators (KPIs) added to database: $kpiname.");
             }
         }
 //         $DB->commit_delegated_transaction($transaction);
@@ -256,14 +256,16 @@ abstract class msocial_plugin {
         foreach ($kpiinfos as $kpiinfo) {
             if ($kpiinfo->individual == kpi_info::KPI_INDIVIDUAL && $kpiinfo->generated == kpi_info::KPI_CALCULATED) {
                 // Calculate posts.
+                $sqlparams = [];
                 $nativetypequery = '';
                 if ($kpiinfo->interaction_nativetype_query !== null && $kpiinfo->interaction_nativetype_query !== '*') {
-                    $nativetypequery = "and nativetype = '$kpiinfo->interaction_nativetype_query' ";
+                    list($nativetypequerypart, $nativetypeparams) = $DB->get_in_or_equal(explode('|', $kpiinfo->interaction_nativetype_query));
+                    $nativetypequery = "and nativetype $nativetypequerypart ";
+                    $sqlparams = $nativetypeparams;
                 }
                 // TODO: Check query:
                 // Did you remember to make the first column something unique in your call to
                 // get_records? Duplicate value '29' found in column 'userid'.
-
                 $interactionsource = $kpiinfo->interaction_source;
                 if (is_array($kpiinfo->interaction_type )) {
                     $typeparams = $kpiinfo->interaction_type;
@@ -282,7 +284,8 @@ abstract class msocial_plugin {
                         and timestamp <= ?
                         $nativetypequery
                     group by $interactionsource";
-                $sqlparams = [$this->msocial->id, $subtype];
+                $sqlparams[] = $this->msocial->id;
+                $sqlparams[] = $subtype;
                 $sqlparams = array_merge($sqlparams, $typeparams);
                 $sqlparams[] = $this->msocial->startdate;
                 $sqlparams[] = $this->msocial->enddate == 0 ? PHP_INT_MAX : $this->msocial->enddate;

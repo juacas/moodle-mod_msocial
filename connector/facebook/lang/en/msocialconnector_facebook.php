@@ -52,5 +52,6 @@ $string['problemwithfacebookaccount'] = 'Recent attempts to get the posts result
 
 $string['kpi_description_posts'] = 'Published messages (posts and replies)';
 $string['kpi_description_replies'] = 'Received comments';
-$string['kpi_description_reactions'] = 'Received reactions (Like, love, hate, etc.)';
+$string['kpi_description_reactions'] = 'Received reactions (LIKE, LOVE, WOW, HAHA, SAD, ANGRY, THANKFUL)';
 $string['kpi_description_likes'] = 'Received LIKEs';
+$string['kpi_description_dislikes'] = 'Received dis-LIKEs (SAD or ANGRY reactions)';

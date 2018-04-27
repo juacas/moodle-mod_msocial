@@ -50,5 +50,6 @@ $string['problemwithfacebookaccount'] = 'Los últimos intentos de cargar mensaje
 
 $string['kpi_description_posts'] = 'Mensajes publicados en tablones y respuestas';
 $string['kpi_description_replies'] = 'Comentarios recibidos';
-$string['kpi_description_reactions'] = 'Reacciones recibidas (Like, love, hate, etc.)';
+$string['kpi_description_reactions'] = 'Reacciones recibidas (LIKE, LOVE, WOW, HAHA, SAD, ANGRY, THANKFUL)';
 $string['kpi_description_likes'] = 'LIKEs recibidos';
+$string['kpi_description_dislikes'] = 'Dis-LIKEs recibidos. (Reacciones de Tristeza SAD o Enfado ANGRY.)';
