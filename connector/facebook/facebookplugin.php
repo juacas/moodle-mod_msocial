@@ -198,7 +198,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         if ($groups) {
             foreach ($groups as $groupid => $group) {
                 $groupname = $group->name;
-                $groupurl = 'https://www.facebook.com/groups/' . $groupid;
+                $groupurl = $group->url;
                 $linkinfo[] = \html_writer::link($groupurl, $groupname);
             }
         }
