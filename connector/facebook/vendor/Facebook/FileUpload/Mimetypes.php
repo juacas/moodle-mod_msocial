@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright 2016 Facebook, Inc.
+ * Copyright 2017 Facebook, Inc.
  *
  * You are hereby granted a non-exclusive, worldwide, royalty-free license to
  * use, copy, modify, and distribute this software in source code or binary
@@ -48,7 +48,7 @@ class Mimetypes
         'aam' => 'application/x-authorware-map',
         'aas' => 'application/x-authorware-seg',
         'abw' => 'application/x-abiword',
-        'ac' => 'application/kpix-attr-cert',
+        'ac' => 'application/pkix-attr-cert',
         'acc' => 'application/vnd.americandynamics.acc',
         'ace' => 'application/x-ace-compressed',
         'acu' => 'application/vnd.acucobol',
@@ -118,7 +118,7 @@ class Mimetypes
         'c4u' => 'application/vnd.clonk.c4group',
         'cab' => 'application/vnd.ms-cab-compressed',
         'car' => 'application/vnd.curl.car',
-        'cat' => 'application/vnd.ms-kpi.seccat',
+        'cat' => 'application/vnd.ms-pki.seccat',
         'cc' => 'text/x-c',
         'cct' => 'application/x-director',
         'ccxml' => 'application/ccxml+xml',
@@ -133,7 +133,7 @@ class Mimetypes
         'cdx' => 'chemical/x-cdx',
         'cdxml' => 'application/vnd.chemdraw+xml',
         'cdy' => 'application/vnd.cinderella',
-        'cer' => 'application/kpix-cert',
+        'cer' => 'application/pkix-cert',
         'cfc' => 'application/x-coldfusion',
         'cfm' => 'application/x-coldfusion',
         'cgm' => 'image/cgm',
@@ -163,7 +163,7 @@ class Mimetypes
         'cpp' => 'text/x-c',
         'cpt' => 'application/mac-compactpro',
         'crd' => 'application/x-mscardfile',
-        'crl' => 'application/kpix-crl',
+        'crl' => 'application/pkix-crl',
         'crt' => 'application/x-x509-ca-cert',
         'cryptonote' => 'application/vnd.rig.cryptonote',
         'cs' => 'text/plain',
@@ -584,8 +584,8 @@ class Mimetypes
         'phps' => 'application/x-httpd-phps',
         'pic' => 'image/x-pict',
         'pkg' => 'application/octet-stream',
-        'kpi' => 'application/kpixcmp',
-        'kpipath' => 'application/kpix-kpipath',
+        'pki' => 'application/pkixcmp',
+        'pkipath' => 'application/pkix-pkipath',
         'plb' => 'application/vnd.3gpp.pic-bw-large',
         'plc' => 'application/vnd.mobius.plc',
         'plf' => 'application/vnd.pocketlearn',
@@ -724,6 +724,7 @@ class Mimetypes
         'spq' => 'application/scvp-vp-request',
         'spx' => 'audio/ogg',
         'src' => 'application/x-wais-source',
+        'srt' => 'application/octet-stream',
         'sru' => 'application/sru+xml',
         'srx' => 'application/sparql-results+xml',
         'sse' => 'application/vnd.kodak-descriptor',
@@ -735,7 +736,7 @@ class Mimetypes
         'stf' => 'application/vnd.wt.stf',
         'sti' => 'application/vnd.sun.xml.impress.template',
         'stk' => 'application/hyperstudio',
-        'stl' => 'application/vnd.ms-kpi.stl',
+        'stl' => 'application/vnd.ms-pki.stl',
         'str' => 'application/vnd.pg.format',
         'stw' => 'application/vnd.sun.xml.writer.template',
         'sub' => 'image/vnd.dvb.subtitle',

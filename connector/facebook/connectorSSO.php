@@ -36,7 +36,12 @@ require_once('../../classes/msocialconnectorplugin.php');
 require_once('facebookplugin.php');
 require_once('locallib.php');
 global $CFG;
-$id = required_param('id', PARAM_INT); // MSocial module instance.
+
+$id = optional_param('id', isset($SESSION->msocialfacebookSSOid) ? $SESSION->msocialfacebookSSOid : null, PARAM_INT); // MSocial module instance.
+if (!isset($id)) {
+    $id = required_param('id', PARAM_INT); // Provoke error.
+}
+unset($SESSION->msocialfacebookSSOid);
 $action = optional_param('action', false, PARAM_ALPHA);
 $type = optional_param('type', 'connect', PARAM_ALPHA);
 $cm = get_coursemodule_from_id('msocial', $id);
@@ -49,20 +54,27 @@ $plugin = new msocial_connector_facebook($msocial);
 $appid = get_config("msocialconnector_facebook", "appid");
 $appsecret = get_config("msocialconnector_facebook", "appsecret");
 /**@var \Facebook\Facebook $fb */
-$fb = new \Facebook\Facebook(
-        ['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.9',
-                        'default_access_token' => '{access-token}' // Optional...
-]);
+$fb = new \Facebook\Facebook([
+        'app_id' => $appid,
+        'app_secret' => $appsecret,
+        'default_graph_version' => 'v2.10',
+        ]);
 $thispageurl = new moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
         array('id' => $id, 'action' => $action, 'type' => $type));
 
 if ($action == 'connect') {
     // GetToken.
     $helper = $fb->getRedirectLoginHelper();
-    $permissions = ['posts', 'user_likes', 'pages_show_list', 'user_posts', 'user_about_me'];
+
     $permissions = ['user_managed_groups'];
     $thispageurl = new moodle_url("/mod/msocial/connector/facebook/connectorSSO.php",
-            array('id' => $id, 'action' => 'callback', 'type' => $type));
+            array(
+                            'action' => 'callback',
+                            'type' => $type,
+//                             'id' => $id,
+            ));
+    // JPC: 2018-05-07 Facebook aparently begun to include URL params as part of the redirect white-list patterns. Use session for id.
+    $SESSION->msocialfacebookSSOid = $id;
     $callbackurl = $thispageurl->out($escaped = false);
     $loginurl = $helper->getLoginUrl($callbackurl, $permissions);
 
@@ -72,8 +84,6 @@ if ($action == 'connect') {
     $helper = $fb->getRedirectLoginHelper();
     try {
         $accesstoken = $helper->getAccessToken();
-        $client = $fb->getOAuth2Client();
-        $longaccesstoken = $client->getLongLivedAccessToken($accesstoken);
     } catch (Facebook\Exceptions\FacebookResponseException $e) {
         // When Graph returns an error
         print_error('Graph returned an error: ' . $e->getMessage()); // TODO: pasar a lang.
@@ -118,6 +128,8 @@ if ($action == 'connect') {
         }
     } else if ($helper->getError()) {
         // The user denied the request.
+        $message = get_string('module_not_connected_facebook', 'msocialconnector_facebook');
+    } else {
         $message = get_string('module_not_connected_facebook', 'msocialconnector_facebook');
     }
     // Show headings and menus of page.

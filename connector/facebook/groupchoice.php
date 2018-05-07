@@ -60,7 +60,6 @@ if ($action == 'selectgroup') {
                             'default_access_token' => '{access-token}' // Optional...
             ]);
     $token = $plugin->get_connection_token();
-    $token = $plugin->get_connection_token();
     $fb->setDefaultAccessToken($token->token);
     $groups = $fb->get('/me/groups?fields=administrator,name,cover,icon,link,description');
     $grphfty = new GraphNodeFactory($groups);
