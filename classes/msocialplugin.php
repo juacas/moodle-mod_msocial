@@ -41,6 +41,7 @@ require_once($CFG->dirroot . '/mod/msocial/classes/filterinteractions.php');
 use mod_msocial\kpi;
 use mod_msocial\kpi_info;
 use mod_msocial\plugininfo\msocialbase;
+use mod_msocial\users_struct;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -243,9 +244,9 @@ abstract class msocial_plugin {
 
     /** Aggregate fields by kpi_info metadata from interaction database.
      * Calculates max_field.
-     * @param unknown $users
+     * @param users_struct $users structure of arrays @see function msocial_get_users_by_type
      */
-    public function calculate_kpis($users, $kpis = []) {
+    public function calculate_kpis(users_struct $users, $kpis = []) {
         global $DB;
         $kpiinfos = $this->get_kpi_list();
         $subtype = $this->get_subtype();

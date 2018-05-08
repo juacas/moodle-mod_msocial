@@ -549,7 +549,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 $response = $fb->get(
                         $groupid .
                                  '?fields=feed{message,name,permalink_url,from,created_time,reactions,' .
-                                 'comments{message,from,created_time,likes,comments{message,from,created_time,likes}}},members' .
+                                 'comments{message,from,created_time,likes,comments{message,from,created_time,likes}}}' .
                                  $since);
                 // Mark the token as OK...
                 $DB->set_field('msocial_facebook_tokens', 'errorstatus', null, array('id' => $token->id));
@@ -557,9 +557,9 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                 $globalnode = $response->getGraphNode();
                 // Get group members...
                 /** @var Facebook\GraphNodes\GraphEdge $membersnode*/
-                $membersnode = $globalnode->getField('members');
+//                 $membersnode = $globalnode->getField('members');
                 /** @var Facebook\GraphNodes\Collection $members */
-                $members = $membersnode->asArray();
+//                 $members = $membersnode->asArray();
                 /** @var Facebook\GraphNodes\GraphEdge $feednode*/
                 // Get the feed.
                 $feednode = $globalnode->getField('feed');

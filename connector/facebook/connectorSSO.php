@@ -66,14 +66,18 @@ if ($action == 'connect') {
     // GetToken.
     $helper = $fb->getRedirectLoginHelper();
 
-    $permissions = ['user_managed_groups'];
+    if ($type == 'profile') {
+        $permissions = ['user_managed_groups'];
+    } else {
+        $permissions = [''];
+    }
     $thispageurl = new moodle_url("/mod/msocial/connector/facebook/connectorSSO.php",
             array(
                             'action' => 'callback',
                             'type' => $type,
 //                             'id' => $id,
             ));
-    // JPC: 2018-05-07 Facebook aparently begun to include URL params as part of the redirect white-list patterns. Use session for id.
+    // JPC: 2018-05-07 Facebook aparently began to include URL params as part of the redirect white-list patterns. Use session for id.
     $SESSION->msocialfacebookSSOid = $id;
     $callbackurl = $thispageurl->out($escaped = false);
     $loginurl = $helper->getLoginUrl($callbackurl, $permissions);

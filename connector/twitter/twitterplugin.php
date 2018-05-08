@@ -29,6 +29,7 @@ use mod_msocial\kpi;
 use mod_msocial\kpi_info;
 use mod_msocial\social_user;
 use msocial\msocial_plugin;
+use mod_msocial\users_struct;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -200,19 +201,17 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
     /**
      * @return true if the plugin is making searches in the social network */
-    public function is_tracking() {
-        return parent::is_tracking() &&
-                $this->is_enabled() &&
-                $this->get_connection_token() != null &&
+    public function can_harvest() {
+        return  $this->get_connection_token() != null &&
                 trim($this->get_config('hashtag')) != "";
     }
 
     /**
-     * @param array(\stdClass) $user records indexed by userid.
+     * @param users_struct $user struct of arrays @see msocial_get_users_by_type().
      * @return array[kpi] */
     public function calculate_kpis($users, $kpis = []) {
         $kpis = parent::calculate_kpis($users, $kpis);
-        $stats = $this->calculate_stats(array_keys($users));
+        $stats = $this->calculate_stats($users->studentids);
         $stataggregated = $stats->maximums;
         // Convert stats to KPI.
         foreach ($stats->users as $userid => $stat) {

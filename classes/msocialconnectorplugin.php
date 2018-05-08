@@ -37,6 +37,7 @@ use mod_msocial\users_struct;
 
 defined('MOODLE_INTERNAL') || die();
 require_once('msocialplugin.php');
+require_once('usersstruct.php');
 require_once('harvestintervals.php');
 abstract class msocial_connector_plugin extends msocial_plugin {
     protected $usertosocialmapping = null;
@@ -207,8 +208,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $this->store_interactions($processedinteractions);
         $contextcourse = \context_course::instance($this->msocial->course);
         $usersstruct = msocial_get_users_by_type($contextcourse);
-        $users = $usersstruct->userrecords;
-        $kpis = $this->calculate_kpis($users);
+        $kpis = $this->calculate_kpis($usersstruct);
         $this->store_kpis($kpis, true);
         $this->set_config(self::LAST_HARVEST_TIME, time());
 
@@ -235,7 +235,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     }
     /** Stores the $socialname in the profile information of the $user
      *
-     * @param \stdClass|int $user user record or userid
+     * @param \stdClass $user user record
      * @param string $socialid The identifier or the user.
      * @param string $socialname The name used by the user in the social service */
     public function set_social_userid($user, $socialid, $socialname) {
@@ -257,7 +257,10 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $this->refresh_interaction_users($record);
         // Reset cache...
         $this->usertosocialmapping = null;
-        $kpis = $this->calculate_kpis([$user->id => $user]);
+        $userstruct = new users_struct();
+        $userstruct->studentids[] = $user->id;
+        $userstruct->userrecords[] = $user;
+        $kpis = $this->calculate_kpis($userstruct);
         $this->store_kpis($kpis);
     }
 
