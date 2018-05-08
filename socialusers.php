@@ -34,6 +34,7 @@ require_once("../../config.php");
 require_once("locallib.php");
 require_once("classes/msocialconnectorplugin.php");
 require_once("classes/msocialviewplugin.php");
+require_once('classes/usersstruct.php');
 /* @var $OUTPUT \core_renderer */
 global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);
@@ -104,7 +105,7 @@ if ($mappingrequested) {
 $table = new html_table();
 if (msocial_can_view_others($cm, $msocial)) {
     $usersstruct = msocial_get_users_by_type($contextmodule);
-    $studentids = $usersstruct->studentsids;
+    $studentids = $usersstruct->studentids;
     $users = $usersstruct->userrecords;
 } else {
     $studentids = [$USER->id];

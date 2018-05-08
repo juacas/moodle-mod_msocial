@@ -659,8 +659,12 @@ abstract class msocial_plugin {
                 $result = $plugin->harvest();
                 if (isset($result->errors)) {
                         $plugin->notify(array_map(function ($item) {
-                            return $item->message;
-                    }, $result->errors), self::NOTIFY_ERROR);
+                            if (isset($item->message)) {
+                                return $item->message;
+                            } else {
+                                return '';
+                            }
+                        }, $result->errors), self::NOTIFY_ERROR);
                 }
                 $plugin->notify($result->messages, self::NOTIFY_NORMAL);
 
