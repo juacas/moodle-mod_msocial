@@ -161,19 +161,22 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
         $this->lastinteractions = [];
         $contextcourse = \context_course::instance($this->msocial->course);
         $usersstruct = msocial_get_users_by_type($contextcourse);
-
+        $cminfo = get_fast_modinfo($this->msocial->course);
         try {
             // Query moodleforum...
             $since = '';
             $lastharvest = $this->get_config(self::LAST_HARVEST_TIME);
-            $activities = $this->get_config(self::CONFIG_ACTIVITIES);
+            $activities = json_decode($this->get_config(self::CONFIG_ACTIVITY_NAMES), true);
+            $activityids = array_map(function ($cmid) use ($cminfo) {
+                                        return $cminfo->cms[$cmid]->instance;
+            }, array_keys($activities));
             if ($lastharvest) {
                 $since = "&since=$lastharvest";
             }
             // Read forum_posts.
             $params = [$this->msocial->course];
             if ($activities) {
-                list($insql, $inparams) = $DB->get_in_or_equal($activities);
+                list($insql, $inparams) = $DB->get_in_or_equal($activityids);
                 $sql = 'select p.* from {forum_posts} p left join {forum_discussions} d on d.id = p.discussion ' .
                         'where d.course = ? and d.forum ' . $insql;
                 $params = array_merge($params, $inparams);
