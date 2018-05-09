@@ -64,7 +64,7 @@ class mod_msocial_mod_form extends moodleform_mod {
         $mform->setExpanded('availability', true);
 
         $name = get_string('startdate', 'msocial');
-        $options = array('optional' => true);
+        $options = array('optional' => false);
         $mform->addElement('date_time_selector', 'startdate', $name, $options);
         $mform->addHelpButton('startdate', 'startdate', 'msocial');
 
