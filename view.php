@@ -103,8 +103,8 @@ foreach ($enabledplugins as $name => $enabledplugin) {
     $updatemessage = '';
     if ($updated) {
         $updatemessage = get_string('harvestedtimeago', 'msocial',
-                                [ 'interval' => msocial_pretty_date_difference($updated->getTimestamp())] ) .
-                                ' ';
+                [ 'interval' => msocial_pretty_date_difference($updated->getTimestamp())] ) .
+                ' ';
     }
     if (has_capability('mod/msocial:manage', $contextmodule) && $enabledplugin->can_harvest()) {
         $updatemessage .= $enabledplugin->render_harvest_link();

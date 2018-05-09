@@ -64,7 +64,7 @@ if ($action == 'setmap') {
     $user = $DB->get_record('user', ['id' => $userid]);
     $plugin = msocialconnector::instance($msocial, 'connector', $source);
     $plugin->set_social_userid($user, $nativeid, $nativename);
-
+    
 } else if ($action == 'selectmapuser') {
     require_capability('mod/msocial:mapaccounts', $contextmodule);
     $nativeid = required_param('nativeid', PARAM_ALPHANUMEXT);
@@ -139,7 +139,7 @@ foreach ($users as $user) {
         // User name and pic.
         $pic = $OUTPUT->user_picture($user);
         $link = html_writer::link(new moodle_url('/user/view.php', ['id' => $user->id]),
-                                msocial_get_visible_fullname($user, $msocial));
+                msocial_get_visible_fullname($user, $msocial));
     }
     $row->cells[] = new html_table_cell($checkbox . $pic . ' ' . $link);
     foreach ($enabledsocialplugins as $plugin) {

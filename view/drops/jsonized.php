@@ -100,11 +100,11 @@ if (count($interactions) > 0) {
             $userlinkfrom = '#';
             $usericon = (new \moodle_url('/mod/msocial/pix/Anonymous2.svg'))->out();
         }
-        $thispageurl = $plugin->get_interaction_url($interaction);
+        $interactionurl = $plugin->get_interaction_url($interaction);
         $event = ['id' => $interaction->uid, 'username' => $namefrom, 'usericon' => $usericon,
                         'startdate' => $date, 'title' => $userinfo->socialname,
                         'description' => $plugin->get_interaction_description($interaction), 'icon' => $plugin->get_icon()->out(),
-                        'link' => $thispageurl, 'importance' => 10, 'date_limit' => 'mo',
+                        'link' => $interactionurl, 'importance' => 10, 'date_limit' => 'mo',
                         'userlink' => $userlinkfrom,
         ];
         $events[$subtype][] = $event;

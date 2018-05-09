@@ -61,10 +61,10 @@ if ($action == 'callback') { // Twitter callback.
     $acctoken = new \moodle\mod\lti\OAuthConsumer($_SESSION['oauth_token'], $_SESSION['oauth_token_secret'], 1);
     $accreq = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($testconsumer, $acctoken, "GET", $oauthaccesstoken);
     $accreq->sign_request($sigmethod, $testconsumer, $acctoken);
-
+    
     $oc = new OAuthCurl();
     $reqdata = $oc->fetch_data("{$accreq}&oauth_verifier={$_GET['oauth_verifier']}");
-
+    
     parse_str($reqdata['content'], $accoauthdata);
     if (!isset($accoauthdata['oauth_token'])) {
         print_error('error');
@@ -74,7 +74,7 @@ if ($action == 'callback') { // Twitter callback.
      */
     $socialname = $accoauthdata['screen_name'];
     if ($type === 'connect' && has_capability('mod/msocial:manage', $context)) {
-
+        
         $record = new stdClass();
         $record->token = $accoauthdata['oauth_token'];
         $record->token_secret = $accoauthdata['oauth_token_secret'];
@@ -91,7 +91,7 @@ if ($action == 'callback') { // Twitter callback.
     // Show headings and menus of page.
     $PAGE->set_url($thispageurl);
     $PAGE->set_title(format_string($cm->name));
-
+    
     $PAGE->set_heading($course->fullname);
     // Print the page header.
     echo $OUTPUT->header();
@@ -99,28 +99,28 @@ if ($action == 'callback') { // Twitter callback.
     echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $cm->id)));
     echo $OUTPUT->footer();
 } else if ($action == 'connect') {
-
+    
     $sigmethod = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1();
     $testconsumer = new \moodle\mod\lti\OAuthConsumer($consumerkey, $consumersecret, $callbackurl);
-
+    
     $reqreq = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($testconsumer, null, "GET", $oauthrequesttoken,
             array('oauth_callback' => $callbackurl));
     $reqreq->sign_request($sigmethod, $testconsumer, null);
-
+    
     $oc = new OAuthCurl();
     $reqdata = $oc->fetch_data($reqreq->to_url());
     if ($reqdata['errno'] == 0) {
         parse_str($reqdata['content'], $reqoauthdata);
-
+        
         $reqtoken = new \moodle\mod\lti\OAuthConsumer($reqoauthdata['oauth_token'], $reqoauthdata['oauth_token_secret'], 1);
-
+        
         $accreq = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($testconsumer, $reqtoken, "GET", $oauthauthorize,
                 array('oauth_callback' => $callbackurl));
         $accreq->sign_request($sigmethod, $testconsumer, $reqtoken);
-
+        
         $_SESSION['oauth_token'] = $reqoauthdata['oauth_token'];
         $_SESSION['oauth_token_secret'] = $reqoauthdata['oauth_token_secret'];
-
+        
         header("Location: $accreq");
     } else {
         // OAUTH Error.
@@ -151,7 +151,7 @@ if ($action == 'callback') { // Twitter callback.
         echo $OUTPUT->box($plugin->render_user_linking($user));
         echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $cm->id)));
         echo $OUTPUT->footer();
-
+        
     } else {
         require_capability('mod/msocial:manage', $context);
         $plugin->unset_connection_token();

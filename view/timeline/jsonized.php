@@ -35,13 +35,18 @@ $id = required_param('id', PARAM_INT);
 $fromdate = optional_param('startdate', null, PARAM_ALPHANUMEXT);
 $todate = optional_param('enddate', null, PARAM_ALPHANUMEXT);
 $subtype = optional_param('subtype', null, PARAM_ALPHA);
+$redirecturl = optional_param('redirect', null, PARAM_RAW);
+
 $cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
+$contextmodule = context_module::instance($cm->id);
+$canviewothers = has_capability('mod/msocial:viewothers', $contextmodule);
 
 require_login($cm->course, false, $cm);
 $plugins = mod_msocial\plugininfo\msocialconnector::get_enabled_connector_plugins($msocial);
 
 $usersstruct = msocial_get_viewable_users($cm, $msocial);
+$userrecords = $usersstruct->userrecords;
 
 $filter = new filter_interactions($_GET, $msocial);
 $filter->set_users($usersstruct);
@@ -64,11 +69,15 @@ foreach ($interactions as $interaction) {
     if (!$userinfo) {
         $userinfo = (object) ['socialname' => $interaction->nativefromname];
     }
-    $thispageurl = $plugin->get_interaction_url($interaction);
+    $interactionurl = $plugin->get_interaction_url($interaction);
     $description = $plugin->get_interaction_description($interaction);
-    $event = ['start' => $date, 'title' => $userinfo->socialname,
-                    'description' => "<a target=\"_blank\" href=\"$thispageurl\">$description</a>",
-                    'icon' => $plugin->get_icon()->out()];
+    list($namefrom, $userlinkfrom) = msocial_create_userlink($interaction, 'from', $userrecords, $msocial, $cm, $redirecturl, $canviewothers);
+
+    $event = ['start' => $date, 'title' => $namefrom,
+                    'description' => "<a target=\"_blank\" href=\"$interactionurl\">$description</a>",
+                    'icon' => $plugin->get_icon()->out(),
+                    'link' => $userlinkfrom
+    ];
     $events[] = $event;
 }
 

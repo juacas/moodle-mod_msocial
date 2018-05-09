@@ -64,14 +64,14 @@ if ($action == 'selectgroup') {
     $groups = $fb->get('/me/groups?fields=administrator,name,cover,icon,link,description');
     $grphfty = new GraphNodeFactory($groups);
     $groupsedge = $grphfty->makeGraphEdge('GraphGroup');
-
+    
     $selectedgroups = $plugin->get_config(msocial_connector_facebook::CONFIG_FBGROUP);
     if ($selectedgroups) {
         $selectedgroups = explode(',', $selectedgroups);
     } else {
         $selectedgroups = [];
     }
-
+    
     $out = '<form method="GET" action="' . $thispageurl->out_omit_querystring(true) . '" >';
     $out .= '<input type="hidden" name="id" value="' . $id . '"/>';
     $out .= '<input type="hidden" name="action" value="setgroups"/>';
@@ -96,7 +96,7 @@ if ($action == 'selectgroup') {
         $selected = array_search($group->getId(), $selectedgroups) !== false;
         $checkbox = \html_writer::checkbox('group[]', $groupstructform, $selected, $linkinfo);
         $row->cells = [$checkbox, $group->getDescription()];
-
+        
         $table->data[] = $row;
         $iter->next();
         $numgroups++;

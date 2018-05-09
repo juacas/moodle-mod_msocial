@@ -60,11 +60,11 @@ if ($action == 'select') {
         $table = new \html_table();
         $table->head = [reset($instances)->get_module_type_name(true), get_string('description')];
         $data = [];
-
+        
         $out = '<form method="GET" action="' . $thispageurl->out_omit_querystring(true) . '" >';
         $out .= '<input type="hidden" name="id" value="' . $id . '"/>';
         $out .= '<input type="hidden" name="action" value="setactivities"/>';
-
+        
         foreach ($instances as $forum) {
             if ($forum->deletioninprogress) {
                 continue;
@@ -109,7 +109,7 @@ if ($action == 'select') {
         }
         $plugin->set_linked_activities($activitiesnames);
     }
-
+    
     echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));
 } else {
     print_error("Bad action code");

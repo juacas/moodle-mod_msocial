@@ -267,6 +267,41 @@ function msocial_get_visible_fullname($user, $msocial, $override = false) {
         return mb_convert_case(substr($user->lastname, 0, 2) . substr($user->firstname, 0, 2) . ($user->id ^ 343), MB_CASE_UPPER);
     }
 }
+function msocial_get_fullname($userid, $users, $default, $msocial) {
+    if ($userid != null && isset($users[$userid])) {
+        $user = $users[$userid];
+        return msocial_get_visible_fullname($user, $msocial);
+    } else {
+        return $default;
+    }
+}
+function msocial_create_userlink($interaction, $dir = 'to', $userrecords, $msocial, $cm, $redirecturl, $canviewothers) {
+    global $USER;
+    $nativeid = $interaction->{"native{$dir}"};
+    $userid = $interaction->{"{$dir}id"};
+    $nativename = $interaction->{"native{$dir}name"};
+    if ($nativeid == null) { // Community destination.
+        $nodename = '[COMMUNITY]';
+        $userlink = '';
+    } else {
+        $nodename = msocial_get_fullname($userid, $userrecords, "[$nativename]", $msocial);
+        $userlink = '';
+        if ($canviewothers || $USER->id == $userid) {
+            if (isset($userrecords[$userid])) {
+                $userlink = (new moodle_url('/mod/msocial/socialusers.php',
+                        ['action' => 'showuser',
+                                        'user' => $userid,
+                                        'id' => $cm->id,
+                                        'redirect' => $redirecturl,
+                        ]))->out(false);
+            } else {
+                $userlink = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
+                "nativeid=$nativeid&nativename=$nativename&redirect=$redirecturl";
+            }
+        }
+    }
+    return [$nodename, $userlink];
+}
 function msocial_can_view_others($cm, $msocial) {
     $contextmodule = \context_module::instance($cm->id);
     $viewothers = has_capability('mod/msocial:viewothers', $contextmodule);
