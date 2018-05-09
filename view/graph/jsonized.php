@@ -35,7 +35,6 @@ header('Content-Type: application/json; charset=utf-8');
 $id = required_param('id', PARAM_INT);
 $community = optional_param('include_community', true, PARAM_BOOL);
 $redirecturl = optional_param('redirect', null, PARAM_RAW);
-$redirecturl = urlencode($redirecturl);
 
 $cm = get_coursemodule_from_id('msocial', $id, null, null, MUST_EXIST);
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);

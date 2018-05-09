@@ -161,7 +161,7 @@ if ($mappingrequested) {
 echo html_writer::table($table);
 // Redirect.
 if ($action == 'setmap') {
-    echo $OUTPUT->continue_button(base64_decode($redirecturl));
+    echo $OUTPUT->continue_button(base64_decode(urldecode($redirecturl)));
     echo $OUTPUT->footer();
     die;
 }

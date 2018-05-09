@@ -122,7 +122,7 @@ class msocial_view_drops extends msocial_view_plugin {
     public function render_view($renderer, $reqs, $filter) {
         global $PAGE;
         echo $filter->render_form($PAGE->url);
-        $redirect = base64_encode($PAGE->url->out());
+        $redirect = urlencode(base64_encode($PAGE->url->out()));
         echo '<div id="drops" width="80%"></div>';
         global $CFG;
         $reqs->js_call_amd('msocialview/drops', 'initview',
