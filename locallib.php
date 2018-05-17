@@ -290,13 +290,20 @@ function msocial_create_userlink($interaction, $dir = 'to', $userrecords, $msoci
             if (isset($userrecords[$userid])) {
                 $userlink = (new moodle_url('/mod/msocial/socialusers.php',
                         ['action' => 'showuser',
-                                        'user' => $userid,
-                                        'id' => $cm->id,
-                                        'redirect' => $redirecturl,
+                            'user' => $userid,
+                            'id' => $cm->id,
+                            'redirect' => $redirecturl,
                         ]))->out(false);
             } else {
-                $userlink = "socialusers.php?action=selectmapuser&source=$interaction->source&id=$cm->id&" .
-                "nativeid=$nativeid&nativename=$nativename&redirect=$redirecturl";
+                $userlink = (new moodle_url('/mod/msocial/socialusers.php',
+                        [
+                            'action' => 'selectmapuser',
+                            'source' => $interaction->source,
+                            'nativeid' => $nativeid,
+                            'nativename' => $nativename,
+                            'id' => $cm->id,
+                            'redirect' => $redirecturl,
+                        ]))->out(false);
             }
         }
     }

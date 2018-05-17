@@ -38,11 +38,18 @@ text.active {
 }
 </style>
 <p>
+<table><tr><td>
     Order: <select id="order">
         <option value="name">by Name</option>
         <option value="count">by Frequency</option>
-        <option value="group">student or external user</option>
+        <option value="group">by Student or external user</option>
     </select>
+</td><td><table>
+<td style="background-color:rgb(255, 127, 14)" width="20px" height="20px"></td><td>Pure internal</td>
+<td style="background-color:rgb(119, 119, 119)" width="20px" height="20px"></td><td>Mixed</td>
+<td style="background-color:rgb(31, 119, 180)" width="20px" height="20px"></td><td>Pure external</td></tr></table>
+</td></tr>
+</table>
 <div id="diagram" class="diagram" style="align-text: center"></div>
 <?php
 // Graph matrix view.

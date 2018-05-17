@@ -119,7 +119,7 @@ function msocial_add_node_if_not_exists($nodename, $userid, $userlink, &$nodemap
     if (!array_key_exists($nodename, $nodemap)) {
         $node = (object) ['id' => $index,
                         'name' => $nodename,
-                        'group' => $userid == null ? 1 : 0,
+                        'group' => $userid == null ? 0 : 1,
                         'userlink' => $userlink];
 
         if (($canviewothers || $userid == $USER->id) && isset($userrecords[$userid])) {
