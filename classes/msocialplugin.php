@@ -38,6 +38,7 @@ require_once($CFG->dirroot . '/mod/msocial/classes/kpi.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/socialinteraction.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/filterinteractions.php');
 
+use core_component;
 use mod_msocial\kpi;
 use mod_msocial\kpi_info;
 use mod_msocial\plugininfo\msocialbase;
@@ -258,11 +259,10 @@ abstract class msocial_plugin {
             if ($kpiinfo->individual == kpi_info::KPI_INDIVIDUAL && $kpiinfo->generated == kpi_info::KPI_CALCULATED) {
                 // Calculate posts.
                 $sqlparams = [];
-                $nativetypequery = '';
+                $nativetypequery = ''; $nativetypeparams= [];
                 if ($kpiinfo->interaction_nativetype_query !== null && $kpiinfo->interaction_nativetype_query !== '*') {
                     list($nativetypequerypart, $nativetypeparams) = $DB->get_in_or_equal(explode('|', $kpiinfo->interaction_nativetype_query));
                     $nativetypequery = "and nativetype $nativetypequerypart ";
-                    $sqlparams = $nativetypeparams;
                 }
                 // TODO: Check query:
                 // Did you remember to make the first column something unique in your call to
@@ -290,6 +290,7 @@ abstract class msocial_plugin {
                 $sqlparams = array_merge($sqlparams, $typeparams);
                 $sqlparams[] = $this->msocial->startdate;
                 $sqlparams[] = $this->msocial->enddate == 0 ? PHP_INT_MAX : $this->msocial->enddate;
+                $sqlparams = array_merge($sqlparams, $nativetypeparams);
 
                 $aggregatedrecords = $DB->get_records_sql($sql, $sqlparams);
 
