@@ -259,7 +259,8 @@ abstract class msocial_plugin {
             if ($kpiinfo->individual == kpi_info::KPI_INDIVIDUAL && $kpiinfo->generated == kpi_info::KPI_CALCULATED) {
                 // Calculate posts.
                 $sqlparams = [];
-                $nativetypequery = ''; $nativetypeparams= [];
+                $nativetypequery = '';
+                $nativetypeparams = [];
                 if ($kpiinfo->interaction_nativetype_query !== null && $kpiinfo->interaction_nativetype_query !== '*') {
                     list($nativetypequerypart, $nativetypeparams) = $DB->get_in_or_equal(explode('|', $kpiinfo->interaction_nativetype_query));
                     $nativetypequery = "and nativetype $nativetypequerypart ";

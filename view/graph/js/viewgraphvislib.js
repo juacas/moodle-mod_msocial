@@ -83,15 +83,13 @@ define('msocialview/graphvis', [ 'jquery', 'vis','svg-pan-zoom', 'hammer', 'save
 				var node = { id: jsonnode.id ,
 						title: '<a href="">' + jsonnode.name + '</a>',
 						label: jsonnode.name,
-				//		shape: shape,
 						userlink: jsonnode.userlink,
 						group: jsonnode.group,
 				};
-				if (jsonnode.group == 1) {
+				if (jsonnode.group == 0) {
 					node.shape = 'dot';
 				} else {
 					node.shape = 'circularImage';
-//					node.shadow = true;
 					node.image = jsonnode.usericon == '' ? 'missing.png' : jsonnode.usericon;
 					node.brokenImage = 'https://pbs.twimg.com/profile_images/824716853989744640/8Fcd0bji_400x400.jpg';
 					node.borderWidth = 4;
