@@ -161,6 +161,12 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
         // /groups/1670848226578336/permalink/1670848496578309/?comment_id=1670848556578303
         $parts = explode('_', $interaction->uid);
         $modname = $this->get_mod_name();
+        // After a backup/restore reference to activity can be invalid.
+        $cmodinfoinstances = get_fast_modinfo($this->msocial->course)->instances[$modname];
+        $cm = isset($cmodinfoinstances[$parts[0]]) ? $cmodinfoinstances[$parts[0]] : null;
+        if ($cm === null) {
+            return null;
+        }
         if (count($parts) == 2) { // TODO...
             $url = new \moodle_url("/mod/$modname/view.php", ['id' => $parts[0], 'post' => $parts[1]]);
         } else {

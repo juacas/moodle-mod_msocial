@@ -79,8 +79,12 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
         if (count($parts) < 2) {
             return null; // TODO query local database.
         }
-        $cm = get_fast_modinfo($this->msocial->course)->instances['quest'][$parts[0]];
-
+        // After a backup/restore reference to activity can be invalid.
+        $cmodinfoquests = get_fast_modinfo($this->msocial->course)->instances['quest'];
+        $cm = isset($cmodinfoquests[$parts[0]]) ? $cmodinfoquests[$parts[0]] : null;
+        if ($cm === null) {
+            return null;
+        }
         if (count($parts) == 3) { // TODO...
             $url = new \moodle_url("/mod/quest/answer.php",
                     ['id' => $cm->id, 'sid' => $parts[1], 'aid' => $parts[2], 'action' => 'showanswer']);
