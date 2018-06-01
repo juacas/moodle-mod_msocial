@@ -162,8 +162,11 @@ abstract class msocial_connector_moodleactivity extends msocial_connector_plugin
         $parts = explode('_', $interaction->uid);
         $modname = $this->get_mod_name();
         // After a backup/restore reference to activity can be invalid.
-        $cmodinfoinstances = get_fast_modinfo($this->msocial->course)->instances[$modname];
-        $cm = isset($cmodinfoinstances[$parts[0]]) ? $cmodinfoinstances[$parts[0]] : null;
+        $cm = null;
+        if (isset(get_fast_modinfo($this->msocial->course)->instances[$modname])) {
+            $cmodinfoinstances = get_fast_modinfo($this->msocial->course)->instances[$modname];
+            $cm = isset($cmodinfoinstances[$parts[0]]) ? $cmodinfoinstances[$parts[0]] : null;
+        }
         if ($cm === null) {
             return null;
         }

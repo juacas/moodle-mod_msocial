@@ -80,8 +80,11 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
             return null; // TODO query local database.
         }
         // After a backup/restore reference to activity can be invalid.
-        $cmodinfoquests = get_fast_modinfo($this->msocial->course)->instances['quest'];
-        $cm = isset($cmodinfoquests[$parts[0]]) ? $cmodinfoquests[$parts[0]] : null;
+        $cm = null;
+        if (isset(get_fast_modinfo($this->msocial->course)->instances['quest'])) {
+            $cmodinfoquests = get_fast_modinfo($this->msocial->course)->instances['quest'];
+            $cm = isset($cmodinfoquests[$parts[0]]) ? $cmodinfoquests[$parts[0]] : null;
+        }
         if ($cm === null) {
             return null;
         }
