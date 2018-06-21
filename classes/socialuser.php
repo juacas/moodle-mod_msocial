@@ -28,9 +28,10 @@ namespace mod_msocial;
 class social_user {
     public $socialid;
     public $socialname;
-
-    public function __construct($socialid, $socialname) {
+    public $sociallink;
+    public function __construct($socialid, $socialname, $sociallink = '') {
         $this->socialid = $socialid;
         $this->socialname = $socialname;
+        $this->sociallink = $sociallink;
     }
 }

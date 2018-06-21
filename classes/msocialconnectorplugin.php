@@ -127,14 +127,20 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     public function render_user_link($user, $brief = false) {
         $socialuserid = $this->get_social_userid($user);
         if ($socialuserid) {
-            $link = $this->get_social_user_url($socialuserid);
+            $userlink = $this->get_social_user_url($socialuserid);
+            $linkpart1 = "";
+            $linkpart2 = "";
+            if ($userlink) {
+                $linkpart1 = "<a target=\"_blank\" href=\"$userlink\">";
+                $linkpart2 = "</a>";
+            }
             $icon = $this->get_icon();
-            $link = "<a target=\"_blank\" href=\"$link\"><img src=\"$icon\" height=\"29px\" title=\"$socialuserid->socialname\" " .
+            $link = $linkpart1 . "<img src=\"$icon\" height=\"29px\" title=\"$socialuserid->socialname\" " .
                     "alt=\"$socialuserid->socialname\"/>";
             if (!$brief) {
                 $link .= $socialuserid->socialname;
             }
-            $link .= "</a>";
+            $link .= $linkpart2;
             return $link;
         } else {
                 $icon = $this->get_icon();
@@ -147,9 +153,9 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      * @return string url of the user in the social network
      */
     public function get_user_url($user) {
-        $userid = $this->get_social_userid($user);
-        if ($userid) {
-            $link = $this->get_social_user_url($userid);
+        $socialuser = $this->get_social_userid($user);
+        if ($socialuser) {
+            $link = $this->get_social_user_url($socialuser);
         } else {
             $link = null;
         }
@@ -237,8 +243,10 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      *
      * @param \stdClass $user user record
      * @param string $socialid The identifier or the user.
-     * @param string $socialname The name used by the user in the social service */
-    public function set_social_userid($user, $socialid, $socialname) {
+     * @param string $socialname The name used by the user in the social service
+     * @param string $link URL to the user page in the social service.
+     */
+    public function set_social_userid($user, $socialid, $socialname, $link = null) {
         global $DB;
         // Clean previous maps.
         $DB->delete_records('msocial_mapusers',
@@ -251,6 +259,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $record->userid = $user->id;
         $record->socialid = $socialid;
         $record->socialname = $socialname;
+        $record->link = $link;
         $record->type = $this->get_subtype();
 
         $DB->insert_record('msocial_mapusers', $record);
@@ -329,12 +338,12 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         global $DB;
         if ($this->usertosocialmapping == null || $this->socialtousermapping == null) {
             $records = $DB->get_records('msocial_mapusers', ['msocial' => $this->msocial->id, 'type' => $this->get_subtype()],
-                    null, 'userid,socialid,socialname');
+                    null, 'userid,socialid,socialname,link');
             $this->usertosocialmapping = [];
             $this->socialtousermapping = [];
             foreach ($records as $record) {
                 $this->socialtousermapping[$record->socialid] = $record->userid;
-                $this->usertosocialmapping[$record->userid] = new social_user($record->socialid, $record->socialname);
+                $this->usertosocialmapping[$record->userid] = new social_user($record->socialid, $record->socialname, isset($record->link) ? $record->link : '');
             }
         }
     }

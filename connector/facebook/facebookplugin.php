@@ -206,7 +206,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     }
 
     public function get_social_user_url(social_user $userid) {
-        return "https://www.facebook.com/app_scoped_user_id/$userid->socialid";
+        return $userid->sociallink;
     }
 
     public function get_interaction_url(social_interaction $interaction) {

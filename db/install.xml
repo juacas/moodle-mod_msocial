@@ -128,6 +128,8 @@
 				<FIELD NAME="socialname" TYPE="char" LENGTH="100" NOTNULL="false"
 					DEFAULT="0" SEQUENCE="false"
 					COMMENT="Screen name of the user in the social network." />
+				<FIELD NAME="link" TYPE="char" LENGTH="256" NOTNULL="false"
+					DEFAULT="" SEQUENCE="false" COMMENT="URL to the user in the social network." />
 			</FIELDS>
 			<KEYS>
 				<KEY NAME="id" TYPE="primary" FIELDS="id" />

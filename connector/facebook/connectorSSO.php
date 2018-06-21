@@ -65,11 +65,11 @@ $thispageurl = new moodle_url('/mod/msocial/connector/facebook/connectorSSO.php'
 if ($action == 'connect') {
     // GetToken.
     $helper = $fb->getRedirectLoginHelper();
-    
-    if ($type == 'profile') {
-        $permissions = ['user_managed_groups'];
+
+    if ($type == 'connect') {
+        $permissions = ['user_managed_groups, user_link'];
     } else {
-        $permissions = [''];
+        $permissions = ['user_link'];
     }
     $thispageurl = new moodle_url("/mod/msocial/connector/facebook/connectorSSO.php",
             array(
@@ -81,7 +81,7 @@ if ($action == 'connect') {
     $SESSION->msocialfacebookSSOid = $id;
     $callbackurl = $thispageurl->out($escaped = false);
     $loginurl = $helper->getLoginUrl($callbackurl, $permissions);
-    
+
     header("Location: $loginurl");
     die();
 } else if ($action == 'callback') {
@@ -112,11 +112,10 @@ if ($action == 'connect') {
             }
         }
         $fb->setDefaultAccessToken($accesstoken);
-        $graphuser = $fb->get('/me')->getGraphUser();
+        $graphuser = $fb->get('/me?fields=id,name,link')->getGraphUser();
         $username = $graphuser->getName();
         // Save tokens for future use.
         if ($type === 'connect' && has_capability('mod/msocial:manage', $context)) {
-            
             $record = new stdClass();
             $record->token = $accesstoken->getValue();
             $record->username = $username;
@@ -125,7 +124,8 @@ if ($action == 'connect') {
             // Fill the profile with username in Facebook.
         } else if ($type === 'profile') {
             $socialname = $graphuser->getName();
-            $plugin->set_social_userid($USER, $graphuser->getId(), $socialname);
+            $userlink = $graphuser->getLink();
+            $plugin->set_social_userid($USER, $graphuser->getId(), $socialname, $userlink);
             $message = "Profile updated with facebook user $socialname ";
         } else {
             print_error('unknownuseraction');
@@ -139,7 +139,7 @@ if ($action == 'connect') {
     // Show headings and menus of page.
     $PAGE->set_url($thispageurl);
     $PAGE->set_title(format_string($cm->name));
-    
+
     $PAGE->set_heading($course->fullname);
     // Print the page header.
     echo $OUTPUT->header();
@@ -197,11 +197,11 @@ if ($action == 'connect') {
     // Print the page header.
     echo $OUTPUT->header();
     echo $OUTPUT->box(get_string('selectthisgroup', 'msocialconnector_facebook') . ':' . $gname);
-    
+
     // Save the configuration.
     $plugin->set_config(msocial_connector_facebook::CONFIG_FBGROUP, $gid);
     $plugin->set_config(msocial_connector_facebook::CONFIG_FBGROUPNAME, $gname);
-    
+
     echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));
 } else {
     print_error("Bad action code");

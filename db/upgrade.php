@@ -234,6 +234,16 @@ function xmldb_msocial_upgrade($oldversion = 0) {
         // Msocial savepoint reached.
         upgrade_mod_savepoint(true, 2018042600, 'msocial');
     }
+    if ($oldversion < 2018062101) {
+        $table = new xmldb_table('msocial_mapusers');
+        $field = new xmldb_field('link', XMLDB_TYPE_CHAR, "256", null, false, null, '');
 
+        // Conditionally launch add field rejected.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Msocial savepoint reached.
+        upgrade_mod_savepoint(true, 2018062101, 'msocial');
+    }
     return true;
 }
