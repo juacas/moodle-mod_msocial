@@ -57,7 +57,7 @@ $appsecret = get_config("msocialconnector_facebook", "appsecret");
 $fb = new \Facebook\Facebook([
                 'app_id' => $appid,
                 'app_secret' => $appsecret,
-                'default_graph_version' => 'v2.10',
+                'default_graph_version' => 'v3.0',
 ]);
 $thispageurl = new moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
         array('id' => $id, 'action' => $action, 'type' => $type));
@@ -67,7 +67,7 @@ if ($action == 'connect') {
     $helper = $fb->getRedirectLoginHelper();
 
     if ($type == 'connect') {
-        $permissions = ['user_managed_groups, user_link'];
+        $permissions = ['groups_access_member_info, user_link'];
     } else {
         $permissions = ['user_link'];
     }
