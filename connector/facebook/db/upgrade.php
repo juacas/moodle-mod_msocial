@@ -46,11 +46,23 @@ defined('MOODLE_INTERNAL') || die();
  * @return bool
  */
 function xmldb_msocialconnector_facebook_upgrade($oldversion = 0) {
-    global $CFG;
-
+    global $CFG, $DB;
+    /* @var $dbman database_manager */
+    $dbman = $DB->get_manager();
     if ($oldversion < 2017092100) {
         // Facebook savepoint reached.
         upgrade_plugin_savepoint(true, 2017092100, 'msocialconnector', 'facebook');
+    }
+    if ($oldversion < 2018080700) {
+        $table = new xmldb_table('msocial_facebook_tokens');
+        $field = new xmldb_field('username');
+        $field->setLength(200);
+        if ($dbman->field_exists($table, $field)) {
+//  TODO: This upgrade gives error with POSTGRES !!!     
+            $dbman->change_field_precision($table, $field);
+        }
+        // Facebook savepoint reached.
+        upgrade_plugin_savepoint(true, 2018080700, 'msocialconnector', 'facebook');
     }
     require_once($CFG->dirroot . '/mod/msocial/connector/facebook/facebookplugin.php');
     $plugininfo = new mod_msocial\connector\msocial_connector_facebook(null);

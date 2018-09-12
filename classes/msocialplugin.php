@@ -41,6 +41,7 @@ require_once($CFG->dirroot . '/mod/msocial/classes/filterinteractions.php');
 use core_component;
 use mod_msocial\kpi;
 use mod_msocial\kpi_info;
+use mod_msocial\connector\harvest_intervals;
 use mod_msocial\plugininfo\msocialbase;
 use mod_msocial\users_struct;
 
@@ -58,12 +59,12 @@ abstract class msocial_plugin {
     const LAST_HARVEST_TIME = 'lastharvest';
 
     /**
-     * @var msocial $msocial the msocial record that contains the global
+     * @var \stdClass $msocial the msocial record that contains the global
      *      settings for this instance */
     public $msocial;
 
     /**
-     * @var course_modinfo $cm info about the module */
+     * @var \course_modinfo $cm info about the module */
     protected $cm;
 
     /** @var string $type msocial plugin type */
@@ -80,7 +81,7 @@ abstract class msocial_plugin {
 
     /** Constructor for the abstract plugin type class
      *
-     * @param msocial $msocial
+     * @param \stdClass $msocial
      * @param string $type */
     public function __construct($msocial, $type) {
         $this->msocial = (object) $msocial;
@@ -120,7 +121,7 @@ abstract class msocial_plugin {
      * moodle
      * form for display in the settings page.
      *
-     * @param MoodleQuickForm $mform The form to add the elements to
+     * @param \MoodleQuickForm $mform The form to add the elements to
      * @return $array */
     public function get_settings(\MoodleQuickForm $mform) {
         return;
@@ -209,7 +210,7 @@ abstract class msocial_plugin {
     /** Add kpi fields to the database in table msocial_kpis. */
     public function create_kpi_fields() {
         global $DB;
-        /* @var $dbman database_manager */
+        /* @var \database_manager $dbman*/
         $dbman = $DB->get_manager();
         $table = new \xmldb_table('msocial_kpis');
         $kpilist = $this->get_kpi_list();
@@ -225,10 +226,10 @@ abstract class msocial_plugin {
     }
 
     /**
-     * @global moodle_database $DB */
+     * @global \moodle_database $DB */
     public function drop_kpi_fields() {
         global $DB;
-        /* @var  database_manager $dbman */
+        /* @var \database_manager $dbman */
         $dbman = $DB->get_manager();
         $table = new \xmldb_table('msocial_kpis');
         $kpilist = $this->get_kpi_list();
@@ -378,7 +379,16 @@ abstract class msocial_plugin {
             return '';
         }
     }
-
+    /**
+     * This function is used by the reset_course_userdata function in moodlelib.
+     * This function will remove all internal data, tokens from the specified course
+     * and clean up any related data.
+     * @param \stdClass $data the data submitted from the reset course.
+     * @return array status array */
+    public function reset_userdata(\stdClass $data) {
+       return array('component'=>$this->get_name(), 'item'=>get_string('resetdone', 'msocial'), 'error'=>false);
+    }
+    
     /** Add to the kpis the fields in the arguments or insert new records.
      * TODO: create and manage historical kpis
      * Timestamp updated
@@ -707,7 +717,7 @@ abstract class msocial_plugin {
     /**
      * @global
      * @param string[] $messages
-     * @param unknown $level
+     * @param int $level
      */
     public function notify(array $messages, $level = self::NOTIFY_NORMAL) {
         global $OUTPUT;

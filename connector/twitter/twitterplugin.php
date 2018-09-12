@@ -326,7 +326,27 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $DB->insert_record('msocial_twitter_tokens', $token);
         }
     }
-
+    /**
+     *
+     * {@inheritDoc}
+     * @see \msocial\msocial_plugin::reset_userdata()
+     */
+    public function reset_userdata($data) {
+        // Twitter token if for the teacher. Preserve it.
+        
+        // Remove mapusers.
+        global $DB;
+        $msocial = $this->msocial;
+        $DB->delete_records('msocial_mapusers',['msocial' => $msocial->id, 'type' => $this->get_subtype()]);
+        // Clear tweets log.
+        $DB->delete_records('msocial_tweets', ['msocial' => $msocial->id]);
+        return array('component'=>$this->get_name(), 'item'=>get_string('unlinksocialaccount', 'msocial'), 'error'=>false);
+    }
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \mod_msocial\connector\msocial_connector_plugin::unset_connection_token()
+     */
     public function unset_connection_token() {
         global $DB;
         $DB->delete_records('msocial_twitter_tokens', array('msocial' => $this->msocial->id));

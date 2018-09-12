@@ -64,7 +64,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     }
     /** Get the instance settings for the plugin
      *
-     * @param MoodleQuickForm $mform The form to add elements to
+     * @param \MoodleQuickForm $mform The form to add elements to
      * @return void */
     public function get_settings(\MoodleQuickForm $mform) {
         $mform->addElement('static', 'config_group', get_string('fbgroup', 'msocialconnector_facebook'),
@@ -273,11 +273,11 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /**
      * @deprecated
      *
-     * @param unknown $kpiname
-     * @param unknown $records
-     * @param unknown $users
-     * @param unknown $userstats
-     * @param unknown $accum */
+     * @param string $kpiname
+     * @param \stdClass[] $records
+     * @param \stdClass[] $users
+     * @param \stdClass $userstats
+     * @param number[] $accum */
     private function append_stats($kpiname, &$records, $users, &$userstats, &$accum) {
         foreach ($users as $userid) {
 
@@ -347,7 +347,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * {@inheritdoc}
      *
      * @global moodle_database $DB
-     * @return type */
+     * @return \stdClass token record */
     public function get_connection_token() {
         global $DB;
         if ($this->msocial) {
@@ -377,7 +377,25 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             $DB->insert_record('msocial_facebook_tokens', $token);
         }
     }
-
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \msocial\msocial_plugin::reset_userdata()
+     */
+    public function reset_userdata($data) {
+        // Facebook connection token is only for the teacher. Preserve it.
+        
+        // Remove mapusers.
+        global $DB;
+        $msocial = $this->msocial;
+        $DB->delete_records('msocial_mapusers',['msocial' => $msocial->id, 'type' => $this->get_subtype()]);
+        return array('component'=>$this->get_name(), 'item'=>get_string('unlinksocialaccount', 'msocial'), 'error'=>false);
+    }
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \mod_msocial\connector\msocial_connector_plugin::unset_connection_token()
+     */
     public function unset_connection_token() {
         global $DB;
         $DB->delete_records('msocial_facebook_tokens', array('msocial' => $this->msocial->id));

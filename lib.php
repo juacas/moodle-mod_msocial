@@ -38,6 +38,7 @@
  */
 use mod_msocial\plugininfo\msocialconnector;
 use mod_msocial\plugininfo\msocialbase;
+use msocial\msocial_plugin;
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . "/config.php");
 require_once($CFG->dirroot . '/grade/lib.php');
@@ -176,6 +177,83 @@ function msocial_delete_instance($id) {
     return $result;
 }
 
+/**
+ * Removes all grades from gradebook
+ *
+ * @param int $courseid
+ * @param string optional type
+ */
+function msocial_reset_gradebook($courseid, $type = '') {
+    global $DB;
+    
+    $msocials = $DB->get_records_sql(
+            "SELECT t.*, cm.idnumber as cmidnumber, t.course as courseid " .
+            "FROM {modules} m " .
+            "JOIN {course_modules} cm ON m.id = cm.module" .
+            "JOIN {msocial} t ON cm.instance = t.id" .
+            "WHERE m.name = 'msocial' AND cm.course = ?", array($courseid));
+    
+    foreach ($msocials as $msocial) {
+        msocial_grade_item_update($msocial, 'reset');
+    }
+}
+/**
+ * This function is used by the reset_course_userdata function in moodlelib.
+ * This function will remove all KPIs, interactions and tokens from the specified course
+ * and clean up any related data.
+ * @param \stdClass $data the data submitted from the reset course.
+ * @return array status array */
+function msocial_reset_userdata($data) {
+    global $DB;
+    
+    $componentstr = get_string('modulenameplural', 'msocial');
+    $status = array();
+    $allmsocialssql = "SELECT msocial.id
+                            FROM {msocial} msocial
+                      WHERE msocial.course=?";
+    $params[] = $data->courseid;
+    // Delete KPIs.
+    $DB->delete_records_select('msocial_kpis', "msocial in ($allmsocialssql)",$params);
+    // Delete interactions.
+    $DB->delete_records_select('msocial_interactions', "msocial in ($allmsocialssql)", $params);
+   
+    // Iterate the subplugins.
+    $course = get_course($data->courseid);
+    $msocials = get_all_instances_in_course('msocial', $course);
+    foreach ($msocials as $msocial) {
+        $plugins = mod_msocial\plugininfo\msocialbase::get_installed_plugins($msocial);
+        foreach ($plugins as $plugin) {
+            $pluginstatus = $plugin->reset_userdata($data);
+            $status[] = $pluginstatus;
+        }
+    }
+    
+    $status[] = array(
+                    'component' => $componentstr,
+                    'item' => get_string('instancesreset', 'msocial'),
+                    'error' => false);
+        
+    // Remove all grades from gradebook.
+    if (!empty($data->reset_gradebook_grades)) {
+        msocial_reset_gradebook($data->courseid);
+        $status[] = array(
+                        'component' => $componentstr,
+                        'item' => get_string('gradesdeleted', 'msocial'),
+                        'error' => false);
+    }
+
+    // Updating dates - shift may be negative too.
+    if ($data->timeshift) {
+        shift_course_mod_dates('msocial', array('startdate', 'enddate'), $data->timeshift, $data->courseid);
+        
+        $status[] = array(
+                        'component' => $componentstr,
+                        'item' => get_string('datechanged'),
+                        'error' => false);
+    }
+    
+    return $status; 
+}
 /** Return a small object with summary information about what a
  * user has done with a given particular instance of this module
  * Used for user activity reports.
@@ -185,7 +263,7 @@ function msocial_delete_instance($id) {
  * @return null
  * @todo Finish documenting this function */
 function msocial_user_outline($course, $user, $mod, $msocial) {
-    $return = null;
+    $return = null; // TODO: document user's activity.
     return $return;
 }
 
