@@ -386,7 +386,9 @@ abstract class msocial_plugin {
      * @param \stdClass $data the data submitted from the reset course.
      * @return array status array */
     public function reset_userdata(\stdClass $data) {
-       return array('component'=>$this->get_name(), 'item'=>get_string('resetdone', 'msocial'), 'error'=>false);
+        $msocial = $this->msocial;
+        return array('component'=>$this->get_name(), 'item'=>get_string('resetdone', 'msocial',
+                "MSOCIAL $msocial->id (Actually, no reset)"), 'error'=>false);
     }
     
     /** Add to the kpis the fields in the arguments or insert new records.
