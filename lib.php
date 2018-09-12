@@ -189,8 +189,8 @@ function msocial_reset_gradebook($courseid, $type = '') {
     $msocials = $DB->get_records_sql(
             "SELECT t.*, cm.idnumber as cmidnumber, t.course as courseid " .
             "FROM {modules} m " .
-            "JOIN {course_modules} cm ON m.id = cm.module" .
-            "JOIN {msocial} t ON cm.instance = t.id" .
+            "JOIN {course_modules} cm ON m.id = cm.module " .
+            "JOIN {msocial} t ON cm.instance = t.id " .
             "WHERE m.name = 'msocial' AND cm.course = ?", array($courseid));
     
     foreach ($msocials as $msocial) {
