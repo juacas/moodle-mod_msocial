@@ -82,7 +82,7 @@ $string['mentions'] = 'Menciones';
 $string['interactionstoshow'] = 'Mostrar interacciones de:';
 $string['socialnetworktoshow'] = 'Mostrar las redes sociales:';
 $string['unlinksocialaccount'] = 'Elimina la relación entre el estudiante y su cuenta de la red social';
-$string['resetdone'] = 'Reseteado';
+$string['resetdone'] = '{$a} se ha reseteado';
 $string['gradesdeleted'] = 'Calificaciones eliminadas';
 
 // Permissions.

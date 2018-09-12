@@ -82,7 +82,7 @@ $string['mentions'] = 'Mentions';
 $string['interactionstoshow'] = 'Show interactions:';
 $string['socialnetworktoshow'] = 'Show social networks:';
 $string['unlinksocialaccount'] = 'Remove the relationship between the student and his social network account';
-$string['resetdone'] = 'Reset done';
+$string['resetdone'] = 'Reset done for {$a}';
 $string['gradesdeleted'] = 'Grades deleted';
 // SETTINGS.
 // Permissions.
