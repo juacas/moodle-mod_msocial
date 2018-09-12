@@ -224,7 +224,9 @@ function msocial_reset_userdata($data) {
         $plugins = mod_msocial\plugininfo\msocialbase::get_installed_plugins($msocial);
         foreach ($plugins as $plugin) {
             $pluginstatus = $plugin->reset_userdata($data);
-            $status[] = $pluginstatus;
+            if ($pluginstatus) {
+                $status[] = $pluginstatus;
+            }
         }
     }
     
