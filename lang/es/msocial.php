@@ -44,7 +44,6 @@ $string['modulename_help'] = 'La actividad MSocial permite a los profesores defi
 'El profesor necesita tener una cuenta de cada red social que va a usar y conectar la actividad con su usuario de esa red social.';
 $string['pluginname'] = 'Actividad en redes sociales';
 $string['harvestedtimeago'] = 'Refrescado hace {$a->interval}';
-$string['instancesreset'] = 'Se han reseteado las instancias de MSOCIAL.';
 $string['startdate'] = 'Momento en que se empiezan a contar las interacciones.';
 $string['startdate_help'] = 'Las interacciones previas a la fecha de inicio no se incluirán en las estadísticas.';
 $string['enddate'] = 'Momento en que se dejarán de contar las interacciones en las redes sociales.';
@@ -84,6 +83,7 @@ $string['socialnetworktoshow'] = 'Mostrar las redes sociales:';
 $string['unlinksocialaccount'] = 'Elimina la relación entre el estudiante y su cuenta de la red social';
 $string['resetdone'] = '{$a} se ha reseteado';
 $string['gradesdeleted'] = 'Calificaciones eliminadas';
+$string['instancesreset'] = 'Se han reseteado las instancias de MSOCIAL y se han borrado los KPIs.';
 
 // Permissions.
 $string['msocial:view'] = 'Ver información básica del módulo MSocial.';
