@@ -340,7 +340,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         $DB->delete_records('msocial_mapusers',['msocial' => $msocial->id, 'type' => $this->get_subtype()]);
         // Clear tweets log.
         $DB->delete_records('msocial_tweets', ['msocial' => $msocial->id]);
-        return array('component'=>$this->get_name(), 'item'=>get_string('unlinksocialaccount', 'msocial'), 'error'=>false);
+        return array('component'=>$this->get_name(), 'item'=>get_string('resetdone', 'msocial',
+                "MSOCIAL $msocial->id: map of users, tweets"), 'error'=>false);
     }
     /**
      * 
