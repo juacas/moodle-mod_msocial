@@ -14,7 +14,7 @@ function($) {
 		var params = $.param(params);
 		$.getJSON("view/breakdown/jsonized.php?id=" + cmid + "&" + params + "&redirect=" + redirect,
 		function(data){
-			var width = 840,
+			var width = 400,
 		    height = width,
 		    radius = width / 2,
 		    x = d3.scale.linear().range([0, 2 * Math.PI]),
