@@ -60,6 +60,14 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         // TODO: Notify users with messagging.
         $this->notify([$msg], self::NOTIFY_WARNING);
     }
+    /**
+     * Sometimes the social networks API access is not authorized (due to review processes)
+     * and SSO login is only allowed for certain users (i.e. teachers registered manually in the API provider.)
+     * @return boolean
+     */
+    public function isautologinapproved() {
+        return true;
+    }
     public abstract function get_connection_token();
 
     public abstract function set_connection_token($token);
@@ -72,6 +80,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
 
     /** Place social-network user information or a link to connect.
      *  Uses i18n strings get_string("no_{$subtype}_name_advice2", "msocialconnector_{$subtype}")
+     *  and get_string("no_{$subtype}_advice2_when_api_unapproved", "msocialconnector_{$subtype}")
+     *  depending on $this->isautologinapproved()
      *  if $connectaction == true renders a link to connect the account.
      *
      * @global object $USER
@@ -91,9 +101,14 @@ abstract class msocial_connector_plugin extends msocial_plugin {
             if ($connectaction) {
                 $urlprofile = new \moodle_url("/mod/msocial/connector/$subtype/connectorSSO.php",
                         array('id' => $cm->id, 'action' => 'connect', 'type' => 'profile'));
-                $usermessage = get_string("no_{$subtype}_name_advice2", "msocialconnector_{$subtype}",
+                if ($this->isautologinapproved()) {
+                    $msgstring = "no_{$subtype}_name_advice2";
+                } else {
+                    $msgstring = "no_{$subtype}_advice2_when_api_unapproved";
+                }
+                $usermessage = get_string($msgstring, "msocialconnector_{$subtype}",
                         ['userfullname' => $userfullname, 'userid' => $user->id, 'courseid' => $course->id,
-                                        'url' => $urlprofile->out(false), 'pixurl' => $pixurl->out(false)]);
+                                        'url' => $urlprofile->out(false), 'pixurl' => $pixurl->out(false)]);                    
             } else {
                 if ($brief) {
                     $usermessage = $this->render_user_link($user, $brief);
