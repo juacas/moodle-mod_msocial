@@ -407,14 +407,15 @@ function msocial_tabbed_reports($msocial, $view, moodle_url $thispageurl, $conte
                             return ($a->get_sort_order() > $b->get_sort_order());
     }
         );
-    if ($view==null) {
-        $view = $plugins[0]->get_subtype();
-    }
+    
     $rows = [];
     /** @var msocial_view_plugin*/
     foreach ($plugins as $name => $plugin) {
         if ($plugin->is_enabled() == false) {
             continue;
+        }
+        if ($view==null) {
+            $view = $plugin->get_subtype();
         }
         $icon = $plugin->get_icon();
         $icondecoration = html_writer::img($icon->out(), $plugin->get_name() . ' icon.', ['height' => 32]);
