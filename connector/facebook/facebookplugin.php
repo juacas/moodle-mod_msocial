@@ -382,7 +382,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
      * {@inheritDoc}
      * @see \msocial\msocial_plugin::reset_userdata()
      */
-    public function reset_userdata($data) {
+    public function reset_userdata(\stdClass $data) {
         // Facebook connection token is only for the teacher. Preserve it.
         
         // Remove mapusers.

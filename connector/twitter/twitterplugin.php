@@ -332,7 +332,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * {@inheritDoc}
      * @see \msocial\msocial_plugin::reset_userdata()
      */
-    public function reset_userdata($data) {
+    public function reset_userdata(\stdClass $data) {
         // Twitter token if for the teacher. Preserve it.
         
         // Remove mapusers.
