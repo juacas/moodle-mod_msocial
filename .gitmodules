@@ -1,0 +1,3 @@
+[submodule "connector/instagram"]
+	path = connector/instagram
+	url = https://juanpdecastro@bitbucket.org/eduvalab/moodle-mod_msocialconnector_instagram.git
