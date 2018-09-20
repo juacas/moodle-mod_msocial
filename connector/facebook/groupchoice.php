@@ -24,7 +24,6 @@
  * *******************************************************************************
  */
 use mod_msocial\connector\msocial_connector_facebook;
-use DirkGroenen\facebook\facebook;
 use Facebook\GraphNodes\GraphNodeFactory;
 
 require_once("../../../../config.php");

@@ -26,10 +26,7 @@
 namespace mod_msocial\connector;
 
 use mod_msocial\kpi_info;
-use questournament\GraphNodes\GraphEdge;
-use questournament\questournament as questournament;
 use msocial\msocial_plugin;
-use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -180,7 +177,7 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
     }
     /** Classify the text as too short to be relevant
      *
-     * @param GraphEdge $comment
+     * @param string $message
      * @return boolean $ok */
     public function is_short_comment($message) {
         $ok = false;
