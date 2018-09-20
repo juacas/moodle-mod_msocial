@@ -49,7 +49,7 @@ class msocial_view_table extends msocial_view_plugin {
 
     /** Get the settings for the plugin
      *
-     * @param MoodleQuickForm $mform The form to add elements to
+     * @param \MoodleQuickForm $mform The form to add elements to
      * @return void */
     public function get_settings(\MoodleQuickForm $mform) {
     }
@@ -172,6 +172,7 @@ class msocial_view_table extends msocial_view_plugin {
         // Define column groups.
         $columnstart = 2;
         $kpicolumns = range($columnstart, $columnstart + count($kpiinfosall) - 1);
+        $columngroups = [];
         foreach ($kpiindividual as $type => $kpiinfs) {
             $columnend = $columnstart + count($kpiinfs) - 1;
             $columns = range($columnstart, $columnend);
