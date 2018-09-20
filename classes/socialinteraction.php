@@ -31,6 +31,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 namespace mod_msocial\connector;
 
+use mod_msocial\filter_interactions;
+
 defined('MOODLE_INTERNAL') || die();
 
 class social_interaction {
@@ -158,7 +160,7 @@ class social_interaction {
         }
         return $inter;
     }
-    static public function load_interactions_filter(\filter_interactions $filter) {
+    static public function load_interactions_filter(filter_interactions $filter) {
         global $DB;
         $interactions = [];
 
@@ -169,20 +171,6 @@ class social_interaction {
             $interactions[$interaction->uid] = $interaction;
         }
         return $interactions;
-    }
-    /**
-     * @param unknown $msocialid
-     * @param unknown $conditions
-     * @param unknown $fromdate
-     * @param unknown $todate
-     * @param array(int) $users list of moodle identifiers
-     * @return \mod_msocial\connector\social_interaction[]
-     * @deprecated
-     */
-    static public function load_interactions($msocial, $conditions = null, $fromdate = null, $todate = null, $users = null) {
-        $filter = new \filter_interactions(['fromdate' => $fromdate, 'todate' => $todate ], $msocial);
-        $filter->set_users($users);
-        return self::load_interactions_filter($filter);
     }
 
     /** Save the list of interactions in the database.

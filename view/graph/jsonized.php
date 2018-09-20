@@ -25,6 +25,7 @@
  */
 use mod_msocial\connector\social_interaction;
 use mod_msocial\social_user;
+use mod_msocial\filter_interactions;
 require_once('../../../../config.php');
 require_once('../../locallib.php');
 require_once('../../classes/msocialconnectorplugin.php');

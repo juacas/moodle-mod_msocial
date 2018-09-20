@@ -1,7 +1,10 @@
 <?php
+namespace mod_msocial;
+
+use DateTime;
+use moodle_url;
 use mod_msocial\connector\social_interaction;
 use mod_msocial\plugininfo\msocialconnector;
-use mod_msocial\users_struct;
 
 // This file is part of MSocial activity for Moodle http://moodle.org/
 //

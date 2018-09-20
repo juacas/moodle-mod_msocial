@@ -30,6 +30,7 @@ use mod_msocial\kpi_info;
 use mod_msocial\social_user;
 use msocial\msocial_plugin;
 use mod_msocial\users_struct;
+use mod_msocial\filter_interactions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -647,8 +648,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      */
     protected function refresh_likes() {
         $likeinteractions = [];
-        $filter = new \filter_interactions([\filter_interactions::PARAM_SOURCES => $this->get_subtype(),
-                        \filter_interactions::PARAM_INTERACTION_POST => true], $this->msocial);
+        $filter = new filter_interactions([filter_interactions::PARAM_SOURCES => $this->get_subtype(),
+                        filter_interactions::PARAM_INTERACTION_POST => true], $this->msocial);
         $interactions = social_interaction::load_interactions_filter($filter);
         $interactions = $this->merge_interactions($interactions, $this->lastinteractions);
 

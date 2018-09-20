@@ -29,7 +29,7 @@ class tag_parser {
     /**
      * Parse hashtag search string.
      * According twitter https://twitter.com/search-advanced a list of terms are ANDed, OR creates takes precedence to the left.
-     * @param unknown $hashtagexpr
+     * @param string $hashtagexpr
      */
     public function __construct($hashtagexpr) {
         if ($hashtagexpr == '*') {
@@ -70,7 +70,7 @@ class tag_parser {
     /**
      * Check filter condition. Only a list of AND tags
      * TODO: implement more conditions.
-     * @param unknown $text to search into
+     * @param string $text to search into
      */
     public function check_hashtaglist($text) {
         foreach ($this->searchstruct as $condition) {

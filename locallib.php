@@ -46,7 +46,7 @@ function msocial_notify_info($message) {
 }
 /**
  * Compatibility with Moodle 2.9 notifications
- * @param unknown $message
+ * @param string $message
  */
 function msocial_notify_error($message) {
     if (class_exists('\core\notification')) {
@@ -58,7 +58,7 @@ function msocial_notify_error($message) {
 }
 /**
  * Compatibility with Moodle 2.9 notifications
- * @param unknown $message
+ * @param string $message
  */
 function msocial_notify_warning($message) {
     if (class_exists('\core\notification')) {
@@ -69,8 +69,8 @@ function msocial_notify_warning($message) {
     }
 }
 /** Find the list of users and get a list with the ids of students and a list of non-students
- * @param type $contextcourse
- * @return user_struct */
+ * @param \stdClass $contextcourse
+ * @return users_struct */
 function msocial_get_users_by_type($contextcourse) {
     // Get users with gradable roles.
     global $CFG;
@@ -129,8 +129,8 @@ function msocial_time_is_between($timestamp, $fromdate, $todate) {
 
 /**
  * @deprecated REturns true if the user shows no activity in the stats
- * @param type $userid
- * @param type $stat
+ * @param int $userid
+ * @param \stdClass $stat
  * @return boolean */
 function msocial_user_inactive($userid, $stat) {
     if ($stat->favs == 0 && $stat->tweets == 0 && $stat->retweets == 0) {
@@ -142,8 +142,7 @@ function msocial_user_inactive($userid, $stat) {
 
 /** Apply a formula to calculate a raw grade.
  *
- * @param type $msocial module instance
- * @see msocial_calculate_stats
+ * @param \stdClass $msocial module instance. (see function msocial_calculate_stats)
  * @return \stdClass grade struct with grade->rawgrade = -1 if no calculation is possible */
 function msocial_calculate_grades($msocial) {
     global $CFG;
@@ -324,7 +323,7 @@ function msocial_can_view_others_names($msocial) {
  *
  * @param stdClass $cm
  * @param stdClass $msocial
- * @return user_struct
+ * @return users_struct
  */
 function msocial_get_viewable_users($cm, $msocial) {
     global $USER;
@@ -368,7 +367,7 @@ function msocial_update_plugin_instance($plugin, stdClass $formdata) {
 /**
  * @param object $userstatsa
  * @param object $userstatsb
- * @return type */
+ * @return \stdClass */
 function merge_stats($statsa, $statsb) {
     $userstatsa = $statsa->users;
     $userstatsb = $statsb->users;

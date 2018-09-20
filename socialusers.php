@@ -23,12 +23,8 @@
  * @package msocial
  * *******************************************************************************
  */
-use mod_msocial\plugininfo\msocialview;
-use msocial\msocial_plugin;
-use mod_msocial\plugininfo\msocialbase;
-use mod_msocial\plugininfo\msocialconnector;
-use mod_msocial\SocialUser;
 use mod_msocial\social_user;
+use mod_msocial\plugininfo\msocialconnector;
 
 require_once("../../config.php");
 require_once("locallib.php");

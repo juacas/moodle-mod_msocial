@@ -24,6 +24,8 @@
  */
 namespace mod_msocial\view;
 
+use msocial\msocial_plugin;
+
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/msocial/classes/msocialviewplugin.php');
@@ -49,7 +51,7 @@ class msocial_view_drops extends msocial_view_plugin {
     /**
      * Get the settings for the plugin
      *
-     * @param MoodleQuickForm $mform The form to add elements to
+     * @param \MoodleQuickForm $mform The form to add elements to
      * @return void
      */
     public function get_settings(\MoodleQuickForm $mform) {

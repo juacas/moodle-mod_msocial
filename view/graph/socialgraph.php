@@ -28,15 +28,13 @@ defined('MOODLE_INTERNAL') || die();
 require_once('vendor/autoload.php');
 require_once('JPDijkstra.php');
 
-use \Fhaculty\Graph\Graph as Graph;
-use mod_msocial\connector\social_interaction;
-use Graphp\Algorithms\Degree;
-use Graphp\Algorithms\TransposeGraph;
-use Graphp\Algorithms\BidirectionalGraph;
-use Fhaculty\Graph\Set\Vertices;
-use Fhaculty\Graph\Vertex;
-use Graphp\Algorithms\SimpleGraph;
+use Fhaculty\Graph\Graph;
 use Fhaculty\Graph\Exception\OutOfBoundsException;
+use Graphp\Algorithms\BidirectionalGraph;
+use Graphp\Algorithms\Degree;
+use Graphp\Algorithms\SimpleGraph;
+use mod_msocial\connector\social_interaction;
+use Fhaculty\Graph\Vertex;
 
 class SocialMatrix {
     private $adjacencymatrix = [];
@@ -81,8 +79,8 @@ class SocialMatrix {
 
     /**
      * @param social_interaction $interaction
-     * @param unknown $edgeattrs Edge attrs array.
-     * @param unknown $date
+     * @param string[] $edgeattrs Edge attrs array.
+     * @param DateTime $date
      * @return Vertex $from, Edge $edge, Vertex $to */
     public function register_interaction(social_interaction $interaction, $edgeattrs = [], $fromattrs = [], $toattrs = [], $date = null) {
         $from = $interaction->fromid ? $interaction->fromid : $interaction->nativefrom;

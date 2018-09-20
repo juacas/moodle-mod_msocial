@@ -31,6 +31,7 @@ use mod_msocial\kpi;
 use mod_msocial\connector\msocial_connector_plugin;
 use mod_msocial\connector\harvest_intervals;
 use mod_msocial\view\graph\graph_task;
+use mod_msocial\filter_interactions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -55,7 +56,7 @@ class msocial_view_graph extends msocial_view_plugin {
 
     /** Get the settings for the plugin
      *
-     * @param MoodleQuickForm $mform The form to add elements to
+     * @param \MoodleQuickForm $mform The form to add elements to
      * @return void */
     public function get_settings(\MoodleQuickForm $mform) {
     }
@@ -112,14 +113,14 @@ class msocial_view_graph extends msocial_view_plugin {
             }
         }
         // Get Interactions of all users, both known and anonymous.
-        $filter = new \filter_interactions([\filter_interactions::PARAM_STARTDATE => $this->msocial->startdate,
-                                            \filter_interactions::PARAM_ENDDATE => $this->msocial->enddate,
-                                            \filter_interactions::PARAM_UNKNOWN_USERS => true,
-                                            \filter_interactions::PARAM_RECEIVED_BY_TEACHERS => true,
-                                            \filter_interactions::PARAM_INTERACTION_MENTION => true,
-                                            \filter_interactions::PARAM_INTERACTION_POST => true,
-                                            \filter_interactions::PARAM_INTERACTION_REACTION => true,
-                                            \filter_interactions::PARAM_INTERACTION_REPLY => true,
+        $filter = new filter_interactions([filter_interactions::PARAM_STARTDATE => $this->msocial->startdate,
+                                           filter_interactions::PARAM_ENDDATE => $this->msocial->enddate,
+                                           filter_interactions::PARAM_UNKNOWN_USERS => true,
+                                           filter_interactions::PARAM_RECEIVED_BY_TEACHERS => true,
+                                           filter_interactions::PARAM_INTERACTION_MENTION => true,
+                                           filter_interactions::PARAM_INTERACTION_POST => true,
+                                           filter_interactions::PARAM_INTERACTION_REACTION => true,
+                                           filter_interactions::PARAM_INTERACTION_REPLY => true,
         ],
                                             $this->msocial);
         $interactions = social_interaction::load_interactions_filter($filter);
@@ -195,7 +196,7 @@ class msocial_view_graph extends msocial_view_plugin {
     }
     /**
      * {@inheritDoc}
-     * @see \mod_msocial\connector\msocial_plugin::preferred_harvest_intervals()
+     * @see msocial_plugin::preferred_harvest_intervals()
      */
     public function preferred_harvest_intervals() {
         return new harvest_intervals(15 * 60, 5000, 1 * 3600, 0);
