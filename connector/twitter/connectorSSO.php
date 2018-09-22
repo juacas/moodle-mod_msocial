@@ -34,7 +34,7 @@ require_once('../../classes/msocialconnectorplugin.php');
 require_once('twitterplugin.php');
 require_once('TwitterAPIExchange.php');
 $id = required_param('id', PARAM_INT); // MSocial module instance cmid.
-$action = optional_param('action', false, PARAM_ALPHA);
+$action = optional_param('action', 'callback', PARAM_ALPHA);
 $type = optional_param('type', 'connect', PARAM_ALPHA);
 $cm = get_coursemodule_from_id('msocial', $id);
 $course = get_course($cm->course);

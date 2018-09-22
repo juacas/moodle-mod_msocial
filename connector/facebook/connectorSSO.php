@@ -23,11 +23,13 @@
  * @package msocial
  * *******************************************************************************
  */
-use Facebook\Authentication\OAuth2Client;
 use Facebook\Facebook;
+use Facebook\Exceptions\FacebookResponseException;
+use Facebook\Exceptions\FacebookSDKException;
 use Facebook\GraphNodes\GraphNodeFactory;
 use mod_msocial\connector\msocial_connector_facebook;
 
+global $SESSION, $CFG, $DB, $USER, $OUTPUT, $PAGE;
 require_once('vendor/Facebook/autoload.php');
 require_once("../../../../config.php");
 require_once($CFG->dirroot . '/mod/lti/OAuth.php');
@@ -35,14 +37,13 @@ require_once('../../locallib.php');
 require_once('../../classes/msocialconnectorplugin.php');
 require_once('facebookplugin.php');
 require_once('locallib.php');
-global $SESSION;
 
 $id = optional_param('id', isset($SESSION->msocialSSOid) ? $SESSION->msocialSSOid : null, PARAM_INT); // MSocial module instance.
 if (!isset($id)) {
     $id = required_param('id', PARAM_INT); // Provoke error.
 }
 unset($SESSION->msocialSSOid);
-$action = optional_param('action', false, PARAM_ALPHA);
+$action = optional_param('action', 'callback', PARAM_ALPHA);
 $type = optional_param('type', 'connect', PARAM_ALPHA);
 $cm = get_coursemodule_from_id('msocial', $id);
 $course = get_course($cm->course);
