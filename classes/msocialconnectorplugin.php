@@ -39,6 +39,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once('msocialplugin.php');
 require_once('usersstruct.php');
 require_once('harvestintervals.php');
+require_once('filterinteractions.php');
 abstract class msocial_connector_plugin extends msocial_plugin {
     protected $usertosocialmapping = null;
     protected $socialtousermapping = null;

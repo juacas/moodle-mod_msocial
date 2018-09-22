@@ -37,11 +37,11 @@ require_once('facebookplugin.php');
 require_once('locallib.php');
 global $CFG;
 
-$id = optional_param('id', isset($SESSION->msocialfacebookSSOid) ? $SESSION->msocialfacebookSSOid : null, PARAM_INT); // MSocial module instance.
+$id = optional_param('id', isset($SESSION->msocialSSOid) ? $SESSION->msocialSSOid : null, PARAM_INT); // MSocial module instance.
 if (!isset($id)) {
     $id = required_param('id', PARAM_INT); // Provoke error.
 }
-unset($SESSION->msocialfacebookSSOid);
+unset($SESSION->msocialSSOid);
 $action = optional_param('action', false, PARAM_ALPHA);
 $type = optional_param('type', 'connect', PARAM_ALPHA);
 $cm = get_coursemodule_from_id('msocial', $id);
