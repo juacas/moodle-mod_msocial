@@ -84,6 +84,7 @@ $string['unlinksocialaccount'] = 'Remove the relationship between the student an
 $string['instancesreset'] = 'Instances of MSOCIAL reset. KPIs deleted.';
 $string['resetdone'] = 'Reset done for {$a}';
 $string['gradesdeleted'] = 'Grades deleted';
+$string['ssoerror'] = 'Error when authenticating in the service: {$a}';
 // SETTINGS.
 // Permissions.
 $string['msocial:view'] = 'View basic information of MSocial module.';

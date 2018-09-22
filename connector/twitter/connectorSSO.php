@@ -26,13 +26,13 @@
 use mod_msocial\connector\msocial_connector_twitter;
 use mod_msocial\connector\OAuthCurl;
 
+global $DB, $CFG, $USER;
 require_once("../../../../config.php");
 require_once($CFG->dirroot . '/mod/lti/OAuth.php');
 require_once('../../locallib.php');
 require_once('../../classes/msocialconnectorplugin.php');
 require_once('twitterplugin.php');
 require_once('TwitterAPIExchange.php');
-global $CFG;
 $id = required_param('id', PARAM_INT); // MSocial module instance cmid.
 $action = optional_param('action', false, PARAM_ALPHA);
 $type = optional_param('type', 'connect', PARAM_ALPHA);
@@ -50,21 +50,20 @@ $oauthaccesstoken = "https://twitter.com/oauth/access_token";
 
 $thispageurl = new moodle_url("/mod/msocial/connector/twitter/connectorSSO.php",
         array('id' => $cm->id, 'action' => 'callback', 'type' => $type));
-$callbackurl = $thispageurl->out($escaped = false);
+$callbackurl = $thispageurl->out(false);
 $context = context_module::instance($id);
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
 $plugin = new msocial_connector_twitter($msocial);
 if ($action == 'callback') { // Twitter callback.
     $sigmethod = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1();
     $testconsumer = new \moodle\mod\lti\OAuthConsumer($consumerkey, $consumersecret, $callbackurl);
-    $params = array();
     $acctoken = new \moodle\mod\lti\OAuthConsumer($_SESSION['oauth_token'], $_SESSION['oauth_token_secret'], 1);
     $accreq = \moodle\mod\lti\OAuthRequest::from_consumer_and_token($testconsumer, $acctoken, "GET", $oauthaccesstoken);
     $accreq->sign_request($sigmethod, $testconsumer, $acctoken);
     
     $oc = new OAuthCurl();
     $reqdata = $oc->fetch_data("{$accreq}&oauth_verifier={$_GET['oauth_verifier']}");
-    
+    $accoauthdata = [];
     parse_str($reqdata['content'], $accoauthdata);
     if (!isset($accoauthdata['oauth_token'])) {
         print_error('error');
@@ -89,6 +88,7 @@ if ($action == 'callback') { // Twitter callback.
         $message = "Access forbidden.";
     }
     // Show headings and menus of page.
+    global $PAGE, $OUTPUT;
     $PAGE->set_url($thispageurl);
     $PAGE->set_title(format_string($cm->name));
     
@@ -109,8 +109,10 @@ if ($action == 'callback') { // Twitter callback.
     
     $oc = new OAuthCurl();
     $reqdata = $oc->fetch_data($reqreq->to_url());
-    if ($reqdata['errno'] == 0) {
-        parse_str($reqdata['content'], $reqoauthdata);
+    if (isset($reqdata['content'])) {
+        $reqoauthdata = json_decode($reqdata['content']);
+    }
+    if ($reqdata['errno'] == 0 && count($reqoauthdata->errors) == 0 ) {
         
         $reqtoken = new \moodle\mod\lti\OAuthConsumer($reqoauthdata['oauth_token'], $reqoauthdata['oauth_token_secret'], 1);
         
@@ -128,9 +130,12 @@ if ($action == 'callback') { // Twitter callback.
         $PAGE->set_title(format_string($cm->name));
         $PAGE->set_heading($course->fullname);
         // Print the page header.
-        echo $OUTPUT->header();
+        $errmsg = $reqdata['errmsg'];
+        $errarray = array_map(function($item) { return $item->message; }, $reqoauthdata->errors);
+        $errmsg = join('.', $errarray);
         $continue = new moodle_url('/mod/msocial/view.php', array('id' => $cm->id));
-        print_error('Error authenticating with Twitter.', null, $continue->out(), $reqdata['errmsg']);
+        echo $OUTPUT->header();
+        print_error('ssoerror', 'msocial', $continue->out(), $errmsg);
     }
 } else if ($action == 'disconnect') {
     if ($type == 'profile') {

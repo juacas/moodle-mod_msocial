@@ -31,6 +31,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 namespace mod_msocial\connector;
 
+use mod_msocial\filter_interactions;
 use mod_msocial\social_user;
 use msocial\msocial_plugin;
 use mod_msocial\users_struct;
@@ -198,8 +199,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      * @return \mod_msocial\connector\social_interaction[] of interactions. @see
      *         mod_msocial\connector\social_interaction */
     public function get_interactions($fromdate = null, $todate = null, $users = null) {
-        $filter = new \filter_interactions([\filter_interactions::PARAM_SOURCES => $this->get_subtype(),
-                                            \filter_interactions::PARAM_INTERACTION_MENTION => true,
+        $filter = new filter_interactions([filter_interactions::PARAM_SOURCES => $this->get_subtype(),
+                                            filter_interactions::PARAM_INTERACTION_MENTION => true,
                                             ], $this->msocial);
         $filter->set_users($users);
         return social_interaction::load_interactions_filter($filter);

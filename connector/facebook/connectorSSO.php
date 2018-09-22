@@ -35,7 +35,7 @@ require_once('../../locallib.php');
 require_once('../../classes/msocialconnectorplugin.php');
 require_once('facebookplugin.php');
 require_once('locallib.php');
-global $CFG;
+global $SESSION;
 
 $id = optional_param('id', isset($SESSION->msocialSSOid) ? $SESSION->msocialSSOid : null, PARAM_INT); // MSocial module instance.
 if (!isset($id)) {
@@ -78,7 +78,7 @@ if ($action == 'connect') {
                             //                             'id' => $id,
             ));
     // JPC: 2018-05-07 Facebook aparently began to include URL params as part of the redirect white-list patterns. Use session for id.
-    $SESSION->msocialfacebookSSOid = $id;
+    $SESSION->msocialSSOid = $id;
     $callbackurl = $thispageurl->out($escaped = false);
     $loginurl = $helper->getLoginUrl($callbackurl, $permissions);
 
