@@ -54,6 +54,10 @@ $callbackurl = $thispageurl->out(false);
 $context = context_module::instance($id);
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
 $plugin = new msocial_connector_twitter($msocial);
+
+header("Cache-Control: no-store, no-cache, must-revalidate");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 if ($action == 'callback') { // Twitter callback.
     $sigmethod = new \moodle\mod\lti\OAuthSignatureMethod_HMAC_SHA1();
     $testconsumer = new \moodle\mod\lti\OAuthConsumer($consumerkey, $consumersecret, $callbackurl);
@@ -93,6 +97,7 @@ if ($action == 'callback') { // Twitter callback.
     $PAGE->set_title(format_string($cm->name));
     
     $PAGE->set_heading($course->fullname);
+   
     // Print the page header.
     echo $OUTPUT->header();
     echo $OUTPUT->box($message);
@@ -109,8 +114,12 @@ if ($action == 'callback') { // Twitter callback.
     
     $oc = new OAuthCurl();
     $reqdata = $oc->fetch_data($reqreq->to_url());
+    $reqoauthdata = [];
     if (isset($reqdata['content'])) {
-        $reqoauthdata = json_decode($reqdata['content']);
+        parse_str($reqdata['content'], $reqoauthdata);
+        if (count($reqoauthdata) == 0) {
+            $reqoauthdata = json_decode($reqdata['content']);
+        }
     }
     if ($reqdata['errno'] == 0 && count($reqoauthdata->errors) == 0 ) {
         

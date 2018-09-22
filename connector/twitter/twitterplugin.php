@@ -25,6 +25,7 @@
  */
 namespace mod_msocial\connector;
 
+use MoodleQuickForm;
 use mod_msocial\kpi;
 use mod_msocial\kpi_info;
 use mod_msocial\social_user;
@@ -66,7 +67,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
     /** Get the settings for the plugin
      *
-     * @param MoodleQuickForm $mform The form to add elements to
+     * @param \MoodleQuickForm $mform The form to add elements to
      * @return void */
     public function get_settings(\MoodleQuickForm $mform) {
         $mform->addElement('text', $this->get_form_field_name(self::CONFIG_HASHTAG),
@@ -130,7 +131,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     /**
      * @global core_renderer $OUTPUT
      * @global moodle_database $DB
-     * @param core_renderer $output */
+     **/
     public function render_header() {
         global $OUTPUT, $DB, $USER;
         $messages = [];
