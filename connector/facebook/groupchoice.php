@@ -92,8 +92,12 @@ if ($action == 'selectgroup') {
         $groupurl = 'https://www.facebook.com/groups/' . $group->getId();
         $groupstructform = json_encode(['id' => $group->getId(), 'name' => $group->getName(), 'url' => $groupurl]);
         $linkinfo = \html_writer::link($groupurl, $info);
-        $selected = array_search($group->getId(), $selectedgroups) !== false;
-        $checkbox = \html_writer::checkbox('group[]', $groupstructform, $selected, $linkinfo);
+        if ($group->getField('administrator')) {
+            $selected = array_search($group->getId(), $selectedgroups) !== false;
+            $checkbox = \html_writer::checkbox('group[]', $groupstructform, $selected, $linkinfo);
+        } else {
+            $checkbox = "--";
+        }
         $row->cells = [$checkbox, $group->getDescription()];
         
         $table->data[] = $row;
