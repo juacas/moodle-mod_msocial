@@ -198,7 +198,7 @@ function msocial_calculate_user_grades($msocial, $userid = 0) {
     } else {
         $students = array($userid);
     }
-    // TODO: honor $userid param.
+    // TODO: honor $userid param. ($students subset).
     $grades = msocial_calculate_grades($msocial);
     return $grades;
 }
@@ -410,7 +410,7 @@ function msocial_tabbed_reports($msocial, $view, moodle_url $thispageurl, $conte
     
     $rows = [];
     /** @var msocial_view_plugin*/
-    foreach ($plugins as $name => $plugin) {
+    foreach ($plugins as $plugin) {
         if ($plugin->is_enabled() == false) {
             continue;
         }

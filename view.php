@@ -24,7 +24,6 @@
  */
 use mod_msocial\plugininfo\msocialview;
 use msocial\msocial_plugin;
-use mod_msocial\connector\social_interaction;
 use mod_msocial\filter_interactions;
 
 require_once("../../config.php");
@@ -44,7 +43,7 @@ require_login($cm->course, false, $cm);
 $course = get_course($cm->course);
 
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
-$user = $USER;
+
 // Capabilities.
 $contextmodule = context_module::instance($cm->id);
 require_capability('mod/msocial:view', $contextmodule);
@@ -61,12 +60,12 @@ $requ->jquery();
 $requ->jquery_plugin('ui');
 $requ->jquery_plugin('ui-css');
 $requ->jquery_plugin('daterangepicker', 'msocial');
-$requ->jquery_plugin('datepicker_es', 'msocial'); // TODO support rest of languages.
+$requ->jquery_plugin('datepicker_es', 'msocial'); // TODO support other languages.
 // Get tabs and selected view.
 list($tabs, $view) = msocial_tabbed_reports($msocial, $view, $thispageurl, $contextmodule, false);
 // Configure header for plugins.
 $enabledviewplugins = msocialview::get_enabled_view_plugins($msocial);
-foreach ($enabledviewplugins as $name => $plugin) {
+foreach ($enabledviewplugins as $plugin) {
     $plugin->render_header_requirements($requ, $view);
 }
 // Complete on view.
@@ -95,7 +94,7 @@ $enabledsocialplugins = \mod_msocial\plugininfo\msocialconnector::get_enabled_co
 $enabledplugins = array_merge($enabledviewplugins, $enabledsocialplugins);
 $totalnotification = '';
 /** @var msocial_plugin $enabledplugin */
-foreach ($enabledplugins as $name => $enabledplugin) {
+foreach ($enabledplugins as $enabledplugin) {
     if (!$enabledplugin->is_enabled()) {
         continue;
     }
