@@ -44,6 +44,7 @@ require_once('filterinteractions.php');
 abstract class msocial_connector_plugin extends msocial_plugin {
     protected $usertosocialmapping = null;
     protected $socialtousermapping = null;
+    protected $socialusernametosocialid = null;
     protected $lastinteractions = array();
 
     /** Constructor for the abstract plugin type class
@@ -121,7 +122,6 @@ abstract class msocial_connector_plugin extends msocial_plugin {
                 }
             }
         } else {
-            global $OUTPUT;
             $usermessage = $this->render_user_link($user, $brief);
             if ($disconnectaction) {
                 $iconurl = new \moodle_url('/mod/msocial/pix/icon_unlink.png');
@@ -337,7 +337,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         return false;
     }
 
-    /** Maps a Moodle's $user to a user id in the social media.
+    /** Maps a Moodle's $user to a socialuserid in the social media.
      *
      * @param \stdClass|int $user user record or userid
      * @return social_user  */
@@ -350,7 +350,14 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $this->check_mapping_cache();
         return isset($this->usertosocialmapping[$userid]) ? $this->usertosocialmapping[$userid] : null;
     }
-
+    /**
+     * Maps a social network username to its internal userid if known.
+     * @param string $socialname
+     */
+    public function get_socialuserid_from_socialname(string $socialname) {
+        $this->check_mapping_cache();
+        return isset($this->socialusernametosocialid[$socialname]) ? $this->socialusernametosocialid[$socialname] : null;
+    }
     private function check_mapping_cache() {
         global $DB;
         if ($this->usertosocialmapping == null || $this->socialtousermapping == null) {
@@ -358,7 +365,9 @@ abstract class msocial_connector_plugin extends msocial_plugin {
                     null, 'userid,socialid,socialname,link');
             $this->usertosocialmapping = [];
             $this->socialtousermapping = [];
+            $this->socialusernametosocialid = [];
             foreach ($records as $record) {
+                $this->socialusernametosocialid[$record->socialname] = $record->socialid;
                 $this->socialtousermapping[$record->socialid] = $record->userid;
                 $this->usertosocialmapping[$record->userid] = new social_user($record->socialid, $record->socialname, isset($record->link) ? $record->link : '');
             }
