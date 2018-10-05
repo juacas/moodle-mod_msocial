@@ -68,7 +68,7 @@ if ($action == 'connect') {
     $helper = $fb->getRedirectLoginHelper();
 
     if ($type == 'connect') {
-        $permissions = ['groups_access_member_info, user_link'];
+        $permissions = ['groups_access_member_info', 'user_link'];
     } else {
         $permissions = ['user_link'];
     }
