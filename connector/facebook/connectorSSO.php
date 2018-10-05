@@ -23,9 +23,6 @@
  * @package msocial
  * *******************************************************************************
  */
-use Facebook\Facebook;
-use Facebook\Exceptions\FacebookResponseException;
-use Facebook\Exceptions\FacebookSDKException;
 use Facebook\GraphNodes\GraphNodeFactory;
 use mod_msocial\connector\msocial_connector_facebook;
 
@@ -80,7 +77,7 @@ if ($action == 'connect') {
             ));
     // JPC: 2018-05-07 Facebook aparently began to include URL params as part of the redirect white-list patterns. Use session for id.
     $SESSION->msocialSSOid = $id;
-    $callbackurl = $thispageurl->out($escaped = false);
+    $callbackurl = $thispageurl->out(false);
     $loginurl = $helper->getLoginUrl($callbackurl, $permissions);
 
     header("Location: $loginurl");
@@ -89,11 +86,11 @@ if ($action == 'connect') {
     $helper = $fb->getRedirectLoginHelper();
     try {
         $accesstoken = $helper->getAccessToken();
-    } catch (Facebook\Exceptions\FacebookResponseException $e) {
+    } catch (\Facebook\Exceptions\FacebookResponseException $e) {
         // When Graph returns an error
         print_error('Graph returned an error: ' . $e->getMessage()); // TODO: pasar a lang.
         exit();
-    } catch (Facebook\Exceptions\FacebookSDKException $e) {
+    } catch (\Facebook\Exceptions\FacebookSDKException $e) {
         // When validation fails or other local issues
         print_error('Facebook SDK returned an error: ' . $e->getMessage()); // TODO: pasar a lang.
         exit();
@@ -106,7 +103,7 @@ if ($action == 'connect') {
             // Exchanges a short-lived access token for a long-lived one.
             try {
                 $accesstoken = $oauth2client->getLongLivedAccessToken($accesstoken);
-            } catch (Facebook\Exceptions\FacebookSDKException $e) {
+            } catch (\Facebook\Exceptions\FacebookSDKException $e) {
                 echo "<p>Error getting long-lived access token: " . $helper->getMessage() . "</p>\n\n"; // TODO
                 // lang.
                 exit();

@@ -162,24 +162,26 @@ class msocial_connector_facebook extends msocial_connector_plugin {
                                     array('id' => $id, 'action' => 'connect')), " <b>Connect</b>");
                 }
             }
-            // Check facebook group...
-            $fbgroup = $this->get_config(self::CONFIG_FBGROUP);
-            $action = '';
-            if (has_capability('mod/msocial:manage', $context)) {
-                $action = $OUTPUT->action_link(
-                        new \moodle_url('/mod/msocial/connector/facebook/groupchoice.php',
-                                array('id' => $id, 'action' => 'selectgroup')), " <b>Select group</b>");
-            }
-            if (trim($fbgroup) === "") {
-                $notifications[] = get_string('fbgroup', 'msocialconnector_facebook') . " : " . $action;
-            } else {
-                $groupinfo = implode(', ', $this->render_groups_links());
-                $messages[] = get_string('fbgroup', 'msocialconnector_facebook') . ' : "' . $groupinfo . '" ' . $action;
-            }
-            // Check user's social credentials.
-            $socialuserids = $this->get_social_userid($USER);
-            if (!$socialuserids) { // Offer to register.
-                $notifications[] = $this->render_user_linking($USER, false, true);
+            if ($token) {
+                // Check facebook group...
+                $fbgroup = $this->get_config(self::CONFIG_FBGROUP);
+                $action = '';
+                if (has_capability('mod/msocial:manage', $context)) {
+                    $action = $OUTPUT->action_link(
+                            new \moodle_url('/mod/msocial/connector/facebook/groupchoice.php',
+                                    array('id' => $id, 'action' => 'selectgroup')), " <b>Select group</b>");
+                }
+                if (trim($fbgroup) === "") {
+                    $notifications[] = get_string('fbgroup', 'msocialconnector_facebook') . " : " . $action;
+                } else {
+                    $groupinfo = implode(', ', $this->render_groups_links());
+                    $messages[] = get_string('fbgroup', 'msocialconnector_facebook') . ' : "' . $groupinfo . '" ' . $action;
+                }
+                // Check user's social credentials.
+                $socialuserids = $this->get_social_userid($USER);
+                if (!$socialuserids) { // Offer to register.
+                    $notifications[] = $this->render_user_linking($USER, false, true);
+                }
             }
         }
         return [$messages, $notifications];
