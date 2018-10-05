@@ -140,7 +140,9 @@ foreach ($users as $user) {
     $row->cells[] = new html_table_cell($checkbox . $pic . ' ' . $link);
     foreach ($enabledsocialplugins as $plugin) {
         if ($plugin->users_are_local() === false) {
-            $row->cells[] = $plugin->render_user_link($user, false);
+            global $USER;
+            $disconnectaction = ($USER->id == $user->id || has_capability('mod/msocial:manage', $contextmodule));
+            $row->cells[] = $plugin->render_user_linking($user, FALSE, FALSE, $disconnectaction);
         }
     }
 }
