@@ -302,7 +302,10 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $this->refresh_interaction_users($record);
         // Reset cache...
         $this->usertosocialmapping = null;
-        $kpis = $this->calculate_kpis([$user->id => $user]);
+        $userstruct = new users_struct();
+        $userstruct->studentids[] = $user->id;
+        $userstruct->userrecords[] = $user;
+        $kpis = $this->calculate_kpis($userstruct);
         $this->store_kpis($kpis);
     }
 
