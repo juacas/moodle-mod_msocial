@@ -72,16 +72,6 @@ class msocial_view_graph extends msocial_view_plugin {
         return true;
     }
 
-    /** The msocial has been deleted - cleanup subplugin
-     *
-     * @global moodle_database $DB
-     * @return bool */
-    public function delete_instance() {
-        global $DB;
-        $this->drop_kpi_fields();
-        $result = true;
-        return $result;
-    }
 
     public function get_subtype() {
         return self::PLUGINNAME;
