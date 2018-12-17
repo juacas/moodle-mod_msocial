@@ -605,10 +605,12 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $interaction->icon = $icon;
             $interaction->source = $this->get_subtype();
             $interaction->nativetype = 'tweet';
+            $interaction->nativefrom = $status->user->id_str;
             $interaction->nativefromname = $status->user->screen_name;
             $interaction->timestamp = new \DateTime($status->created_at);
             $interaction->description = $status->text;
-            if ($status->in_reply_to_status_id_str == "") {
+            if ($status->in_reply_to_status_id_str == "" 
+                || $status->in_reply_to_status_id_str == $interaction->nativefrom ) { // Twitter threads are autoreplies.
                 $interaction->type = social_interaction::POST;
             } else {
                 $interaction->type = social_interaction::REPLY;
@@ -616,7 +618,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 $interaction->nativetoname = $status->in_reply_to_screen_name;
                 $interaction->parentinteraction = $status->in_reply_to_status_id_str;
             }
-            $interaction->nativefrom = $status->user->id_str;
             $interaction->fromid = $this->get_userid($interaction->nativefrom);
             $interaction->toid = $this->get_userid($interaction->nativeto);
             $interactions[$interaction->uid] = $interaction;
