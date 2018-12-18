@@ -58,7 +58,7 @@ require_login($course->id, false, $cm);
 $context = context_module::instance($cm->id);
 require_capability('mod/msocial:exportkpis', $context);
 $contextcourse = context_course::instance($course->id);
-require_capability('mod/msocial:exportkpis', $context);
+require_capability('mod/msocial:exportkpis', $contextcourse);
 
 
 $strmsocial = get_string("modulename", "msocial");

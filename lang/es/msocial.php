@@ -52,6 +52,7 @@ $string['msocial:daterange'] = 'Rastreo de actividad desde {$a->startdate} hasta
 $string['grade_expr'] = 'Formula para convertir las estadísticas en calificaciones.';
 $string['grade_expr_help'] = 'La fórmula puede contener diversas variables que se calculan para cada usuario y una variedad de funciones como max, min, sum, average, etc. El punto decimal es \'.\' y el separador de variables es \',\' Ejemplo: \'=max(favs,retweets,1.15)\' Las variables cuyo nombre empieza por max contienen los valores máximos alcanzados entre todos los usuarios del concurso.';
 $string['pluginadministration'] = 'Redes sociales';
+$string['recalc_kpis'] = 'Recalcular KPIs';
 $string['harvest_task'] = 'Planificador de recolección de interacciones sociales y análisis y cálculo de indicadores.';
 // MainPage.
 $string['mainpage'] = 'Portada del concurso Twitter';
