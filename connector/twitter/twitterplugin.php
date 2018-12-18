@@ -97,7 +97,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     public function get_form_elements(MoodleQuickForm $mform, \stdClass $data) {
         $elements = array();
         $this->msocial = $this->msocial ? $this->msocial->id : 0;
-
         return true;
     }
 
@@ -223,11 +222,11 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         return $kpis;
     }
     /**
-     * @param unknown $user
-     * @param unknown $stat
+     * @param \stdClass $user
+     * @param \stdClass $stat
      * @param msocial_plugin $msocialplugin
      * @param kpi $kpi existent kpi. For chaining calls. Assumes user and msocialid are coherent.
-     * @return \mod_msocial\connector\kpi_info[] */
+     * @return kpi_info[] */
     private function kpi_from_stat($user, $stat, $stataggregated, $msocialplugin, $kpi = null) {
         $kpi = $kpi == null ? new kpi($user, $msocialplugin->msocial->id) : $kpi;
         foreach ($stat as $propname => $value) {
@@ -285,6 +284,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         $kpiobjs['tweets'] = new kpi_info('tweets',  get_string('kpi_description_tweets', 'msocialconnector_twitter'),
                 kpi_info::KPI_INDIVIDUAL,  kpi_info::KPI_CALCULATED, social_interaction::POST, 'tweet',
                 social_interaction::DIRECTION_AUTHOR);
+        $kpiobjs['twreplies'] = new kpi_info('twreplies',  get_string('kpi_description_tweet_replies', 'msocialconnector_twitter'),
+            kpi_info::KPI_INDIVIDUAL,  kpi_info::KPI_CALCULATED, social_interaction::REPLY, 'tweet',
+            social_interaction::DIRECTION_AUTHOR);
         $kpiobjs['retweets'] = new kpi_info('retweets',  get_string('kpi_description_retweets', 'msocialconnector_twitter'),
                 kpi_info::KPI_INDIVIDUAL,  kpi_info::KPI_CALCULATED, kpi_info::KPI_CUSTOM);
         $kpiobjs['favs'] = new kpi_info('favs',  get_string('kpi_description_favs', 'msocialconnector_twitter'),
@@ -301,7 +303,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
     /**
      * @global moodle_database $DB
-     * @return type */
+     * @return \stdClass token record */
     public function get_connection_token() {
         global $DB;
         if ($this->msocial) {
@@ -313,7 +315,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     }
     /**
      * @global moodle_database $DB
-     * @return type */
+     * @param \stdClass token record.
+     */
     public function set_connection_token($token) {
         global $DB;
         $token->msocial = $this->msocial->id;
@@ -450,7 +453,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         return $this->post_harvest($result);
     }
     protected function harvest_users() {
-            global $DB;
+        global $DB;
         $token = $this->get_connection_token();
         $hashtag = $this->get_config('hashtag');
         // Mapped users.
@@ -513,7 +516,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     /** Execute a Twitter API query with auth tokens and the hashtag configured in the module
      *
      * @global type $DB
-     * @param type $this->msocial
+     * @param \stdClass[] tokens records.
+     * @param string $hashtag search pattern.
      * @return mixed object report of activity. $result->statuses $result->messages[]string
      *         $result->errors[]->message */
     protected function get_statuses($tokens, $hashtag) {
@@ -522,9 +526,9 @@ class msocial_connector_twitter extends msocial_connector_plugin {
 
     /**
      *
-     * @param unknown $tokens
+     * @param \stdClass[] $tokens
      * @param \stdClass[] $users records from mdl_msocial_mapusers
-     * @param unknown $hashtag
+     * @param string $hashtag
      * @throws \ErrorException
      * @return mixed
      */
@@ -550,7 +554,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             // URL for REST request, see: https://dev.twitter.com/docs/api/1.1/
             // Perform the request and return the parsed response.
             $url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';
-            $getfield = "screen_name=$socialuser->socialname&count=50";
+            $getfield = "screen_name=$socialuser->socialname&count=50&tweet_mode=extended";
             $requestmethod = "GET";
             $twitter = new TwitterAPIExchange($settings);
             $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
@@ -563,13 +567,22 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                 // TODO: Notify user to renew tokens.
                 $this->notify_user_token($socialuser, $msg);
             } else {
+                // Order results to detect threads.
+                if (count($result)) {
+                    usort($result, function($itema, $itemb){ 
+                        $datea = new \DateTime($itema->created_at);
+                        $dateb = new \DateTime($itemb->created_at);
+                        return $datea > $dateb;
+                    });
+                }
                 // Filter hashtags.
                 $statuses = [];
                 foreach ($result as $status) {
                     if ($status instanceof \stdClass) {
-                        $text = $status->text;
-                        if ($tagparser->check_hashtaglist($text)) {
-                            $statuses[] = $status;
+                        $text = $status->full_text;
+                        $isthread = key_exists($status->in_reply_to_status_id, $status);
+                        if ($tagparser->check_hashtaglist($text) || $isthread) {
+                            $statuses[$status->id] = $status;
                         }
                     }
                 }
@@ -586,8 +599,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
      * @param integer $fromdate null|starting time
      * @param integer $todate null|end time
      * @param array $users filter of users
-     * @return mod_msocial\connector\social_interaction[] of interactions. @see
-     *         mod_msocial\connector\social_interaction */
+     * @return \mod_msocial\connector\social_interaction[] of interactions. 
+     * @see \mod_msocial\connector\social_interaction */
     public function get_interactions($fromdate = null, $todate = null, $users = null) {
         global $DB;
         $tweets = $DB->get_records('msocial_tweets', ["msocial" => $this->msocial->id], 'tweetid');
@@ -607,19 +620,22 @@ class msocial_connector_twitter extends msocial_connector_plugin {
             $interaction->nativetype = 'tweet';
             $interaction->nativefrom = $status->user->id_str;
             $interaction->nativefromname = $status->user->screen_name;
+            $interaction->fromid = $this->get_userid($interaction->nativefrom);
+            $interaction->nativeto = $status->in_reply_to_user_id_str;
+            
+            $interaction->parentinteraction = $status->in_reply_to_status_id_str;
             $interaction->timestamp = new \DateTime($status->created_at);
-            $interaction->description = $status->text;
-            if ($status->in_reply_to_status_id_str == "" 
-                || $status->in_reply_to_status_id_str == $interaction->nativefrom ) { // Twitter threads are autoreplies.
+            $interaction->description = $status->full_text;
+            // Twitter threads are autoreplies. Consider them as POSTS.
+            if ($interaction->nativeto == "" 
+                || $interaction->nativeto === $interaction->nativefrom ) { 
                 $interaction->type = social_interaction::POST;
+                $interaction->nativeto = "";
             } else {
                 $interaction->type = social_interaction::REPLY;
-                $interaction->nativeto = $status->in_reply_to_user_id_str;
                 $interaction->nativetoname = $status->in_reply_to_screen_name;
-                $interaction->parentinteraction = $status->in_reply_to_status_id_str;
+                $interaction->toid = $this->get_userid($interaction->nativeto);
             }
-            $interaction->fromid = $this->get_userid($interaction->nativefrom);
-            $interaction->toid = $this->get_userid($interaction->nativeto);
             $interactions[$interaction->uid] = $interaction;
             // Process mentions...
             foreach ($status->entities->user_mentions as $mentionstatus) {
@@ -812,8 +828,8 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     /** Connect to twitter API at https://api.twitter.com/1.1/search/tweets.json
      *
      * @global type $CFG
-     * @param type $tokens oauth tokens
-     * @param type $hashtag hashtag to search for
+     * @param \stdClass[] $tokens oauth tokens
+     * @param string $hashtag hashtag to search for
      * @return \stdClass result->statuses o result->errors[]->message (From Twitter API.) */
     protected function search_twitter($tokens, $hashtag) {
         if (!$tokens) {
@@ -821,7 +837,6 @@ class msocial_connector_twitter extends msocial_connector_plugin {
                             'errors' => [(object)['message' => "No connection tokens provided!!! Impossible to connect to twitter."]]];
             return $result;
         }
-        global $CFG;
         $settings = array('oauth_access_token' => $tokens->token, 'oauth_access_token_secret' => $tokens->token_secret,
                         'consumer_key' => get_config('msocialconnector_twitter', 'consumer_key'),  // ...twitter
                                                                                                   // developer
@@ -835,7 +850,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         // URL for REST request, see: https://dev.twitter.com/docs/api/1.1/
         // Perform the request and return the parsed response.
         $url = 'https://api.twitter.com/1.1/search/tweets.json';
-        $getfield = "q=$hashtag&count=100";
+        $getfield = "q=$hashtag&count=100&tweet_mode=extended";
         $requestmethod = "GET";
         $twitter = new TwitterAPIExchange($settings);
         $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();

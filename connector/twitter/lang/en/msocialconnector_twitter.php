@@ -46,6 +46,7 @@ $string['config_consumer_secret'] = 'consumer_secret according to TwitterAPI (<a
 $string['problemwithtwitteraccount'] = 'Recent attempts to get the tweets resulted in an error. Try to reconnect Twitter with your user. Message: {$a}';
 
 $string['kpi_description_tweets'] = 'Published tweets';
+$string['kpi_description_tweet_replies'] = 'Comments and replies.';
 $string['kpi_description_twmentions'] = 'Received mentions';
 $string['kpi_description_favs'] = 'Favorite marks received)';
 $string['kpi_description_retweets'] = 'Retweets received';

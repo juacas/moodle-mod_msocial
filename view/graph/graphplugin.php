@@ -92,7 +92,7 @@ class msocial_view_graph extends msocial_view_plugin {
     public function calculate_kpis($users, $kpis = []) {
         require_once('socialgraph.php');
         $kpiinfos = $this->get_kpi_list();
-        foreach ($users as $user) {
+        foreach ($users->userrecords as $user) {
             if (!isset($kpis[$user->id])) {
                 $kpis[$user->id] = new kpi($user->id, $this->msocial->id);
                 // Reset to 0 to avoid nulls.
@@ -119,7 +119,7 @@ class msocial_view_graph extends msocial_view_plugin {
         foreach ($interactions as $interaction) {
             $social->register_interaction($interaction);
         }
-        $results = $social->calculate_centralities($users);
+        $results = $social->calculate_centralities($users->userrecords);
         list($degreein, $degreeout) = $social->degree_centrality(array_keys($kpis));
 
         foreach ($results as $userid => $result) {
@@ -176,7 +176,7 @@ class msocial_view_graph extends msocial_view_plugin {
                                   " asynchronously processing network topology.";
             return $result;
         } else {
-            $kpis = $this->calculate_kpis($users);
+            $kpis = $this->calculate_kpis($usersstruct);
             $this->store_kpis($kpis, true);
             $this->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
             $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) " .

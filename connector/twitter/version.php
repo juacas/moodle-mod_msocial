@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2018012400;
+$plugin->version   = 2018121800;
 $plugin->requires  = 2013051407;
 $plugin->component = 'msocialconnector_twitter';
 $plugin->dependencies = array('mod_msocial' => 2017081900);
