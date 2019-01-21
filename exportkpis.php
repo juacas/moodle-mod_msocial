@@ -95,6 +95,7 @@ if (!empty($format) && !empty($type) ) {
 
         // Add usernames.
         if ($type == 'kpis') {
+            $userrecords = $usersstruct->userrecords;
             foreach ($data as $item) {
                 $item->firstname = $userrecords[$item->userid]->firstname;
                 $item->lastname = $userrecords[$item->userid]->lastname;
