@@ -80,6 +80,12 @@ class tag_parser {
         }
         return true;
     }
+    /**
+     * Check term case-insensitive
+     * @param string $text  text to search in
+     * @param string $condition term to find (case insensitive)
+     * @return boolean
+     */
     protected function check_single_condition($text, $condition) {
         if (is_array($condition)) {
             // ORed expression.
@@ -88,9 +94,9 @@ class tag_parser {
             return true;
         } else if (strpos($condition, '-') === 0) {
             // Negative condition.
-            return strpos($text, substr($condition, 1)) !== false;
+            return stripos($text, substr($condition, 1)) !== false;
         } else {
-            return strpos($text, $condition) !== false;
+            return stripos($text, $condition) !== false;
         }
         return false;
     }
