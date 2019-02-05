@@ -28,7 +28,7 @@ namespace mod_msocial\plugininfo;
 defined('MOODLE_INTERNAL') || die();
 
 use core\plugininfo\base, core_plugin_manager, moodle_url;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 
 class msocialbase extends base {
     private static $plugins = [];

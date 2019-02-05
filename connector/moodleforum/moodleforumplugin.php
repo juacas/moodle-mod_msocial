@@ -28,7 +28,7 @@ namespace mod_msocial\connector;
 use mod_msocial\kpi_info;
 use moodleforum\GraphNodes\GraphEdge;
 use moodleforum\moodleforum as moodleforum;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();

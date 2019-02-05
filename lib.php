@@ -38,7 +38,7 @@
  */
 use mod_msocial\plugininfo\msocialconnector;
 use mod_msocial\plugininfo\msocialbase;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . "/config.php");
 require_once($CFG->dirroot . '/grade/lib.php');

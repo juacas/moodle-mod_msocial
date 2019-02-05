@@ -23,7 +23,7 @@
  * @author     Juan Pablo de Castro <jpdecastro@tel.uva.es>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use mod_msocial\connector\social_interaction;
 use mod_msocial\filter_interactions;
 

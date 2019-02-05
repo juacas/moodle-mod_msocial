@@ -22,7 +22,7 @@
  * @package msocial
  * *******************************************************************************
  */
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use function msocial\msocial_addHelpButton;
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 

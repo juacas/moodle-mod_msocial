@@ -32,7 +32,13 @@
  */
 namespace mod_msocial\view;
 
-use msocial\msocial_plugin;
+use core_renderer;
+use moodle_url;
+use page_requirements_manager;
+use mod_msocial\filter_interactions;
+use mod_msocial\msocial_plugin;
+use mod_msocial\users_struct;
+use mod_msocial;
 
 defined('MOODLE_INTERNAL') || die();
 require_once('msocialplugin.php');
@@ -44,7 +50,7 @@ abstract class msocial_view_plugin extends msocial_plugin {
     /**
      * Constructor for the abstract plugin type class
      *
-     * @param msocial $msocial
+     * @param \stdClass $msocial
      * @param string $type
      */
     public final function __construct($msocial) {
@@ -72,7 +78,7 @@ abstract class msocial_view_plugin extends msocial_plugin {
      *
      * @param page_requirements_manager $reqs
      * @param core_renderer $renderer
-     * @param \filter_interactions $filter
+     * @param filter_interactions $filter
      */
     public abstract function render_view($renderer, $reqs, $filter);
 
@@ -86,22 +92,22 @@ abstract class msocial_view_plugin extends msocial_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::calculate_kpis()
+     * @see \mod_msocial\msocial_plugin::calculate_kpis()
      */
-    public function calculate_kpis($users, $kpis = []) {
+    public function calculate_kpis(users_struct $users, $kpis = []) {
         return [];
     }
     /**
      * {@inheritDoc}
-     * @see \mod_msocial\connector\msocial_plugin::preferred_harvest_intervals()
+     * @see \mod_msocial\msocial_plugin::preferred_harvest_intervals()
      */
     public function preferred_harvest_intervals() {
-        return new harvest_intervals(15 * 60, 5000, 1 * 3600, 0);
+        return new mod_msocial\connector\harvest_intervals(15 * 60, 5000, 1 * 3600, 0);
     }
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::get_kpi_list()
+     * @see \mod_msocial\msocial_plugin::get_kpi_list()
      */
     public function get_kpi_list() {
         $kpis = [];
@@ -110,7 +116,7 @@ abstract class msocial_view_plugin extends msocial_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::get_sort_order()
+     * @see \mod_msocial\msocial_plugin::get_sort_order()
      */
     public function get_sort_order() {
         return 10;

@@ -33,7 +33,7 @@ namespace mod_msocial\connector;
 
 use mod_msocial\filter_interactions;
 use mod_msocial\social_user;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use mod_msocial\users_struct;
 
 defined('MOODLE_INTERNAL') || die();

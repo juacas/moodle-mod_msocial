@@ -29,7 +29,7 @@ use Facebook\Facebook as Facebook;
 use Facebook\GraphNodes\GraphEdge;
 use Facebook\GraphNodes\GraphNode;
 use mod_msocial\kpi_info;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();
@@ -55,7 +55,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::can_harvest()
+     * @see \mod_msocial\msocial_plugin::can_harvest()
      */
     public function can_harvest() {
         return $this->is_enabled() &&
@@ -301,7 +301,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /**
      * {@inheritdoc}
      *
-     * @see \msocial\msocial_plugin::get_kpi_list() */
+     * @see \mod_msocial\msocial_plugin::get_kpi_list() */
     public function get_kpi_list() {
         $kpiobjs['posts'] = new kpi_info('posts', get_string('kpi_description_posts', 'msocialconnector_facebook'),
                 kpi_info::KPI_INDIVIDUAL, kpi_info::KPI_CALCULATED,
@@ -382,7 +382,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
     /**
      * 
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::reset_userdata()
+     * @see \mod_msocial\msocial_plugin::reset_userdata()
      */
     public function reset_userdata(\stdClass $data) {
         // Facebook connection token is only for the teacher. Preserve it.

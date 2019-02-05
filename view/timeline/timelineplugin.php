@@ -24,7 +24,7 @@
  */
 namespace mod_msocial\view;
 
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 

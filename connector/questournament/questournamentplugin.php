@@ -26,7 +26,7 @@
 namespace mod_msocial\connector;
 
 use mod_msocial\kpi_info;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;

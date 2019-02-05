@@ -29,7 +29,7 @@ use MoodleQuickForm;
 use mod_msocial\kpi;
 use mod_msocial\kpi_info;
 use mod_msocial\social_user;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use mod_msocial\users_struct;
 use mod_msocial\filter_interactions;
 
@@ -210,7 +210,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     /**
      * @param users_struct $user struct of arrays @see msocial_get_users_by_type().
      * @return array[kpi] */
-    public function calculate_kpis($users, $kpis = []) {
+    public function calculate_kpis(users_struct $users, $kpis = []) {
         $kpis = parent::calculate_kpis($users, $kpis);
         $stats = $this->calculate_stats($users->studentids);
         $stataggregated = $stats->maximums;
@@ -334,7 +334,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::reset_userdata()
+     * @see \mod_msocial\msocial_plugin::reset_userdata()
      */
     public function reset_userdata(\stdClass $data) {
         // Twitter token if for the teacher. Preserve it.

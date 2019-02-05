@@ -29,7 +29,7 @@
  * @package msocialconnector_twitter
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
-namespace msocial;
+namespace mod_msocial;
 
 defined('MOODLE_INTERNAL') || die();
 require_once('plugininfo/msocialbase.php');

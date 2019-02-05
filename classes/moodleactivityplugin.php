@@ -25,10 +25,8 @@
  */
 namespace mod_msocial\connector;
 
-use mod_msocial\kpi_info;
-use moodleactivity\GraphNodes\GraphEdge;
-use moodleactivity\moodleactivity as moodleactivity;
-use msocial\msocial_plugin;
+use MoodleQuickForm;
+use mod_msocial\msocial_plugin;
 use mod_msocial\social_user;
 
 defined('MOODLE_INTERNAL') || die();

@@ -27,7 +27,7 @@ namespace mod_msocial\view;
 
 use mod_msocial\connector\social_interaction;
 use mod_msocial\connector\msocial_connector_plugin;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use mod_msocial\plugininfo\msocialconnector;
 
 defined('MOODLE_INTERNAL') || die();

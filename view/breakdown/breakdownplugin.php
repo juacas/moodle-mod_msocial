@@ -24,7 +24,7 @@
  */
 namespace mod_msocial\view;
 
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -84,7 +84,7 @@ class msocial_view_breakdown extends msocial_view_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::get_category()
+     * @see \mod_msocial\msocial_plugin::get_category()
      */
     public function get_category() {
         return msocial_plugin::CAT_VISUALIZATION;
@@ -92,7 +92,7 @@ class msocial_view_breakdown extends msocial_view_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::get_sort_order()
+     * @see \mod_msocial\msocial_plugin::get_sort_order()
      */
     public final function get_sort_order() {
         return 0;
@@ -100,7 +100,7 @@ class msocial_view_breakdown extends msocial_view_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::get_subtype()
+     * @see \mod_msocial\msocial_plugin::get_subtype()
      */
     public function get_subtype() {
         return 'breakdown';

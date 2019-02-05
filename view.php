@@ -23,7 +23,7 @@
  * *******************************************************************************
  */
 use mod_msocial\plugininfo\msocialview;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use mod_msocial\filter_interactions;
 
 require_once("../../config.php");

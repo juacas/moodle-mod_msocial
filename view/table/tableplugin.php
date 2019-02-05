@@ -25,7 +25,7 @@
 namespace mod_msocial\view;
 
 use mod_msocial\plugininfo\msocialconnector;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use mod_msocial\kpi_info;
 use mod_msocial\plugininfo\msocialbase;
 
@@ -77,7 +77,7 @@ class msocial_view_table extends msocial_view_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::get_sort_order()
+     * @see \mod_msocial\msocial_plugin::get_sort_order()
      */
     public final function get_sort_order() {
         return 1;
@@ -85,7 +85,7 @@ class msocial_view_table extends msocial_view_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::get_subtype()
+     * @see \mod_msocial\msocial_plugin::get_subtype()
      */
     public function get_subtype() {
         return 'table';
@@ -93,7 +93,7 @@ class msocial_view_table extends msocial_view_plugin {
     /**
      *
      * {@inheritDoc}
-     * @see \msocial\msocial_plugin::get_category()
+     * @see \mod_msocial\msocial_plugin::get_category()
      */
     public function get_category() {
         return msocial_plugin::CAT_ANALYSIS;

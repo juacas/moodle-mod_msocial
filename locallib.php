@@ -23,7 +23,7 @@
  * *******************************************************************************
  */
 use mod_msocial\plugininfo\msocialview;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use mod_msocial\users_struct;
 
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');

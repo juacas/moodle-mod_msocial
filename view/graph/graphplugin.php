@@ -25,13 +25,14 @@
 namespace mod_msocial\view;
 
 use mod_msocial\connector\social_interaction;
-use msocial\msocial_plugin;
+use mod_msocial\msocial_plugin;
 use mod_msocial\kpi_info;
 use mod_msocial\kpi;
 use mod_msocial\connector\msocial_connector_plugin;
 use mod_msocial\connector\harvest_intervals;
 use mod_msocial\view\graph\graph_task;
 use mod_msocial\filter_interactions;
+use mod_msocial\users_struct;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -89,7 +90,7 @@ class msocial_view_graph extends msocial_view_plugin {
      * {@inheritdoc}
      *
      * @see \mod_msocial\view\msocial_view_plugin::calculate_kpis() */
-    public function calculate_kpis($users, $kpis = []) {
+    public function calculate_kpis(users_struct $users, $kpis = []) {
         require_once('socialgraph.php');
         $kpiinfos = $this->get_kpi_list();
         foreach ($users->userrecords as $user) {
@@ -198,7 +199,7 @@ class msocial_view_graph extends msocial_view_plugin {
     /**
      * {@inheritdoc}
      *
-     * @see \msocial\msocial_plugin::view_header() */
+     * @see \mod_msocial\msocial_plugin::view_header() */
     public function render_header() {
         global $OUTPUT;
         $messages = [$this->get_name()];
