@@ -36,6 +36,7 @@ use core_renderer;
 use moodle_url;
 use page_requirements_manager;
 use mod_msocial\filter_interactions;
+use mod_msocial\msocial_harvestplugin;
 use mod_msocial\msocial_plugin;
 use mod_msocial\users_struct;
 use mod_msocial;
@@ -63,16 +64,15 @@ abstract class msocial_view_plugin extends msocial_plugin {
      */
     public abstract function get_icon();
 
-    /**
-     * Collect information and calculate fresh Key Performance Indicators (KPIs) if supported.
-     *
-     * @return mixed $result->statuses $result->messages[]string $result->errors[]->message
-     */
-    public function harvest() {
-        $result = (object) ['messages' => []];
-        return $result;
+   
+    public function get_harvest_plugin() {
+        return new class implements msocial_harvestplugin {
+            public function harvest() {
+                $result = (object) ['messages' => []];
+                return $result;
+            }
+        };
     }
-
     /**
      * Render the content of the view
      *
@@ -95,7 +95,7 @@ abstract class msocial_view_plugin extends msocial_plugin {
      * @see \mod_msocial\msocial_plugin::calculate_kpis()
      */
     public function calculate_kpis(users_struct $users, $kpis = []) {
-        return [];
+        return $kpis;
     }
     /**
      * {@inheritDoc}

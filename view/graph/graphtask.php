@@ -25,9 +25,8 @@
  */
 namespace mod_msocial\view\graph;
 
-use mod_msocial\view\msocial_view_graph;
-use mod_msocial\plugininfo\msocialbase;
 use mod_msocial\connector\msocial_connector_plugin;
+use mod_msocial\view\msocial_view_graph;
 defined('MOODLE_INTERNAL') || die();
 
 class graph_task extends \core\task\adhoc_task {

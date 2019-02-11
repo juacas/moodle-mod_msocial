@@ -1,8 +1,10 @@
 FROM php:7.1-apache
 RUN docker-php-ext-install mysqli
 RUN pecl install xdebug-2.6.0
+RUN apt-get install -y zlib1g-dev && rm -rf /var/lib/apt/lists/* && docker-php-ext-install zip
 RUN docker-php-ext-enable xdebug
 RUN docker-php-ext-enable opcache
+RUN docker-php-ext-enable zip
 RUN echo '[xdebug]\n\
 xdebug.remote_enable=1\n\
 xdebug.remote_host = host.docker.internal\n\

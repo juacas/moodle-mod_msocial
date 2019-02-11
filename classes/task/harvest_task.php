@@ -52,7 +52,7 @@ class harvest_task extends \core\task\scheduled_task {
         mtrace("<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances.");
         mtrace("==========================================================================");
         foreach ($msocials as $msocial) {
-
+// TODO: call Harvest proxy
             foreach (\mod_msocial\plugininfo\msocialconnector::get_enabled_plugins_all_types($msocial) as $type => $plugin) {
                 try {
                     if ($plugin->is_tracking()) {

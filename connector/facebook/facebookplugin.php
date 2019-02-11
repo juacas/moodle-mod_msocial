@@ -633,7 +633,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             }
             // TODO: Move this to postharvest. Send message to teachers.
         }
-        $result = $this->post_harvest($result);
+        $result->interactions = $this->lastinteractions;
         return $result;
     }
 

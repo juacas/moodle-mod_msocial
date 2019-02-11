@@ -247,6 +247,8 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
             $result->messages[] = $errormessage;
             $result->errors[] = (object) ['message' => $errormessage];
         }
-        return $this->post_harvest($result);
+        $result->interactions = $this->lastinteractions;
+        
+        return $result;
     }
 }

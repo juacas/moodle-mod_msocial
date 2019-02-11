@@ -33,7 +33,6 @@ $onlystudents = false;
 $context = context_module::instance($this->cm->id);
 $usersstruct = msocial_get_users_by_type($contextcourse);
 $users = $usersstruct->userrecords;
-global $CFG;
 $cm = $this->cm;
 $shownativeids = has_capability('mod/msocial:manage', $context);
 $duplicatededges = [];

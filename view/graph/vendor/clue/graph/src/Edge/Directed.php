@@ -43,7 +43,9 @@ class Directed extends Base
 
         $from->getGraph()->addEdge($this);
         $from->addEdge($this);
-        $to->addEdge($this);
+        if (!$this->isLoop()) {
+            $to->addEdge($this);
+        }
     }
 
     public function getVerticesTarget()

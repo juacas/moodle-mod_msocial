@@ -33,11 +33,13 @@ use mod_msocial\connector\harvest_intervals;
 use mod_msocial\view\graph\graph_task;
 use mod_msocial\filter_interactions;
 use mod_msocial\users_struct;
+use view\graph\graph_harvester_local;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/msocial/classes/msocialviewplugin.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/kpi.php');
+require_once('graph_harvester_local.php');
 
 /** library class for view the network activity as a sequence diagram extending view plugin base
  * class
@@ -86,54 +88,7 @@ class msocial_view_graph extends msocial_view_plugin {
         return new \moodle_url('/mod/msocial/view/graph/pix/icon.svg');
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @see \mod_msocial\view\msocial_view_plugin::calculate_kpis() */
-    public function calculate_kpis(users_struct $users, $kpis = []) {
-        require_once('socialgraph.php');
-        $kpiinfos = $this->get_kpi_list();
-        foreach ($users->userrecords as $user) {
-            if (!isset($kpis[$user->id])) {
-                $kpis[$user->id] = new kpi($user->id, $this->msocial->id);
-                // Reset to 0 to avoid nulls.
-                $kpi = $kpis[$user->id];
-                foreach ($kpiinfos as $kpiinfo) {
-                    $kpi->{$kpiinfo->name} = 0;
-                }
-            }
-        }
-        // Get Interactions of all users, both known and anonymous.
-        $filter = new filter_interactions([filter_interactions::PARAM_STARTDATE => $this->msocial->startdate,
-                                           filter_interactions::PARAM_ENDDATE => $this->msocial->enddate,
-                                           filter_interactions::PARAM_UNKNOWN_USERS => true,
-                                           filter_interactions::PARAM_RECEIVED_BY_TEACHERS => true,
-                                           filter_interactions::PARAM_INTERACTION_MENTION => true,
-                                           filter_interactions::PARAM_INTERACTION_POST => true,
-                                           filter_interactions::PARAM_INTERACTION_REACTION => true,
-                                           filter_interactions::PARAM_INTERACTION_REPLY => true,
-        ],
-                                            $this->msocial);
-        $interactions = social_interaction::load_interactions_filter($filter);
-        // Socialmatrix analyzer.
-        $social = new \SocialMatrix();
-        foreach ($interactions as $interaction) {
-            $social->register_interaction($interaction);
-        }
-        $results = $social->calculate_centralities($users->userrecords);
-        list($degreein, $degreeout) = $social->degree_centrality(array_keys($kpis));
-
-        foreach ($results as $userid => $result) {
-            if (isset($kpis[$userid])) {
-                $kpis[$userid]->closeness = isset($result->cercania) ? $result->cercania : 0;
-                $kpis[$userid]->degreeout = isset($degreeout[$userid]) ? $degreeout[$userid] : 0;
-                $kpis[$userid]->degreein = isset($degreein[$userid]) ? $degreein[$userid] : 0;
-                $kpis[$userid]->betweenness = isset($result->intermediacion) ? $result->intermediacion : 0;
-            }
-        }
-        $kpis = $this->calculate_aggregated_kpis($kpis);
-        return $kpis;
-    }
+    
 
     public function get_kpi_list() {
         $kpiobjs['closeness'] = new kpi_info('closeness', get_string('kpi_description_closeness', 'msocialview_graph'),
@@ -159,40 +114,21 @@ class msocial_view_graph extends msocial_view_plugin {
         return 3;
     }
     /**
-     * @global moodle_database $DB
-     * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
-    public function harvest() {
-        $async = false;
-        $result = (object) ['messages' => []];
-        $contextcourse = \context_course::instance($this->msocial->course);
-        $usersstruct = msocial_get_users_by_type($contextcourse);
-        $users = $usersstruct->userrecords;
-        $msocial = $this->msocial;
-        if ($async) {
-            require_once('graphtask.php');
-            $task = new graph_task();
-            $task->set_custom_data((object)['msocial' => $this->msocial, 'users' => $users ]);
-            $task->execute();
-            $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course)" .
-                                  " asynchronously processing network topology.";
-            return $result;
-        } else {
-            $kpis = $this->calculate_kpis($usersstruct);
-            $this->store_kpis($kpis, true);
-            $this->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
-            $result->messages[] = "For module msocial: $msocial->name (id=$msocial->id) in course (id=$msocial->course) " .
-                                    "processing network topology.";
-            return $result;
-        }
-    }
-    /**
      * {@inheritDoc}
      * @see msocial_plugin::preferred_harvest_intervals()
      */
     public function preferred_harvest_intervals() {
         return new harvest_intervals(15 * 60, 5000, 1 * 3600, 0);
     }
-
+    /**
+     * 
+     * {@inheritDoc}
+     * @see \mod_msocial\msocial_plugin::get_harvest_plugin()
+     */
+    public function get_harvest_plugin() {
+        return new graph_harvester_local($this);
+    }
+    
     public function render_header_requirements($reqs, $viewparam) {
     }
 
@@ -205,6 +141,7 @@ class msocial_view_graph extends msocial_view_plugin {
         $messages = [$this->get_name()];
         return [$messages, [] ];
     }
+    
     public function render_harvest_link() {
         global $OUTPUT;
         $harvestbutton = '';

@@ -24,9 +24,11 @@
  */
 use mod_msocial\plugininfo\msocialbase;
 use mod_msocial\msocial_plugin;
+use mod_msocial\harvest_controller;
 require_once("../../config.php");
 require_once('locallib.php');
 require_once('classes/msocialconnectorplugin.php');
+require_once('classes/harvest_controller.php');
 global $CFG;
 /* @var $OUTPUT \core_renderer */
 global $DB, $PAGE, $OUTPUT;
@@ -47,7 +49,8 @@ $PAGE->set_heading($course->fullname);
 // Print the page header.
 echo $OUTPUT->header();
 
-msocial_plugin::execute_harvests($msocial, $subtype);
+$harvester = new harvest_controller($msocial);
+$harvester->execute_harvests($msocial, $subtype);
 msocial_update_grades($msocial);
 
 echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));

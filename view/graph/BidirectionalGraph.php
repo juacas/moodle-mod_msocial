@@ -24,7 +24,7 @@ class BidirectionalGraph extends BaseGraph {
                 throw new UnexpectedValueException('Edge is undirected');
             }
             if ($allowloops == true || $edge->getVertexStart() != $edge->getVertexEnd()) {
-                $newgraph->createEdgeCloneInverted($edge);
+                $newgraph->createEdgeCloneUndirected($edge);
             }
         }
 

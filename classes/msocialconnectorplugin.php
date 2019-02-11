@@ -54,15 +54,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     public final function __construct($msocial) {
         parent::__construct($msocial, 'msocialconnector');
     }
-    /**
-     * User's token broke. Maybe expired. Ask the user to relogin.
-     * @param \stdClass $socialuser record from msocial_map_user table.
-     * @param string $msg
-     */
-    protected function notify_user_token( $socialuser, $msg) {
-        // TODO: Notify users with messagging.
-        $this->notify([$msg], self::NOTIFY_WARNING);
-    }
+   
     /**
      * Sometimes the social networks API access is not authorized (due to review processes)
      * and SSO login is only allowed for certain users (i.e. teachers registered manually in the API provider.)
@@ -205,7 +197,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $filter->set_users($users);
         return social_interaction::load_interactions_filter($filter);
     }
-    protected function store_interactions(array $interactions) {
+    public function store_interactions(array $interactions) {
         $msocialid = $this->msocial->id;
         social_interaction::store_interactions($interactions, $msocialid);
     }
@@ -216,46 +208,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         // Array is indexed by uid to ensure that there is unicity in the uid.
         $this->lastinteractions[$interaction->uid] = $interaction;
     }
-    /**
-     * Common tasks after harvesting.
-     * Generate Key Performance Indicators (KPIs), store KPIs, mark harvest time, report harvest messages.
-     * @param string[] $result
-     * @return string[] $result
-     */
-    protected function post_harvest($result) {
-        // TODO: define if processsing is needed or not.
-        $processedinteractions = $this->lastinteractions;
-
-        // TODO: define if all interactions are
-        // worth to be registered or only student's.
-        $this->store_interactions($processedinteractions);
-        $contextcourse = \context_course::instance($this->msocial->course);
-        $usersstruct = msocial_get_users_by_type($contextcourse);
-        $kpis = $this->calculate_kpis($usersstruct);
-        $this->store_kpis($kpis, true);
-        $this->set_config(self::LAST_HARVEST_TIME, time());
-
-        $studentinteractions = array_filter($processedinteractions,
-                function (social_interaction $interaction) {
-                    return isset($interaction->fromid) &&
-                    msocial_time_is_between($interaction->timestamp,
-                                            (int) $this->msocial->startdate,
-                                            (int) $this->msocial->enddate);
-                });
-        $intimeinteractions = array_filter($processedinteractions,
-                function (social_interaction $interaction) {
-                    return msocial_time_is_between($interaction->timestamp,
-                            $this->msocial->startdate, $this->msocial->enddate);
-                });
-        $subtype = $this->get_subtype();
-        $logmessage = "For module msocial\\connector\\$subtype: \"" . $this->msocial->name .
-        "\" (id=" . $this->msocial->id . ") in course (id=" .
-        $this->msocial->course . ")  Found " . count($this->lastinteractions) .
-        " events. In time period: " . count($intimeinteractions) . ". Students' events: " . count($studentinteractions);
-        $result->messages[] = $logmessage;
-
-        return $result;
-    }
+   
     /** Stores the $socialname in the profile information of the $user
      *
      * @param \stdClass $user user record
@@ -327,6 +280,12 @@ abstract class msocial_connector_plugin extends msocial_plugin {
                 ['nativeto' => $socialuser->socialid, 'source' => $socialuser->type, 'msocial' => $this->msocial->id]);
     }
 
+   
+    /** Reports if the users are from an external social network or from a Moodle activity.
+     * @return boolean */
+    public function users_are_local() {
+        return false;
+    }
     /** Maps social ids to moodle's user ids
      *
      * @param int $socialid */
@@ -334,12 +293,6 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $this->check_mapping_cache();
         return isset($this->socialtousermapping[$socialid]) ? $this->socialtousermapping[$socialid] : null;
     }
-    /** Reports if the users are from an external social network or from a Moodle activity.
-     * @return boolean */
-    public function users_are_local() {
-        return false;
-    }
-
     /** Maps a Moodle's $user to a socialuserid in the social media.
      *
      * @param \stdClass|int $user user record or userid
@@ -361,7 +314,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         $this->check_mapping_cache();
         return isset($this->socialusernametosocialid[$socialname]) ? $this->socialusernametosocialid[$socialname] : null;
     }
-    private function check_mapping_cache() {
+    protected function check_mapping_cache() {
         global $DB;
         if ($this->usertosocialmapping == null || $this->socialtousermapping == null) {
             $records = $DB->get_records('msocial_mapusers', ['msocial' => $this->msocial->id, 'type' => $this->get_subtype()],

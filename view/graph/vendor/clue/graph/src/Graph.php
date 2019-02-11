@@ -197,7 +197,11 @@ class Graph implements DualAggregate, AttributeAware
     {
         return $this->createEdgeCloneInternal($originalEdge, 1, 0);
     }
-
+    public function createEdgeCloneUndirected(Edge $originalEdge)
+    {
+        return $this->createEdgeCloneInternal($originalEdge, 1, 0, true);
+    }
+    
     /**
      * create new clone of the given edge between adjacent vertices
      *
@@ -216,7 +220,7 @@ class Graph implements DualAggregate, AttributeAware
      * @uses Edge::getCapacity()
      * @uses Edge::setCapacity()
      */
-    private function createEdgeCloneInternal(Edge $originalEdge, $ia, $ib)
+    private function createEdgeCloneInternal(Edge $originalEdge, $ia, $ib, $forceundirected = false)
     {
         $ends = $originalEdge->getVertices()->getIds();
 
@@ -225,7 +229,7 @@ class Graph implements DualAggregate, AttributeAware
         // get target vertex from old target vertex id
         $b = $this->getVertex($ends[$ib]);
 
-        if ($originalEdge instanceof EdgeDirected) {
+        if ($forceundirected == false && $originalEdge instanceof EdgeDirected) {
             $newEdge = $a->createEdgeTo($b);
         } else {
             // create new edge between new a and b

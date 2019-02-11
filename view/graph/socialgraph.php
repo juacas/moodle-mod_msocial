@@ -361,7 +361,7 @@ class SocialMatrix {
 //                         $ids = $path->getVertices()->getIds();
                         // Sin contar al usuario que estamos analizando y sin contar el último nodo (ya que
                         // no estaría en el medio del camino).
-                        for ($i = 1; $i < count($ids) - 1; $i++) {
+                        for ($i = 0; $i < count($ids); $i++) {
                             // Si no existe el indice de proximidad para el nodo estudiado le asigno valor
                             // 1, si ya existe incremento en 1.
                             $indiceproximidad[$ids[$i]] = isset($indiceproximidad[$ids[$i]]) ? $indiceproximidad[$ids[$i]] + 1 : 1;

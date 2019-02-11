@@ -255,7 +255,10 @@ abstract class Base implements VerticesAggregate, AttributeAware
     {
         $this->getGraph()->removeEdge($this);
         foreach ($this->getVertices() as $vertex) {
-            $vertex->removeEdge($this);
+                $vertex->removeEdge($this);
+                if ($this->isLoop()) {
+                    break; // Loops don't need to remove twice.
+                }
         }
     }
 

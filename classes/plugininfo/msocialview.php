@@ -24,12 +24,14 @@
  */
 namespace mod_msocial\plugininfo;
 
+use mod_msocial\view\msocial_view_plugin;
+
 defined('MOODLE_INTERNAL') || die();
 
 class msocialview extends msocialbase {
 
     /** Finds all enabled plugins, the result may include missing plugins.
-     * @return array[string]\msocial_view_plugin |null of enabled plugins $pluginname=>$pluginname,
+     * @return array[string]| msocial_view_plugin | null of enabled plugins $pluginname=>$pluginname,
      *         null means unknown */
     public static function get_system_enabled_view_plugins($msocial = null) {
         return parent::get_system_enabled_plugins($msocial, 'view');

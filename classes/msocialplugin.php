@@ -32,22 +32,21 @@
 namespace mod_msocial;
 
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
 require_once('plugininfo/msocialbase.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/socialuser.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/kpi.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/socialinteraction.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/filterinteractions.php');
+require_once($CFG->dirroot . '/mod/msocial/classes/msocialharvestplugin.php');
 
 use core_component;
-use mod_msocial\kpi;
-use mod_msocial\kpi_info;
 use mod_msocial\connector\harvest_intervals;
 use mod_msocial\plugininfo\msocialbase;
-use mod_msocial\users_struct;
 
 defined('MOODLE_INTERNAL') || die();
 
-abstract class msocial_plugin {
+abstract class msocial_plugin implements msocial_harvestplugin {
     const CONFIG_DISABLED = 'disabled';
     const CONFIG_ENABLED = 'enabled';
     const CAT_VISUALIZATION = 'Visualization';
@@ -295,7 +294,8 @@ abstract class msocial_plugin {
                 $sqlparams = array_merge($sqlparams, $nativetypeparams);
 
                 $aggregatedrecords = $DB->get_records_sql($sql, $sqlparams);
-
+                
+                
                 // Process users' kpis.
                 foreach ($aggregatedrecords as $aggr) {
                     if (!isset($kpis[$aggr->userid])) {
@@ -306,6 +306,13 @@ abstract class msocial_plugin {
                     $stats['max_' . $kpiinfo->name] = max([ 0,
                                                             $aggr->total,
                                     isset( $stats['max_' . $kpiinfo->name]) ? $stats['max_' . $kpiinfo->name] : 0]);
+                }
+                // Fill gaps in kpi list.
+                foreach ($users->userrecords as $user) {
+                    if (!isset($kpis[$user->id])) {
+                        $kpi = new kpi($user->id, $this->msocial->id, $kpiinfos);
+                        $kpis[$user->id] = $kpi;
+                    }
                 }
             }
         }
@@ -319,37 +326,7 @@ abstract class msocial_plugin {
         }
         return $kpis;
     }
-    /**
-     * Calculates aggregated kpis from existent kpis.
-     * @param array $kpis
-     */
-    protected function calculate_aggregated_kpis(array $kpis) {
-        $kpiinfos = $this->get_kpi_list();
 
-        foreach ($kpiinfos as $kpiinfo) {
-            if ($kpiinfo->individual == kpi_info::KPI_AGREGATED) {
-                // Calculate aggregation.
-                $parts = explode('_', $kpiinfo->name);
-                $operation = $parts[0];
-                $kpiname = $parts[1];
-                $values = [];
-                $aggregated = 0;
-                foreach ($kpis as $kpi) {
-                    $values[]  = $kpi->{$kpiname};
-                }
-                if ($operation == 'max') {
-                    $aggregated = max($values);
-                } else {
-                    print_error('unsuported');
-                }
-                // Copy to all users.
-                foreach ($kpis as $kpi) {
-                    $kpi->{$kpiinfo->name}  = $aggregated;
-                }
-            }
-        }
-        return $kpis;
-    }
     /** Reports the list of Key Performance Indicators (KPIs) offered by this plugin.
      * This method does not include any values, just metadata.
      *
@@ -553,16 +530,18 @@ abstract class msocial_plugin {
         // return $this->visiblecache;
         return true;
     }
-    /**
-     * Collect information and calculate fresh Key Performance Indicators (KPIs) if supported.
-     * @return string[] messages generated
-     */
-    public abstract function harvest();
+   
     /**
      * @return harvest_intervals object with intervals and rates info.
      */
     public abstract function preferred_harvest_intervals();
-
+    /**
+     * Get the associated object implementing @see msocial_harvestplugin 
+     * @return msocial_harvestplugin
+     */
+    public function get_harvest_plugin() {
+        return $this;
+    }
     /** Has this plugin got a custom settings.php file?
      *
      * @return bool */
@@ -654,39 +633,13 @@ abstract class msocial_plugin {
     /** Run cron for this plugin */
     public static function cron() {
     }
-
-    /** Executes the harvest procedures of one or all plugins in this msocial instance.
-     * First connector plugins, then view plugins.
-     * @param \stdClass $msocial module instance
-     * @param string $subtype name of the only subplugin to harvest */
-    public static function execute_harvests($msocial, $subtype = null) {
-        $enabledplugins = msocialbase::get_enabled_plugins_all_types($msocial);
-        if ($subtype) {
-            $enabledplugins = [$subtype => $enabledplugins[$subtype]];
-        }
-
-        echo "Processing plugins:" . implode(', ', array_keys($enabledplugins));
-
-        foreach ($enabledplugins as $type => $plugin) {
-            if ($plugin->can_harvest()) {
-                $result = $plugin->harvest();
-                if (isset($result->errors)) {
-                        $plugin->notify(array_map(function ($item) {
-                            if (isset($item->message)) {
-                                return $item->message;
-                            } else {
-                                return '';
-                            }
-                        }, $result->errors), self::NOTIFY_ERROR);
-                }
-                $plugin->notify($result->messages, self::NOTIFY_NORMAL);
-
-            } else {
-                echo "<p>Plugin $type is not tracking. (Disabled or some critical configuration missing.)</p>";
-            }
-        }
+    /**
+     * Default implementation delegates to msocial_harvest_plugin
+     */
+    public function harvest() {
+        return $this->get_harvest_plugin()->harvest();
     }
-
+    
     /** This allows a plugin to render a page in the context of the msocial
      *
      * If the plugin creates a link to the msocial view.php page with
