@@ -601,6 +601,8 @@ class twitter_local_harvester implements msocial_harvestplugin
         global $DB;
         
         $result = $this->get_statuses($token, $hashtag);
+	$result->interactions = [];
+
         if (isset($result->errors)) {
             if ($token) {
                 $info = "UserToken for:$token->username ";
