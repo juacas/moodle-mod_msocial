@@ -713,7 +713,7 @@ class twitter_local_harvester implements msocial_harvestplugin
     /**
      * Merge arrays preserving keys. (PHP may convert string to int and renumber the items).
      */
-    protected function merge_interactions(array $arr1, array $arr2) {
+    protected function merge_interactions($arr1, $arr2) {
         $merged = [];
         if ($arr1) {
             foreach ($arr1 as $key => $inter) {
