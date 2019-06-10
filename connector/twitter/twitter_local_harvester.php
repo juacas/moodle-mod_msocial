@@ -715,11 +715,15 @@ class twitter_local_harvester implements msocial_harvestplugin
      */
     protected function merge_interactions(array $arr1, array $arr2) {
         $merged = [];
-        foreach ($arr1 as $key => $inter) {
-            $merged[$key] = $inter;
+        if ($arr1) {
+            foreach ($arr1 as $key => $inter) {
+                $merged[$key] = $inter;
+            }
         }
-        foreach ($arr2 as $key => $inter) {
-            $merged[$key] = $inter;
+        if ($arr2) {
+            foreach ($arr2 as $key => $inter) {
+                $merged[$key] = $inter;
+            }
         }
         return $merged;
     }
