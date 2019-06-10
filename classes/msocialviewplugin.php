@@ -71,6 +71,9 @@ abstract class msocial_view_plugin extends msocial_plugin {
                 $result = (object) ['messages' => []];
                 return $result;
             }
+            public function calculate_kpis(users_struct $users, $kpis = []) {
+                return $kpis;
+            }
         };
     }
     /**

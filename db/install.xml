@@ -137,7 +137,7 @@
 				<KEY NAME="msocial_facebookid" TYPE="unique" FIELDS="msocial, socialid, type" />
 			</KEYS>
 		</TABLE>
-		<TABLE NAME="msocial_pkis"
+		<TABLE NAME="msocial_kpis"
 			COMMENT="Key performance indicator to be used by every sub-plugin.">
 			<FIELDS>
 				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true"

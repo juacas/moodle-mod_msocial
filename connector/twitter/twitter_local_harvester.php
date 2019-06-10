@@ -610,9 +610,9 @@ class twitter_local_harvester implements msocial_harvestplugin
                 $info = "No twitter token defined!!";
             }
             $errormessage = $result->errors[0]->message;
-            $msocial = $this->msocial;
-            $cm = $this->cm;
-            $result->messages[] = "Searching: $hashtag. For module msocial\connector\twitter by hashtag: $msocial->name (id=$cm->instance) " .
+            $msocial = $this->msocial; 
+            $cm = $this->plugin->get_cmid();
+            $result->messages[] = "Searching: $hashtag. For module msocial\connector\twitter by hashtag: $msocial->name (id=$cm) " .
             " in course (id=$msocial->course) $info ERROR:" . $errormessage;
             $result->error[] = (object) ['message' => $errormessage];
             $result->statuses = [];
