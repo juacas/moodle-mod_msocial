@@ -67,11 +67,11 @@ class harvest_controller
         }
 
         echo "Processing plugins:" . implode(', ', array_keys($enabledplugins));
-
+        /** @var msocial_plugin $plugin */
         foreach ($enabledplugins as $type => $plugin) {
             try {
 
-                if ($plugin->can_harvest()) {
+                if ($plugin->can_harvest() && $plugin->is_tracking()) {
                     $result = $plugin->harvest();
                     // Process Interactions and PKIs
                     $result = $this->post_harvest($result, $plugin);
@@ -95,7 +95,7 @@ class harvest_controller
                     $plugin->notify($result->messages, msocial_plugin::NOTIFY_NORMAL);
                     // TODO: Process bad tokens and send advices.
                 } else {
-                    echo "<p>Plugin $type is not tracking. (Disabled or some critical configuration missing.)</p>";
+                    echo "<p>Plugin $type is not tracking. (Disabled, out of time window or some critical configuration missing.)</p>";
                 }
             } catch (\Exception $e) {
                 mtrace("<li>Error processing msocial: $msocial->name. Skipping. " . $e->getMessage() .
