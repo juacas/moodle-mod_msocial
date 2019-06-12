@@ -503,7 +503,7 @@ abstract class msocial_plugin implements msocial_harvestplugin {
     public function is_tracking() {
         return $this->can_harvest() &&
         msocial_time_is_between(time(), $this->msocial->startdate,
-                $this->msocial->enddate ? $this->msocial->enddate + 24 * 2600 : null);
+                $this->msocial->enddate ? $this->msocial->enddate + 24 * 3600 : null);
     }
     /**
      * Check if the plugin is properly configured to harvest data. Ignores time window.

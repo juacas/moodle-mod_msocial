@@ -71,7 +71,7 @@ class harvest_controller
         foreach ($enabledplugins as $type => $plugin) {
             try {
 
-                if ($plugin->can_harvest() && $plugin->is_tracking()) {
+                if ($plugin->is_tracking()) {
                     $result = $plugin->harvest();
                     // Process Interactions and PKIs
                     $result = $this->post_harvest($result, $plugin);
