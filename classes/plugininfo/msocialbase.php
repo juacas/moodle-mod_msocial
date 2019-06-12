@@ -79,8 +79,8 @@ class msocialbase extends base {
     /** Finds all system-wide enabled plugins, the result may include missing plugins.
      * First connectors, then views.
      * @param \stdClass $msocial record of the instance for innitiallizing plugins
-     * @return array(msocial_plugin)|null of enabled plugins $pluginname=>$plugin, null means
-     *         unknown */
+     * @return msocial_plugin[] of enabled plugins $pluginname=>$plugin,
+     */
     public static function get_system_enabled_plugins_all_types($msocial = null) {
         $connectors = self::get_system_enabled_plugins($msocial, 'connector');
         $views = self::get_system_enabled_plugins($msocial, 'view');
@@ -101,9 +101,7 @@ class msocialbase extends base {
      *
      * @param \stdClass $msocial record of the instance for initiallizing plugins
      * @param string $subtype 'connector' or 'view'
-     * @return array(msocialconnectorplugin)|null of enabled plugins $pluginname=>$plugin, null
-     *         means
-     *         unknown */
+     * @return msocialconnectorplugin[] of enabled plugins $pluginname=>$plugin */
     public static function get_system_enabled_plugins($msocial = null, $subtype = null) {
         global $DB;
         if (!isset(self::$plugins[$subtype])) {
@@ -150,7 +148,7 @@ class msocialbase extends base {
         $enabled = array_filter($systemenabled, function(msocial_plugin $plugin) {
             return $plugin->is_enabled();
         });
-            return $enabled;
+        return $enabled;
     }
     public function is_uninstall_allowed() {
         return true;

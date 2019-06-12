@@ -65,12 +65,12 @@ class harvest_controller
         if ($subtype) {
             $enabledplugins = [$subtype => $enabledplugins[$subtype]];
         }
-        
+
         echo "Processing plugins:" . implode(', ', array_keys($enabledplugins));
-        
+
         foreach ($enabledplugins as $type => $plugin) {
             try {
-                
+
                 if ($plugin->can_harvest()) {
                     $result = $plugin->harvest();
                     // Process Interactions and PKIs
@@ -82,7 +82,7 @@ class harvest_controller
                         $plugin->store_kpis($result->kpis, true);
                     }
                     $plugin->set_config(msocial_connector_plugin::LAST_HARVEST_TIME, time());
-                    
+
                     if (isset($result->errors)) {
                         $plugin->notify(array_map(function ($item) {
                             if (isset($item->message)) {
@@ -111,7 +111,7 @@ class harvest_controller
      */
     protected function post_harvest($result, $plugin) {
         // TODO: define if processsing is needed or not.
-        
+
         $contextcourse = \context_course::instance($this->msocial->course);
         $usersstruct = msocial_get_users_by_type($contextcourse);
         $result->kpis = $plugin->calculate_kpis($usersstruct, $result->kpis ? $result->kpis : [] );
@@ -136,7 +136,7 @@ class harvest_controller
         $plugin->msocial->course . ")  Found " . count($processedinteractions) .
         " events. In time period: " . count($intimeinteractions) . ". Students' events: " . count($studentinteractions);
         $result->messages[] = $logmessage;
-        
+
         return $result;
     }
     /**
