@@ -298,7 +298,7 @@ class twitter_local_harvester implements msocial_harvestplugin
                 ($result == null ? $json : print_r($result->errors, true));
                 $totalresults->errors[] = $msg;
 
-                $totalresults->badtokens[]=(object)['user'=>$socialuser, 'msg' => $msg ];
+                $totalresults->badtokens[] = (object)['user' => $socialuser, 'msg' => $msg ];
             } else {
                 // Order results to detect threads.
                 if (count($result)) {

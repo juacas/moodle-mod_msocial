@@ -106,6 +106,6 @@ class tag_parser {
                 return true;
             }
         }
-        return true;
+        return false;
     }
 }
