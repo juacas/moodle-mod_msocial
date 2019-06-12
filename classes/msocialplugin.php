@@ -509,7 +509,7 @@ abstract class msocial_plugin implements msocial_harvestplugin {
      * Check if the plugin is properly configured to harvest data. Ignores time window.
      */
     public function can_harvest() {
-        return $this->is_enabled();
+        return $this->get_harvest_plugin() !== null && $this->is_enabled();
     }
     /**
      * Get the numerical sort order for this plugin
@@ -540,7 +540,7 @@ abstract class msocial_plugin implements msocial_harvestplugin {
      * @return msocial_harvestplugin
      */
     public function get_harvest_plugin() {
-        return $this;
+        return null;
     }
     /** Has this plugin got a custom settings.php file?
      *

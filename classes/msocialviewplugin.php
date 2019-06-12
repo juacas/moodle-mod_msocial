@@ -66,15 +66,7 @@ abstract class msocial_view_plugin extends msocial_plugin {
 
    
     public function get_harvest_plugin() {
-        return new class implements msocial_harvestplugin {
-            public function harvest() {
-                $result = (object) ['messages' => []];
-                return $result;
-            }
-            public function calculate_kpis(users_struct $users, $kpis = []) {
-                return $kpis;
-            }
-        };
+        return null;
     }
     /**
      * Render the content of the view
@@ -107,6 +99,7 @@ abstract class msocial_view_plugin extends msocial_plugin {
     public function preferred_harvest_intervals() {
         return new mod_msocial\connector\harvest_intervals(15 * 60, 5000, 1 * 3600, 0);
     }
+
     /**
      *
      * {@inheritDoc}

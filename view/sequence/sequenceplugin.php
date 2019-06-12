@@ -80,15 +80,6 @@ class msocial_view_sequence extends msocial_view_plugin {
     }
 
     /**
-     * @global moodle_database $DB
-     * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
-    public function harvest() {
-        global $DB;
-        $result = (object) ['messages' => []];
-        return $result;
-    }
-
-    /**
      * {@inheritdoc}
      *
      * @see msocial_view_plugin::view_set_requirements() */

@@ -329,4 +329,8 @@ abstract class msocial_connector_plugin extends msocial_plugin {
             }
         }
     }
+    public function get_harvest_plugin()
+    {
+        return $this;
+    }
 }

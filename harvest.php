@@ -50,7 +50,7 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
 $harvester = new harvest_controller($msocial);
-$harvester->execute_harvests($msocial, $subtype);
+$harvester->execute_harvests($subtype);
 msocial_update_grades($msocial);
 
 echo $OUTPUT->continue_button(new moodle_url('/mod/msocial/view.php', array('id' => $id)));

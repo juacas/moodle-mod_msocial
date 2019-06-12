@@ -46,20 +46,21 @@ use mod_msocial\plugininfo\msocialbase;
 
 class harvest_controller
 {
-    var $msocial;
+    public $msocial;
     /** Constructor f
      *
      * @param \stdClass $msocial
      */
     public final function __construct($msocial) {
-       $this->msocial = $msocial;
+        $this->msocial = $msocial;
     }
     /** Executes the harvest procedures of one or all plugins in a msocial instance.
      * First connector plugins, then view plugins.
      * @param \stdClass $msocial module instance
      * @param string $subtype name of the only subplugin to harvest
      */
-    public function execute_harvests($msocial, $subtype = null) {
+    public function execute_harvests($subtype = null) {
+        $msocial = $this->msocial;
         $enabledplugins = msocialbase::get_enabled_plugins_all_types($msocial);
         if ($subtype) {
             $enabledplugins = [$subtype => $enabledplugins[$subtype]];
@@ -113,10 +114,10 @@ class harvest_controller
         
         $contextcourse = \context_course::instance($this->msocial->course);
         $usersstruct = msocial_get_users_by_type($contextcourse);
-        $result->kpis = $plugin->calculate_kpis($usersstruct, $result->kpis);
+        $result->kpis = $plugin->calculate_kpis($usersstruct, $result->kpis ? $result->kpis : [] );
 
         // Message for user: summary.
-        $processedinteractions = isset($result->interactions)?$result->interactions:[];
+        $processedinteractions = isset($result->interactions) ? $result->interactions : [];
         $studentinteractions = array_filter($processedinteractions,
             function (social_interaction $interaction) {
                 return isset($interaction->fromid) &&

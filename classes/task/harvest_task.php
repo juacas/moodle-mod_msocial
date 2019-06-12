@@ -18,6 +18,8 @@
  * php.exe admin\tool\task\cli\schedule_task.php --execute=\mod_msocial\task\harvest_task */
 namespace mod_msocial\task;
 
+use mod_msocial\harvest_controller;
+
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
 global $CFG;
@@ -52,6 +54,9 @@ class harvest_task extends \core\task\scheduled_task {
         mtrace("<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances.");
         mtrace("==========================================================================");
         foreach ($msocials as $msocial) {
+            $controller = new harvest_controller($msocial);
+            $controller->execute_harvests();
+            continue;
 // TODO: call Harvest proxy
             foreach (\mod_msocial\plugininfo\msocialconnector::get_enabled_plugins_all_types($msocial) as $type => $plugin) {
                 try {

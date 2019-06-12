@@ -88,7 +88,7 @@ class msocial_view_graph extends msocial_view_plugin {
         return new \moodle_url('/mod/msocial/view/graph/pix/icon.svg');
     }
 
-    
+
 
     public function get_kpi_list() {
         $kpiobjs['closeness'] = new kpi_info('closeness', get_string('kpi_description_closeness', 'msocialview_graph'),
@@ -121,14 +121,14 @@ class msocial_view_graph extends msocial_view_plugin {
         return new harvest_intervals(15 * 60, 5000, 1 * 3600, 0);
     }
     /**
-     * 
+     *
      * {@inheritDoc}
      * @see \mod_msocial\msocial_plugin::get_harvest_plugin()
      */
     public function get_harvest_plugin() {
         return new graph_harvester_local($this);
     }
-    
+
     public function render_header_requirements($reqs, $viewparam) {
     }
 
@@ -141,7 +141,7 @@ class msocial_view_graph extends msocial_view_plugin {
         $messages = [$this->get_name()];
         return [$messages, [] ];
     }
-    
+
     public function render_harvest_link() {
         global $OUTPUT;
         $harvestbutton = '';

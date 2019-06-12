@@ -54,9 +54,9 @@ class twitter_local_harvester implements msocial_harvestplugin
         $this->hashtag = $this->plugin->get_config('hashtag');
         $this->mappedusers = $mappedusers;
         $this->socialusercache = new social_user_cache($mappedusers);
-        
+
     }
-    
+
     /**
      * (non-PHPdoc)
      *
@@ -68,14 +68,14 @@ class twitter_local_harvester implements msocial_harvestplugin
     public function harvest() {
         $contextcourse = \context_course::instance($this->plugin->msocial->course);
         $usersstruct = msocial_get_users_by_type($contextcourse);
-       
+
         return $this->do_harvest($this->plugin->msocial, $usersstruct);
     }
     protected function do_harvest($msocial, $usersstruct) {
         $resultusers = $this->harvest_users($this->connectiontoken, $this->hashtag, $usersstruct);
         $resulttags = $this->harvest_hashtags($this->connectiontoken, $this->hashtag, $usersstruct);
-        $interactions = $this->merge_interactions($resultusers->interactions, $resulttags->interactions);        
- 
+        $interactions = $this->merge_interactions($resultusers->interactions, $resulttags->interactions);
+
         // Store Interactions and reload full collection.
         social_interaction::store_interactions($interactions, $msocial->id);
         $filter = new filter_interactions([
@@ -101,7 +101,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         // Calculate metrics not modelled as interactions.
         $kpis = $this->calculate_kpis($usersstruct);
         $result->kpis = $kpis;
-        
+
         // TODO: obtain token errors.
         $result->badtokens = []; //array_merge($resultusers->badtokens, $resulttags->badtokens);
         return $result;
@@ -111,12 +111,12 @@ class twitter_local_harvester implements msocial_harvestplugin
         $targetusers = [];
         foreach ($this->mappedusers as $socialuser) {
             if (array_key_exists($socialuser->userid, $usersstruct->userrecords)) {
-                $targetusers[] = $socialuser;                
+                $targetusers[] = $socialuser;
             }
         }
         $result = $this->get_users_statuses($token, $targetusers, $hashtag);
         $errormessage = null;
-        
+
         if (isset($result->errors)) {
             // TODO: generate best error message.
             if ($token) {
@@ -138,7 +138,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         if (isset($result->statuses)) {
             $statuses = count($result->statuses) == 0 ? array() : $result->statuses;
             $msocial = $this->msocial;
-            
+
             $processedstatuses = $this->process_statuses($statuses, $this->msocial, $usersstruct);
             $studentstatuses = array_filter($processedstatuses,
                 function ($status) {
@@ -147,7 +147,7 @@ class twitter_local_harvester implements msocial_harvestplugin
             $this->store_status($processedstatuses);
             $interactions = $this->build_interactions($processedstatuses);
             $errormessage = null;
-            $result->interactions = $interactions;          
+            $result->interactions = $interactions;
             $result->messages[] = "Searching by users. For module msocial\\connector\\twitter by users: $msocial->name (id=$msocial->id) " .
             "in course (id=$msocial->course) searching: $hashtag  ";
         } else {
@@ -202,10 +202,10 @@ class twitter_local_harvester implements msocial_harvestplugin
         foreach ($stataggregated as $propname => $value) {
             $kpi->{$propname} = $value;
         }
-        
+
         return $kpi;
     }
-    
+
     /** Statistics for grading
      * @deprecated
      *
@@ -221,7 +221,7 @@ class twitter_local_harvester implements msocial_harvestplugin
             'FROM {msocial_tweets} where msocial = ? and userid is not null group by userid', array($this->msocial->id));
         $userstats = new \stdClass();
         $userstats->users = array();
-        
+
         $favs = array();
         $retweets = array();
         if ($users == null) {
@@ -229,7 +229,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         }
         foreach ($users as $userid) {
             $stat = new \stdClass();
-            
+
             if (isset($stats[$userid])) {
                 $retweets[] = $stat->retweets = $stats[$userid]->retweets;
                 $favs[] = $stat->favs = $stats[$userid]->favs;
@@ -243,7 +243,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         $stat->max_favs = count($favs) == 0 ? 0 : max($favs);
         $stat->max_retweets = count($retweets) == 0 ? 0 : max($retweets);
         $userstats->maximums = $stat;
-        
+
         return $userstats;
     }
     /** Execute a Twitter API query with auth tokens and the hashtag configured in the module
@@ -256,7 +256,7 @@ class twitter_local_harvester implements msocial_harvestplugin
     protected function get_statuses($tokens, $hashtag) {
         return $this->search_twitter($tokens, $hashtag); // Twitter API depends on letter cases.
     }
-    
+
     /**
      *
      * @param \stdClass[] $tokens
@@ -266,7 +266,7 @@ class twitter_local_harvester implements msocial_harvestplugin
      * @return mixed
      */
     protected function get_users_statuses($tokens, $users, $hashtag) {
-        
+
         $totalresults = new \stdClass();
         if (!$tokens) {
             $result = (object) ['statuses' => [],
@@ -293,7 +293,7 @@ class twitter_local_harvester implements msocial_harvestplugin
             $json = $twitter->set_getfield($getfield)->build_oauth($url, $requestmethod)->perform_request();
             $result = json_decode($json);
             if ($result == null || isset($result->errors)) {
-                
+
                 $msg = "Error querying last tweets from user $socialuser->socialname. Response was " .
                 ($result == null ? $json : print_r($result->errors, true));
                 $totalresults->errors[] = $msg;
@@ -325,14 +325,14 @@ class twitter_local_harvester implements msocial_harvestplugin
         }
         return $totalresults;
     }
-    
+
     /** Process the statuses looking for students mentions
      * TODO: process entities->user_mentions[]
      *
      * @param \stdClass[] $statuses
      * @return \stdClass[] student statuses meeting criteria. */
     protected function process_statuses($statuses, $msocial, $usersstruct) {
-      
+
         $userrecords = $usersstruct->userrecords;
         $twitters = array();
         foreach ($userrecords as $userid => $user) { // Include all users (including teachers).
@@ -396,7 +396,7 @@ class twitter_local_harvester implements msocial_harvestplugin
             $DB->insert_record('msocial_tweets', $statusrecord);
         }
     }
-   
+
     /** Connect to twitter API at https://api.twitter.com/1.1/search/tweets.json
      *
      * @global type $CFG
@@ -445,7 +445,7 @@ class twitter_local_harvester implements msocial_harvestplugin
 //             filter_interactions::PARAM_INTERACTION_POST => true], $this->msocial);
 //         $interactions = social_interaction::load_interactions_filter($filter);
 //         $interactions = $this->merge_interactions($interactions, $this->lastinteractions);
-        
+
         mtrace("<li>Checking ". count($interactions) . " tweets for Favs.");
         foreach ($interactions as $interaction) {
             if ($interaction->type == social_interaction::POST) {
@@ -499,7 +499,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         $interactions = array_filter($targetinteractions, function(social_interaction $inter) {
             return ($inter->type == social_interaction::POST);
         });
-          
+
             mtrace("<li>Checking ". count($interactions) . " tweets for Retweets.");
             foreach ($interactions as $interaction) {
                 if ($interaction->type == social_interaction::POST) {
@@ -556,7 +556,7 @@ class twitter_local_harvester implements msocial_harvestplugin
             $interaction->nativefromname = $status->user->screen_name;
             $interaction->fromid = $this->socialusercache->get_userid($interaction->nativefrom);
             $interaction->nativeto = $status->in_reply_to_user_id_str;
-            
+
             $interaction->parentinteraction = $status->in_reply_to_status_id_str;
             $interaction->timestamp = new \DateTime($status->created_at);
             $interaction->description = $status->full_text;
@@ -590,7 +590,7 @@ class twitter_local_harvester implements msocial_harvestplugin
                     $mentioninteraction->parentinteraction = $interaction->uid;
                     $interactions[$mentioninteraction->uid] = $mentioninteraction;
                 }
-                
+
         }
         return $interactions;
     }
@@ -599,7 +599,7 @@ class twitter_local_harvester implements msocial_harvestplugin
      * @return mixed $result->statuses $result->messages[]string $result->errors[]->message */
     protected function harvest_hashtags($token, $hashtag, $usersstruct) {
         global $DB;
-        
+
         $result = $this->get_statuses($token, $hashtag);
 	$result->interactions = [];
 
@@ -610,7 +610,7 @@ class twitter_local_harvester implements msocial_harvestplugin
                 $info = "No twitter token defined!!";
             }
             $errormessage = $result->errors[0]->message;
-            $msocial = $this->msocial; 
+            $msocial = $this->msocial;
             $cm = $this->plugin->get_cmid();
             $result->messages[] = "Searching: $hashtag. For module msocial\connector\twitter by hashtag: $msocial->name (id=$cm) " .
             " in course (id=$msocial->course) $info ERROR:" . $errormessage;
@@ -618,10 +618,10 @@ class twitter_local_harvester implements msocial_harvestplugin
             $result->statuses = [];
         } else if (isset($result->statuses)) {
             $DB->set_field('msocial_twitter_tokens', 'errorstatus', null, array('id' => $token->id));
-            
+
             $statuses = count($result->statuses) == 0 ? array() : $result->statuses;
             $msocial = $this->msocial;
-            
+
             $processedstatuses = $this->process_statuses($statuses, $this->msocial, $usersstruct);
             $studentstatuses = array_filter($processedstatuses,
                 function ($status) {
@@ -655,7 +655,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         }
         return $result;
     }
-    
+
     private function browse_twitter($geturl) {
         $agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0';
         $options = array(
@@ -677,7 +677,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         curl_close($ch);
         return $popupcode;
     }
-    
+
     /**
      * @deprecated
      * @param \stdClass $user
@@ -692,7 +692,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         $statuses = $DB->get_records('msocial_tweets', $condition);
         return $statuses;
     }
-    
+
     /**
      * @todo Get a list of interactions between the users
      * @global moodle_database $DB
@@ -700,7 +700,7 @@ class twitter_local_harvester implements msocial_harvestplugin
      * @param integer $todate null|end time
      * @param array $users filter of users
      * @return \mod_msocial\connector\social_interaction[] of interactions.
-     * @see \mod_msocial\connector\social_interaction 
+     * @see \mod_msocial\connector\social_interaction
      * @deprecated
      */
     public function get_interactions($fromdate = null, $todate = null, $users = null) {
@@ -709,7 +709,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         $interactions = $this->build_interactions($tweets);
         return $interactions;
     }
-   
+
     /**
      * Merge arrays preserving keys. (PHP may convert string to int and renumber the items).
      */
