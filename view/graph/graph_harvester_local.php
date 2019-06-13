@@ -139,7 +139,9 @@ class graph_harvester_local implements msocial_harvestplugin
                     $values[]  = $kpi->{$kpiname};
                 }
                 if ($operation == 'max') {
-                    $aggregated = max($values);
+                    if (count($values) > 0) {
+                        $aggregated = max($values);
+                    }
                 } else {
                     print_error('unsuported');
                 }
@@ -150,6 +152,15 @@ class graph_harvester_local implements msocial_harvestplugin
             }
         }
         return $kpis;
+    }
+     /**
+     * Do nothing. This plugin does not generate interactions.
+     * 
+     * @param social_interaction $interaction interaction to check.
+     * @param social_interaction[] Other interactions for check relations. indexed by uuid.
+     */
+    public function check_condition(social_interaction $interaction, array $otherinteractions = null) {
+       return true;
     }
 }
 

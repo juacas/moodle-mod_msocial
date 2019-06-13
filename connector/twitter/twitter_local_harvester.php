@@ -500,49 +500,49 @@ class twitter_local_harvester implements msocial_harvestplugin
             return ($inter->type == social_interaction::POST);
         });
 
-            mtrace("<li>Checking ". count($interactions) . " tweets for Retweets.");
-            foreach ($interactions as $interaction) {
-                if ($interaction->type == social_interaction::POST) {
-                    $status = json_decode($interaction->rawdata);
-                    if ($status->retweeted == false) {
-                        continue;
-                    }
-                    mtrace("<li>Getting retweets for " . $this->plugin->get_interaction_url($interaction));
-                    $popupcode = $this->browse_twitter('https://twitter.com/i/activity/retweeted_popup?id=' . $interaction->uid);
-                    $json = json_decode($popupcode);
-                    if (isset($json->htmlUsers)) {
-                        $users = $json->htmlUsers;
-                    } else {
-                        continue; // Tweet deleted or account made private.
-                    }
-                    $matches = [];
-                    preg_match_all('/screen-name="(?\'screenname\'[\w\s]+)"\s+data-user-id="(?\'userid\'\d+)"/', $users, $matches, PREG_PATTERN_ORDER);
-                    $count = count($matches[1]);
-                    if ($count == 0) {
-                        continue;
-                    }
-                    mtrace("<li>Tweet " . $this->plugin->get_interaction_url($interaction) . " has $count retweets.");
-                    for ($i = 0; $i < $count; $i++) {
-                        // Create a new Retweet interaction.
-                        $retweetinteraction = new social_interaction();
-                        $retweetinteraction->source = $this->plugin->get_subtype();
-                        $retweetinteraction->nativefrom = $matches['userid'][$i];
-                        $retweetinteraction->fromid = $this->socialusercache->get_userid($retweetinteraction->nativefrom);
-                        $retweetinteraction->nativeto = $interaction->nativefrom;
-                        $retweetinteraction->toid = $interaction->fromid;
-                        $retweetinteraction->nativetoname = $interaction->nativefromname;
-                        $retweetinteraction->nativefromname = $matches['screenname'][$i];
-                        $retweetinteraction->description = $retweetinteraction->nativefromname . ' retweeted tweet ' . $interaction->uid;
-                        $retweetinteraction->parentinteraction = $interaction->uid;
-                        $retweetinteraction->uid = $interaction->uid . '-retweetedby-' . $retweetinteraction->nativefrom;
-                        $retweetinteraction->timestamp = $interaction->timestamp;
-                        $retweetinteraction->nativetype = 'retweet';
-                        $retweetinteraction->type = social_interaction::MENTION;
-                        $retweetinteractions[$retweetinteraction->uid] = $retweetinteraction;
-                    }
+        mtrace("<li>Checking ". count($interactions) . " tweets for Retweets.");
+        foreach ($interactions as $interaction) {
+            if ($interaction->type == social_interaction::POST) {
+                $status = json_decode($interaction->rawdata);
+                if ($status->retweeted == false) {
+                    continue;
+                }
+                mtrace("<li>Getting retweets for " . $this->plugin->get_interaction_url($interaction));
+                $popupcode = $this->browse_twitter('https://twitter.com/i/activity/retweeted_popup?id=' . $interaction->uid);
+                $json = json_decode($popupcode);
+                if (isset($json->htmlUsers)) {
+                    $users = $json->htmlUsers;
+                } else {
+                    continue; // Tweet deleted or account made private.
+                }
+                $matches = [];
+                preg_match_all('/screen-name="(?\'screenname\'[\w\s]+)"\s+data-user-id="(?\'userid\'\d+)"/', $users, $matches, PREG_PATTERN_ORDER);
+                $count = count($matches[1]);
+                if ($count == 0) {
+                    continue;
+                }
+                mtrace("<li>Tweet " . $this->plugin->get_interaction_url($interaction) . " has $count retweets.");
+                for ($i = 0; $i < $count; $i++) {
+                    // Create a new Retweet interaction.
+                    $retweetinteraction = new social_interaction();
+                    $retweetinteraction->source = $this->plugin->get_subtype();
+                    $retweetinteraction->nativefrom = $matches['userid'][$i];
+                    $retweetinteraction->fromid = $this->socialusercache->get_userid($retweetinteraction->nativefrom);
+                    $retweetinteraction->nativeto = $interaction->nativefrom;
+                    $retweetinteraction->toid = $interaction->fromid;
+                    $retweetinteraction->nativetoname = $interaction->nativefromname;
+                    $retweetinteraction->nativefromname = $matches['screenname'][$i];
+                    $retweetinteraction->description = $retweetinteraction->nativefromname . ' retweeted tweet ' . $interaction->uid;
+                    $retweetinteraction->parentinteraction = $interaction->uid;
+                    $retweetinteraction->uid = $interaction->uid . '-retweetedby-' . $retweetinteraction->nativefrom;
+                    $retweetinteraction->timestamp = $interaction->timestamp;
+                    $retweetinteraction->nativetype = 'retweet';
+                    $retweetinteraction->type = social_interaction::MENTION;
+                    $retweetinteractions[$retweetinteraction->uid] = $retweetinteraction;
                 }
             }
-            return $retweetinteractions;
+        }
+        return $retweetinteractions;
     }
     protected function build_interactions($statuses) {
         $interactions = [];
@@ -726,6 +726,27 @@ class twitter_local_harvester implements msocial_harvestplugin
             }
         }
         return $merged;
+    }
+    /**
+     * @param social_interaction $interaction interaction to check.
+     * @param social_interaction[] Other interactions for check relations. indexed by uuid.
+     */
+    public function check_condition(social_interaction $interaction, array $otherinteractions = null) {
+        if (parent::check_condition($interaction, $otherinteractions) === false) {
+            return false;
+        }
+        // If has a parent the conditions are inherited.
+        if (isset($otherinteractions[$interaction->parentinteraction])) {
+            return $this->check_condition($otherinteractions[$interaction->parentinteraction], $otherinteractions);
+        } else if ($interaction->type == social_interaction::POST) {
+            $tweet = json_decode($interaction->rawdata);
+            $content = $tweet->full_text;
+            $tagparser = new \tag_parser($this->hashtag);
+            return $tagparser->check_hashtaglist($content);
+        } else {
+            // If the interaction is not a post and have a parent then it is an orphan interactions.
+            return false;
+        }
     }
 }
 

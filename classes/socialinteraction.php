@@ -216,6 +216,27 @@ class social_interaction {
             $tr->rollback($e);
         }
     }
+    static public function delete_interactions(array $interactions, $msocialid) {
+        global $DB;
+
+        $uids = array_map(function ($inter) {
+            return $inter->uid;
+        }, $interactions);
+        if (count($uids) == 0) {
+            return;
+        }
+        list($whereuids, $params) = $DB->get_in_or_equal($uids);
+        $where = "uid $whereuids and msocial=?";
+        $params[] = $msocialid;
+        $tr = $DB->start_delegated_transaction();
+        try {
+            $DB->delete_records_select('msocial_interactions', $where, $params);
+            $tr->allow_commit();
+        } catch (\Exception $e) {
+            mtrace("Error " . $e->getMessage() . " uids: <p>" . implode(', ', $uids) . " <p> keys:" . implode(', ', array_keys($interactions)));
+            $tr->rollback($e);
+        }
+    }
     /**
      * Remove emojis in utf8mb4 format.
      * https://stackoverflow.com/questions/12807176/php-writing-a-simple-removeemoji-function

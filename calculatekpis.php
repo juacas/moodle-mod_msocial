@@ -1,4 +1,7 @@
 <?php
+use mod_msocial\plugininfo\msocialconnector;
+use mod_msocial\connector\msocial_connector_plugin;
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -63,9 +66,15 @@ $plugins = \mod_msocial\plugininfo\msocialconnector::get_enabled_plugins_all_typ
 
 $usersstruct = msocial_get_users_by_type($contextcourse);
 foreach ($plugins as $plugin) {
+    if ($plugin instanceof msocial_connector_plugin) {
+        $removed = $plugin->purge_interactions();
+    }
     $kpis = $plugin->calculate_kpis($usersstruct);
     $plugin->store_kpis($kpis);
-    echo "<li>Plugin " . $plugin->get_name() . " updated " . count($kpis) . " users' kpis.</li>";
+    echo "<li>Plugin " . $plugin->get_name() . 
+        " updated " . count($kpis) . 
+        " users' kpis. Purged " .
+        count($removed) . " interactions </li>";
 }
 
 echo $OUTPUT->footer();

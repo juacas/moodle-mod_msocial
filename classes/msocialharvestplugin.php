@@ -30,6 +30,9 @@
  * @copyright 2017 Juan Pablo de Castro {@email jpdecastro@tel.uva.es}
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later */
 namespace mod_msocial;
+
+use mod_msocial\connector\social_interaction;
+
 global $CFG;
 require_once($CFG->dirroot . '/mod/msocial/classes/kpi.php');
 require_once($CFG->dirroot . '/mod/msocial/classes/socialinteraction.php');
@@ -43,6 +46,11 @@ interface msocial_harvestplugin
      */
     public function harvest();
     public function calculate_kpis(users_struct $users, $kpis = []);
-        
+    /**
+     * Apply the filtering condition to this interaction.
+     * @param social_interaction $interaction interaction to check.
+     * @param social_interaction[] Other interactions for check relations. indexed by uuid.
+     */
+    public function check_condition(social_interaction $interaction, array $otherinteractions = null);
 }
 

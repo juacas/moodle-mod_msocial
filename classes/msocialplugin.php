@@ -43,6 +43,7 @@ require_once($CFG->dirroot . '/mod/msocial/classes/msocialharvestplugin.php');
 use core_component;
 use mod_msocial\connector\harvest_intervals;
 use mod_msocial\plugininfo\msocialbase;
+use mod_msocial\connector\social_interaction;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -512,8 +513,9 @@ abstract class msocial_plugin implements msocial_harvestplugin {
         return $this->get_harvest_plugin() !== null && $this->is_enabled();
     }
     /**
-     * Get the numerical sort order for this plugin
-     * @return int */
+     * Get the numerical sort order for this plugin.
+     * @return int the ordering index.
+     */
     public function get_sort_order() {
         $order = get_config($this->get_subtype() . '_' . $this->get_type(), 'sortorder');
         return $order ? $order : 0;
@@ -707,5 +709,20 @@ abstract class msocial_plugin implements msocial_harvestplugin {
      * @return bool */
     public function is_configurable() {
         return true;
+    }
+     /**
+     * Check time conditions for the interaction. Extend this for further conditions.
+     * 
+     * @param social_interaction $interaction interaction to check.
+     * @param social_interaction[] Other interactions for check relations. indexed by uuid.
+     */
+    public function check_condition(social_interaction $interaction, array $otherinteractions = null) {
+        if (!msocial_time_is_between($interaction->timestamp, $this->msocial->startdate, $this->msocial->enddate)) {
+            return false;
+        }
+        $harvest = $this->get_harvest_plugin();
+        if ($harvest !== null) {
+            return $harvest->check_condition($interaction, $otherinteractions);
+        }
     }
 }

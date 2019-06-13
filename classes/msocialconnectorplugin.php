@@ -54,7 +54,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
     public final function __construct($msocial) {
         parent::__construct($msocial, 'msocialconnector');
     }
-   
+
     /**
      * Sometimes the social networks API access is not authorized (due to review processes)
      * and SSO login is only allowed for certain users (i.e. teachers registered manually in the API provider.)
@@ -103,7 +103,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
                 }
                 $usermessage = get_string($msgstring, "msocialconnector_{$subtype}",
                         ['userfullname' => $userfullname, 'userid' => $user->id, 'courseid' => $course->id,
-                                        'url' => $urlprofile->out(false), 'pixurl' => $pixurl->out(false)]);                    
+                                        'url' => $urlprofile->out(false), 'pixurl' => $pixurl->out(false)]);
             } else {
                 if ($brief) {
                     $usermessage = $this->render_user_link($user, $brief);
@@ -188,15 +188,30 @@ abstract class msocial_connector_plugin extends msocial_plugin {
      * @param integer $fromdate null|starting time
      * @param integer $todate null|end time
      * @param users_struct $users filter of users $users struct obtained from msocial_get_users_by_type
-     * @return \mod_msocial\connector\social_interaction[] of interactions. @see
+     * @return \mod_msocial\connector\social_interaction[] of interactions indexed by uuid. @see
      *         mod_msocial\connector\social_interaction */
     public function get_interactions($fromdate = null, $todate = null, $users = null) {
-        $filter = new filter_interactions([filter_interactions::PARAM_SOURCES => $this->get_subtype(),
-                                            filter_interactions::PARAM_INTERACTION_MENTION => true,
-                                            ], $this->msocial);
+        $filter = new filter_interactions([filter_interactions::PARAM_SOURCES => $this->get_subtype()], $this->msocial);
         $filter->set_users($users);
         return social_interaction::load_interactions_filter($filter);
     }
+    /**
+     * Purge from the interactions table the records that does not meet filters.
+     * @return social_interaction[] bad interactions removed.
+     */
+    public function purge_interactions() {
+        $interactions = $this->get_interactions();
+        $badinteractions = [];
+        $harvester = $this->get_harvest_plugin();
+        foreach ($interactions as $uuid => $interaction) {
+            if (false === $harvester->check_condition($interaction, $interactions)) {
+                $badinteractions[$interaction->uid] = $interaction;
+            }
+        }
+        social_interaction::delete_interactions($badinteractions, $this->msocial->id);
+        return $badinteractions;
+    }
+
     public function store_interactions(array $interactions) {
         $msocialid = $this->msocial->id;
         social_interaction::store_interactions($interactions, $msocialid);
@@ -208,7 +223,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
         // Array is indexed by uid to ensure that there is unicity in the uid.
         $this->lastinteractions[$interaction->uid] = $interaction;
     }
-   
+
     /** Stores the $socialname in the profile information of the $user
      *
      * @param \stdClass $user user record
@@ -280,7 +295,7 @@ abstract class msocial_connector_plugin extends msocial_plugin {
                 ['nativeto' => $socialuser->socialid, 'source' => $socialuser->type, 'msocial' => $this->msocial->id]);
     }
 
-   
+
     /** Reports if the users are from an external social network or from a Moodle activity.
      * @return boolean */
     public function users_are_local() {

@@ -121,6 +121,7 @@ class filter_interactions {
             $this->interactiontypes[] = social_interaction::POST;
             $this->interactiontypes[] = social_interaction::REPLY;
             $this->interactiontypes[] = social_interaction::MENTION;
+            $this->interactiontypes[] = social_interaction::REACTION;
         }
     }
     public function param_if_absent($name, $default) {
@@ -132,7 +133,7 @@ class filter_interactions {
      *
      * @param users_struct $users struct obtained from msocial_get_users_by_type
      */
-    public function set_users(users_struct $users) {
+    public function set_users(users_struct $users = null) {
         $this->usersstruct = $users;
     }
 
