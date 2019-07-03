@@ -35,6 +35,7 @@ global $CFG;
 $id = required_param('id', PARAM_INT);
 $type = optional_param('type', '', PARAM_ALPHA);
 $format = optional_param('format', '', PARAM_ALPHA);
+$dumpall = optional_param('all', false, PARAM_INT);
 $url = new moodle_url('/mod/msocial/exportkpis.php', array('id' => $id));
 if ($type !== '') {
     $url->param('type', $type);
@@ -49,9 +50,7 @@ if (! $cm = get_coursemodule_from_id('msocial', $id)) {
     print_error("invalidcoursemodule");
 }
 
-if (! $course = $DB->get_record("course", array("id" => $cm->course))) {
-    print_error("coursemisconf");
-}
+$course = $DB->get_record("course", array("id" => $cm->course), '*', MUST_EXIST);
 $msocial = $DB->get_record('msocial', array('id' => $cm->instance), '*', MUST_EXIST);
 
 require_login($course->id, false, $cm);
@@ -79,7 +78,13 @@ if (!empty($format) && !empty($type) ) {
         require_once('classes/filterinteractions.php');
         require_once('classes/socialinteraction.php');
         $filter = new filter_interactions([], $msocial);
-        $filter->set_users($usersstruct);
+        if ($dumpall) {
+            $filter->unknownusers = true;
+            $filter->receivedbyteachers = true;
+            $filter->pureexternal = true;
+        } else {
+            $filter->set_users($usersstruct);
+        }
         // Process interactions.
         $data = social_interaction::load_interactions_filter($filter);
     }
@@ -172,6 +177,7 @@ echo $OUTPUT->heading('Interactions');
 $options["id"] = "$cm->id";
 $options["format"] = "ods";
 $options["type"] = "interactions";
+$options["all"] = $dumpall;
 $button = $OUTPUT->single_button(new moodle_url("exportkpis.php", $options), get_string("downloadods"));
 $downloadoptions[] = html_writer::tag('li', $button, array('class' => 'reportoption'));
 

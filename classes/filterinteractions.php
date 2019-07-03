@@ -340,6 +340,7 @@ SCRIPT;
         $params[] = $this->msocial->id;
         $andedqueries[] = $select;
         $userquery = [];
+        // TODO: Check this flag effect. Why receivedbyTeachers equals to "allUsers"?
         if (!$this->receivedbyteachers) {
             if ($this->usersstruct == null) { // Select only students.
                 $contextcourse = \context_course::instance($this->msocial->course);
