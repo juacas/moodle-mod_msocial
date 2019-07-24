@@ -118,15 +118,15 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
         $challengeinteraction = new social_interaction();
         $challengeinteraction->uid = $challenge->questid . '_' . $challenge->id;
         $challengeinteraction->nativefrom = $challenge->userid;
+        $challengeinteraction->fromid = $challenge->userid;
         if (isset($users[$challenge->userid])) {
-            $challengeinteraction->nativefromname = msocial_get_visible_fullname($users[$challenge->userid], $this->msocial);
-            $challengeinteraction->fromid = $challenge->userid;
+            $user = $users[$challenge->userid];
         } else {
             // Unenrolled user.
             global $DB;
             $user = $DB->get_record('user',['id' =>  $challenge->userid]);
-            $challengeinteraction->nativefromname = msocial_get_visible_fullname($user, $this->msocial);
         }
+        $challengeinteraction->nativefromname = msocial_get_visible_fullname($user, $this->msocial);
         $challengeinteraction->rawdata = json_encode($challenge);
         $time = new \DateTime();
         $time->setTimestamp($challenge->timecreated);
@@ -145,23 +145,21 @@ class msocial_connector_questournament extends msocial_connector_moodleactivity 
         $answerinteraction = new social_interaction();
         $answerinteraction->uid = $challengeinteraction->uid . '_' . $answer->id;
         $answerinteraction->nativefrom = $answer->userid;
+        $answerinteraction->fromid = $answer->userid;
+        $answerinteraction->toid = $challengeinteraction->fromid;
+        $answerinteraction->nativeto  = $challengeinteraction->fromid;
+        $answerinteraction->nativetoname = $challengeinteraction->nativetoname;;
 
         if (isset($users[$answer->userid])) {
-            $answerinteraction->nativefromname = msocial_get_visible_fullname($users[$answer->userid], $this->msocial);
-            $answerinteraction->fromid = $answer->userid;
+            $user = $users[$answer->userid];
         } else {
             // Unenrolled user.
             global $DB;
             $user = $DB->get_record('user',['id' => $answer->userid]);
-            $answerinteraction->nativefromname = msocial_get_visible_fullname($user, $this->msocial);
         }
+        $answerinteraction->nativefromname = msocial_get_visible_fullname($user, $this->msocial);
 
         $answerinteraction->rawdata = json_encode($answer);
-
-
-        $answerinteraction->toid = $challengeinteraction->fromid;
-        $answerinteraction->nativeto  = $challengeinteraction->fromid;
-        $answerinteraction->nativetoname = $challengeinteraction->nativetoname;;
 
         $time = new \DateTime();
         $time->setTimestamp($answer->date);
