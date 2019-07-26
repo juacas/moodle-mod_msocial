@@ -549,6 +549,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $result = new \stdClass();
         $result->messages = [];
         $result->errors = [];
+        $result->kpis = [];
         // Initialize GraphAPI.
         $groups = explode(',', $this->get_config(self::CONFIG_FBGROUP));
         $appid = $this->get_appid();
@@ -558,7 +559,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             // TODO: Check time configuration in some plattforms workaround: date_default_timezone_set('Europe/Madrid');!
             try {
                 /* @var Facebook\Facebook $fb api entry point */
-                $fb = new Facebook(['app_id' => $appid, 'app_secret' => $appsecret, 'default_graph_version' => 'v2.7']);
+                $fb = new Facebook(['app_id' => $appid, 'app_secret' => $appsecret]);
                 $token = $this->get_connection_token();
                 $fb->setDefaultAccessToken($token->token);
                 // Query Facebook...
