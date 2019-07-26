@@ -25,6 +25,7 @@
  */
 use mod_msocial\connector\msocial_connector_facebook;
 use Facebook\GraphNodes\GraphNodeFactory;
+use mod_msocial\msocial_plugin;
 
 require_once("../../../../config.php");
 require_once('../../locallib.php');
@@ -55,7 +56,8 @@ if ($action == 'selectgroup') {
     // Print the page header.
     echo $OUTPUT->header();
     echo $OUTPUT->heading($pagename);
-
+// Important message for setting up the group.
+    $plugin->notify([get_string('configure_group', 'msocialconnector_facebook')], msocial_plugin::NOTIFY_WARNING);
     $modinfo = course_modinfo::instance($course->id);
     $appid = get_config("msocialconnector_facebook", "appid");
     $appsecret = get_config("msocialconnector_facebook", "appsecret");
