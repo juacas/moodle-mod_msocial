@@ -31,7 +31,7 @@ require_once('../../locallib.php');
 require_once('../../classes/msocialconnectorplugin.php');
 require_once('facebookplugin.php');
 require_once('vendor/Facebook/autoload.php');
-global $CFG;
+global $CFG, $PAGE;
 $id = required_param('id', PARAM_INT); // MSocial module instance.
 $action = optional_param('action', 'select', PARAM_ALPHA);
 $type = optional_param('type', 'connect', PARAM_ALPHA);
@@ -45,11 +45,17 @@ require_capability('mod/msocial:manage', $context);
 // TODO: Allow multiple groups.
 if ($action == 'selectgroup') {
     $thispageurl = new moodle_url('/mod/msocial/connector/facebook/groupchoice.php', array('id' => $id, 'action' => 'select'));
+    $pagename = get_string('fbgroup', 'msocialconnector_facebook');
     $PAGE->set_url($thispageurl);
     $PAGE->set_title(format_string($cm->name));
     $PAGE->set_heading($course->fullname);
+    $PAGE->navbar->add(\html_writer::link(new moodle_url("/mod/msocial/view.php", ['id'=>$cm->id]), $msocial->name));
+    $PAGE->navbar->add($pagename);
+
     // Print the page header.
     echo $OUTPUT->header();
+    echo $OUTPUT->heading($pagename);
+
     $modinfo = course_modinfo::instance($course->id);
     $appid = get_config("msocialconnector_facebook", "appid");
     $appsecret = get_config("msocialconnector_facebook", "appsecret");
