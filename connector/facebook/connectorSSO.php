@@ -67,7 +67,7 @@ if ($action == 'connect') {
     if ($type == 'connect') {
         $permissions = ['groups_access_member_info', 'user_link', 'public_profile'];
     } else {
-        $permissions = ['user_link'];
+        $permissions = ['groups_access_member_info', 'user_link', 'public_profile'];
     }
     $thispageurl = new moodle_url("/mod/msocial/connector/facebook/connectorSSO.php",
             array(

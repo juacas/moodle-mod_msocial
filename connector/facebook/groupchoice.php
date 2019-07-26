@@ -96,9 +96,9 @@ if ($action == 'selectgroup') {
             $selected = array_search($group->getId(), $selectedgroups) !== false;
             $checkbox = \html_writer::checkbox('group[]', $groupstructform, $selected, $linkinfo);
         } else {
-            $checkbox = "--";
+            $checkbox = "--". $linkinfo;
         }
-        $row->cells = [$checkbox, $group->getDescription()];
+        $row->cells = [$checkbox, $group->getName() . ':' . $group->getDescription()];
         
         $table->data[] = $row;
         $iter->next();

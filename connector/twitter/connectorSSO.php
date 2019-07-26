@@ -118,10 +118,11 @@ if ($action == 'callback') { // Twitter callback.
     if (isset($reqdata['content'])) {
         parse_str($reqdata['content'], $reqoauthdata);
         if (count($reqoauthdata) == 0) {
-            $reqoauthdata = json_decode($reqdata['content']);
+            $reqoauthdata = json_decode($reqdata['content'], true);
         }
     }
-    if ($reqdata['errno'] == 0 && count($reqoauthdata->errors) == 0 ) {
+    
+    if ($reqdata['errno'] == 0 && !isset($reqoauthdata['errors'])) {
         
         $reqtoken = new \moodle\mod\lti\OAuthConsumer($reqoauthdata['oauth_token'], $reqoauthdata['oauth_token_secret'], 1);
         
@@ -140,7 +141,7 @@ if ($action == 'callback') { // Twitter callback.
         $PAGE->set_heading($course->fullname);
         // Print the page header.
         $errmsg = $reqdata['errmsg'];
-        $errarray = array_map(function($item) { return $item->message; }, $reqoauthdata->errors);
+        $errarray = array_map(function($item) { return $item->message; }, $reqoauthdata['errors']);
         $errmsg = join('.', $errarray);
         $continue = new moodle_url('/mod/msocial/view.php', array('id' => $cm->id));
         echo $OUTPUT->header();
