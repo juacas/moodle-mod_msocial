@@ -30,7 +30,7 @@
 $string['pluginname'] = 'Facebook Connector';
 $string['fbgroup'] = 'Facebook Group to analyze';
 $string['connectgroupinpage'] = 'Select your group in the main page of the activity';
-$string['configure_group'] = 'Facebook requires that the MSocial app is installed <b>INSIDE your group</b>. To enable monitoring of your group you must add MSocial to your group and give it permissions following <a href="https://www.facebook.com/help/www/1967138829984927"> these instructions</a>.';
+$string['configure_group_advice'] = 'Facebook requires that the MSocial app is installed <b>INSIDE your group</b>. To enable monitoring of your group you must add MSocial to your group and give it permissions following <a href="https://www.facebook.com/help/www/1967138829984927"> these instructions</a>.';
 $string['fbfieldid'] = 'Field that holds the facebook username';
 $string['fbfieldid_help'] = 'Field name of the user profile that holds the facebook username';
 $string['fbsearch'] = 'Search string to search for in Facebook';

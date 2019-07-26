@@ -30,7 +30,7 @@
 $string['pluginname'] = 'Conector para Facebook';
 $string['fbgroup'] = 'Grupo de Facebook que se analizará';
 $string['connectgroupinpage'] = 'Puede seleccionar los grupos a analizar en la página principal de la actividad';
-$string['configure_group'] = 'Facebook obliga a que la aplicación MSocial se instale <b>DENTRO de su grupo de Facebook</b>. Para activar la monitorización del grupo debe añadir MSocial al grupo y darle permisos siguiendo <a href="https://www.facebook.com/help/www/1967138829984927"> estas instrucciones.</a>.';
+$string['configure_group_advice'] = 'Facebook obliga a que la aplicación MSocial se instale <b>DENTRO de su grupo de Facebook</b>. Para activar la monitorización del grupo debe añadir MSocial al grupo y darle permisos siguiendo <a href="https://www.facebook.com/help/www/1967138829984927"> estas instrucciones.</a>.';
 
 $string['fbsearch'] = 'Search string to search for in Facebook';
 $string['fbsearch_help'] = 'It can be any string as specified in Facebook search API. You can use this reference to find out how to compose your search string <a href="https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes">https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes</a>';

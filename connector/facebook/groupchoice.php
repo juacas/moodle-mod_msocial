@@ -50,14 +50,14 @@ if ($action == 'selectgroup') {
     $PAGE->set_url($thispageurl);
     $PAGE->set_title(format_string($cm->name));
     $PAGE->set_heading($course->fullname);
-    $PAGE->navbar->add(\html_writer::link(new moodle_url("/mod/msocial/view.php", ['id'=>$cm->id]), $msocial->name));
+    $PAGE->navbar->add($msocial->name, new moodle_url('/mod/msocial/view.php', ['id' => $cm->id]));
     $PAGE->navbar->add($pagename);
 
     // Print the page header.
     echo $OUTPUT->header();
     echo $OUTPUT->heading($pagename);
 // Important message for setting up the group.
-    $plugin->notify([get_string('configure_group', 'msocialconnector_facebook')], msocial_plugin::NOTIFY_WARNING);
+    $plugin->notify([get_string('configure_group_advice', 'msocialconnector_facebook')], msocial_plugin::NOTIFY_WARNING);
     $modinfo = course_modinfo::instance($course->id);
     $appid = get_config("msocialconnector_facebook", "appid");
     $appsecret = get_config("msocialconnector_facebook", "appsecret");
