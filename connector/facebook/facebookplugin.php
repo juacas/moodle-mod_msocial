@@ -133,8 +133,8 @@ class msocial_connector_facebook extends msocial_connector_plugin {
             $context = \context_module::instance($this->cm->id);
             list($course, $cm) = get_course_and_cm_from_instance($this->msocial->id, 'msocial');
             $id = $cm->id;
+            $token = $DB->get_record('msocial_facebook_tokens', array('msocial' => $this->msocial->id));
             if (has_capability('mod/msocial:manage', $context)) {
-                $token = $DB->get_record('msocial_facebook_tokens', array('msocial' => $this->msocial->id));
                 $urlconnect = new \moodle_url('/mod/msocial/connector/facebook/connectorSSO.php',
                         array('id' => $id, 'action' => 'connect'));
                 if ($token) {
