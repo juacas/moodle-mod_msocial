@@ -40,9 +40,9 @@ class harvest_task extends \core\task\scheduled_task {
         global $DB;
         $courseid = $COURSE->id;
 
-        mtrace("\n=======================");
-        mtrace("MSocial count module.");
-        mtrace("=======================");
+        mtrace("\n=======================\n");
+        mtrace("MSocial count module. \n");
+        mtrace("=======================\n");
         // Get instances.
         $msocials = $DB->get_records('msocial');
         $enabledplugins = \mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins_all_types();
@@ -51,9 +51,11 @@ class harvest_task extends \core\task\scheduled_task {
                     $cminfo = get_coursemodule_from_instance('msocial', $msocial->id);
                     return !isset($cminfo->deletioninprogress) || !$cminfo->deletioninprogress;
                 });
-        mtrace("<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances.");
-        mtrace("==========================================================================");
+        mtrace("<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances. \n");
+        mtrace("==========================================================================\n");
         foreach ($msocials as $msocial) {
+            $course = get_course($msocial->course);
+            mtrace("<li> Course: '$course->name'  Msocial instance: '$msocial->name'</li>\n");
             $controller = new harvest_controller($msocial);
             $controller->execute_harvests();
             continue;
@@ -66,15 +68,15 @@ class harvest_task extends \core\task\scheduled_task {
                             \mtrace($message);
                         }
                     } else {
-                        mtrace("<li>Plugin $type is not tracking. (Missing token, hashtag or disabled.)");
+                        mtrace("<li>Plugin $type is not tracking. (Missing token, hashtag or disabled.)\n");
                     }
                 } catch (\Exception $e) {
                     mtrace("<li>Error processing msocial: $msocial->name. Skipping. " . $e->getMessage() .
-                            '\n' . $e->getTraceAsString());
+                            '\n' . $e->getTraceAsString() . "\n");
                 }
             }
         }
-        mtrace("=======================");
+        mtrace("=======================\n");
         return true;
     }
 }
