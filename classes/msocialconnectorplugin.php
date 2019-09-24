@@ -238,7 +238,6 @@ abstract class msocial_connector_plugin extends msocial_plugin {
                 ['msocial' => $this->msocial->id, 'type' => $this->get_subtype(), 'userid' => $user->id]);
         $DB->delete_records('msocial_mapusers',
                 ['msocial' => $this->msocial->id, 'type' => $this->get_subtype(), 'socialid' => $socialid]);
-
         $record = new \stdClass();
         $record->msocial = $this->msocial->id;
         $record->userid = $user->id;
@@ -260,24 +259,27 @@ abstract class msocial_connector_plugin extends msocial_plugin {
 
     public function unset_social_userid($user, $socialid) {
         global $DB;
-        $DB->delete_records('msocial_mapusers',
-                ['msocial' => $this->msocial->id, 'type' => $this->get_subtype(), 'userid' => $user->id, 'socialid' => $socialid]);
-        $record = new \stdClass();
-        $record->msocial = $this->msocial->id;
-        $record->userid = null; // Remove interaction resolutions.
-        $record->socialid = $socialid;
-        $record->type = $this->get_subtype();
-        $this->refresh_interaction_users($record);
-        // Reset cache...
-        $this->usertosocialmapping = null;
-        $userstruct = new users_struct();
-        $userstruct->studentids[] = $user->id;
-        $userstruct->userrecords[] = $user;
-        $kpis = $this->calculate_kpis($userstruct);
-        $this->store_kpis($kpis);
+        $record = $this->get_social_userid($user);
+        if ($record !== null) {
+            $DB->delete_records('msocial_mapusers',
+                    ['msocial' => $this->msocial->id, 'type' => $this->get_subtype(), 'userid' => $user->id, 'socialid' => $socialid]);
+            $record->msocial = $this->msocial->id;
+            $record->userid = null; // Remove interaction resolutions.
+            $record->socialid = $socialid;
+            $record->type = $this->get_subtype();
+            $this->refresh_interaction_users($record);
+            // Reset cache...
+            $this->usertosocialmapping = null;
+            $userstruct = new users_struct();
+            $userstruct->studentids[] = $user->id;
+            $userstruct->userrecords[] = $user;
+            $kpis = $this->calculate_kpis($userstruct);
+            $this->store_kpis($kpis);
+        }
     }
 
-    /** Try to fill interactions with null fromid or toid.
+    /** 
+     * Try to fill interactions with null fromid or toid.
      * This can be filled if a user has mapped his socialid after harvesting.
      * @global \moodle_database $DB
      * @param \stdClass $socialuser struct with userid, socialid, socialname, type fields. */

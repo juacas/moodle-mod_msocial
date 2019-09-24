@@ -37,7 +37,7 @@ $string['fbsearch'] = 'Search string to search for in Facebook';
 $string['fbsearch_help'] = 'It can be any string as specified in Facebook search API. You can use this reference to find out how to compose your search string <a href="https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes">https://developers.facebook.com/docs/graph-api/using-graph-api/v1.0#searchtypes</a>';
 $string['harvest'] = 'Search Facebook groups for student activity';
 
-$string['no_facebook_name_advice'] = 'Unlinked to Facebook.';
+$string['no_facebook_name_advice'] = 'Unlinked from Facebook.';
 $string['no_facebook_name_advice2'] = '{$a->userfullname} is not linked to Facebook. Register using Facebook clicking in <a href="{$a->url}"><img src="{$a->pixurl}/loginwithfacebook.png" alt="Facebook login"/></a>';
 
 $string['module_connected_facebook'] = 'Module connected with Facebook as user "{$a}" ';

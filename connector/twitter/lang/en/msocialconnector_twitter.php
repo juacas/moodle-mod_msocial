@@ -30,7 +30,7 @@ $string['harvest_tweets'] = 'Search Twitter timeline for student activity';
 // MainPage.
 $string['module_connected_twitter'] = 'Module connected with Twitter as user "{$a}" ';
 $string['module_not_connected_twitter'] = 'Module disconnected from twitter. It won\'t work until a twitter account is linked again.';
-$string['no_twitter_name_advice'] = 'No Twitter name. </a>';
+$string['no_twitter_name_advice'] = 'Unlinked from Twitter. </a>';
 $string['no_twitter_name_advice2'] = '{$a->userfullname} is not linked to Twitter. Register using Twitter in <a href="{$a->url}"><img src="{$a->pixurl}/sign-in-with-twitter-gray.png" alt="Twitter login"/></a>';
 
 
