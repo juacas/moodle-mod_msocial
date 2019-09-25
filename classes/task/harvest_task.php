@@ -51,11 +51,11 @@ class harvest_task extends \core\task\scheduled_task {
                     $cminfo = get_coursemodule_from_instance('msocial', $msocial->id);
                     return !isset($cminfo->deletioninprogress) || !$cminfo->deletioninprogress;
                 });
-        mtrace("<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances. \n");
+        mtrace("\n<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances. \n");
         mtrace("==========================================================================\n");
         foreach ($msocials as $msocial) {
             $course = get_course($msocial->course);
-            mtrace("<li> Course: '$course->name'  Msocial instance: '$msocial->name'</li>\n");
+            mtrace("\n<li> Course: $course->id '$course->shortname'  Msocial instance: '$msocial->name'</li>\n");
             $controller = new harvest_controller($msocial);
             $controller->execute_harvests();
             continue;
@@ -68,11 +68,11 @@ class harvest_task extends \core\task\scheduled_task {
                             \mtrace($message);
                         }
                     } else {
-                        mtrace("<li>Plugin $type is not tracking. (Missing token, hashtag or disabled.)\n");
+                        mtrace("\n<li>Plugin $type is not tracking. (Missing token, hashtag or disabled.)\n");
                     }
                 } catch (\Exception $e) {
-                    mtrace("<li>Error processing msocial: $msocial->name. Skipping. " . $e->getMessage() .
-                            '\n' . $e->getTraceAsString() . "\n");
+                    mtrace("\n<li>Error processing msocial: $msocial->name. Skipping. " . $e->getMessage() .
+                            "\n" . $e->getTraceAsString() . "\n");
                 }
             }
         }
