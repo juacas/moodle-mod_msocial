@@ -66,10 +66,10 @@ class harvest_controller
             $enabledplugins = [$subtype => $enabledplugins[$subtype]];
         }
 
-        echo "\nProcessing plugins:" . implode(', ', array_keys($enabledplugins));
         /** @var msocial_plugin $plugin */
         foreach ($enabledplugins as $type => $plugin) {
             try {
+                echo "\nProcessing plugin: $type");
 
                 if ($plugin->is_tracking()) {
                     $result = $plugin->harvest();
