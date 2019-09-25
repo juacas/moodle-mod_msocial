@@ -17,8 +17,7 @@
 $string['pluginname'] = 'Conector para Twitter';
 
 $string['hashtag'] = 'Expresión de búsqueda (Hashtags) para buscar tweets';
-$string['hashtag_help'] = 'Puede ser una lista de tags combinados con AND y OR. OR tiene precedencia por la izquierda. ' . 
-                        'Se pueden utilizar AND y OR. OR tiene precedencia hacia la izquierda. ' . 
+$string['hashtag_help'] = 'Puede ser una lista de tags combinados con AND y OR. La combinación con OR tiene precedencia hacia la izquierda. ' . 
                         'Por ejemplo: "#uva AND #msocial OR #m_social" incluiría mensajes con los tags "#uva #m_social", "#uva #msocial" pero no "#msocial" ni "#m_social" ni "#uva".';
 $string['hashtag_missing'] = 'No hay una cadena de búsqueda de Hashtags. Configúrelo en la <a href="../../course/modedit.php?update={$a->cmid}&return=1">configuración de la actividad</a>.';
 $string['hashtag_reminder'] = 'Se busca en Twitter con el filtro: <a href="https://twitter.com/search?q={$a->hashtagscaped}">{$a->hashtag}</a>';
