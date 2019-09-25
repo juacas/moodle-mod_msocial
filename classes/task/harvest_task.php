@@ -38,7 +38,6 @@ class harvest_task extends \core\task\scheduled_task {
         global $USER;
         /* @var $DB \moodle_database */
         global $DB;
-        $courseid = $COURSE->id;
 
         mtrace("\n=======================\n");
         mtrace("MSocial count module. \n");
@@ -51,11 +50,12 @@ class harvest_task extends \core\task\scheduled_task {
                     $cminfo = get_coursemodule_from_instance('msocial', $msocial->id);
                     return !isset($cminfo->deletioninprogress) || !$cminfo->deletioninprogress;
                 });
-        mtrace("\n<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances. \n");
-        mtrace("==========================================================================\n");
+        mtrace("\n<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances.</li>");
+        mtrace("\n==========================================================================");
         foreach ($msocials as $msocial) {
+            mtrace("\n<li>Course $msocial->course  Msocial instance: '$msocial->name'<li>");
             $course = get_course($msocial->course);
-            mtrace("\n<li> Course: $course->id '$course->shortname'  Msocial instance: '$msocial->name'</li>\n");
+            mtrace("\n\n<li> Course: '$course->shortname' </li>");
             $controller = new harvest_controller($msocial);
             $controller->execute_harvests();
             continue;
@@ -76,7 +76,7 @@ class harvest_task extends \core\task\scheduled_task {
                 }
             }
         }
-        mtrace("=======================\n");
+        mtrace("\n=======================\n");
         return true;
     }
 }
