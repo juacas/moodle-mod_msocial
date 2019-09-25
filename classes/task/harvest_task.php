@@ -53,9 +53,9 @@ class harvest_task extends \core\task\scheduled_task {
         mtrace("\n<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances.</li>");
         mtrace("\n==========================================================================");
         foreach ($msocials as $msocial) {
-            mtrace("\n<li>Course $msocial->course  Msocial instance: '$msocial->name'<li>");
+            mtrace("\n\n<li>Course $msocial->course  Msocial instance: '$msocial->name'<li>");
             $course = get_course($msocial->course);
-            mtrace("\n\n<li> Course: '$course->shortname' </li>");
+            mtrace("\n<li> Course: '$course->shortname' </li>");
             $controller = new harvest_controller($msocial);
             $controller->execute_harvests();
             continue;
