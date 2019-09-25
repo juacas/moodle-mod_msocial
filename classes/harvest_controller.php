@@ -69,7 +69,7 @@ class harvest_controller
         /** @var msocial_plugin $plugin */
         foreach ($enabledplugins as $type => $plugin) {
             try {
-                echo "\nProcessing plugin: $type");
+                echo ("\nProcessing plugin: $type");
 
                 if ($plugin->is_tracking()) {
                     $result = $plugin->harvest();
@@ -111,10 +111,12 @@ class harvest_controller
      */
     protected function post_harvest($result, $plugin) {
         // TODO: define if processsing is needed or not.
-
+	if (! isset($result->kpis)) {
+		$result->kpis = [];
+	}
         $contextcourse = \context_course::instance($this->msocial->course);
         $usersstruct = msocial_get_users_by_type($contextcourse);
-        $result->kpis = $plugin->calculate_kpis($usersstruct, $result->kpis ? $result->kpis : [] );
+        $result->kpis = $plugin->calculate_kpis($usersstruct, $result->kpis);
 
         // Message for user: summary.
         $processedinteractions = isset($result->interactions) ? $result->interactions : [];

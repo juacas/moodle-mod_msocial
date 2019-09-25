@@ -61,7 +61,7 @@ class harvest_task extends \core\task\scheduled_task {
                 $controller->execute_harvests();
 
             } catch (\Exception $ex) {
-                    mtrace( "\n" . $ex->getTraceAsString() . "\n" );
+                    mtrace( "\nERRORRRR" . $ex->getTraceAsString() . "\n" );
             }
             continue;
 // TODO: call Harvest proxy

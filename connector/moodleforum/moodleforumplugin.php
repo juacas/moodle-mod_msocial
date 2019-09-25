@@ -123,7 +123,7 @@ class msocial_connector_moodleforum extends msocial_connector_moodleactivity {
             $postinteraction->nativeto = $posts[$post->parent]->userid;
             $postinteraction->nativefromname = msocial_get_visible_fullname($users[$postinteraction->nativeto], $this->msocial);
             $postinteraction->toid = $posts[$post->parent]->userid;
-            $postinteraction->parentinteraction = $post[$post->parent]->id;
+            $postinteraction->parentinteraction = $posts[$post->parent]->id;
         }
         $message = $post->subject;
         $postinteraction->description = $message == '' ? 'No text.' : $message;

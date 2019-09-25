@@ -450,10 +450,17 @@ class twitter_local_harvester implements msocial_harvestplugin
         foreach ($interactions as $interaction) {
             if ($interaction->type == social_interaction::POST) {
                 $status = json_decode($interaction->rawdata);
-                if ($status->favorited == false) {
-                    continue;
-                }
-                mtrace("<li>Getting favs for " . $this->plugin->get_interaction_url($interaction));
+		if (isset($status->favorite_count) && $status->favorite_count == 0 ) {
+			continue;
+		}
+		if (isset($status->favorited) && $status->favorited == false ) {
+			continue;
+		}
+		if (!isset($status->favorited) && !isset($status->favorite_count)) {
+			continue;
+		}
+
+		mtrace("\n<li>Getting favs for " . $this->plugin->get_interaction_url($interaction));
                 $popupcode = $this->browse_twitter('https://twitter.com/i/activity/favorited_popup?id=' . $interaction->uid);
                 $json = json_decode($popupcode);
                 if (isset($json->htmlUsers)) {
@@ -504,10 +511,16 @@ class twitter_local_harvester implements msocial_harvestplugin
         foreach ($interactions as $interaction) {
             if ($interaction->type == social_interaction::POST) {
                 $status = json_decode($interaction->rawdata);
-                if ($status->retweeted == false) {
-                    continue;
-                }
-                mtrace("<li>Getting retweets for " . $this->plugin->get_interaction_url($interaction));
+		if (isset($status->retweet_count) && $status->retweet_count == 0 ) {
+			continue;
+		}
+		if (isset($status->retweeted) && $status->retweeted == false ) {
+			continue;
+		}
+		if (!isset($status->retweeted) && !isset($status->retweet_count)) {
+			continue;		
+		}
+                mtrace("\n<li>Getting retweets for " . $this->plugin->get_interaction_url($interaction));
                 $popupcode = $this->browse_twitter('https://twitter.com/i/activity/retweeted_popup?id=' . $interaction->uid);
                 $json = json_decode($popupcode);
                 if (isset($json->htmlUsers)) {
@@ -521,7 +534,7 @@ class twitter_local_harvester implements msocial_harvestplugin
                 if ($count == 0) {
                     continue;
                 }
-                mtrace("<li>Tweet " . $this->plugin->get_interaction_url($interaction) . " has $count retweets.");
+                mtrace("\n<li>Tweet " . $this->plugin->get_interaction_url($interaction) . " has $count retweets.");
                 for ($i = 0; $i < $count; $i++) {
                     // Create a new Retweet interaction.
                     $retweetinteraction = new social_interaction();
