@@ -53,11 +53,16 @@ class harvest_task extends \core\task\scheduled_task {
         mtrace("\n<li>Processing plugins:" . implode(', ', array_keys($enabledplugins)) . ' in ' . count($msocials) . " instances.</li>");
         mtrace("\n==========================================================================");
         foreach ($msocials as $msocial) {
-            mtrace("\n\n<li>Course $msocial->course  Msocial instance: '$msocial->name'<li>");
-            $course = get_course($msocial->course);
-            mtrace("\n<li> Course: '$course->shortname' </li>");
-            $controller = new harvest_controller($msocial);
-            $controller->execute_harvests();
+            try {
+                mtrace("\n\n<li>Course $msocial->course  Msocial instance: '$msocial->name'<li>");
+                $course = get_course($msocial->course);
+                mtrace("\n<li> Course: '$course->shortname' </li>");
+                $controller = new harvest_controller($msocial);
+                $controller->execute_harvests();
+
+            } catch (\Exception $ex) {
+                    mtrace( "\n" . $ex->getTraceAsString() . "\n" );
+            }
             continue;
 // TODO: call Harvest proxy
             foreach (\mod_msocial\plugininfo\msocialconnector::get_enabled_plugins_all_types($msocial) as $type => $plugin) {
