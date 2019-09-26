@@ -69,7 +69,7 @@ class harvest_controller
         /** @var msocial_plugin $plugin */
         foreach ($enabledplugins as $type => $plugin) {
             try {
-                echo ("\nProcessing plugin: $type");
+                echo "\nProcessing plugin: $type";
 
                 if ($plugin->is_tracking()) {
                     $result = $plugin->harvest();

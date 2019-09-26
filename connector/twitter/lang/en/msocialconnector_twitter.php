@@ -21,7 +21,7 @@ $string['hashtag_help'] = 'It can be a list of tags with AND and OR. OR takes pr
                         'I.e: "#uva AND #msocial OR #m_social" matches messages with the tags "#uva #m_social", "#uva #msocial" but not "#msocial", "#m_social", "#uva".';
 
 $string['hashtag_missing'] = 'Hashtag to search for in tweets in missing. Configure it in the activity <a href="../../course/modedit.php?update={$a->cmid}&return=1">settings</a>.';
-$string['hashtag_reminder'] = 'Twitter is searched by search string: <a href="https://twitter.com/search?q={$a->hashtagscaped}">{$a->hashtag}</a>.';
+$string['hashtag_reminder'] = 'Twitter is searched by search string: <a target="blank" href="https://twitter.com/search?q={$a->hashtagscaped}">{$a->hashtag}</a>.';
 
 $string['widget_id'] = 'Widget id to be embedded in the main page.';
 $string['widget_id_help'] = 'Tweeter API forces to create mannually a search widget in yout twitter account to be embedded in any page. Create one and copy and paste the WidgetId created. You can create the widgets at <a href="https://twitter.com/settings/widgets">Create and manage your Twitter Widgets</a>';
