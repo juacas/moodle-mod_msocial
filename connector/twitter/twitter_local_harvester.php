@@ -74,10 +74,10 @@ class twitter_local_harvester implements msocial_harvestplugin
     protected function do_harvest($msocial, $usersstruct) {
         $resultusers = $this->harvest_users($this->connectiontoken, $this->hashtag, $usersstruct);
         $resulttags = $this->harvest_hashtags($this->connectiontoken, $this->hashtag, $usersstruct);
-        $interactions = $this->merge_interactions($resultusers->interactions, $resulttags->interactions);
+        $totalinteractions = $this->merge_interactions($resultusers->interactions, $resulttags->interactions);
 
-        // Store Interactions and reload full collection.
-        social_interaction::store_interactions($interactions, $msocial->id);
+        // Store Interactions and reload full collection using a Filter.
+        social_interaction::store_interactions($totalinteractions, $msocial->id);
         $filter = new filter_interactions([
                                     filter_interactions::PARAM_SOURCES => $this->plugin->get_subtype(),
                                     ], $msocial);
@@ -95,6 +95,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         }
         $result = new \stdClass();
         $result->interactions = $interactions;
+        $result->totalinteractions = $totalinteractions;
         $result->statuses = array_merge($resultusers->statuses, $resulttags->statuses);
         $result->errors = array_merge($resultusers->errors, $resulttags->errors);
         $result->messages = array_merge($resultusers->messages, $resulttags->messages);
@@ -365,7 +366,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         } // Iterate tweets (statuses)...
         return $studentsstatuses;
     }
-    /** TODO : save records in bunches.
+    /** TODO : save raw records in bunches.
      *
      * @deprecated
      *
@@ -518,7 +519,7 @@ class twitter_local_harvester implements msocial_harvestplugin
 			continue;
 		}
 		if (!isset($status->retweeted) && !isset($status->retweet_count)) {
-			continue;		
+			continue;
 		}
                 mtrace("\n<li>Getting retweets for " . $this->plugin->get_interaction_url($interaction));
                 $popupcode = $this->browse_twitter('https://twitter.com/i/activity/retweeted_popup?id=' . $interaction->uid);
@@ -614,7 +615,7 @@ class twitter_local_harvester implements msocial_harvestplugin
         global $DB;
 
         $result = $this->get_statuses($token, $hashtag);
-	$result->interactions = [];
+	    $result->interactions = [];
 
         if (isset($result->errors)) {
             if ($token) {
@@ -762,4 +763,3 @@ class twitter_local_harvester implements msocial_harvestplugin
         }
     }
 }
-

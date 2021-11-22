@@ -119,7 +119,10 @@ class harvest_controller
         $result->kpis = $plugin->calculate_kpis($usersstruct, $result->kpis);
 
         // Message for user: summary.
+        // Filtered interactions.
         $processedinteractions = isset($result->interactions) ? $result->interactions : [];
+        // Obtained interactions (many senders may be unknown).
+        $totalinteractions = isset($result->totalinteractions) ? $result->totalinteractions : [];
         $studentinteractions = array_filter($processedinteractions,
             function (social_interaction $interaction) {
                 return isset($interaction->fromid) &&
@@ -135,7 +138,7 @@ class harvest_controller
         $subtype = $plugin->get_subtype();
         $logmessage = "For module msocial\\connector\\$subtype: \"" . $this->msocial->name .
         "\" (id=" . $this->msocial->id . ") in course (id=" .
-        $plugin->msocial->course . ")  Found " . count($processedinteractions) .
+        $plugin->msocial->course . ")  Found " . count($totalinteractions) .
         " events. In time period: " . count($intimeinteractions) . ". Students' events: " . count($studentinteractions);
         $result->messages[] = $logmessage;
 
@@ -151,4 +154,3 @@ class harvest_controller
         $this->notify([$msg], self::NOTIFY_WARNING);
     }
 }
-
