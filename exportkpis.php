@@ -71,7 +71,7 @@ if (!empty($format) && !empty($type) ) {
     if ($type == 'kpis') {
         $hiddencolumns = ['id', 'msocial'];
         $anonymouscolumns = ['userid', 'firstname', 'lastname'];
-        $data = msocial_plugin::get_kpis($msocial, $students, null);
+        $data = msocial_plugin::get_kpis($msocial, null, null);
     } else if ($type == 'interactions') {
         $hiddencolumns = ['id', 'msocial', 'status'];
         $anonymouscolumns = ['fromid', 'toid'];
