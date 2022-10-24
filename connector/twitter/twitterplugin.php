@@ -287,7 +287,7 @@ class msocial_connector_twitter extends msocial_connector_plugin {
         // Clear tweets log.
         $DB->delete_records('msocial_tweets', ['msocial' => $msocial->id]);
         return array('component'=>$this->get_name(), 'item'=>get_string('resetdone', 'msocial',
-                "MSOCIAL $msocial->id: map of users, tweets"), 'error'=>false);
+                "\"{$msocial->name}\": map of users, tweets"), 'error'=>false);
     }
     /**
      * 

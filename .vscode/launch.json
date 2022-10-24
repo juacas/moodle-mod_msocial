@@ -9,10 +9,10 @@
             "type": "php",
             "request": "launch",
             "port": 9000,
-            "pathMappings": {
-                "/var/www/html/mod/msocial": "${workspaceFolder:moodle-mod_msocial}",
-                "/var/www/html": "C:\\desarrollo\\servers\\apache\\moodle3\\moodle3lib",
-            }
+            // "pathMappings": {
+            //     "/var/www/html/mod/msocial": "${workspaceFolder:msocial}",
+            //     "/var/www/html": "C:\\desarrollo\\servers\\apache\\moodle3\\moodle3lib",
+            // }
         }
     ]
 }

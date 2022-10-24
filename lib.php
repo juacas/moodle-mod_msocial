@@ -105,6 +105,7 @@ function msocial_add_instance($msocial) {
     // Try to store it in the database.
     $msocial->id = $DB->insert_record('msocial', $msocial);
     msocial_grade_item_update($msocial);
+    msocial_update_events($msocial);
     // Call save_settings hook for submission plugins.
     /** @var msocial_plugin $plugin */
     foreach (mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins($msocial) as $type => $plugin) {
@@ -128,7 +129,7 @@ function msocial_update_instance($msocial) {
     $msocial->timemodified = time();
     $msocial->id = $msocial->instance;
     msocial_grade_item_update($msocial);
-
+    msocial_update_events($msocial);
     // Call save_settings hook for subplugins.
     $systemenabledplugins = mod_msocial\plugininfo\msocialbase::get_system_enabled_plugins($msocial);
     foreach ($systemenabledplugins as $type => $plugin) {
@@ -174,6 +175,7 @@ function msocial_delete_instance($id) {
         $result = false;
     }
     msocial_grade_item_update($msocial);
+    msocial_update_events($msocial);
     return $result;
 }
 
@@ -208,33 +210,22 @@ function msocial_reset_userdata($data) {
     
     $componentstr = get_string('modulenameplural', 'msocial');
     $status = array();
-    $allmsocialssql = "SELECT msocial.id
-                            FROM {msocial} msocial
-                      WHERE msocial.course=?";
-    $params[] = $data->courseid;
-    // Delete KPIs.
-    $DB->delete_records_select('msocial_kpis', "msocial in ($allmsocialssql)",$params);
-    // Delete interactions.
-    $DB->delete_records_select('msocial_interactions', "msocial in ($allmsocialssql)", $params);
-   
-    // Iterate the subplugins.
-    $course = get_course($data->courseid);
-    $msocials = get_all_instances_in_course('msocial', $course);
-    foreach ($msocials as $msocial) {
-        $plugins = mod_msocial\plugininfo\msocialbase::get_installed_plugins($msocial);
-        foreach ($plugins as $plugin) {
-            $pluginstatus = $plugin->reset_userdata($data);
-            if ($pluginstatus) {
-                $status[] = $pluginstatus;
-            }
+
+    if (!empty($data->reset_msocial_kpis)) {
+        $allmsocialssql = "SELECT msocial.id
+                                FROM {msocial} msocial
+                        WHERE msocial.course=?";
+        $params[] = $data->courseid;
+        // Delete KPIs.
+        $DB->delete_records_select('msocial_kpis', "msocial in ($allmsocialssql)",$params);
+        // Delete interactions.
+        $DB->delete_records_select('msocial_interactions', "msocial in ($allmsocialssql)", $params);
+        $status[] = array(
+            'component' => $componentstr,
+            'item' => get_string('instancesreset', 'msocial'),
+            'error' => false);
+
         }
-    }
-    
-    $status[] = array(
-                    'component' => $componentstr,
-                    'item' => get_string('instancesreset', 'msocial'),
-                    'error' => false);
-        
     // Remove all grades from gradebook.
     if (!empty($data->reset_gradebook_grades)) {
         msocial_reset_gradebook($data->courseid);
@@ -243,18 +234,34 @@ function msocial_reset_userdata($data) {
                         'item' => get_string('gradesdeleted', 'msocial'),
                         'error' => false);
     }
-
+    if (!empty($data->reset_msocial_subplugins)) {
+        // Iterate the subplugins.
+        $course = get_course($data->courseid);
+        $msocials = get_all_instances_in_course('msocial', $course);
+        foreach ($msocials as $msocial) {
+            $plugins = mod_msocial\plugininfo\msocialbase::get_installed_plugins($msocial);
+            foreach ($plugins as $plugin) {
+                $pluginstatus = $plugin->reset_userdata($data);
+                if ($pluginstatus) {
+                    $status[] = $pluginstatus;
+                }
+            }
+        }
+    }
     // Updating dates - shift may be negative too.
     if ($data->timeshift) {
-        shift_course_mod_dates('msocial', array('startdate', 'enddate'), $data->timeshift, $data->courseid);
-        
+        shift_course_mod_dates('msocial', array('startdate', 'enddate'), $data->timeshift, $data->courseid);   
         $status[] = array(
                         'component' => $componentstr,
                         'item' => get_string('datechanged'),
                         'error' => false);
     }
-    
     return $status; 
+}
+function msocial_reset_course_form_definition(&$mform) {
+    $mform->addElement('header', 'msocialheader', get_string('modulenameplural', 'msocial'));
+    $mform->addElement('advcheckbox', 'reset_msocial_kpis', get_string('deleteallkpis', 'msocial'));
+    $mform->addElement('advcheckbox', 'reset_msocial_subplugins', get_string('deleteallsubplugins', 'msocial'));    
 }
 /** Return a small object with summary information about what a
  * user has done with a given particular instance of this module
@@ -435,7 +442,69 @@ function msocial_update_grades($msocial, $userid = 0, $nullifnone = true) {
         msocial_grade_item_update($msocial);
     }
 }
+/**
+ * This function updates the events associated to the msocial.
+ *
+ * @param object $msocial the msocial record from mdl_msocial.
+ */
+function msocial_update_events($msocial) {
+    global $DB;
 
+    // Load old events relating to this treasure hunt.
+    $conds = array('modulename' => 'msocial',
+        'instance' => $msocial->id);
+
+    $oldevents = $DB->get_records('event', $conds);
+
+    if (!empty($msocial->coursemodule)) {
+        $cmid = $msocial->coursemodule;
+    } else {
+        $cmid = get_coursemodule_from_instance('msocial', $msocial->id, $msocial->course)->id;
+    }
+
+    $event = new stdClass();
+    $event->description = format_module_intro('msocial', $msocial, $cmid);
+
+    $event->courseid = $msocial->course;
+    $event->groupid = 0;
+    $event->userid = 0;
+    $event->modulename = 'msocial';
+    $event->instance = $msocial->id;
+    $event->timeduration = 0;
+    $event->visible = instance_is_visible('msocial', $msocial);
+    $event->type = CALENDAR_EVENT_TYPE_ACTION;
+
+    // Separate start and end events.
+    if ($msocial->startdate) {
+        if ($oldevent = array_shift($oldevents)) {
+            $event->id = $oldevent->id;
+        } else {
+            unset($event->id);
+        }
+        $event->name = $msocial->name . ' (' . get_string('startdate', 'msocial') . ')';
+        $event->timestart = $msocial->startdate;
+        $event->eventtype = 'open';
+        // The method calendar_event::create will reuse a db record if the id field is set.
+        calendar_event::create($event);
+    }
+    if ($msocial->enddate) {
+        if ($oldevent = array_shift($oldevents)) {
+            $event->id = $oldevent->id;
+        } else {
+            unset($event->id);
+        }
+        $event->name = $msocial->name . ' (' . get_string('enddate', 'msocial') . ')';
+        $event->timestart = $msocial->enddate;
+        $event->eventtype = 'close';
+        calendar_event::create($event);
+    }
+
+    // Delete any leftover events.
+    foreach ($oldevents as $badevent) {
+        $badevent = calendar_event::load($badevent);
+        $badevent->delete();
+    }
+}
 
 /**
  * Callback which returns human-readable strings describing the active completion custom rules for the module instance.

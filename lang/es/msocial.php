@@ -44,10 +44,11 @@ $string['modulename_help'] = 'La actividad MSocial permite a los profesores defi
 'El profesor necesita tener una cuenta de cada red social que va a usar y conectar la actividad con su usuario de esa red social.';
 $string['pluginname'] = 'Actividad en redes sociales';
 $string['harvestedtimeago'] = 'Refrescado hace {$a->interval}';
-$string['startdate'] = 'Momento en que se empiezan a contar las interacciones.';
+$string['startdate'] = 'Comienzo de seguimiento MSocial.';
 $string['startdate_help'] = 'Las interacciones previas a la fecha de inicio no se incluirán en las estadísticas.';
-$string['enddate'] = 'Momento en que se dejarán de contar las interacciones en las redes sociales.';
+$string['enddate'] = 'Final de seguimiento MSocial.';
 $string['enddate_help'] = 'Las interacciones posteriores a la fecha de inicio no se incluirán en las estadísticas.';
+$string['enddate_error'] = 'La fecha de final de monitoriazación debe ser posterior a la de inicio de monitorización.';
 $string['msocial:daterange'] = 'Rastreo de actividad desde {$a->startdate} hasta {$a->enddate}';
 $string['grade_expr'] = 'Formula para convertir las estadísticas en calificaciones.';
 $string['grade_expr_help'] = 'La fórmula puede contener diversas variables que se calculan para cada usuario y una variedad de funciones como max, min, sum, average, etc. El punto decimal es \'.\' y el separador de variables es \',\' Ejemplo: \'=max(favs,retweets,1.15)\' Las variables cuyo nombre empieza por max contienen los valores máximos alcanzados entre todos los usuarios del concurso.';

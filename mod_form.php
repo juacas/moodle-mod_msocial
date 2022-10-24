@@ -130,7 +130,7 @@ class mod_msocial_mod_form extends moodleform_mod {
         }
         if ($data['startdate'] && $data['enddate']) {
             if ($data['startdate'] > $data['enddate']) {
-                $errors['enddate'] = get_string('enddatevalidation', 'msocial');
+                $errors['enddate'] = get_string('enddate_error', 'msocial');
             }
         }
 

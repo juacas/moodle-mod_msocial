@@ -392,7 +392,7 @@ class msocial_connector_facebook extends msocial_connector_plugin {
         $msocial = $this->msocial;
         $DB->delete_records('msocial_mapusers',['msocial' => $msocial->id, 'type' => $this->get_subtype()]);
         return array('component'=>$this->get_name(), 'item'=>get_string('resetdone', 'msocial', 
-                "MSOCIAL $msocial->id: map of users"), 'error'=>false);
+                "\"{$msocial->name}\": map of users"), 'error'=>false);
     }
     /**
      * 
