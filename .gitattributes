@@ -1,0 +1,6 @@
+connector/facebook export-ignore
+connector/twitter export-ignore
+connector/instagram export-ignore
+connector/pinterest export-ignore
+connector/questournament export-ignore
+view/timeglider export-ignore
