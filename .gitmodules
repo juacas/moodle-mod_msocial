@@ -1,9 +1,9 @@
 [submodule "connector/instagram"]
 	path = connector/instagram
-	url = https://juanpdecastro@bitbucket.org/eduvalab/moodle-mod_msocialconnector_instagram.git
+	url = https://github.com/juacas/moodle-mod_msocialconnector_instagram
 [submodule "connector/pinterest"]
 	path = connector/pinterest
-	url = https://juanpdecastro@bitbucket.org/eduvalab/moodle-mod_msocialconnector_pinterest.git
+	url = https://github.com/juacas/moodle-mod_msocialconnector_pinterest
 [submodule "view/timeglider"]
 	path = view/timeglider
-	url = https://juanpdecastro@bitbucket.org/eduvalab/moodle-mod_msocialview_timeglider.git
+	url = https://github.com/juacas/moodle-mod_msocialview_timeglider.git
