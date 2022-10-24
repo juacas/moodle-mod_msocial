@@ -1,0 +1,6 @@
+{
+    "plugintypes": {
+        "msocialconnector" : "mod/msocial/connector",
+        "msocialview" : "mod/msocial/view"
+    }
+}
