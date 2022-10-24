@@ -13,3 +13,6 @@
 [submodule "connector/twitter"]
 	path = connector/twitter
 	url = https://github.com/juacas/moodle-mod_msocialconnector_twitter
+[submodule "connector/questournament"]
+	path = connector/questournament
+	url = https://github.com/juacas/moodle-mod_msocialconnector_questournament
