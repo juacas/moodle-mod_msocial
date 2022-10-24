@@ -10,3 +10,6 @@
 [submodule "connector/facebook"]
 	path = connector/facebook
 	url = https://github.com/juacas/moodle-mod_msocialconnector_facebook
+[submodule "connector/twitter"]
+	path = connector/twitter
+	url = https://github.com/juacas/moodle-mod_msocialconnector_twitter
