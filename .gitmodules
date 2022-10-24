@@ -7,3 +7,6 @@
 [submodule "view/timeglider"]
 	path = view/timeglider
 	url = https://github.com/juacas/moodle-mod_msocialview_timeglider.git
+[submodule "connector/facebook"]
+	path = connector/facebook
+	url = https://github.com/juacas/moodle-mod_msocialconnector_facebook
