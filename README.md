@@ -7,7 +7,6 @@ MSocial need plugins for connecting to social networks and for generating visual
 ## Built-in subplugins
 * Social network connectors:
   * Moodle Forums: collect the interactions of the users in the forums of the course.
-  * Questournament: connect to the contest-based game [Questournament|https://github.com/juacas/moodle-mod_quest] activity.
 * Visualizations:
   * Drops: overview of interactions density over time.
   * Table: summary table with PKI (primary key indicator) calculated by the module.
@@ -20,16 +19,16 @@ MSocial need plugins for connecting to social networks and for generating visual
 
 ## Optional plugins
 
-Some of the optional sub-plugins are:
+Some of the optional sub-plugins that can be found in [Msocial at Github](https://github.com/search?q=user%3Ajuacas+msocial) are:
 * Social network connectors:
+  * Questournament: connect to the contest-based game [Questournament](https://github.com/juacas/moodle-mod_quest) activity.
   * Twitter: connect to users' timelines and search for tags. (Need Facebook's API keys).
   * Pinterest: connect to a set of pinboards. (Need Pinterest's API keys).
-  * Facebook: connect to Facebook and explore a group. Currently outdated by Facebook's API changes and data access restrictions. Not very useful now. (Need API key)
-  * Instagram: connect to users' posts and search for tags.  Currently outdated by Facebook's API changes and data access restrictions. Not very useful now.  (Need Instagram's API keys).
+  * Facebook: connect to Facebook and explore a group. *Currently outdated by Facebook's API changes and data access restrictions. Not very useful now.* 😭 (Need API key)
+  * Instagram: connect to users' posts and search for tags.  *Currently outdated by Facebook's API changes and data access restrictions. Not very useful now.* 😭  (Need Instagram's API keys).
 * Visualizations:
-  * Timeglide: Shows interaction ordered in a timeline using Timeglide visualization. ([https://github.com/juacas/moodle-mod_msocialview_timeglider])
+  * Timeglide: Shows interaction ordered in a timeline using Timeglide visualization.
 
-Optional subplugins can be found in github at [https://github.com/search?q=user%3Ajuacas+msocial]
 
 # Overview
 
