@@ -13,18 +13,23 @@ MSocial need plugins for connecting to social networks and for generating visual
   * Table: summary table with PKI (primary key indicator) calculated by the module.
   * Graph: graph-oriented analysis and visuallizations. Compute centralities and shows the activity in matrix and graph diagrams.
   * Timeline: Shows interactions ordered in a timeline.
+  * Sequence: Sequence diagram with all interchanges of messages (more useful for small sets).
+  * Breakdown: Recursive classification of the events by social network and interaction type.
+
+
 
 ## Optional plugins
 
 Some of the optional sub-plugins are:
 * Social network connectors:
-  * Facebook: connect to Facebook and explore a group. (Need API keys).
   * Twitter: connect to users' timelines and search for tags. (Need Facebook's API keys).
-  * Instagram: connect to users' posts and search for tags. (Need Instagram's API keys).
   * Pinterest: connect to a set of pinboards. (Need Pinterest's API keys).
+  * Facebook: connect to Facebook and explore a group. Currently outdated by Facebook's API changes and data access restrictions. Not very useful now. (Need API key)
+  * Instagram: connect to users' posts and search for tags.  Currently outdated by Facebook's API changes and data access restrictions. Not very useful now.  (Need Instagram's API keys).
 * Visualizations:
-  * Sequence: Sequence diagram with all interchanges of messages (more useful for small sets).
-  * Timeglide: Shows interaction ordered in a timeline using Timeglide visualization.
+  * Timeglide: Shows interaction ordered in a timeline using Timeglide visualization. ([https://github.com/juacas/moodle-mod_msocialview_timeglider])
+
+Optional subplugins can be found in github at [https://github.com/search?q=user%3Ajuacas+msocial]
 
 # Overview
 
