@@ -175,7 +175,7 @@ function msocial_delete_instance($id) {
         $result = false;
     }
     msocial_grade_item_update($msocial);
-    msocial_update_events($msocial);
+    msocial_delete_events($msocial);
     return $result;
 }
 
@@ -442,13 +442,27 @@ function msocial_update_grades($msocial, $userid = 0, $nullifnone = true) {
         msocial_grade_item_update($msocial);
     }
 }
+function msocial_delete_events($msocial) {
+    global $DB;
+    // Load old events relating to this treasure hunt.
+    $conds = array('modulename' => 'msocial',
+    'instance' => $msocial->id);
+
+    $oldevents = $DB->get_records('event', $conds);
+    // Delete any leftover events.
+    foreach ($oldevents as $badevent) {
+        $badevent = calendar_event::load($badevent);
+        $badevent->delete();
+    }
+}
 /**
  * This function updates the events associated to the msocial.
  *
  * @param object $msocial the msocial record from mdl_msocial.
  */
 function msocial_update_events($msocial) {
-    global $DB;
+    global $DB, $CFG;
+    require_once($CFG->dirroot . '/calendar/lib.php');
 
     // Load old events relating to this treasure hunt.
     $conds = array('modulename' => 'msocial',
@@ -461,7 +475,6 @@ function msocial_update_events($msocial) {
     } else {
         $cmid = get_coursemodule_from_instance('msocial', $msocial->id, $msocial->course)->id;
     }
-
     $event = new stdClass();
     $event->description = format_module_intro('msocial', $msocial, $cmid);
 
@@ -485,7 +498,7 @@ function msocial_update_events($msocial) {
         $event->timestart = $msocial->startdate;
         $event->eventtype = 'open';
         // The method calendar_event::create will reuse a db record if the id field is set.
-        calendar_event::create($event);
+        \calendar_event::create($event);
     }
     if ($msocial->enddate) {
         if ($oldevent = array_shift($oldevents)) {

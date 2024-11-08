@@ -22,9 +22,11 @@
  * @package msocial
  * *******************************************************************************
  */
+
 use mod_msocial\plugininfo\msocialview;
 use mod_msocial\msocial_plugin;
 use mod_msocial\users_struct;
+use mod_social\social_interaction;
 
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 global $CFG;
@@ -274,7 +276,11 @@ function msocial_get_fullname($userid, $users, $default, $msocial) {
         return $default;
     }
 }
-function msocial_create_userlink($interaction, $dir = 'to', $userrecords, $msocial, $cm, $redirecturl, $canviewothers) {
+/**
+ * @param social_interaction $interaction interaction object.
+ * @param string $dir 'from' or 'to'
+ */
+function msocial_create_userlink($interaction, $dir, $userrecords, $msocial, $cm, $redirecturl, $canviewothers) {
     global $USER;
     $nativeid = $interaction->{"native{$dir}"};
     $userid = $interaction->{"{$dir}id"};
@@ -404,8 +410,8 @@ function msocial_tabbed_reports($msocial, $view, moodle_url $thispageurl, $conte
     global $OUTPUT;
     $plugins = msocialview::get_enabled_view_plugins($msocial);
     usort($plugins, function($a, $b){
-                            return ($a->get_sort_order() > $b->get_sort_order());
-    }
+                            return ($a->get_sort_order() - $b->get_sort_order());
+                            }
         );
     
     $rows = [];
@@ -447,7 +453,7 @@ function msocial_tabbed_reports($msocial, $view, moodle_url $thispageurl, $conte
  * @param string $func The function from the module to call
  * @param array $params The params to pass to the function. They will be json encoded, so no nasty
  *        classes/types please. */
-function msocial_js_call_subplugin_amd($fullmodule, $func, $params = array(), $req) {
+function msocial_js_call_subplugin_amd($fullmodule, $func, $req, $params = []) {
     global $CFG;
 
     list($component, $subtype, $plugin, $module) = explode('/', $fullmodule, 4);
